@@ -3,9 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
+    <title>9Yards Content House - Coming Soon</title>
+    <meta name="description" content="9 Yards - Something extraordinary is coming. Be the first to know when we launch.">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="9Yards-Food-colored-Logo.jpg">
+    <!-- Preload critical assets -->
+    <link rel="preload" href="9Yards-Food-colored-Logo.jpg" as="image">
 </head>
 <body>
+    <!-- Particle Canvas -->
+    <canvas id="particles" aria-hidden="true"></canvas>
     
+    <!-- Hero Section -->
+    <main class="hero" id="hero">
+        <div class="hero-content">
+            <!-- Logo -->
+            <div class="logo-container fade-in">
+                <img src="9Yards-Food-colored-Logo.jpg" alt="9 Yards Content House Logo" class="logo" width="80" height="80">
+            </div>
+            
+            <!-- Main Heading -->
+            <h1 class="main-title fade-in delay-1"> Real Local Flavor</h1>
+            
+            <!-- Subtitle -->
+            <p class="subtitle fade-in delay-2">Your favorite local dishes are just around the corner. Get ready to feast.</p>
+            
+            <!-- Countdown Timer -->
+            <div class="countdown-container fade-in delay-3">
+                <div class="countdown-item">
+                    <div class="countdown-card">
+                        <span class="countdown-number" id="days">00</span>
+                    </div>
+                    <span class="countdown-label">Days</span>
+                </div>
+                <span class="countdown-separator">|</span>
+                <div class="countdown-item">
+                    <div class="countdown-card">
+                        <span class="countdown-number" id="hours">00</span>
+                    </div>
+                    <span class="countdown-label">Hours</span>
+                </div>
+                <span class="countdown-separator">|</span>
+                <div class="countdown-item">
+                    <div class="countdown-card">
+                        <span class="countdown-number" id="minutes">00</span>
+                    </div>
+                    <span class="countdown-label">Minutes</span>
+                </div>
+                <span class="countdown-separator">|</span>
+                <div class="countdown-item">
+                    <div class="countdown-card">
+                        <span class="countdown-number" id="seconds">00</span>
+                    </div>
+                    <span class="countdown-label">Seconds</span>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- Footer -->
+        <footer class="footer fade-in delay-4">
+            <p>&copy; 2025 9Yards. All rights reserved.</p>
+        </footer>
+    </main>
+
+    <script src="script.js"></script>
 </body>
 </html>
