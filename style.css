@@ -118,25 +118,19 @@ body {
 .logo {
     width: 80px;
     height: auto;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
     box-shadow: 0 8px 30px rgba(230, 65, 28, 0.4);
     object-fit: contain;
-    border: 2px solid rgba(230, 65, 28, 0.3);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.logo:hover {
-    transform: scale(1.05);
-    box-shadow: 0 12px 40px rgba(230, 65, 28, 0.6);
+    border: 3px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Typography */
 .main-title {
     font-size: 2.5rem;
     font-weight: 800;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    background: linear-gradient(135deg, var(--white) 0%, rgba(255, 200, 180, 0.95) 100%);
+    background: linear-gradient(135deg, var(--white) 0%, rgba(255, 220, 200, 1) 50%, var(--white) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -144,13 +138,13 @@ body {
     line-height: 1.1;
     text-align: center;
     width: 100%;
-    text-shadow: 0 0 40px rgba(230, 65, 28, 0.3);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .subtitle {
     font-size: 1rem;
     font-weight: 400;
-    color: rgba(255, 220, 210, 0.8);
+    color: rgba(255, 220, 210, 0.85);
     letter-spacing: 0.03em;
     margin: 0;
     text-align: center;
@@ -190,13 +184,6 @@ body {
     box-shadow: 0 8px 32px rgba(230, 65, 28, 0.15);
     position: relative;
     overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-}
-
-.countdown-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 40px rgba(230, 65, 28, 0.25);
-    border-color: rgba(230, 65, 28, 0.4);
 }
 
 .countdown-separator {
@@ -552,17 +539,6 @@ body {
     :root {
         --gradient-start: #140804;
         --gradient-end: #2d0f08;
-    }
-}
-
-/* Touch Devices */
-@media (hover: none) {
-    .countdown-card:hover {
-        transform: none;
-    }
-    
-    .logo:hover {
-        transform: none;
     }
 }
 

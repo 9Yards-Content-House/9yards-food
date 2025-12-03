@@ -274,12 +274,12 @@ if (!('scrollBehavior' in document.documentElement.style)) {
 // =====================================================
 
 console.log(
-    '%c9 YARDS',
-    'font-size: 48px; font-weight: bold; color: #212282; text-shadow: 2px 2px 0 #E6411C;'
+    '%c9 YARDS FOOD',
+    'font-size: 48px; font-weight: bold; color: #E6411C; text-shadow: 2px 2px 0 #212282;'
 );
 console.log(
-    '%cSomething extraordinary is coming...',
-    'font-size: 16px; color: #666;'
+    '%cReal Local Flavor - Coming Soon...',
+    'font-size: 16px; color: #E6411C;'
 );
 console.log(
     '%cInterested in working with us? Contact: hello@9yards.com',
