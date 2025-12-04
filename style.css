@@ -116,12 +116,10 @@ body {
 }
 
 .logo {
-    width: 80px;
+    width: 100px;
     height: auto;
     border-radius: var(--radius-md);
-    box-shadow: 0 8px 30px rgba(230, 65, 28, 0.4);
     object-fit: contain;
-    border: 3px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Typography */
@@ -310,7 +308,7 @@ body {
     }
     
     .logo {
-        width: 60px;
+        width: 80px;
     }
     
     .main-title {
@@ -352,7 +350,7 @@ body {
     }
     
     .logo {
-        width: 70px;
+        width: 100px;
     }
     
     .main-title {
@@ -398,7 +396,7 @@ body {
     }
     
     .logo {
-        width: 90px;
+        width: 120px;
     }
     
     .main-title {
@@ -441,7 +439,7 @@ body {
     }
     
     .logo {
-        width: 100px;
+        width: 140px;
     }
     
     .main-title {
@@ -485,7 +483,7 @@ body {
     }
     
     .logo {
-        width: 110px;
+        width: 160px;
     }
     
     .main-title {
@@ -553,7 +551,7 @@ body {
     }
     
     .logo {
-        width: 50px;
+        width: 60px;
     }
     
     .countdown-container {
