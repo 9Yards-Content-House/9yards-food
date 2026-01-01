@@ -7,6 +7,7 @@ import HowItWorksSection from '@/components/home/HowItWorksSection';
 import PopularDishesSection from '@/components/home/PopularDishesSection';
 import WhyChooseUsSection from '@/components/home/WhyChooseUsSection';
 import DeliveryZonesPreview from '@/components/home/DeliveryZonesPreview';
+import FloatingWhatsApp from '@/components/FloatingWhatsApp';
 
 export default function Index() {
   return (
@@ -22,6 +23,7 @@ export default function Index() {
       </main>
       <Footer />
       <MobileNav />
+      <FloatingWhatsApp />
     </div>
   );
 }
