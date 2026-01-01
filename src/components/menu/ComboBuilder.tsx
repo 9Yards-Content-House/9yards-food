@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { X, Check, ChevronRight, ChevronLeft, Plus, Minus } from 'lucide-react';
 import { menuData, MainDish, Sauce, Juice, Dessert, SideDish } from '@/data/menu';
 import { formatPrice } from '@/lib/utils/order';
@@ -176,12 +175,9 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
   };
 
   return (
-    <AnimatePresence>
+    <>
       {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+        <div
           className="fixed inset-0 z-50 flex items-end md:items-center justify-center"
         >
           {/* Backdrop */}
@@ -191,11 +187,7 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
           />
 
           {/* Modal */}
-          <motion.div
-            initial={{ y: '100%', opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: '100%', opacity: 0 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+          <div
             className="relative w-full max-w-2xl max-h-[90vh] bg-card rounded-t-3xl md:rounded-3xl shadow-elevated overflow-hidden flex flex-col"
             role="dialog"
             aria-modal="true"
@@ -238,14 +230,10 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-6">
-              <AnimatePresence mode="wait">
+              <>
                 {/* Step 1: Main Dishes */}
                 {step === 1 && (
-                  <motion.div
-                    key="step1"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
+                  <div
                     className="space-y-4"
                   >
                     <p className="text-sm text-muted-foreground mb-4">
@@ -279,16 +267,12 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                         </button>
                       ))}
                     </div>
-                  </motion.div>
+                  </div>
                 )}
 
                 {/* Step 2: Sauce */}
                 {step === 2 && (
-                  <motion.div
-                    key="step2"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
+                  <div
                     className="space-y-6"
                   >
                     <p className="text-sm text-muted-foreground">
@@ -380,16 +364,12 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                         </div>
                       </div>
                     )}
-                  </motion.div>
+                  </div>
                 )}
 
                 {/* Step 3: Side Dish */}
                 {step === 3 && (
-                  <motion.div
-                    key="step3"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
+                  <div
                     className="space-y-4"
                   >
                     <div className="flex items-center gap-2 mb-4">
@@ -426,16 +406,12 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                         </button>
                       ))}
                     </div>
-                  </motion.div>
+                  </div>
                 )}
 
                 {/* Step 4: Extras */}
                 {step === 4 && (
-                  <motion.div
-                    key="step4"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
+                  <div
                     className="space-y-6"
                   >
                     <p className="text-sm text-muted-foreground">
@@ -545,9 +521,9 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                         })}
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 )}
-              </AnimatePresence>
+              </>
             </div>
 
             {/* Footer */}
@@ -592,9 +568,9 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                 )}
               </div>
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       )}
-    </AnimatePresence>
+    </>
   );
 }

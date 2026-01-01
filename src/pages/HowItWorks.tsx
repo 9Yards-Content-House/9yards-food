@@ -1,4 +1,3 @@
-import { motion, useInView } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { 
   UtensilsCrossed, ChefHat, Truck, MessageCircle, CreditCard, 
@@ -14,8 +13,26 @@ import MobileNav from '@/components/layout/MobileNav';
 function useCountUp(end: number, duration: number = 2000) {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true });
+  const [isInView, setIsInView] = useState(false);
   const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!isInView || hasAnimated.current) return;
@@ -78,9 +95,7 @@ export default function HowItWorksPage() {
         {/* Hero Section */}
         <section className="bg-primary text-primary-foreground py-16 md:py-24">
           <div className="container-custom px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+            <div
               className="max-w-4xl mx-auto text-center"
             >
               {/* Breadcrumb */}
@@ -103,10 +118,7 @@ export default function HowItWorksPage() {
               </p>
 
               {/* Trust Indicators */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+              <div
                 className="flex flex-wrap items-center justify-center gap-6 text-sm"
               >
                 <div className="flex items-center gap-2 bg-primary-foreground/10 backdrop-blur-sm px-4 py-2 rounded-full">
@@ -121,8 +133,8 @@ export default function HowItWorksPage() {
                   <Award className="w-5 h-5 text-secondary" />
                   <span>Celebrity Approved</span>
                 </div>
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -131,10 +143,7 @@ export default function HowItWorksPage() {
           <div className="container-custom px-4">
             <div className="grid md:grid-cols-2 gap-12 items-center">
               {/* Content */}
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+              <div
                 className="order-2 md:order-1"
               >
                 <div className="flex items-center gap-4 mb-6">
@@ -160,17 +169,13 @@ export default function HowItWorksPage() {
                     'All authentic Ugandan staples prepared fresh daily',
                     'No extra charge for variety - mix and match!',
                   ].map((feature, index) => (
-                    <motion.div
+                    <div
                       key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: index * 0.1 }}
                       className="flex items-start gap-3"
                     >
                       <Check className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
                       <span className="text-foreground/80">{feature}</span>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
 
@@ -181,13 +186,10 @@ export default function HowItWorksPage() {
                   View Our Menu
                   <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
-              </motion.div>
+              </div>
 
               {/* Image */}
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+              <div
                 className="order-1 md:order-2"
               >
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl">
@@ -204,7 +206,7 @@ export default function HowItWorksPage() {
                     </p>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             </div>
           </div>
         </section>
@@ -214,10 +216,7 @@ export default function HowItWorksPage() {
           <div className="container-custom px-4">
             <div className="grid md:grid-cols-2 gap-12 items-center">
               {/* Image */}
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+              <div
               >
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                   <img
@@ -233,13 +232,10 @@ export default function HowItWorksPage() {
                     </p>
                   </div>
                 </div>
-              </motion.div>
+              </div>
 
               {/* Content */}
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+              <div
               >
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center text-secondary-foreground text-2xl font-bold shadow-lg">
@@ -265,22 +261,18 @@ export default function HowItWorksPage() {
                     { text: 'Pick a FREE side dish (Greens, Beans, Cabbage, etc.)', highlight: true },
                     { text: 'Add extras: Natural juices, desserts', highlight: false },
                   ].map((feature, index) => (
-                    <motion.div
+                    <div
                       key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: index * 0.1 }}
                       className="flex items-start gap-3"
                     >
                       <Check className={`w-5 h-5 mt-0.5 flex-shrink-0 ${feature.highlight ? 'text-green-500' : 'text-green-500'}`} />
                       <span className={`${feature.highlight ? 'text-green-600 font-medium' : 'text-foreground/80'}`}>
                         {feature.text}
                       </span>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
-              </motion.div>
+              </div>
             </div>
           </div>
         </section>
@@ -290,10 +282,7 @@ export default function HowItWorksPage() {
           <div className="container-custom px-4">
             <div className="grid md:grid-cols-2 gap-12 items-center">
               {/* Content */}
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+              <div
                 className="order-2 md:order-1"
               >
                 <div className="flex items-center gap-4 mb-6">
@@ -315,9 +304,8 @@ export default function HowItWorksPage() {
                 {/* Payment Options */}
                 <div className="grid sm:grid-cols-2 gap-4 mb-8">
                   {/* WhatsApp Option */}
-                  <motion.div
-                    whileHover={{ y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
-                    className="border-2 border-green-500 rounded-xl p-6 bg-card transition-all cursor-pointer"
+                  <div
+                    className="border-2 border-green-500 rounded-xl p-6 bg-card transition-all cursor-pointer hover:-translate-y-1 hover:shadow-xl"
                   >
                     <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center mb-4">
                       <MessageCircle className="w-6 h-6 text-green-600" />
@@ -329,12 +317,11 @@ export default function HowItWorksPage() {
                       <p className="flex items-center gap-2"><Check className="w-3 h-3 text-green-500" /> Cash on delivery</p>
                       <p className="flex items-center gap-2"><Check className="w-3 h-3 text-green-500" /> Real-time updates</p>
                     </div>
-                  </motion.div>
+                  </div>
 
                   {/* Online Payment Option */}
-                  <motion.div
-                    whileHover={{ y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
-                    className="border-2 border-secondary rounded-xl p-6 bg-card transition-all cursor-pointer"
+                  <div
+                    className="border-2 border-secondary rounded-xl p-6 bg-card transition-all cursor-pointer hover:-translate-y-1 hover:shadow-xl"
                   >
                     <div className="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center mb-4">
                       <CreditCard className="w-6 h-6 text-secondary" />
@@ -346,7 +333,7 @@ export default function HowItWorksPage() {
                       <p className="flex items-center gap-2"><Check className="w-3 h-3 text-green-500" /> Card payments</p>
                       <p className="flex items-center gap-2"><Check className="w-3 h-3 text-green-500" /> Automatic receipt</p>
                     </div>
-                  </motion.div>
+                  </div>
                 </div>
 
                 {/* Pro Tip */}
@@ -355,13 +342,10 @@ export default function HowItWorksPage() {
                     <span className="font-bold">💡 Pro tip:</span> Orders over 50,000 UGX qualify for FREE delivery!
                   </p>
                 </div>
-              </motion.div>
+              </div>
 
               {/* Image */}
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+              <div
                 className="order-1 md:order-2"
               >
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl">
@@ -380,7 +364,7 @@ export default function HowItWorksPage() {
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             </div>
           </div>
         </section>
@@ -390,10 +374,7 @@ export default function HowItWorksPage() {
           <div className="container-custom px-4">
             <div className="grid md:grid-cols-2 gap-12 items-center">
               {/* Image */}
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+              <div
               >
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                   <img
@@ -402,24 +383,19 @@ export default function HowItWorksPage() {
                     className="w-full h-[350px] md:h-[400px] object-cover"
                     loading="lazy"
                   />
-                  <motion.div
-                    animate={{ scale: [1, 1.05, 1] }}
-                    transition={{ repeat: Infinity, duration: 2 }}
+                  <div
                     className="absolute top-6 left-6 bg-secondary text-secondary-foreground px-4 py-2 rounded-lg shadow-lg"
                   >
                     <p className="text-sm font-bold flex items-center gap-2">
                       <Clock className="w-4 h-4" />
                       30-45 min delivery
                     </p>
-                  </motion.div>
+                  </div>
                 </div>
-              </motion.div>
+              </div>
 
               {/* Content */}
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+              <div
               >
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center text-secondary-foreground text-2xl font-bold shadow-lg">
@@ -445,12 +421,8 @@ export default function HowItWorksPage() {
                     { title: 'On The Way', desc: 'Our delivery team brings it hot to your door', done: true },
                     { title: 'Enjoy!', desc: 'Your authentic Ugandan meal is ready to enjoy', done: false, celebrate: true },
                   ].map((step, index) => (
-                    <motion.div
+                    <div
                       key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: index * 0.1 }}
                       className="flex items-start gap-4"
                     >
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
@@ -462,10 +434,10 @@ export default function HowItWorksPage() {
                         <p className="font-bold text-foreground">{step.title}</p>
                         <p className="text-sm text-muted-foreground">{step.desc}</p>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
-              </motion.div>
+              </div>
             </div>
           </div>
         </section>
@@ -473,10 +445,7 @@ export default function HowItWorksPage() {
         {/* Testimonial */}
         <section className="py-16 md:py-20">
           <div className="container-custom px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+            <div
               className="max-w-3xl mx-auto bg-card border-2 border-secondary/20 rounded-2xl p-8 shadow-xl text-center"
             >
               <div className="flex justify-center mb-4">
@@ -497,7 +466,7 @@ export default function HowItWorksPage() {
                   <p className="text-sm text-muted-foreground">Musician & Influencer</p>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </section>
 
@@ -505,10 +474,7 @@ export default function HowItWorksPage() {
         <section className="py-16 md:py-24 bg-muted/30">
           <div className="container-custom px-4">
             <div className="max-w-3xl mx-auto">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+              <div
                 className="text-center mb-12"
               >
                 <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -517,16 +483,12 @@ export default function HowItWorksPage() {
                 <p className="text-muted-foreground">
                   Everything you need to know about ordering from 9Yards Food
                 </p>
-              </motion.div>
+              </div>
 
               <div className="space-y-4">
                 {faqs.map((faq, index) => (
-                  <motion.div
+                  <div
                     key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.05 }}
                     className={`border-2 rounded-xl overflow-hidden transition-all ${
                       openFaq === index ? 'border-secondary bg-card shadow-lg' : 'border-border bg-card hover:border-secondary/50'
                     }`}
@@ -540,11 +502,8 @@ export default function HowItWorksPage() {
                         openFaq === index ? 'rotate-180' : ''
                       }`} />
                     </button>
-                    <motion.div
-                      initial={false}
-                      animate={{ height: openFaq === index ? 'auto' : 0, opacity: openFaq === index ? 1 : 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="overflow-hidden"
+                    <div
+                      className={`overflow-hidden transition-all duration-300 ${openFaq === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
                     >
                       <p className="px-6 pb-6 text-muted-foreground leading-relaxed">
                         {faq.answer}
@@ -554,22 +513,19 @@ export default function HowItWorksPage() {
                           </Link>
                         )}
                       </p>
-                    </motion.div>
-                  </motion.div>
+                    </div>
+                  </div>
                 ))}
               </div>
 
-              <motion.div
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
+              <div
                 className="text-center mt-8"
               >
                 <p className="text-muted-foreground mb-4">Still have questions?</p>
                 <Link to="/contact" className="text-secondary font-bold hover:underline flex items-center justify-center gap-2">
                   Contact Us <ChevronRight className="w-4 h-4" />
                 </Link>
-              </motion.div>
+              </div>
             </div>
           </div>
         </section>
@@ -578,10 +534,7 @@ export default function HowItWorksPage() {
         <section className="py-16 md:py-24 bg-gradient-to-br from-primary to-primary/90 text-primary-foreground">
           <div className="container-custom px-4">
             <div className="max-w-4xl mx-auto text-center">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+              <div
               >
                 <h2 className="text-4xl md:text-5xl font-bold mb-4">
                   Ready to Experience Authentic Ugandan Cuisine?
@@ -592,14 +545,10 @@ export default function HowItWorksPage() {
                 <p className="text-lg text-primary-foreground/70 mb-8">
                   Celebrity-approved • 100% Natural • Fast Delivery
                 </p>
-              </motion.div>
+              </div>
 
               {/* CTA Buttons */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
+              <div
                 className="flex flex-col sm:flex-row gap-4 justify-center mb-12"
               >
                 <Link
@@ -615,21 +564,17 @@ export default function HowItWorksPage() {
                 >
                   📋 View Menu
                 </Link>
-              </motion.div>
+              </div>
 
               {/* Stats */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
+              <div
                 className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto"
               >
                 <StatItem value={10000} suffix="+" label="Orders Delivered" />
                 <StatItem value={4.9} suffix="★" label="Average Rating" isDecimal />
                 <StatItem value={30} suffix="min" label="Avg Delivery" />
                 <StatItem value={100} suffix="%" label="Natural Ingredients" />
-              </motion.div>
+              </div>
             </div>
           </div>
         </section>

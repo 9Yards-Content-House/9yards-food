@@ -1,4 +1,3 @@
-import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X } from 'lucide-react';
 import { useState } from 'react';
 import { WHATSAPP_NUMBER, WHATSAPP_MESSAGES } from '@/lib/constants';
@@ -18,56 +17,32 @@ export default function FloatingWhatsApp() {
   return (
     <>
       {/* Floating Button */}
-      <motion.button
+      <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-24 lg:bottom-8 right-4 z-50 w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-lg transition-colors"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 1, type: 'spring', stiffness: 200 }}
+        className="fixed bottom-24 lg:bottom-8 right-4 z-50 w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95"
         aria-label="Chat on WhatsApp"
       >
-        <AnimatePresence mode="wait">
-          {isOpen ? (
-            <motion.div
-              key="close"
-              initial={{ rotate: -90, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              exit={{ rotate: 90, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <X className="w-6 h-6 text-white" />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="whatsapp"
-              initial={{ rotate: 90, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              exit={{ rotate: -90, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <MessageCircle className="w-6 h-6 text-white fill-white" />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {isOpen ? (
+          <div>
+            <X className="w-6 h-6 text-white" />
+          </div>
+        ) : (
+          <div>
+            <MessageCircle className="w-6 h-6 text-white fill-white" />
+          </div>
+        )}
         
         {/* Ping animation when closed */}
         {!isOpen && (
           <span className="absolute -top-1 -right-1 w-4 h-4 bg-secondary rounded-full animate-ping" />
         )}
-      </motion.button>
+      </button>
 
       {/* Chat Popup */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="fixed bottom-44 lg:bottom-28 right-4 z-50 w-80 bg-card rounded-2xl shadow-2xl overflow-hidden border border-border"
-          >
+      {isOpen && (
+        <div
+          className="fixed bottom-44 lg:bottom-28 right-4 z-50 w-80 bg-card rounded-2xl shadow-2xl overflow-hidden border border-border"
+        >
             {/* Header */}
             <div className="bg-green-500 p-4 text-white">
               <div className="flex items-center gap-3">
@@ -128,15 +103,14 @@ export default function FloatingWhatsApp() {
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="px-4 py-2 bg-card border-t border-border">
-              <p className="text-xs text-muted-foreground text-center">
-                Powered by WhatsApp 💬
-              </p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          {/* Footer */}
+          <div className="px-4 py-2 bg-card border-t border-border">
+            <p className="text-xs text-muted-foreground text-center">
+              Powered by WhatsApp 💬
+            </p>
+          </div>
+        </div>
+      )}
     </>
   );
 }

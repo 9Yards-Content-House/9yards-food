@@ -1,4 +1,3 @@
-import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Star, Clock, Leaf, Award, MapPin, Navigation } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -82,31 +81,20 @@ export default function HeroSection() {
 
       {/* Rotating food image carousel */}
       <div className="absolute right-0 top-1/4 w-72 h-72 md:w-[420px] md:h-[420px] lg:w-[480px] lg:h-[480px] hidden lg:block">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentImageIndex}
-            initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            exit={{ opacity: 0, scale: 0.8, rotate: 10 }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
-            className="relative w-full h-full"
-          >
-            <motion.img
-              src={heroImages[currentImageIndex].src}
-              srcSet={heroImages[currentImageIndex].srcSet}
-              sizes="(max-width: 768px) 288px, (max-width: 1024px) 420px, 480px"
-              alt={heroImages[currentImageIndex].alt}
-              loading={currentImageIndex === 0 ? "eager" : "lazy"}
-              decoding={currentImageIndex === 0 ? "sync" : "async"}
-              fetchPriority={currentImageIndex === 0 ? "high" : "auto"}
-              className="w-full h-full object-cover rounded-full shadow-2xl ring-4 ring-secondary/30"
-              animate={{ y: [0, -15, 0] }}
-              transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
-            />
-            {/* Glow effect */}
-            <div className="absolute inset-0 rounded-full bg-secondary/20 blur-3xl -z-10" />
-          </motion.div>
-        </AnimatePresence>
+        <div className="relative w-full h-full">
+          <img
+            src={heroImages[currentImageIndex].src}
+            srcSet={heroImages[currentImageIndex].srcSet}
+            sizes="(max-width: 768px) 288px, (max-width: 1024px) 420px, 480px"
+            alt={heroImages[currentImageIndex].alt}
+            loading={currentImageIndex === 0 ? "eager" : "lazy"}
+            decoding={currentImageIndex === 0 ? "sync" : "async"}
+            fetchPriority={currentImageIndex === 0 ? "high" : "auto"}
+            className="w-full h-full object-cover rounded-full shadow-2xl ring-4 ring-secondary/30 transition-opacity duration-500"
+          />
+          {/* Glow effect */}
+          <div className="absolute inset-0 rounded-full bg-secondary/20 blur-3xl -z-10" />
+        </div>
         
         {/* Carousel indicators */}
         <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
@@ -128,49 +116,29 @@ export default function HeroSection() {
       <div className="container-custom relative z-10 px-4 py-32 md:py-40">
         <div className="max-w-2xl">
           {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="inline-flex items-center gap-2 bg-secondary/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6"
-          >
+          <div className="inline-flex items-center gap-2 bg-secondary/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
             <Star className="w-4 h-4 text-secondary fill-secondary" />
             <span className="text-primary-foreground text-sm font-medium">
               #1 Rated Local Food Delivery in Kampala
             </span>
-          </motion.div>
+          </div>
 
           {/* Headline */}
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-primary-foreground leading-tight mb-6"
-          >
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-primary-foreground leading-tight mb-6">
             Authentic Ugandan
             <br />
             Cuisine, Delivered{' '}
             <span className="text-secondary">Fresh</span>
-          </motion.h1>
+          </h1>
 
           {/* Subheadline */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="text-lg md:text-xl text-primary-foreground/80 mb-8 leading-relaxed"
-          >
+          <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 leading-relaxed">
             Experience the rich flavors of Uganda with our freshly prepared local dishes. 
             100% natural ingredients, celebrity-approved, delivered in 30-45 minutes.
-          </motion.p>
+          </p>
 
           {/* Feature badges */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="flex flex-wrap gap-3 mb-8"
-          >
+          <div className="flex flex-wrap gap-3 mb-8">
             {[
               { icon: Leaf, text: '100% Natural' },
               { icon: Clock, text: '30-45 min Delivery' },
@@ -184,15 +152,10 @@ export default function HeroSection() {
                 <span className="text-primary-foreground text-sm font-medium">{item.text}</span>
               </div>
             ))}
-          </motion.div>
+          </div>
 
           {/* Location Input */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.55 }}
-            className="mb-8"
-          >
+          <div className="mb-8">
             <div className="relative max-w-md">
               <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
                 <MapPin className="w-5 h-5" />
@@ -216,15 +179,10 @@ export default function HeroSection() {
             <p className="text-primary-foreground/60 text-sm mt-2 ml-1">
               Enter your location or tap the button to auto-detect
             </p>
-          </motion.div>
+          </div>
 
           {/* CTAs */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="flex flex-col sm:flex-row gap-4"
-          >
+          <div className="flex flex-col sm:flex-row gap-4">
             <Link
               to="/menu"
               className="btn-secondary text-lg px-8 py-4 flex items-center justify-center gap-2 cta-pulse"
@@ -238,15 +196,10 @@ export default function HeroSection() {
             >
               View Menu
             </Link>
-          </motion.div>
+          </div>
 
           {/* Celebrity endorsement badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="mt-10 flex items-center gap-3"
-          >
+          <div className="mt-10 flex items-center gap-3">
             <div className="flex -space-x-2">
               <div className="w-10 h-10 rounded-full bg-secondary/20 border-2 border-primary-foreground/30 flex items-center justify-center text-xs font-bold text-primary-foreground">SD</div>
               <div className="w-10 h-10 rounded-full bg-secondary/20 border-2 border-primary-foreground/30 flex items-center justify-center text-xs font-bold text-primary-foreground">DJ</div>
@@ -255,25 +208,16 @@ export default function HeroSection() {
             <div className="text-primary-foreground/80 text-sm">
               <span className="font-semibold text-secondary">🎯 Featured by</span> Spice Diana, Top DJs & More
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
 
       {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:block"
-      >
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
-          className="w-6 h-10 border-2 border-primary-foreground/30 rounded-full flex justify-center pt-2"
-        >
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:block">
+        <div className="w-6 h-10 border-2 border-primary-foreground/30 rounded-full flex justify-center pt-2">
           <div className="w-1.5 h-3 bg-secondary rounded-full" />
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </section>
   );
 }

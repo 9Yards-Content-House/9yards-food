@@ -1,7 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Home, UtensilsCrossed, ShoppingCart, Heart, Phone } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
-import { motion } from 'framer-motion';
 import { PHONE_NUMBER } from '@/lib/constants';
 
 const navItems = [
@@ -38,22 +37,18 @@ export default function MobileNav() {
               aria-current={isActive ? 'page' : undefined}
             >
               {isActive && (
-                <motion.div
-                  layoutId="mobileNavIndicator"
+                <div
                   className="absolute inset-0 bg-secondary/10 rounded-xl"
-                  transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                 />
               )}
               <div className="relative z-10">
                 <Icon className="w-6 h-6" strokeWidth={isActive ? 2.5 : 2} />
                 {badgeCount > 0 && (
-                  <motion.span 
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
+                  <span 
                     className="absolute -top-2 -right-2 w-5 h-5 bg-secondary text-secondary-foreground text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm"
                   >
                     {badgeCount > 9 ? '9+' : badgeCount}
-                  </motion.span>
+                  </span>
                 )}
               </div>
               <span className="text-xs font-medium relative z-10">{item.label}</span>

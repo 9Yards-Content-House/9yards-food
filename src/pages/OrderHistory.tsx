@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
   Clock,
@@ -78,11 +77,7 @@ export default function OrderHistory() {
         <Header />
         <main className="pt-16 md:pt-20">
           <div className="container-custom section-padding text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="max-w-md mx-auto"
-            >
+            <div className="max-w-md mx-auto">
               <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
                 <Package className="w-12 h-12 text-muted-foreground" />
               </div>
@@ -96,7 +91,7 @@ export default function OrderHistory() {
                 Browse Menu
                 <ChevronRight className="w-5 h-5" />
               </Link>
-            </motion.div>
+            </div>
           </div>
         </main>
         <Footer />
@@ -112,17 +107,11 @@ export default function OrderHistory() {
       <main className="pt-16 md:pt-20">
         <div className="container-custom section-padding">
           <div className="flex items-center justify-between mb-8">
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-2xl md:text-3xl font-bold text-foreground"
-            >
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">
               Order History
-            </motion.h1>
+            </h1>
 
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+            <button
               onClick={() => {
                 if (confirm('Are you sure you want to clear all order history?')) {
                   clearOrderHistory();
@@ -133,19 +122,16 @@ export default function OrderHistory() {
             >
               <Trash2 className="w-4 h-4" />
               Clear History
-            </motion.button>
+            </button>
           </div>
 
           <div className="space-y-4">
-            {orderHistory.map((order, index) => {
+            {orderHistory.map((order) => {
               const StatusIcon = getStatusIcon(order.status);
               
               return (
-                <motion.div
+                <div
                   key={order.orderId}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
                   className="card-premium p-4 md:p-6"
                 >
                   {/* Header */}
@@ -214,7 +200,7 @@ export default function OrderHistory() {
                       View Menu
                     </Link>
                   </div>
-                </motion.div>
+                </div>
               );
             })}
           </div>

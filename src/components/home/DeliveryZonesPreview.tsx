@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { MapPin, ChevronRight, Search, CheckCircle, XCircle } from 'lucide-react';
 import { deliveryZones } from '@/data/menu';
@@ -29,11 +28,7 @@ export default function DeliveryZonesPreview() {
       <div className="container-custom">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Content */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-          >
+          <div>
             <span className="text-secondary font-semibold text-sm uppercase tracking-wider">
               Delivery Coverage
             </span>
@@ -72,11 +67,7 @@ export default function DeliveryZonesPreview() {
               
               {/* Search Result */}
               {hasSearched && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-3"
-                >
+                <div className="mt-3">
                   {matchedZone ? (
                     <div className="flex items-center gap-2 text-green-400">
                       <CheckCircle className="w-5 h-5" />
@@ -92,32 +83,27 @@ export default function DeliveryZonesPreview() {
                       </span>
                     </div>
                   )}
-                </motion.div>
+                </div>
               )}
             </div>
 
             {/* Zone Pills */}
             <div className="flex flex-wrap gap-3 mb-8">
-              {featuredZones.map((zone, index) => (
-                <motion.button
+              {featuredZones.map((zone) => (
+                <button
                   key={zone.name}
                   onClick={() => {
                     setSearchQuery(zone.name);
                     setHasSearched(true);
                   }}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.05 }}
-                  whileHover={{ scale: 1.05 }}
-                  className="bg-primary-foreground/10 backdrop-blur-sm px-4 py-2 rounded-full flex items-center gap-2 hover:bg-primary-foreground/20 transition-colors cursor-pointer"
+                  className="bg-primary-foreground/10 backdrop-blur-sm px-4 py-2 rounded-full flex items-center gap-2 hover:bg-primary-foreground/20 hover:scale-105 transition-all cursor-pointer"
                 >
                   <MapPin className="w-4 h-4 text-secondary" />
                   <span className="text-sm font-medium">{zone.name}</span>
                   <span className="text-xs text-primary-foreground/60">
                     {formatPrice(zone.fee)}
                   </span>
-                </motion.button>
+                </button>
               ))}
             </div>
 
@@ -128,15 +114,10 @@ export default function DeliveryZonesPreview() {
               View All Zones
               <ChevronRight className="w-5 h-5" />
             </Link>
-          </motion.div>
+          </div>
 
           {/* Map Preview */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="relative"
-          >
+          <div className="relative">
             <div className="aspect-square rounded-3xl overflow-hidden bg-gradient-to-br from-primary-foreground/10 to-primary-foreground/5 border border-primary-foreground/10 relative">
               {/* Stylized Map Background */}
               <div className="absolute inset-0 opacity-30">
@@ -162,7 +143,7 @@ export default function DeliveryZonesPreview() {
                 <span className="text-primary-foreground font-bold text-lg">Kampala</span>
               </div>
 
-              {/* Animated pins */}
+              {/* Pins */}
               {[
                 { top: '25%', left: '35%', name: 'Kololo' },
                 { top: '40%', left: '60%', name: 'Ntinda' },
@@ -171,16 +152,10 @@ export default function DeliveryZonesPreview() {
                 { top: '55%', left: '55%', name: 'Bugolobi' },
                 { top: '70%', left: '60%', name: 'Nakawa' },
               ].map((pos, i) => (
-                <motion.div
+                <div
                   key={i}
                   className="absolute group cursor-pointer"
                   style={{ top: pos.top, left: pos.left }}
-                  animate={{ y: [0, -8, 0] }}
-                  transition={{
-                    repeat: Infinity,
-                    duration: 2,
-                    delay: i * 0.3,
-                  }}
                 >
                   <div className="w-4 h-4 bg-secondary rounded-full shadow-lg group-hover:scale-150 transition-transform" />
                   <div className="absolute top-1 left-1 w-2 h-2 bg-secondary/50 rounded-full animate-ping" />
@@ -188,32 +163,20 @@ export default function DeliveryZonesPreview() {
                   <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-card text-foreground text-xs font-medium px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg">
                     {pos.name}
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
 
             {/* Free delivery badge */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              className="absolute -bottom-4 -left-4 bg-gradient-to-r from-secondary to-orange-500 text-secondary-foreground px-6 py-4 rounded-xl shadow-lg"
-            >
+            <div className="absolute -bottom-4 -left-4 bg-gradient-to-r from-secondary to-orange-500 text-secondary-foreground px-6 py-4 rounded-xl shadow-lg">
               <div className="text-xs uppercase tracking-wider opacity-80">
                 Orders over 50,000 UGX
               </div>
               <div className="font-bold text-xl">FREE Delivery! 🎉</div>
-            </motion.div>
+            </div>
 
             {/* Request new area */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.5 }}
-              className="absolute -bottom-4 right-0 md:-right-4"
-            >
+            <div className="absolute -bottom-4 right-0 md:-right-4">
               <Link
                 to="/contact"
                 className="bg-primary-foreground text-foreground px-4 py-3 rounded-xl shadow-lg text-sm font-medium hover:bg-primary-foreground/90 transition-colors inline-flex items-center gap-2"
@@ -221,8 +184,8 @@ export default function DeliveryZonesPreview() {
                 <MapPin className="w-4 h-4" />
                 Request New Area
               </Link>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </div>
     </section>

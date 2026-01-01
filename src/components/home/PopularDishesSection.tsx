@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Plus, Heart, Flame, TrendingUp } from 'lucide-react';
 import { menuData } from '@/data/menu';
@@ -72,12 +71,7 @@ export default function PopularDishesSection() {
     <section className="section-padding bg-muted/30">
       <div className="container-custom">
         {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-12"
-        >
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-12">
           <div>
             <span className="text-secondary font-semibold text-sm uppercase tracking-wider">
               Most Loved
@@ -93,7 +87,7 @@ export default function PopularDishesSection() {
             See Full Menu
             <span>→</span>
           </Link>
-        </motion.div>
+        </div>
 
         {/* Dishes Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -103,13 +97,9 @@ export default function PopularDishesSection() {
               <DishCardSkeleton key={index} />
             ))
           ) : (
-            featuredItems.map((item, index) => (
-              <motion.div
+            featuredItems.map((item) => (
+              <div
                 key={item.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
                 className="card-premium food-card-hover group"
               >
                 {/* Image */}
@@ -213,23 +203,18 @@ export default function PopularDishesSection() {
                     </Link>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))
           )}
         </div>
 
         {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mt-12"
-        >
+        <div className="text-center mt-12">
           <Link to="/menu" className="btn-secondary inline-flex items-center gap-2 text-lg px-8 py-4">
             Explore Full Menu
             <span>→</span>
           </Link>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

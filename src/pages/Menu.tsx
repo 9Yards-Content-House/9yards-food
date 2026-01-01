@@ -1,5 +1,4 @@
 import { useState, useMemo, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Plus, Search, X, ShoppingCart, Flame, TrendingUp, Utensils, Drumstick, GlassWater, Cake, Salad } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Header from '@/components/layout/Header';
@@ -178,9 +177,7 @@ export default function MenuPage() {
         {/* Hero Header */}
         <section className="bg-primary text-primary-foreground py-12 md:py-16">
           <div className="container-custom px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+            <div
               className="max-w-3xl"
             >
               <h1 className="text-4xl md:text-5xl font-bold mb-4">Our Menu</h1>
@@ -200,7 +197,7 @@ export default function MenuPage() {
                   {categoryCounts.all} delicious items available
                 </span>
               </div>
-            </motion.div>
+            </div>
           </div>
         </section>
 
@@ -238,12 +235,10 @@ export default function MenuPage() {
                 const isActive = activeCategory === cat.id;
                 
                 return (
-                  <motion.button
+                  <button
                     key={cat.id}
                     onClick={() => setActiveCategory(cat.id as Category)}
-                    whileHover={{ y: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all border-2 min-h-[44px] ${
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all border-2 min-h-[44px] hover:-translate-y-0.5 active:scale-[0.98] ${
                       isActive
                         ? 'bg-secondary text-secondary-foreground border-secondary shadow-md'
                         : 'bg-background text-muted-foreground border-border hover:border-secondary/50'
@@ -256,7 +251,7 @@ export default function MenuPage() {
                     }`}>
                       {count}
                     </span>
-                  </motion.button>
+                  </button>
                 );
               })}
             </div>
@@ -267,9 +262,7 @@ export default function MenuPage() {
         <section className="section-padding">
           <div className="container-custom">
             {/* Build Combo CTA Banner */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+            <div
               className="mb-8 p-6 md:p-8 rounded-2xl bg-gradient-to-r from-secondary to-orange-500 text-secondary-foreground shadow-xl overflow-hidden relative"
             >
               {/* Background pattern */}
@@ -292,25 +285,18 @@ export default function MenuPage() {
                     <span className="flex items-center gap-1">✓ Free Side Included</span>
                   </div>
                 </div>
-                <motion.button
+                <button
                   onClick={() => setIsComboBuilderOpen(true)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="bg-primary-foreground text-primary font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-2xl transition-shadow text-lg flex items-center gap-2"
+                  className="bg-primary-foreground text-primary font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 active:scale-[0.98] transition-all text-lg flex items-center gap-2"
                 >
                   🍽️ Start Building
-                </motion.button>
+                </button>
               </div>
-            </motion.div>
+            </div>
 
             {/* Empty State */}
-            <AnimatePresence mode="wait">
               {items.length === 0 ? (
-                <motion.div
-                  key="empty"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
+                <div
                   className="text-center py-16"
                 >
                   <div className="text-6xl mb-4">🔍</div>
@@ -329,23 +315,15 @@ export default function MenuPage() {
                   >
                     Clear Filters
                   </button>
-                </motion.div>
+                </div>
               ) : (
-                <motion.div
-                  key="grid"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
+                <div
                   className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
                 >
                   {items.map((item, index) => (
-                    <motion.div
+                    <div
                       key={`${item.category}-${item.id}`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.03 }}
-                      whileHover={{ y: -8 }}
-                      className={`card-premium food-card-hover group relative ${
+                      className={`card-premium food-card-hover group relative hover:-translate-y-2 transition-transform ${
                         highlightedItem === item.id 
                           ? 'ring-4 ring-secondary ring-offset-2 animate-pulse' 
                           : ''
@@ -417,15 +395,13 @@ export default function MenuPage() {
                         )}
 
                         {/* Quick Add Button (Desktop - on hover) */}
-                        <motion.button
-                          initial={{ opacity: 0, y: 10 }}
-                          whileHover={{ scale: 1.02 }}
+                        <button
                           onClick={() => setIsComboBuilderOpen(true)}
-                          className="absolute bottom-3 left-3 right-3 bg-secondary text-secondary-foreground py-3 rounded-lg font-bold opacity-0 group-hover:opacity-100 transition-all hidden lg:flex items-center justify-center gap-2 shadow-lg"
+                          className="absolute bottom-3 left-3 right-3 bg-secondary text-secondary-foreground py-3 rounded-lg font-bold opacity-0 group-hover:opacity-100 hover:scale-[1.02] transition-all hidden lg:flex items-center justify-center gap-2 shadow-lg"
                         >
                           <Plus className="w-5 h-5" />
                           Add to Order
-                        </motion.button>
+                        </button>
                       </div>
 
                       {/* Content */}
@@ -485,11 +461,10 @@ export default function MenuPage() {
                           )}
                         </button>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
-                </motion.div>
+                </div>
               )}
-            </AnimatePresence>
           </div>
         </section>
       </main>
@@ -498,26 +473,21 @@ export default function MenuPage() {
       <MobileNav />
       
       {/* Floating Cart Button (Mobile) */}
-      <AnimatePresence>
         {cartCount > 0 && (
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
+          <div
             className="fixed bottom-24 right-4 z-50 lg:hidden"
           >
             <Link
               to="/cart"
-              className="w-16 h-16 bg-secondary text-secondary-foreground rounded-full shadow-2xl flex items-center justify-center relative"
+              className="w-16 h-16 bg-secondary text-secondary-foreground rounded-full shadow-2xl flex items-center justify-center relative hover:scale-110 transition-transform"
             >
               <ShoppingCart className="w-7 h-7" />
               <span className="absolute -top-1 -right-1 w-6 h-6 bg-primary text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center">
                 {cartCount}
               </span>
             </Link>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
 
       <ComboBuilder
         isOpen={isComboBuilderOpen}

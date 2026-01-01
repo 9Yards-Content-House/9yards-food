@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { 
   Phone, Mail, MapPin, MessageCircle, Clock, ChevronDown, ChevronRight,
@@ -129,9 +128,7 @@ export default function ContactPage() {
         {/* Hero Section */}
         <section className="bg-primary text-primary-foreground py-12 md:py-20">
           <div className="container-custom px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+            <div
               className="max-w-2xl mx-auto text-center"
             >
               <h1 className="text-3xl md:text-5xl font-bold mb-4">
@@ -141,40 +138,30 @@ export default function ContactPage() {
                 Have a question? Need support? Want to place a bulk order?
                 <br className="hidden md:block" /> We'd love to hear from you!
               </p>
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+              <div
                 className="inline-flex items-center gap-2 bg-secondary/20 backdrop-blur-sm px-4 py-2 rounded-full"
               >
                 <Zap className="w-5 h-5 text-secondary" />
                 <span className="text-sm font-medium">Average Response Time: <span className="text-secondary font-bold">Under 2 Hours</span></span>
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
           </div>
         </section>
 
         {/* Quick Action Buttons */}
         <section className="py-12 md:py-16 bg-card border-b border-border">
           <div className="container-custom px-4">
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+            <h2
               className="text-2xl md:text-3xl font-bold text-center text-foreground mb-8"
             >
               Choose How to Reach Us
-            </motion.h2>
+            </h2>
 
             <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
               {/* Call Card */}
-              <motion.a
+              <a
                 href="tel:+256700488870"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
-                className="bg-card border-2 border-border rounded-2xl p-6 text-center cursor-pointer transition-all hover:border-secondary"
+                className="bg-card border-2 border-border rounded-2xl p-6 text-center cursor-pointer transition-all hover:border-secondary hover:-translate-y-1 hover:shadow-xl"
               >
                 <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Phone className="w-8 h-8 text-blue-500" />
@@ -182,19 +169,14 @@ export default function ContactPage() {
                 <h3 className="font-bold text-xl text-foreground mb-2">Call Us</h3>
                 <p className="text-muted-foreground text-sm mb-4">Instant Support</p>
                 <div className="btn-secondary w-full">Call Now</div>
-              </motion.a>
+              </a>
 
               {/* WhatsApp Card */}
-              <motion.a
+              <a
                 href="https://wa.me/256700488870?text=Hi%209Yards%20Food!%20I%20have%20a%20question%20about..."
                 target="_blank"
                 rel="noopener noreferrer"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-                whileHover={{ y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
-                className="bg-card border-2 border-green-500 rounded-2xl p-6 text-center cursor-pointer transition-all relative overflow-hidden"
+                className="bg-card border-2 border-green-500 rounded-2xl p-6 text-center cursor-pointer transition-all relative overflow-hidden hover:-translate-y-1 hover:shadow-xl"
               >
                 <div className="absolute top-3 right-3 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                   Fastest
@@ -205,17 +187,12 @@ export default function ContactPage() {
                 <h3 className="font-bold text-xl text-foreground mb-2">WhatsApp</h3>
                 <p className="text-muted-foreground text-sm mb-4">Fastest Response</p>
                 <div className="bg-green-500 text-white font-bold py-3 px-6 rounded-lg w-full">Chat Now</div>
-              </motion.a>
+              </a>
 
               {/* Email Card */}
-              <motion.a
+              <a
                 href="mailto:info@9yards.co.ug?subject=Inquiry%20from%20Website"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-                whileHover={{ y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
-                className="bg-card border-2 border-border rounded-2xl p-6 text-center cursor-pointer transition-all hover:border-secondary"
+                className="bg-card border-2 border-border rounded-2xl p-6 text-center cursor-pointer transition-all hover:border-secondary hover:-translate-y-1 hover:shadow-xl"
               >
                 <div className="w-16 h-16 bg-secondary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Mail className="w-8 h-8 text-secondary" />
@@ -223,7 +200,7 @@ export default function ContactPage() {
                 <h3 className="font-bold text-xl text-foreground mb-2">Email</h3>
                 <p className="text-muted-foreground text-sm mb-4">Detailed Inquiries</p>
                 <div className="btn-secondary w-full">Send Email</div>
-              </motion.a>
+              </a>
             </div>
           </div>
         </section>
@@ -233,10 +210,7 @@ export default function ContactPage() {
           <div className="container-custom px-4">
             <div className="grid lg:grid-cols-5 gap-12">
               {/* Left: Contact Info */}
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+              <div
                 className="lg:col-span-2"
               >
                 <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
@@ -391,20 +365,15 @@ export default function ContactPage() {
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
 
               {/* Right: Contact Form */}
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+              <div
                 className="lg:col-span-3"
               >
                 <div className="bg-card border border-border rounded-2xl p-6 md:p-8 shadow-lg">
                   {isSubmitted ? (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
+                    <div
                       className="text-center py-12"
                     >
                       <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -436,7 +405,7 @@ export default function ContactPage() {
                           Send Another Message
                         </button>
                       </div>
-                    </motion.div>
+                    </div>
                   ) : (
                     <>
                       <h2 className="text-xl md:text-2xl font-bold text-foreground mb-2">
@@ -602,10 +571,7 @@ export default function ContactPage() {
                 </div>
 
                 {/* Trust Badges */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
+                <div
                   className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6"
                 >
                   {[
@@ -619,8 +585,8 @@ export default function ContactPage() {
                       <span>{badge.text}</span>
                     </div>
                   ))}
-                </motion.div>
-              </motion.div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -628,10 +594,7 @@ export default function ContactPage() {
         {/* Bulk/Catering CTA */}
         <section className="py-12 md:py-16 bg-gradient-to-br from-secondary to-secondary/80 text-secondary-foreground">
           <div className="container-custom px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+            <div
               className="max-w-4xl mx-auto text-center"
             >
               <div className="inline-flex items-center gap-2 mb-4">
@@ -665,17 +628,14 @@ export default function ContactPage() {
                 Get a Custom Quote
                 <ChevronRight className="w-5 h-5" />
               </a>
-            </motion.div>
+            </div>
           </div>
         </section>
 
         {/* Operating Hours Visual */}
         <section className="py-12 md:py-16">
           <div className="container-custom px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+            <div
               className="max-w-3xl mx-auto"
             >
               <h2 className="text-2xl md:text-3xl font-bold text-center text-foreground mb-8">
@@ -719,17 +679,14 @@ export default function ContactPage() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </section>
 
         {/* FAQ Section */}
         <section className="py-12 md:py-20 bg-muted/30">
           <div className="container-custom px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+            <div
               className="text-center mb-12"
             >
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -738,16 +695,12 @@ export default function ContactPage() {
               <p className="text-muted-foreground">
                 Quick answers to common questions
               </p>
-            </motion.div>
+            </div>
 
             <div className="max-w-3xl mx-auto space-y-4">
               {faqs.map((faq, index) => (
-                <motion.div
+                <div
                   key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.05 }}
                   className={`border-2 rounded-xl overflow-hidden transition-all ${
                     openFaq === index ? 'border-secondary bg-card shadow-lg' : 'border-border bg-card hover:border-secondary/50'
                   }`}
@@ -761,24 +714,18 @@ export default function ContactPage() {
                       openFaq === index ? 'rotate-180' : ''
                     }`} />
                   </button>
-                  <motion.div
-                    initial={false}
-                    animate={{ height: openFaq === index ? 'auto' : 0, opacity: openFaq === index ? 1 : 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="overflow-hidden"
+                  <div
+                    className={`overflow-hidden transition-all duration-300 ${openFaq === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
                   >
                     <p className="px-5 pb-5 text-muted-foreground leading-relaxed">
                       {faq.answer}
                     </p>
-                  </motion.div>
-                </motion.div>
+                  </div>
+                </div>
               ))}
             </div>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
+            <div
               className="text-center mt-8"
             >
               <p className="text-muted-foreground mb-4">Still have questions?</p>
@@ -800,7 +747,7 @@ export default function ContactPage() {
                   <ChevronRight className="w-4 h-4" />
                 </Link>
               </div>
-            </motion.div>
+            </div>
           </div>
         </section>
       </main>

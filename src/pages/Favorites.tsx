@@ -1,5 +1,4 @@
-import { motion } from 'framer-motion';
-import { Heart, Trash2 } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -28,11 +27,7 @@ export default function FavoritesPage() {
         <Header />
         <main className="pt-16 md:pt-20">
           <div className="container-custom section-padding text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="max-w-md mx-auto"
-            >
+            <div className="max-w-md mx-auto">
               <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
                 <Heart className="w-12 h-12 text-muted-foreground" />
               </div>
@@ -45,7 +40,7 @@ export default function FavoritesPage() {
               <Link to="/menu" className="btn-secondary inline-block">
                 Browse Menu
               </Link>
-            </motion.div>
+            </div>
           </div>
         </main>
         <Footer />
@@ -59,21 +54,14 @@ export default function FavoritesPage() {
       <Header />
       <main className="pt-16 md:pt-20">
         <div className="container-custom section-padding">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-2xl md:text-3xl font-bold text-foreground mb-8"
-          >
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-8">
             My Favorites ({favoriteItems.length})
-          </motion.h1>
+          </h1>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {favoriteItems.map((item, index) => (
-              <motion.div
+            {favoriteItems.map((item) => (
+              <div
                 key={item.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
                 className="card-premium food-card-hover group"
               >
                 <div className="relative aspect-square overflow-hidden">
@@ -100,7 +88,7 @@ export default function FavoritesPage() {
                     </span>
                   )}
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>

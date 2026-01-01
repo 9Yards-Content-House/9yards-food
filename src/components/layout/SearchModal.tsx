@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { menuData } from '@/data/menu';
@@ -86,27 +85,20 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-foreground/60 backdrop-blur-sm z-[100]"
-            onClick={onClose}
-          />
+    <>
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 bg-foreground/60 backdrop-blur-sm z-[100]"
+        onClick={onClose}
+      />
           
-          {/* Modal */}
-          <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="fixed top-4 left-4 right-4 md:top-24 md:left-1/2 md:-translate-x-1/2 md:w-full md:max-w-xl z-[101]"
-          >
+      {/* Modal */}
+      <div
+        className="fixed top-4 left-4 right-4 md:top-24 md:left-1/2 md:-translate-x-1/2 md:w-full md:max-w-xl z-[101]"
+      >
             <div className="bg-white rounded-2xl shadow-elevated overflow-hidden">
               {/* Search Input */}
               <form onSubmit={handleSearch} className="relative">
@@ -133,12 +125,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 <div className="border-t border-border">
                   {filteredItems.length > 0 ? (
                     <ul className="max-h-80 overflow-y-auto">
-                      {filteredItems.map((item, index) => (
-                        <motion.li
+                      {filteredItems.map((item) => (
+                        <li
                           key={item.id}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.05 }}
                         >
                           <button
                             onClick={() => handleItemClick(item)}
@@ -160,7 +149,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                             )}
                             <ArrowRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                           </button>
-                        </motion.li>
+                        </li>
                       ))}
                     </ul>
                   ) : (
@@ -199,9 +188,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 </div>
               )}
             </div>
-          </motion.div>
+          </div>
         </>
-      )}
-    </AnimatePresence>
   );
 }

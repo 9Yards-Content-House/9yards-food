@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, Heart, Menu, X, Search } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import SearchModal from './SearchModal';
@@ -127,13 +126,11 @@ export default function Header() {
               >
                 <ShoppingCart className={`w-5 h-5 ${iconColorClass} transition-colors`} />
                 {cartCount > 0 && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
+                  <span
                     className="absolute -top-1 -right-1 w-5 h-5 bg-secondary text-secondary-foreground text-xs font-bold rounded-full flex items-center justify-center"
                   >
                     {cartCount}
-                  </motion.span>
+                  </span>
                 )}
               </Link>
 
@@ -167,52 +164,43 @@ export default function Header() {
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
 
       {/* Mobile Menu */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 lg:hidden"
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-40 lg:hidden"
+        >
+          <div
+            className="absolute inset-0 bg-foreground/20 backdrop-blur-sm"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          <nav
+            className="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-card shadow-elevated p-6 pt-24 overflow-y-auto transition-transform"
           >
-            <div
-              className="absolute inset-0 bg-foreground/20 backdrop-blur-sm"
-              onClick={() => setIsMobileMenuOpen(false)}
-            />
-            <motion.nav
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-card shadow-elevated p-6 pt-24 overflow-y-auto"
-            >
-              <div className="flex flex-col gap-2">
-                {mobileNavLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    to={link.href}
-                    className={`text-lg font-medium py-3 px-4 rounded-lg transition-colors ${
-                      location.pathname === link.href
-                        ? 'bg-secondary/10 text-secondary'
-                        : 'text-foreground hover:bg-muted'
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-                <div className="mt-4 pt-4 border-t border-border">
-                  <Link
-                    to="/menu"
-                    className="btn-secondary w-full text-center block"
-                  >
-                    Build Your Combo
-                  </Link>
-                </div>
+            <div className="flex flex-col gap-2">
+              {mobileNavLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className={`text-lg font-medium py-3 px-4 rounded-lg transition-colors ${
+                    location.pathname === link.href
+                      ? 'bg-secondary/10 text-secondary'
+                      : 'text-foreground hover:bg-muted'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+              <div className="mt-4 pt-4 border-t border-border">
+                <Link
+                  to="/menu"
+                  className="btn-secondary w-full text-center block"
+                >
+                  Build Your Combo
+                </Link>
               </div>
-            </motion.nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
+          </nav>
+        </div>
+      )}
     </>
   );
 }

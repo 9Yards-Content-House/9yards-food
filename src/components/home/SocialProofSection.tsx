@@ -1,4 +1,3 @@
-import { motion, useInView } from 'framer-motion';
 import { Play, Star, CheckCircle, X, Users, Trophy, Package, Clock } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
@@ -49,8 +48,22 @@ const testimonials = [
 function useCountUp(end: number, duration: number = 2000, startOnView: boolean = true) {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true });
+  const [isInView, setIsInView] = useState(false);
   const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!startOnView || !isInView || hasAnimated.current) return;
@@ -86,12 +99,7 @@ export default function SocialProofSection() {
     <section className="section-padding bg-muted/30">
       <div className="container-custom">
         {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-12"
-        >
+        <div className="text-center mb-12">
           <span className="text-secondary font-semibold text-sm uppercase tracking-wider">
             Loved by Thousands
           </span>
@@ -102,19 +110,14 @@ export default function SocialProofSection() {
             Join celebrities, influencers, and food lovers who trust 9Yards Food 
             for authentic Ugandan cuisine.
           </p>
-        </motion.div>
+        </div>
 
         {/* Testimonial Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {testimonials.map((testimonial, index) => (
-            <motion.div
+          {testimonials.map((testimonial) => (
+            <div
               key={testimonial.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
-              className="card-premium p-6 transition-all duration-300"
+              className="card-premium p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
             >
               {/* Avatar */}
               <div className="flex items-center gap-3 mb-4">
@@ -167,48 +170,33 @@ export default function SocialProofSection() {
               <p className="text-foreground/80 text-sm leading-relaxed">
                 "{testimonial.quote}"
               </p>
-            </motion.div>
+            </div>
           ))}
         </div>
 
         {/* View All Reviews CTA */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="text-center mt-8"
-        >
+        <div className="text-center mt-8">
           <button className="text-secondary font-semibold hover:underline flex items-center gap-2 mx-auto">
             View All Reviews
             <span>→</span>
           </button>
-        </motion.div>
+        </div>
 
         {/* Stats with Count-up Animation */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6"
-        >
+        <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6">
           {stats.map((stat, index) => (
             <StatCard key={index} stat={stat} index={index} />
           ))}
-        </motion.div>
+        </div>
       </div>
 
       {/* Video Modal */}
       {activeVideo && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+        <div
           className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
           onClick={() => setActiveVideo(null)}
         >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
+          <div
             className="relative bg-card rounded-2xl p-2 max-w-lg w-full"
             onClick={(e) => e.stopPropagation()}
           >
@@ -224,8 +212,8 @@ export default function SocialProofSection() {
                 <p className="text-muted-foreground">Video testimonial coming soon</p>
               </div>
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       )}
     </section>
   );
@@ -241,12 +229,8 @@ function StatCard({ stat, index }: { stat: typeof stats[0]; index: number }) {
   const displayValue = stat.isDecimal ? (count / 10).toFixed(1) : count.toLocaleString();
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.1 }}
       className="text-center bg-card rounded-2xl p-6 shadow-soft"
     >
       <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-3">
@@ -256,6 +240,6 @@ function StatCard({ stat, index }: { stat: typeof stats[0]; index: number }) {
         {displayValue}{stat.suffix}
       </div>
       <div className="text-muted-foreground text-sm">{stat.label}</div>
-    </motion.div>
+    </div>
   );
 }

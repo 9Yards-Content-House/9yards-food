@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Trash2,
@@ -361,9 +360,7 @@ export default function CartPage() {
         <Header />
         <main className="pt-16 md:pt-20">
           <div className="container-custom section-padding text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+            <div
               className="max-w-md mx-auto"
             >
               <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
@@ -380,7 +377,7 @@ export default function CartPage() {
                 Browse Menu
                 <ChevronRight className="w-5 h-5" />
               </Link>
-            </motion.div>
+            </div>
           </div>
         </main>
         <Footer />
@@ -395,19 +392,15 @@ export default function CartPage() {
 
       <main className="pt-16 md:pt-20">
         <div className="container-custom section-padding">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+          <h1
             className="text-2xl md:text-3xl font-bold text-foreground mb-8"
           >
             Your Cart ({state.items.length} items)
-          </motion.h1>
+          </h1>
 
           {/* Peak Hours Alert */}
           {peakHours && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
+            <div
               className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl flex items-start gap-3"
             >
               <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
@@ -417,18 +410,15 @@ export default function CartPage() {
                   High demand right now! Delivery may take {estimatedDelivery}.
                 </p>
               </div>
-            </motion.div>
+            </div>
           )}
 
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Cart Items */}
             <div className="lg:col-span-2 space-y-4">
-              {state.items.map((item, index) => (
-                <motion.div
+              {state.items.map((item) => (
+                <div
                   key={item.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
                   className="card-premium p-4 md:p-6"
                 >
                   <div className="flex gap-4">
@@ -494,7 +484,7 @@ export default function CartPage() {
                       </div>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               ))}
 
               <Link
@@ -508,10 +498,7 @@ export default function CartPage() {
 
             {/* Order Summary */}
             <div className="lg:col-span-1">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+              <div
                 className="card-premium p-6 sticky top-28"
               >
                 <h2 className="text-lg font-bold text-foreground mb-6">
@@ -737,7 +724,7 @@ export default function CartPage() {
                     </p>
                   )}
                 </div>
-              </motion.div>
+              </div>
             </div>
           </div>
         </div>

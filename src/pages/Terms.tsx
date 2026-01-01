@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import MobileNav from '@/components/layout/MobileNav';
@@ -11,27 +10,19 @@ export default function TermsPage() {
         {/* Hero */}
         <section className="bg-primary text-primary-foreground py-12 md:py-16">
           <div className="container-custom px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="max-w-2xl"
-            >
+            <div className="max-w-2xl">
               <h1 className="text-3xl md:text-4xl font-bold mb-4">Terms & Conditions</h1>
               <p className="text-primary-foreground/70">
                 Last updated: {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
               </p>
-            </motion.div>
+            </div>
           </div>
         </section>
 
         <section className="section-padding">
           <div className="container-custom">
             <div className="max-w-3xl mx-auto">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-8"
-              >
+              <div className="space-y-8">
                 <div className="card-premium p-6 md:p-8">
                   <h2 className="text-xl font-bold text-foreground mb-4">
                     1. Order Acceptance
@@ -114,7 +105,7 @@ export default function TermsPage() {
                     </a>.
                   </p>
                 </div>
-              </motion.div>
+              </div>
             </div>
           </div>
         </section>

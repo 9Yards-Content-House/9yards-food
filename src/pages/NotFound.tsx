@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { Home, UtensilsCrossed, ArrowLeft } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -12,29 +11,15 @@ export default function NotFound() {
       <main className="pt-16 md:pt-20">
         <section className="section-padding">
           <div className="container-custom">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="max-w-lg mx-auto text-center"
-            >
+            <div className="max-w-lg mx-auto text-center">
               {/* 404 Illustration */}
               <div className="mb-8">
-                <motion.div
-                  initial={{ scale: 0.8 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.2, type: 'spring' }}
-                  className="text-8xl md:text-9xl font-extrabold text-primary/10"
-                >
+                <div className="text-8xl md:text-9xl font-extrabold text-primary/10">
                   404
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="w-20 h-20 bg-secondary/10 rounded-full flex items-center justify-center mx-auto -mt-12"
-                >
+                </div>
+                <div className="w-20 h-20 bg-secondary/10 rounded-full flex items-center justify-center mx-auto -mt-12">
                   <span className="text-4xl">🍽️</span>
-                </motion.div>
+                </div>
               </div>
 
               <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
@@ -71,7 +56,7 @@ export default function NotFound() {
                 <ArrowLeft className="w-4 h-4" />
                 Go back to previous page
               </button>
-            </motion.div>
+            </div>
           </div>
         </section>
       </main>

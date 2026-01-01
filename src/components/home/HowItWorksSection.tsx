@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { UtensilsCrossed, ChefHat, Truck, MessageCircle, CreditCard, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -39,12 +38,7 @@ export default function HowItWorksSection() {
     <section className="section-padding overflow-hidden">
       <div className="container-custom">
         {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
+        <div className="text-center mb-16">
           <span className="text-secondary font-semibold text-sm uppercase tracking-wider">
             Simple Process
           </span>
@@ -54,7 +48,7 @@ export default function HowItWorksSection() {
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Ordering your favorite Ugandan food is easy. Just follow these simple steps.
           </p>
-        </motion.div>
+        </div>
 
         {/* Steps */}
         <div className="relative">
@@ -63,25 +57,16 @@ export default function HowItWorksSection() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6">
             {steps.map((step, index) => (
-              <motion.div
+              <div
                 key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.15 }}
                 className="relative"
               >
                 {/* Arrow Connector (desktop) */}
                 {index < steps.length - 1 && (
                   <div className="hidden lg:flex absolute top-16 -right-3 z-20">
-                    <motion.div
-                      initial={{ opacity: 0, x: -10 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: index * 0.15 + 0.3 }}
-                    >
+                    <div>
                       <ChevronRight className="w-6 h-6 text-secondary" />
-                    </motion.div>
+                    </div>
                   </div>
                 )}
 
@@ -89,21 +74,16 @@ export default function HowItWorksSection() {
                   step.highlight ? 'bg-secondary/5 border-2 border-secondary/20' : ''
                 }`}>
                   {/* Step Number - Prominent */}
-                  <motion.div 
-                    className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 bg-secondary text-secondary-foreground text-sm font-bold rounded-full flex items-center justify-center z-20 shadow-lg"
-                    whileHover={{ scale: 1.1 }}
-                  >
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 bg-secondary text-secondary-foreground text-sm font-bold rounded-full flex items-center justify-center z-20 shadow-lg hover:scale-110 transition-transform">
                     {index + 1}
-                  </motion.div>
+                  </div>
 
                   {/* Icon */}
-                  <motion.div
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`w-24 h-24 ${step.color} rounded-2xl flex items-center justify-center mb-6 shadow-lg relative z-10 mt-4`}
+                  <div
+                    className={`w-24 h-24 ${step.color} rounded-2xl flex items-center justify-center mb-6 shadow-lg relative z-10 mt-4 hover:scale-110 hover:rotate-3 transition-transform`}
                   >
                     <step.icon className={`w-12 h-12 ${step.iconColor}`} />
-                  </motion.div>
+                  </div>
 
                   {/* Content */}
                   <h3 className="text-lg font-bold text-foreground mb-2">
@@ -134,18 +114,13 @@ export default function HowItWorksSection() {
                     <div className="w-0.5 h-8 bg-gradient-to-b from-secondary to-transparent" />
                   </div>
                 )}
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
 
         {/* Encouraging CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mt-12"
-        >
+        <div className="text-center mt-12">
           <p className="text-xl font-semibold text-foreground mb-4">
             It's that simple! 🎉
           </p>
@@ -156,7 +131,7 @@ export default function HowItWorksSection() {
             Start Your Order
             <ChevronRight className="w-5 h-5" />
           </Link>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

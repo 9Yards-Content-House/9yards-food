@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   CheckCircle,
@@ -117,36 +116,20 @@ export default function OrderConfirmation() {
       <main className="pt-16 md:pt-20">
         <div className="container-custom section-padding">
           {/* Success Animation */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
+          <div
             className="text-center mb-8"
           >
             {/* Confetti Background */}
             {showConfetti && (
               <div className="fixed inset-0 pointer-events-none overflow-hidden z-50">
                 {[...Array(50)].map((_, i) => (
-                  <motion.div
+                  <div
                     key={i}
-                    initial={{ 
-                      y: -20, 
-                      x: Math.random() * window.innerWidth,
-                      rotate: 0,
-                      opacity: 1,
-                    }}
-                    animate={{ 
-                      y: window.innerHeight + 100, 
-                      rotate: Math.random() * 360,
-                      opacity: 0,
-                    }}
-                    transition={{ 
-                      duration: 2 + Math.random() * 2,
-                      delay: Math.random() * 0.5,
-                      ease: 'linear',
-                    }}
-                    className="absolute w-3 h-3 rounded-sm"
+                    className="absolute w-3 h-3 rounded-sm animate-bounce"
                     style={{
                       backgroundColor: ['#E6411C', '#212282', '#22C55E', '#F59E0B'][Math.floor(Math.random() * 4)],
+                      left: `${Math.random() * 100}%`,
+                      top: `${Math.random() * 100}%`,
                     }}
                   />
                 ))}
@@ -154,39 +137,27 @@ export default function OrderConfirmation() {
             )}
 
             {/* Success Icon */}
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: 'spring', delay: 0.2 }}
+            <div
               className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"
             >
               <CheckCircle className="w-14 h-14 text-green-500" />
-            </motion.div>
+            </div>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+            <h1
               className="text-2xl md:text-3xl font-bold text-foreground mb-2"
             >
               Order Placed Successfully! 🎉
-            </motion.h1>
+            </h1>
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
+            <p
               className="text-muted-foreground max-w-md mx-auto"
             >
               Thank you for your order! We're preparing your delicious Ugandan meal.
-            </motion.p>
-          </motion.div>
+            </p>
+          </div>
 
           {/* Order ID Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
+          <div
             className="max-w-2xl mx-auto mb-8"
           >
             <div className="card-premium p-6 text-center">
@@ -208,13 +179,10 @@ export default function OrderConfirmation() {
                 Estimated delivery: <span className="font-semibold text-foreground">{orderData.estimatedDelivery}</span>
               </p>
             </div>
-          </motion.div>
+          </div>
 
           {/* Order Status Timeline */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
+          <div
             className="max-w-2xl mx-auto mb-8"
           >
             <h2 className="text-lg font-bold text-foreground mb-4 text-center">Order Status</h2>
@@ -255,13 +223,10 @@ export default function OrderConfirmation() {
                 ))}
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Order Summary */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
+          <div
             className="max-w-2xl mx-auto mb-8"
           >
             <h2 className="text-lg font-bold text-foreground mb-4">Order Details</h2>
@@ -342,13 +307,10 @@ export default function OrderConfirmation() {
                 </p>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Action Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
+          <div
             className="max-w-2xl mx-auto"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -384,7 +346,7 @@ export default function OrderConfirmation() {
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </div>
-          </motion.div>
+          </div>
         </div>
       </main>
 

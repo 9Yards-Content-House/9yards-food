@@ -1,4 +1,3 @@
-import { motion, useInView } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { 
   Leaf, ChefHat, Award, Heart, Truck, Users, Star, Play,
@@ -14,8 +13,26 @@ import MobileNav from '@/components/layout/MobileNav';
 function useCountUp(end: number, duration: number = 2000) {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true });
+  const [isInView, setIsInView] = useState(false);
   const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!isInView || hasAnimated.current) return;
@@ -220,9 +237,7 @@ export default function AboutPage() {
         {/* Hero Section */}
         <section className="bg-primary text-primary-foreground py-16 md:py-24">
           <div className="container-custom px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+            <div
               className="max-w-3xl mx-auto text-center"
             >
               <span className="inline-block bg-secondary text-secondary-foreground font-bold text-sm uppercase tracking-wider px-4 py-2 rounded-full mb-6">
@@ -242,7 +257,7 @@ export default function AboutPage() {
                 Order Your First Meal
                 <ChevronRight className="w-5 h-5" />
               </Link>
-            </motion.div>
+            </div>
           </div>
         </section>
 
@@ -261,10 +276,7 @@ export default function AboutPage() {
         <section className="py-16 md:py-24 bg-muted/30">
           <div className="container-custom px-4">
             <div className="grid md:grid-cols-5 gap-12 items-center">
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+              <div
                 className="md:col-span-3"
               >
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl">
@@ -279,12 +291,9 @@ export default function AboutPage() {
                     <p className="text-white text-sm font-medium">Our kitchen team in action</p>
                   </div>
                 </div>
-              </motion.div>
+              </div>
 
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+              <div
                 className="md:col-span-2"
               >
                 <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
@@ -299,7 +308,7 @@ export default function AboutPage() {
                   </blockquote>
                 </div>
                 <p className="mt-6 font-bold text-foreground">— The 9Yards Food Team</p>
-              </motion.div>
+              </div>
             </div>
           </div>
         </section>
@@ -307,10 +316,7 @@ export default function AboutPage() {
         {/* Celebrity Endorsements */}
         <section className="py-16 md:py-24 bg-primary text-primary-foreground">
           <div className="container-custom px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+            <div
               className="text-center mb-12"
             >
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -319,16 +325,12 @@ export default function AboutPage() {
               <p className="text-primary-foreground/70">
                 See what celebrities and influencers are saying about our food
               </p>
-            </motion.div>
+            </div>
 
             <div className="flex gap-6 overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-4 scrollbar-hide">
               {celebrities.map((celeb, index) => (
-                <motion.div
+                <div
                   key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
                   className="flex-shrink-0 w-[260px] md:w-full"
                 >
                   <div
@@ -345,12 +347,11 @@ export default function AboutPage() {
                     
                     {/* Play Button */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <motion.div
-                        whileHover={{ scale: 1.1 }}
-                        className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center shadow-lg"
+                      <div
+                        className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"
                       >
                         <Play className="w-7 h-7 text-secondary-foreground ml-1" />
-                      </motion.div>
+                      </div>
                     </div>
 
                     {/* Info */}
@@ -360,7 +361,7 @@ export default function AboutPage() {
                       <p className="text-white/90 text-sm italic">"{celeb.quote}"</p>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
@@ -369,10 +370,7 @@ export default function AboutPage() {
         {/* Our Mission */}
         <section className="py-16 md:py-24">
           <div className="container-custom px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+            <div
               className="text-center max-w-3xl mx-auto mb-12"
             >
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -382,13 +380,10 @@ export default function AboutPage() {
                 We believe every Ugandan deserves access to delicious, freshly prepared 
                 local cuisine without compromising on quality or authenticity.
               </p>
-            </motion.div>
+            </div>
 
             {/* Large Food Photo */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+            <div
               className="mb-12"
             >
               <div className="relative rounded-2xl overflow-hidden shadow-2xl max-w-4xl mx-auto">
@@ -399,12 +394,9 @@ export default function AboutPage() {
                   loading="lazy"
                 />
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+            <div
               className="max-w-3xl mx-auto text-center"
             >
               <p className="text-lg text-muted-foreground leading-relaxed mb-6">
@@ -416,17 +408,14 @@ export default function AboutPage() {
                 Every meal is prepared with love, care, and decades of culinary expertise passed down 
                 through generations.
               </p>
-            </motion.div>
+            </div>
           </div>
         </section>
 
         {/* Meet Our Team */}
         <section className="py-16 md:py-24 bg-muted/30">
           <div className="container-custom px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+            <div
               className="text-center mb-12"
             >
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -435,16 +424,12 @@ export default function AboutPage() {
               <p className="text-muted-foreground">
                 Meet the dedicated team that makes 9Yards Food possible
               </p>
-            </motion.div>
+            </div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {teamMembers.map((member, index) => (
-                <motion.div
+                <div
                   key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
                   className="bg-card rounded-2xl p-6 shadow-lg text-center hover:shadow-xl transition-shadow"
                 >
                   <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 border-secondary/20">
@@ -458,7 +443,7 @@ export default function AboutPage() {
                   <h3 className="font-bold text-xl text-foreground">{member.name}</h3>
                   <p className="text-secondary font-medium text-sm mb-2">{member.role}</p>
                   <p className="text-muted-foreground text-sm italic">"{member.description}"</p>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
@@ -467,10 +452,7 @@ export default function AboutPage() {
         {/* How We Do It (Process) */}
         <section className="py-16 md:py-24">
           <div className="container-custom px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+            <div
               className="text-center mb-12"
             >
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -479,17 +461,13 @@ export default function AboutPage() {
               <p className="text-muted-foreground">
                 Our commitment to quality at every step
               </p>
-            </motion.div>
+            </div>
 
             {/* Desktop: Horizontal flow */}
             <div className="hidden md:flex items-start justify-between gap-4 max-w-5xl mx-auto">
               {processSteps.map((step, index) => (
-                <motion.div
+                <div
                   key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
                   className="flex flex-col items-center text-center flex-1 relative"
                 >
                   <div className="w-20 h-20 bg-secondary/10 rounded-2xl flex items-center justify-center mb-4">
@@ -503,19 +481,15 @@ export default function AboutPage() {
                       <ChevronRight className="w-4 h-4 text-muted-foreground absolute -right-1 -top-1.5" />
                     </div>
                   )}
-                </motion.div>
+                </div>
               ))}
             </div>
 
             {/* Mobile: Vertical stack */}
             <div className="md:hidden space-y-6">
               {processSteps.map((step, index) => (
-                <motion.div
+                <div
                   key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
                   className="flex items-start gap-4"
                 >
                   <div className="w-14 h-14 bg-secondary/10 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -525,7 +499,7 @@ export default function AboutPage() {
                     <h3 className="font-bold text-foreground">{step.title}</h3>
                     <p className="text-sm text-muted-foreground">{step.desc}</p>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
@@ -534,10 +508,7 @@ export default function AboutPage() {
         {/* What We Stand For (Values) */}
         <section className="py-16 md:py-24 bg-muted/30">
           <div className="container-custom px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+            <div
               className="text-center mb-12"
             >
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -546,18 +517,13 @@ export default function AboutPage() {
               <p className="text-muted-foreground">
                 The principles that guide everything we do
               </p>
-            </motion.div>
+            </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {values.map((value, index) => (
-                <motion.div
+                <div
                   key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -4 }}
-                  className="bg-card rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border border-border"
+                  className="bg-card rounded-2xl p-6 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all border border-border"
                 >
                   <div className="w-14 h-14 bg-secondary/10 rounded-2xl flex items-center justify-center mb-4">
                     <value.icon className="w-7 h-7 text-secondary" />
@@ -572,7 +538,7 @@ export default function AboutPage() {
                       </li>
                     ))}
                   </ul>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
@@ -581,10 +547,7 @@ export default function AboutPage() {
         {/* Customer Success Stories */}
         <section className="py-16 md:py-24">
           <div className="container-custom px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+            <div
               className="text-center mb-12"
             >
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -593,16 +556,12 @@ export default function AboutPage() {
               <p className="text-muted-foreground">
                 Real reviews from our happy customers
               </p>
-            </motion.div>
+            </div>
 
             <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
               {testimonials.map((testimonial, index) => (
-                <motion.div
+                <div
                   key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
                   className="bg-card rounded-2xl p-6 shadow-lg border border-border"
                 >
                   {/* Stars */}
@@ -629,7 +588,7 @@ export default function AboutPage() {
                       </p>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
@@ -638,10 +597,7 @@ export default function AboutPage() {
         {/* Behind The Scenes */}
         <section className="py-16 md:py-24 bg-muted/30">
           <div className="container-custom px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+            <div
               className="text-center mb-12"
             >
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -650,13 +606,10 @@ export default function AboutPage() {
               <p className="text-muted-foreground">
                 A peek inside our kitchen and daily operations
               </p>
-            </motion.div>
+            </div>
 
             {/* Main Video */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+            <div
               className="max-w-4xl mx-auto mb-8"
             >
               <div
@@ -670,27 +623,22 @@ export default function AboutPage() {
                   loading="lazy"
                 />
                 <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center">
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    className="w-20 h-20 bg-secondary rounded-full flex items-center justify-center mb-4"
+                  <div
+                    className="w-20 h-20 bg-secondary rounded-full flex items-center justify-center mb-4 transition-transform hover:scale-110"
                   >
                     <Play className="w-9 h-9 text-secondary-foreground ml-1" />
-                  </motion.div>
+                  </div>
                   <p className="text-white font-bold text-xl">A Day at 9Yards Food Kitchen</p>
                   <p className="text-white/70 text-sm">▶️ Play Video - 2:30</p>
                 </div>
               </div>
-            </motion.div>
+            </div>
 
             {/* Photo Gallery */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-5xl mx-auto">
               {galleryImages.map((img, index) => (
-                <motion.div
+                <div
                   key={index}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.05 }}
                   className="relative rounded-xl overflow-hidden cursor-pointer group"
                   onClick={() => setLightboxImage(img.src)}
                 >
@@ -701,7 +649,7 @@ export default function AboutPage() {
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors" />
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
@@ -710,10 +658,7 @@ export default function AboutPage() {
         {/* Instagram Feed */}
         <section className="py-16 md:py-24">
           <div className="container-custom px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+            <div
               className="text-center mb-12"
             >
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
@@ -728,19 +673,15 @@ export default function AboutPage() {
                 <Instagram className="w-5 h-5" />
                 @9yardsfood
               </a>
-            </motion.div>
+            </div>
 
             <div className="grid grid-cols-3 md:grid-cols-6 gap-3 max-w-5xl mx-auto">
               {instagramPosts.map((post, index) => (
-                <motion.a
+                <a
                   key={index}
                   href="https://instagram.com/9yardsfood"
                   target="_blank"
                   rel="noopener noreferrer"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.05 }}
                   className="relative rounded-xl overflow-hidden group"
                 >
                   <img
@@ -754,14 +695,11 @@ export default function AboutPage() {
                       <Heart className="w-4 h-4 fill-white" /> {post.likes}
                     </p>
                   </div>
-                </motion.a>
+                </a>
               ))}
             </div>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
+            <div
               className="text-center mt-8"
             >
               <a
@@ -773,17 +711,14 @@ export default function AboutPage() {
                 <Instagram className="w-5 h-5" />
                 Follow Us on Instagram
               </a>
-            </motion.div>
+            </div>
           </div>
         </section>
 
         {/* Final CTA Section */}
         <section className="py-16 md:py-24 bg-gradient-to-br from-secondary to-secondary/80 text-secondary-foreground">
           <div className="container-custom px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+            <div
               className="max-w-3xl mx-auto text-center"
             >
               <h2 className="text-4xl md:text-5xl font-bold mb-4">
@@ -811,7 +746,7 @@ export default function AboutPage() {
               <p className="text-secondary-foreground/70 text-sm">
                 Use code <span className="font-bold text-secondary-foreground">FIRST10</span> on your first order
               </p>
-            </motion.div>
+            </div>
           </div>
         </section>
       </main>
@@ -821,10 +756,7 @@ export default function AboutPage() {
 
       {/* Video Modal */}
       {videoModal && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+        <div
           className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
           onClick={() => setVideoModal(null)}
         >
@@ -841,15 +773,12 @@ export default function AboutPage() {
               Our celebrity testimonial videos are being produced. Check back soon!
             </p>
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* Lightbox */}
       {lightboxImage && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+        <div
           className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
           onClick={() => setLightboxImage(null)}
         >
@@ -864,7 +793,7 @@ export default function AboutPage() {
             alt="Gallery image"
             className="max-w-full max-h-[85vh] object-contain rounded-lg"
           />
-        </motion.div>
+        </div>
       )}
     </div>
   );
@@ -875,17 +804,14 @@ function StatItem({ value, suffix, label }: { value: number; suffix: string; lab
   const { count, ref } = useCountUp(value, 2000);
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
       className="text-center"
     >
       <p className="text-4xl md:text-5xl font-bold text-primary mb-2">
         {count.toLocaleString()}{suffix}
       </p>
       <p className="text-sm text-muted-foreground">{label}</p>
-    </motion.div>
+    </div>
   );
 }
