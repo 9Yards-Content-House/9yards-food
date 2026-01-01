@@ -15,4 +15,53 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    // Enable minification
+    minify: "esbuild",
+    // Target modern browsers for smaller bundles
+    target: "es2020",
+    // Optimize CSS
+    cssMinify: true,
+    // Source maps only in development
+    sourcemap: mode === "development",
+    // Rollup options for better chunking
+    rollupOptions: {
+      output: {
+        // Manual chunk splitting for better caching
+        manualChunks: {
+          // Vendor chunks - cached separately
+          "vendor-react": ["react", "react-dom", "react-router-dom"],
+          "vendor-ui": [
+            "@radix-ui/react-dialog",
+            "@radix-ui/react-dropdown-menu",
+            "@radix-ui/react-tooltip",
+            "@radix-ui/react-tabs",
+            "@radix-ui/react-accordion",
+            "@radix-ui/react-select",
+            "@radix-ui/react-popover",
+          ],
+          "vendor-motion": ["framer-motion"],
+          "vendor-query": ["@tanstack/react-query"],
+          "vendor-forms": ["react-hook-form", "@hookform/resolvers", "zod"],
+          "vendor-utils": ["clsx", "tailwind-merge", "class-variance-authority", "date-fns"],
+        },
+        // Consistent chunk naming for better caching
+        chunkFileNames: "assets/[name]-[hash].js",
+        entryFileNames: "assets/[name]-[hash].js",
+        assetFileNames: "assets/[name]-[hash].[ext]",
+      },
+    },
+    // Increase chunk size warning limit (we're splitting well now)
+    chunkSizeWarningLimit: 300,
+  },
+  // Optimize dependencies
+  optimizeDeps: {
+    include: [
+      "react",
+      "react-dom",
+      "react-router-dom",
+      "framer-motion",
+      "@tanstack/react-query",
+    ],
+  },
 }));

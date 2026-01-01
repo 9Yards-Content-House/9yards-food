@@ -3,22 +3,26 @@ import { Link } from 'react-router-dom';
 import { ChevronRight, Star, Clock, Leaf, Award, MapPin, Navigation } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
-// Carousel images for rotating food display
+// Carousel images for rotating food display with multiple sizes for responsive loading
 const heroImages = [
   {
-    src: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600',
+    src: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80&auto=format',
+    srcSet: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80&auto=format 400w, https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80&auto=format 600w, https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80&auto=format 800w',
     alt: 'Delicious Ugandan cuisine',
   },
   {
-    src: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600',
+    src: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&q=80&auto=format',
+    srcSet: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&q=80&auto=format 400w, https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&q=80&auto=format 600w, https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&q=80&auto=format 800w',
     alt: 'Fresh grilled dishes',
   },
   {
-    src: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600',
+    src: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&q=80&auto=format',
+    srcSet: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&q=80&auto=format 400w, https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&q=80&auto=format 600w, https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=800&q=80&auto=format 800w',
     alt: 'Traditional local food',
   },
   {
-    src: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600',
+    src: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&q=80&auto=format',
+    srcSet: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80&auto=format 400w, https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&q=80&auto=format 600w, https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80&auto=format 800w',
     alt: 'Hot fresh meals',
   },
 ];
@@ -89,7 +93,12 @@ export default function HeroSection() {
           >
             <motion.img
               src={heroImages[currentImageIndex].src}
+              srcSet={heroImages[currentImageIndex].srcSet}
+              sizes="(max-width: 768px) 288px, (max-width: 1024px) 420px, 480px"
               alt={heroImages[currentImageIndex].alt}
+              loading={currentImageIndex === 0 ? "eager" : "lazy"}
+              decoding={currentImageIndex === 0 ? "sync" : "async"}
+              fetchPriority={currentImageIndex === 0 ? "high" : "auto"}
               className="w-full h-full object-cover rounded-full shadow-2xl ring-4 ring-secondary/30"
               animate={{ y: [0, -15, 0] }}
               transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}

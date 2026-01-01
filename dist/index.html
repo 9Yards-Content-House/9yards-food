@@ -62,10 +62,23 @@
     <!-- Canonical -->
     <link rel="canonical" href="https://food.9yards.co.ug/" />
     
-    <!-- Preload Flutterwave for faster checkout -->
+    <!-- Font Optimization: Preconnect + Preload -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" /></noscript>
+    
+    <!-- Preconnect to external services -->
     <link rel="preconnect" href="https://checkout.flutterwave.com" />
-    <script type="module" crossorigin src="/assets/index-TGulcVfr.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CNseRSPs.css">
+    <link rel="preconnect" href="https://images.unsplash.com" />
+    <link rel="dns-prefetch" href="https://api.whatsapp.com" />
+    <script type="module" crossorigin src="/assets/index-Dj-cGOYe.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/vendor-react-rxBb_eoi.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-ui-BNn_Rh50.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-utils--BulIq_u.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-query-DhOFERaQ.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-xKyyAAlD.css">
   </head>
   <body>
     <!-- Hidden form for Netlify detection -->
