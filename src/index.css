@@ -217,12 +217,13 @@
   /* Premium button styles */
   .btn-primary {
     @apply bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-lg transition-all duration-200;
-    @apply hover:opacity-90 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
+    @apply hover:bg-primary/90 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
   }
 
   .btn-secondary {
-    @apply text-secondary-foreground font-semibold px-6 py-3 rounded-lg transition-all duration-200 gradient-cta shadow-cta;
-    @apply hover:opacity-95 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2;
+    @apply bg-secondary text-secondary-foreground font-semibold px-6 py-3 rounded-lg transition-all duration-200;
+    @apply hover:bg-secondary/90 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2;
+    @apply shadow-sm hover:shadow-md;
   }
 
   .btn-outline {

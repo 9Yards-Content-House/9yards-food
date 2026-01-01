@@ -29,8 +29,8 @@ export default function Footer() {
             <ul className="space-y-2">
               {[
                 { href: '/menu', label: 'Menu' },
-                { href: '/delivery-zones', label: 'Delivery Zones' },
-                { href: '/how-it-works', label: 'How It Works' },
+                { href: '/delivery-zones', label: 'Delivery Areas' },
+                { href: '/how-it-works', label: 'Order Guide' },
                 { href: '/about', label: 'About Us' },
                 { href: '/contact', label: 'Contact' },
               ].map((link) => (

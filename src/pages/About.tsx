@@ -39,7 +39,7 @@ function useCountUp(end: number, duration: number = 2000) {
 // Stats data
 const stats = [
   { value: 10000, suffix: '+', label: 'Happy Customers Served' },
-  { value: 5, suffix: '', label: 'Delivery Zones Covered' },
+  { value: 5, suffix: '', label: 'Delivery Areas Covered' },
   { value: 30, suffix: '-45', label: 'Minutes Avg. Delivery' },
   { value: 100, suffix: '%', label: 'Natural Ingredients' },
 ];

@@ -20,7 +20,7 @@ export default function DeliveryZonesPage() {
               className="max-w-2xl"
             >
               <h1 className="text-3xl md:text-4xl font-bold mb-4">
-                Delivery Zones
+                Delivery Areas
               </h1>
               <p className="text-primary-foreground/70">
                 We deliver across Kampala! Check if we cover your area and see delivery fees.

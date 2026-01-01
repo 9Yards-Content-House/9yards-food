@@ -1,7 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Plus, Search, X, ShoppingCart, Flame, TrendingUp, Utensils, Drumstick, GlassWater, Cake, Salad } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import MobileNav from '@/components/layout/MobileNav';
@@ -39,11 +39,44 @@ function MenuCardSkeleton() {
 }
 
 export default function MenuPage() {
+  const [searchParams] = useSearchParams();
   const [activeCategory, setActiveCategory] = useState<Category>('all');
   const [isComboBuilderOpen, setIsComboBuilderOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [highlightedItem, setHighlightedItem] = useState<string | null>(null);
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const { toggleFavorite, isFavorite, cartCount } = useCart();
+
+  // Handle search params from SearchModal navigation
+  useEffect(() => {
+    const searchParam = searchParams.get('search');
+    const highlightParam = searchParams.get('highlight');
+    const categoryParam = searchParams.get('category');
+
+    if (searchParam) {
+      setSearchQuery(searchParam);
+    }
+    
+    if (highlightParam) {
+      setHighlightedItem(highlightParam);
+      // Clear highlight after 3 seconds
+      const timer = setTimeout(() => setHighlightedItem(null), 3000);
+      return () => clearTimeout(timer);
+    }
+
+    if (categoryParam) {
+      const catMap: Record<string, Category> = {
+        'main dish': 'main',
+        'sauce': 'sauce',
+        'juice': 'juice',
+        'dessert': 'dessert',
+        'side': 'side',
+      };
+      if (catMap[categoryParam]) {
+        setActiveCategory(catMap[categoryParam]);
+      }
+    }
+  }, [searchParams]);
 
   const categories = [
     { id: 'all', label: 'All Items' },
@@ -312,7 +345,11 @@ export default function MenuPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.03 }}
                       whileHover={{ y: -8 }}
-                      className="card-premium food-card-hover group relative"
+                      className={`card-premium food-card-hover group relative ${
+                        highlightedItem === item.id 
+                          ? 'ring-4 ring-secondary ring-offset-2 animate-pulse' 
+                          : ''
+                      }`}
                     >
                       {/* Image */}
                       <div className="relative aspect-square overflow-hidden bg-muted">

@@ -19,7 +19,7 @@ const faqs = [
   },
   {
     question: 'What areas do you deliver to?',
-    answer: 'We deliver across Kampala including Central, Nakawa, Kololo, Muyenga, Ntinda, Bukoto, Bugolobi, and many more areas. Check our Delivery Zones page for full coverage details and delivery fees.'
+    answer: 'We deliver across Kampala including Central, Nakawa, Kololo, Muyenga, Ntinda, Bukoto, Bugolobi, and many more areas. Check our Delivery Areas page for full coverage details and delivery fees.'
   },
   {
     question: 'How long does delivery take?',
@@ -354,7 +354,7 @@ export default function ContactPage() {
                           to="/delivery-zones"
                           className="text-sm font-bold text-secondary flex items-center gap-1 hover:underline"
                         >
-                          View Delivery Zones <ChevronRight className="w-4 h-4" />
+                          View Delivery Areas <ChevronRight className="w-4 h-4" />
                         </Link>
                       </div>
                     </div>
@@ -796,7 +796,7 @@ export default function ContactPage() {
                   to="/how-it-works"
                   className="inline-flex items-center justify-center gap-2 border-2 border-border font-bold px-6 py-3 rounded-lg hover:bg-muted transition-colors"
                 >
-                  View How It Works
+                  View Order Guide
                   <ChevronRight className="w-4 h-4" />
                 </Link>
               </div>

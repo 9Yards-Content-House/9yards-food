@@ -48,7 +48,7 @@ const faqs = [
   },
   {
     question: 'Do you deliver to my area?',
-    answer: 'We deliver across Kampala including Central, Nakawa, Kololo, Muyenga, Ntinda, Bukoto, and more. Check our delivery zones page for full coverage details.'
+    answer: 'We deliver across Kampala including Central, Nakawa, Kololo, Muyenga, Ntinda, Bukoto, and more. Check our delivery areas page for full coverage details.'
   },
   {
     question: 'Can I customize my order?',
@@ -87,12 +87,12 @@ export default function HowItWorksPage() {
               <div className="text-sm mb-6 opacity-80">
                 <Link to="/" className="hover:text-secondary transition-colors">Home</Link>
                 <span className="mx-2">/</span>
-                <span className="text-secondary font-medium">How It Works</span>
+                <span className="text-secondary font-medium">Order Guide</span>
               </div>
 
               {/* Main Heading */}
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-                How It Works
+                Order Guide
               </h1>
 
               {/* Description */}
@@ -550,7 +550,7 @@ export default function HowItWorksPage() {
                         {faq.answer}
                         {faq.question.includes('deliver to my area') && (
                           <Link to="/delivery-zones" className="text-secondary font-semibold hover:underline ml-1">
-                            View delivery zones →
+                            View delivery areas →
                           </Link>
                         )}
                       </p>

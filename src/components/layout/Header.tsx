@@ -1,23 +1,33 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Heart, Menu, X, Search, MapPin, ClipboardList } from 'lucide-react';
+import { ShoppingCart, Heart, Menu, X, Search } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import SearchModal from './SearchModal';
 
+// Simplified navigation - removed Order Guide and Delivery Areas (they remain in footer only)
 const navLinks = [
-  { href: '/', label: 'Home' },
   { href: '/menu', label: 'Menu' },
-  { href: '/how-it-works', label: 'How It Works' },
-  { href: '/delivery-zones', label: 'Delivery Zones' },
   { href: '/about', label: 'About Us' },
   { href: '/contact', label: 'Contact' },
+];
+
+// Mobile navigation includes all pages
+const mobileNavLinks = [
+  { href: '/', label: 'Home' },
+  { href: '/menu', label: 'Menu' },
+  { href: '/about', label: 'About Us' },
+  { href: '/contact', label: 'Contact' },
+  { href: '/how-it-works', label: 'Order Guide' },
+  { href: '/delivery-zones', label: 'Delivery Areas' },
 ];
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
-  const { cartCount, state, orderHistory } = useCart();
+  const { cartCount, state } = useCart();
 
   // Check if we're on the home page
   const isHomePage = location.pathname === '/';
@@ -50,16 +60,16 @@ export default function Header() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed left-0 right-0 z-50 transition-all duration-300 ${
           showStickyStyle
-            ? 'bg-white shadow-soft'
-            : 'bg-transparent'
+            ? 'bg-white shadow-soft top-0'
+            : 'bg-transparent top-0'
         }`}
       >
         <div className="container-custom">
           <div className="flex items-center justify-between h-16 md:h-20 px-4">
-            {/* Logo - switches based on page and scroll state */}
-            <Link to="/" className="flex items-center gap-2">
+            {/* Logo */}
+            <Link to="/" className="flex items-center">
               <img 
                 src={useTransparentStyle 
                   ? "/images/logo/9Yards-Food-White-Logo.png" 
@@ -84,25 +94,17 @@ export default function Header() {
             </nav>
 
             {/* Right Actions */}
-            <div className="flex items-center gap-2 md:gap-4">
+            <div className="flex items-center gap-1 md:gap-2">
+              {/* Search Button */}
               <button 
-                className="p-2 rounded-full hover:bg-muted/20 transition-colors hidden md:flex"
+                onClick={() => setIsSearchOpen(true)}
+                className="p-2 rounded-full hover:bg-muted/20 transition-colors"
                 aria-label="Search menu"
               >
                 <Search className={`w-5 h-5 ${iconColorClass} transition-colors`} />
               </button>
 
-              {/* Order History - show only if there are orders */}
-              {orderHistory.length > 0 && (
-                <Link
-                  to="/order-history"
-                  className="p-2 rounded-full hover:bg-muted/20 transition-colors relative hidden md:flex"
-                  aria-label={`Order history (${orderHistory.length} orders)`}
-                >
-                  <ClipboardList className={`w-5 h-5 ${iconColorClass} transition-colors`} />
-                </Link>
-              )}
-
+              {/* Favorites */}
               <Link
                 to="/favorites"
                 className="p-2 rounded-full hover:bg-muted/20 transition-colors relative"
@@ -116,6 +118,7 @@ export default function Header() {
                 )}
               </Link>
 
+              {/* Cart */}
               <Link
                 to="/cart"
                 className="p-2 rounded-full hover:bg-muted/20 transition-colors relative"
@@ -133,11 +136,12 @@ export default function Header() {
                 )}
               </Link>
 
+              {/* CTA Button - Desktop */}
               <Link
                 to="/menu"
                 className="hidden md:flex btn-secondary text-sm py-2.5 px-5"
               >
-                Order Now
+                Build Your Combo
               </Link>
 
               {/* Mobile Menu Button */}
@@ -158,6 +162,9 @@ export default function Header() {
         </div>
       </header>
 
+      {/* Search Modal */}
+      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+
       {/* Mobile Menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
@@ -176,10 +183,10 @@ export default function Header() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-card shadow-elevated p-6 pt-24"
+              className="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-card shadow-elevated p-6 pt-24 overflow-y-auto"
             >
               <div className="flex flex-col gap-2">
-                {navLinks.map((link) => (
+                {mobileNavLinks.map((link) => (
                   <Link
                     key={link.href}
                     to={link.href}
@@ -197,7 +204,7 @@ export default function Header() {
                     to="/menu"
                     className="btn-secondary w-full text-center block"
                   >
-                    Order Now
+                    Build Your Combo
                   </Link>
                 </div>
               </div>
