@@ -114,7 +114,7 @@ export default function OrderConfirmation() {
     <div className="min-h-screen bg-background pb-20 lg:pb-0">
       <Header />
 
-      <main className="pt-20 md:pt-24">
+      <main className="pt-16 md:pt-20">
         <div className="container-custom section-padding">
           {/* Success Animation */}
           <motion.div

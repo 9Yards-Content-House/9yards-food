@@ -76,7 +76,7 @@ export default function OrderHistory() {
     return (
       <div className="min-h-screen bg-background pb-20 lg:pb-0">
         <Header />
-        <main className="pt-20 md:pt-24">
+        <main className="pt-16 md:pt-20">
           <div className="container-custom section-padding text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -109,7 +109,7 @@ export default function OrderHistory() {
     <div className="min-h-screen bg-background pb-20 lg:pb-0">
       <Header />
 
-      <main className="pt-20 md:pt-24">
+      <main className="pt-16 md:pt-20">
         <div className="container-custom section-padding">
           <div className="flex items-center justify-between mb-8">
             <motion.h1

@@ -216,7 +216,7 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-background pb-24 lg:pb-0">
       <Header />
-      <main className="pt-20 md:pt-24">
+      <main className="pt-16 md:pt-20">
         {/* Hero Section */}
         <section className="bg-primary text-primary-foreground py-16 md:py-24">
           <div className="container-custom px-4">

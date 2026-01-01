@@ -19,6 +19,15 @@ export default function Header() {
   const location = useLocation();
   const { cartCount, state, orderHistory } = useCart();
 
+  // Check if we're on the home page
+  const isHomePage = location.pathname === '/';
+  
+  // Determine if we should use transparent/white styling (only on home page before scroll)
+  const useTransparentStyle = isHomePage && !isScrolled;
+  
+  // On non-home pages, always show as "scrolled" style (white background with colored logo)
+  const showStickyStyle = isScrolled || !isHomePage;
+
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
@@ -29,26 +38,36 @@ export default function Header() {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
 
+  // Dynamic icon color based on scroll state and page
+  const iconColorClass = useTransparentStyle ? 'text-white' : 'text-foreground/70';
+  
+  // Dynamic nav link color based on scroll state and page
+  const getNavLinkClass = (isActive: boolean) => {
+    if (isActive) return 'text-secondary';
+    return useTransparentStyle ? 'text-white hover:text-secondary' : 'text-foreground/80 hover:text-secondary';
+  };
+
   return (
     <>
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? 'bg-card/95 backdrop-blur-md shadow-soft'
+          showStickyStyle
+            ? 'bg-white shadow-soft'
             : 'bg-transparent'
         }`}
       >
         <div className="container-custom">
           <div className="flex items-center justify-between h-16 md:h-20 px-4">
-            {/* Logo */}
+            {/* Logo - switches based on page and scroll state */}
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">9Y</span>
-              </div>
-              <div className="hidden sm:block">
-                <span className="font-bold text-lg text-foreground">9Yards</span>
-                <span className="font-bold text-lg text-secondary ml-1">Food</span>
-              </div>
+              <img 
+                src={useTransparentStyle 
+                  ? "/images/logo/9Yards-Food-White-Logo.png" 
+                  : "/images/logo/9Yards-Food-White-Logo-colored.png"
+                }
+                alt="9Yards Food"
+                className="h-14 md:h-[3.8rem] w-auto object-contain transition-opacity duration-300"
+              />
             </Link>
 
             {/* Desktop Navigation */}
@@ -57,11 +76,7 @@ export default function Header() {
                 <Link
                   key={link.href}
                   to={link.href}
-                  className={`text-sm font-medium transition-colors hover:text-secondary ${
-                    location.pathname === link.href
-                      ? 'text-secondary'
-                      : 'text-foreground/80'
-                  }`}
+                  className={`text-sm font-medium transition-colors ${getNavLinkClass(location.pathname === link.href)}`}
                 >
                   {link.label}
                 </Link>
@@ -71,29 +86,29 @@ export default function Header() {
             {/* Right Actions */}
             <div className="flex items-center gap-2 md:gap-4">
               <button 
-                className="p-2 rounded-full hover:bg-muted transition-colors hidden md:flex"
+                className="p-2 rounded-full hover:bg-muted/20 transition-colors hidden md:flex"
                 aria-label="Search menu"
               >
-                <Search className="w-5 h-5 text-foreground/70" />
+                <Search className={`w-5 h-5 ${iconColorClass} transition-colors`} />
               </button>
 
               {/* Order History - show only if there are orders */}
               {orderHistory.length > 0 && (
                 <Link
                   to="/order-history"
-                  className="p-2 rounded-full hover:bg-muted transition-colors relative hidden md:flex"
+                  className="p-2 rounded-full hover:bg-muted/20 transition-colors relative hidden md:flex"
                   aria-label={`Order history (${orderHistory.length} orders)`}
                 >
-                  <ClipboardList className="w-5 h-5 text-foreground/70" />
+                  <ClipboardList className={`w-5 h-5 ${iconColorClass} transition-colors`} />
                 </Link>
               )}
 
               <Link
                 to="/favorites"
-                className="p-2 rounded-full hover:bg-muted transition-colors relative"
+                className="p-2 rounded-full hover:bg-muted/20 transition-colors relative"
                 aria-label={`Favorites${state.favorites.length > 0 ? ` (${state.favorites.length} items)` : ''}`}
               >
-                <Heart className="w-5 h-5 text-foreground/70" />
+                <Heart className={`w-5 h-5 ${iconColorClass} transition-colors`} />
                 {state.favorites.length > 0 && (
                   <span className="absolute -top-1 -right-1 w-5 h-5 bg-secondary text-secondary-foreground text-xs font-bold rounded-full flex items-center justify-center">
                     {state.favorites.length}
@@ -103,10 +118,10 @@ export default function Header() {
 
               <Link
                 to="/cart"
-                className="p-2 rounded-full hover:bg-muted transition-colors relative"
+                className="p-2 rounded-full hover:bg-muted/20 transition-colors relative"
                 aria-label={`Cart${cartCount > 0 ? ` (${cartCount} items)` : ''}`}
               >
-                <ShoppingCart className="w-5 h-5 text-foreground/70" />
+                <ShoppingCart className={`w-5 h-5 ${iconColorClass} transition-colors`} />
                 {cartCount > 0 && (
                   <motion.span
                     initial={{ scale: 0 }}
@@ -128,14 +143,14 @@ export default function Header() {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 rounded-full hover:bg-muted transition-colors lg:hidden"
+                className="p-2 rounded-full hover:bg-muted/20 transition-colors lg:hidden"
                 aria-expanded={isMobileMenuOpen}
                 aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
               >
                 {isMobileMenuOpen ? (
-                  <X className="w-6 h-6" />
+                  <X className={`w-6 h-6 ${iconColorClass} transition-colors`} />
                 ) : (
-                  <Menu className="w-6 h-6" />
+                  <Menu className={`w-6 h-6 ${iconColorClass} transition-colors`} />
                 )}
               </button>
             </div>

@@ -7,7 +7,7 @@ export default function TermsPage() {
   return (
     <div className="min-h-screen bg-background pb-20 lg:pb-0">
       <Header />
-      <main className="pt-20 md:pt-24">
+      <main className="pt-16 md:pt-20">
         {/* Hero */}
         <section className="bg-primary text-primary-foreground py-12 md:py-16">
           <div className="container-custom px-4">
