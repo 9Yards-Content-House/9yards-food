@@ -82,14 +82,15 @@ export default function Footer() {
             <h4 className="font-bold text-lg mb-4">Follow Us</h4>
             <div className="flex gap-3">
               {[
-                { icon: Instagram, href: 'https://instagram.com/9yardsfood', label: 'Instagram' },
-                { icon: Youtube, href: 'https://youtube.com/@9yardsfood', label: 'YouTube' },
+                { icon: Instagram, href: 'https://instagram.com/9yardsfood', label: 'Follow us on Instagram' },
+                { icon: Youtube, href: 'https://youtube.com/@9yardsfood', label: 'Subscribe on YouTube' },
               ].map((social) => (
                 <a
                   key={social.label}
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={social.label}
                   className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-secondary transition-colors"
                 >
                   <social.icon className="w-5 h-5" />

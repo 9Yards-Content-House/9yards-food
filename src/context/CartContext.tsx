@@ -105,6 +105,7 @@ interface CartContextType {
   setUserPreferences: (prefs: Partial<UserPreferences>) => void;
   cartTotal: number;
   cartCount: number;
+  favoritesCount: number;
   isFavorite: (id: string) => boolean;
 }
 
@@ -153,6 +154,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const cartCount = state.items.reduce((count, item) => count + item.quantity, 0);
 
+  const favoritesCount = state.favorites.length;
+
   const isFavorite = (id: string) => state.favorites.includes(id);
 
   return (
@@ -167,6 +170,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setUserPreferences,
         cartTotal,
         cartCount,
+        favoritesCount,
         isFavorite,
       }}
     >

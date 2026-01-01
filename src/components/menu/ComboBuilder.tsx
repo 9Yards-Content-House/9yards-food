@@ -216,6 +216,7 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
               <button
                 onClick={handleClose}
                 className="w-10 h-10 rounded-full hover:bg-muted flex items-center justify-center transition-colors"
+                aria-label="Close combo builder"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -472,16 +473,18 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                               <div className="flex items-center gap-2">
                                 <button
                                   onClick={() => updateJuiceQuantity(juice.id, -1)}
-                                  className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                                  className="w-11 h-11 rounded-full bg-muted flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                                  aria-label={`Decrease ${juice.name} quantity`}
                                 >
                                   <Minus className="w-4 h-4" />
                                 </button>
-                                <span className="w-8 text-center font-medium">
+                                <span className="w-8 text-center font-medium" aria-label={`Quantity: ${selected?.quantity || 0}`}>
                                   {selected?.quantity || 0}
                                 </span>
                                 <button
                                   onClick={() => updateJuiceQuantity(juice.id, 1)}
-                                  className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors"
+                                  className="w-11 h-11 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors"
+                                  aria-label={`Increase ${juice.name} quantity`}
                                 >
                                   <Plus className="w-4 h-4 text-secondary-foreground" />
                                 </button>
@@ -521,16 +524,18 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                               <div className="flex items-center gap-2">
                                 <button
                                   onClick={() => updateDessertQuantity(dessert.id, -1)}
-                                  className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                                  className="w-11 h-11 rounded-full bg-muted flex items-center justify-center hover:bg-secondary/20 transition-colors"
+                                  aria-label={`Decrease ${dessert.name} quantity`}
                                 >
                                   <Minus className="w-4 h-4" />
                                 </button>
-                                <span className="w-8 text-center font-medium">
+                                <span className="w-8 text-center font-medium" aria-label={`Quantity: ${selected?.quantity || 0}`}>
                                   {selected?.quantity || 0}
                                 </span>
                                 <button
                                   onClick={() => updateDessertQuantity(dessert.id, 1)}
-                                  className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors"
+                                  className="w-11 h-11 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors"
+                                  aria-label={`Increase ${dessert.name} quantity`}
                                 >
                                   <Plus className="w-4 h-4 text-secondary-foreground" />
                                 </button>

@@ -1,9 +1,9 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X } from 'lucide-react';
 import { useState } from 'react';
+import { WHATSAPP_NUMBER, WHATSAPP_MESSAGES } from '@/lib/constants';
 
-const WHATSAPP_NUMBER = '256700000000'; // Replace with actual 9Yards WhatsApp number
-const DEFAULT_MESSAGE = 'Hi! I would like to place an order from 9Yards Food 🍽️';
+const DEFAULT_MESSAGE = WHATSAPP_MESSAGES.default;
 
 export default function FloatingWhatsApp() {
   const [isOpen, setIsOpen] = useState(false);

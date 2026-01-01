@@ -2,8 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Home, UtensilsCrossed, ShoppingCart, Heart, Phone } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { motion } from 'framer-motion';
-
-const PHONE_NUMBER = '+256700000000'; // Replace with actual 9Yards phone number
+import { PHONE_NUMBER } from '@/lib/constants';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },

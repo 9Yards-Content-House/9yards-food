@@ -82,7 +82,8 @@ export function generateWhatsAppMessage(
   return encodeURIComponent(message);
 }
 
-export const WHATSAPP_NUMBER = '256700488870';
+// Use centralized constant
+import { WHATSAPP_NUMBER } from '@/lib/constants';
 
 export function getWhatsAppLink(message: string): string {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;

@@ -165,16 +165,18 @@ export default function CartPage() {
                               onClick={() =>
                                 updateQuantity(item.id, Math.max(1, item.quantity - 1))
                               }
-                              className="w-8 h-8 rounded-md flex items-center justify-center hover:bg-background transition-colors"
+                              className="w-10 h-10 rounded-md flex items-center justify-center hover:bg-background transition-colors"
+                              aria-label="Decrease quantity"
                             >
                               <Minus className="w-4 h-4" />
                             </button>
-                            <span className="w-8 text-center font-medium">
+                            <span className="w-8 text-center font-medium" aria-label={`Quantity: ${item.quantity}`}>
                               {item.quantity}
                             </span>
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="w-8 h-8 rounded-md flex items-center justify-center hover:bg-background transition-colors"
+                              className="w-10 h-10 rounded-md flex items-center justify-center hover:bg-background transition-colors"
+                              aria-label="Increase quantity"
                             >
                               <Plus className="w-4 h-4" />
                             </button>
@@ -183,7 +185,8 @@ export default function CartPage() {
                           {/* Remove */}
                           <button
                             onClick={() => removeItem(item.id)}
-                            className="w-10 h-10 rounded-lg bg-destructive/10 text-destructive flex items-center justify-center hover:bg-destructive/20 transition-colors"
+                            className="w-11 h-11 rounded-lg bg-destructive/10 text-destructive flex items-center justify-center hover:bg-destructive/20 transition-colors"
+                            aria-label="Remove item"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>

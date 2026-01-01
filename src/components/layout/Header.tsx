@@ -70,13 +70,17 @@ export default function Header() {
 
             {/* Right Actions */}
             <div className="flex items-center gap-2 md:gap-4">
-              <button className="p-2 rounded-full hover:bg-muted transition-colors hidden md:flex">
+              <button 
+                className="p-2 rounded-full hover:bg-muted transition-colors hidden md:flex"
+                aria-label="Search menu"
+              >
                 <Search className="w-5 h-5 text-foreground/70" />
               </button>
 
               <Link
                 to="/favorites"
                 className="p-2 rounded-full hover:bg-muted transition-colors relative"
+                aria-label={`Favorites${state.favorites.length > 0 ? ` (${state.favorites.length} items)` : ''}`}
               >
                 <Heart className="w-5 h-5 text-foreground/70" />
                 {state.favorites.length > 0 && (
@@ -89,6 +93,7 @@ export default function Header() {
               <Link
                 to="/cart"
                 className="p-2 rounded-full hover:bg-muted transition-colors relative"
+                aria-label={`Cart${cartCount > 0 ? ` (${cartCount} items)` : ''}`}
               >
                 <ShoppingCart className="w-5 h-5 text-foreground/70" />
                 {cartCount > 0 && (

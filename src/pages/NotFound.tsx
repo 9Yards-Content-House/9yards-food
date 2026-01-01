@@ -1,4 +1,3 @@
-import { useLocation } from "react-router-dom";
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Home, UtensilsCrossed, ArrowLeft } from 'lucide-react';

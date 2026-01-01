@@ -18,7 +18,7 @@ export default function TermsPage() {
             >
               <h1 className="text-3xl md:text-4xl font-bold mb-4">Terms & Conditions</h1>
               <p className="text-primary-foreground/70">
-                Last updated: December 2024
+                Last updated: {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
               </p>
             </motion.div>
           </div>
