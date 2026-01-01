@@ -7,6 +7,7 @@ import SearchModal from './SearchModal';
 
 // Simplified navigation - removed Order Guide and Delivery Areas (they remain in footer only)
 const navLinks = [
+  { href: '/', label: 'Home' },
   { href: '/menu', label: 'Menu' },
   { href: '/about', label: 'About Us' },
   { href: '/contact', label: 'Contact' },
