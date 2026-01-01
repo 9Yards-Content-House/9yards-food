@@ -79,16 +79,42 @@ export default function ContactPage() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    setTimeout(() => {
+    const form = e.target as HTMLFormElement;
+    const formDataObj = new FormData(form);
+
+    try {
+      // Submit to Netlify Forms
+      const response = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(formDataObj as any).toString(),
+      });
+
+      if (response.ok) {
+        setIsSubmitted(true);
+        toast.success('Message sent successfully! We\'ll respond within 2 hours.');
+        // Reset form
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          inquiryType: '',
+          subject: '',
+          message: '',
+          optIn: false,
+        });
+      } else {
+        throw new Error('Form submission failed');
+      }
+    } catch (error) {
+      toast.error('Failed to send message. Please try WhatsApp instead.');
+    } finally {
       setIsSubmitting(false);
-      setIsSubmitted(true);
-      toast.success('Message sent successfully! We\'ll respond within 2 hours.');
-    }, 1500);
+    }
   };
 
   const copyToClipboard = (text: string) => {
@@ -439,7 +465,21 @@ export default function ContactPage() {
                         ))}
                       </div>
 
-                      <form onSubmit={handleSubmit} className="space-y-4">
+                      <form 
+                        name="contact" 
+                        method="POST" 
+                        data-netlify="true" 
+                        netlify-honeypot="bot-field"
+                        onSubmit={handleSubmit} 
+                        className="space-y-4"
+                      >
+                        {/* Hidden fields for Netlify */}
+                        <input type="hidden" name="form-name" value="contact" />
+                        <input type="hidden" name="inquiry-type" value={formData.inquiryType} />
+                        <p className="hidden">
+                          <label>Don't fill this out if you're human: <input name="bot-field" /></label>
+                        </p>
+                        
                         <div className="grid md:grid-cols-2 gap-4">
                           <div>
                             <label className="text-sm font-medium text-foreground mb-2 block">

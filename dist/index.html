@@ -59,16 +59,26 @@
       content="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200"
     />
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" href="/favicon.ico" />
-
     <!-- Canonical -->
     <link rel="canonical" href="https://food.9yards.co.ug/" />
-    <script type="module" crossorigin src="/assets/index-CciOOapH.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-ChTzTsc4.css">
+    
+    <!-- Preload Flutterwave for faster checkout -->
+    <link rel="preconnect" href="https://checkout.flutterwave.com" />
+    <script type="module" crossorigin src="/assets/index-TGulcVfr.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CNseRSPs.css">
   </head>
   <body>
+    <!-- Hidden form for Netlify detection -->
+    <form name="contact" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <input type="tel" name="phone" />
+      <input type="text" name="inquiry-type" />
+      <input type="text" name="subject" />
+      <textarea name="message"></textarea>
+      <input type="checkbox" name="optIn" />
+    </form>
+    
     <div id="root"></div>
   </body>
 </html>

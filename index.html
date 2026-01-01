@@ -61,8 +61,22 @@
 
     <!-- Canonical -->
     <link rel="canonical" href="https://food.9yards.co.ug/" />
+    
+    <!-- Preload Flutterwave for faster checkout -->
+    <link rel="preconnect" href="https://checkout.flutterwave.com" />
   </head>
   <body>
+    <!-- Hidden form for Netlify detection -->
+    <form name="contact" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <input type="tel" name="phone" />
+      <input type="text" name="inquiry-type" />
+      <input type="text" name="subject" />
+      <textarea name="message"></textarea>
+      <input type="checkbox" name="optIn" />
+    </form>
+    
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

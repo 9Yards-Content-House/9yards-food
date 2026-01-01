@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Heart, Menu, X, Search, MapPin } from 'lucide-react';
+import { ShoppingCart, Heart, Menu, X, Search, MapPin, ClipboardList } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 
 const navLinks = [
@@ -17,7 +17,7 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { cartCount, state } = useCart();
+  const { cartCount, state, orderHistory } = useCart();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -76,6 +76,17 @@ export default function Header() {
               >
                 <Search className="w-5 h-5 text-foreground/70" />
               </button>
+
+              {/* Order History - show only if there are orders */}
+              {orderHistory.length > 0 && (
+                <Link
+                  to="/order-history"
+                  className="p-2 rounded-full hover:bg-muted transition-colors relative hidden md:flex"
+                  aria-label={`Order history (${orderHistory.length} orders)`}
+                >
+                  <ClipboardList className="w-5 h-5 text-foreground/70" />
+                </Link>
+              )}
 
               <Link
                 to="/favorites"

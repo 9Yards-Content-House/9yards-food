@@ -15,6 +15,8 @@ import Contact from "./pages/Contact";
 import HowItWorks from "./pages/HowItWorks";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import OrderConfirmation from "./pages/OrderConfirmation";
+import OrderHistory from "./pages/OrderHistory";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +40,8 @@ const App = () => (
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/order-confirmation" element={<OrderConfirmation />} />
+            <Route path="/order-history" element={<OrderHistory />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

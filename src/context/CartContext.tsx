@@ -31,12 +31,27 @@ export interface UserPreferences {
   phone: string;
   name: string;
   address: string;
+  specialInstructions?: string;
+}
+
+export interface OrderHistoryItem {
+  orderId: string;
+  orderDate: string;
+  items: CartItem[];
+  deliveryLocation: string;
+  deliveryFee: number;
+  subtotal: number;
+  discount: number;
+  total: number;
+  paymentMethod: 'whatsapp' | 'online';
+  status: 'pending' | 'completed' | 'cancelled';
 }
 
 interface CartState {
   items: CartItem[];
   favorites: string[];
   userPreferences: UserPreferences;
+  orderHistory: OrderHistoryItem[];
 }
 
 type CartAction =
@@ -46,6 +61,8 @@ type CartAction =
   | { type: 'CLEAR_CART' }
   | { type: 'TOGGLE_FAVORITE'; payload: string }
   | { type: 'SET_USER_PREFERENCES'; payload: Partial<UserPreferences> }
+  | { type: 'ADD_ORDER_TO_HISTORY'; payload: OrderHistoryItem }
+  | { type: 'CLEAR_ORDER_HISTORY' }
   | { type: 'LOAD_STATE'; payload: CartState };
 
 const initialState: CartState = {
@@ -56,7 +73,9 @@ const initialState: CartState = {
     phone: '',
     name: '',
     address: '',
+    specialInstructions: '',
   },
+  orderHistory: [],
 };
 
 function cartReducer(state: CartState, action: CartAction): CartState {
@@ -88,6 +107,13 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         ...state,
         userPreferences: { ...state.userPreferences, ...action.payload },
       };
+    case 'ADD_ORDER_TO_HISTORY':
+      return {
+        ...state,
+        orderHistory: [action.payload, ...state.orderHistory].slice(0, 50), // Keep last 50 orders
+      };
+    case 'CLEAR_ORDER_HISTORY':
+      return { ...state, orderHistory: [] };
     case 'LOAD_STATE':
       return action.payload;
     default:
@@ -103,9 +129,13 @@ interface CartContextType {
   clearCart: () => void;
   toggleFavorite: (id: string) => void;
   setUserPreferences: (prefs: Partial<UserPreferences>) => void;
+  addOrderToHistory: (order: OrderHistoryItem) => void;
+  clearOrderHistory: () => void;
+  reorderFromHistory: (order: OrderHistoryItem) => void;
   cartTotal: number;
   cartCount: number;
   favoritesCount: number;
+  orderHistory: OrderHistoryItem[];
   isFavorite: (id: string) => boolean;
 }
 
@@ -146,6 +176,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const toggleFavorite = (id: string) => dispatch({ type: 'TOGGLE_FAVORITE', payload: id });
   const setUserPreferences = (prefs: Partial<UserPreferences>) =>
     dispatch({ type: 'SET_USER_PREFERENCES', payload: prefs });
+  const addOrderToHistory = (order: OrderHistoryItem) =>
+    dispatch({ type: 'ADD_ORDER_TO_HISTORY', payload: order });
+  const clearOrderHistory = () => dispatch({ type: 'CLEAR_ORDER_HISTORY' });
+  
+  const reorderFromHistory = (order: OrderHistoryItem) => {
+    order.items.forEach(item => {
+      dispatch({ 
+        type: 'ADD_ITEM', 
+        payload: {
+          ...item,
+          id: `combo-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        }
+      });
+    });
+  };
 
   const cartTotal = state.items.reduce(
     (total, item) => total + item.totalPrice * item.quantity,
@@ -168,9 +213,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
         clearCart,
         toggleFavorite,
         setUserPreferences,
+        addOrderToHistory,
+        clearOrderHistory,
+        reorderFromHistory,
         cartTotal,
         cartCount,
         favoritesCount,
+        orderHistory: state.orderHistory,
         isFavorite,
       }}
     >
