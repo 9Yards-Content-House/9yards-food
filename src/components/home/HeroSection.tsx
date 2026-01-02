@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { MapPin, Search, Clock, Truck, CheckCircle2, XCircle, Locate, Loader2, History } from "lucide-react";
+import { MapPin, Search, Clock, Truck, CheckCircle2, XCircle, Locate, Loader2, History, Globe } from "lucide-react";
 import { deliveryZones } from "@/data/menu";
 import { formatPrice } from "@/lib/utils/order";
 import { WHATSAPP_NUMBER } from "@/lib/constants";
@@ -9,7 +9,24 @@ import { WHATSAPP_NUMBER } from "@/lib/constants";
 const RECENT_SEARCHES_KEY = "9yards_recent_locations";
 const MAX_RECENT_SEARCHES = 3;
 
-// Extended location data with aliases for fuzzy matching
+// Photon API configuration (OpenStreetMap-based, free, no API key needed)
+const PHOTON_API_URL = "https://photon.komoot.io/api/";
+const PHOTON_DEBOUNCE_MS = 300;
+const MAX_DELIVERY_DISTANCE_KM = 10; // Maximum distance from a delivery zone center
+
+// Type for Photon API results
+interface PhotonResult {
+  name: string;
+  displayName: string;
+  lat: number;
+  lon: number;
+  type: string;
+  nearestZone: typeof deliveryZones[0] | null;
+  distanceToZone: number;
+  isDeliverable: boolean;
+}
+
+// Extended location data with aliases for fuzzy matching (fallback)
 const locationAliases: Record<string, string[]> = {
   "Kampala Central": ["kampala", "central", "city centre", "city center", "downtown", "old kampala"],
   "Nakawa": ["nakawa", "nakawa division"],
@@ -59,6 +76,94 @@ function saveRecentSearch(zoneName: string): void {
   }
 }
 
+// Find nearest delivery zone to given coordinates
+function findNearestDeliveryZone(lat: number, lon: number): { zone: typeof deliveryZones[0] | null; distance: number } {
+  let nearestZone: typeof deliveryZones[0] | null = null;
+  let minDistance = Infinity;
+
+  deliveryZones.forEach((zone) => {
+    if (zone.coordinates) {
+      const distance = getDistanceFromLatLonInKm(lat, lon, zone.coordinates[0], zone.coordinates[1]);
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestZone = zone;
+      }
+    }
+  });
+
+  return { zone: nearestZone, distance: minDistance };
+}
+
+// Fetch locations from Photon API (OpenStreetMap)
+async function fetchPhotonSuggestions(query: string, signal: AbortSignal): Promise<PhotonResult[]> {
+  if (!query.trim() || query.length < 2) return [];
+
+  try {
+    // Photon API with Uganda bounding box and bias towards Kampala
+    const params = new URLSearchParams({
+      q: query,
+      limit: "6",
+      lat: "0.3476", // Kampala latitude for bias
+      lon: "32.5825", // Kampala longitude for bias
+      lang: "en",
+    });
+
+    const response = await fetch(`${PHOTON_API_URL}?${params}`, { signal });
+    
+    if (!response.ok) throw new Error("API request failed");
+
+    const data = await response.json();
+
+    // Filter and transform results - only show Uganda results
+    const results: PhotonResult[] = data.features
+      .filter((feature: any) => {
+        const country = feature.properties?.country;
+        return country === "Uganda";
+      })
+      .map((feature: any) => {
+        const props = feature.properties;
+        const [lon, lat] = feature.geometry.coordinates;
+
+        // Build display name
+        const parts = [
+          props.name,
+          props.locality,
+          props.district,
+          props.city,
+          props.county,
+        ].filter(Boolean);
+        const displayName = [...new Set(parts)].slice(0, 3).join(", ");
+
+        // Find nearest delivery zone
+        const { zone, distance } = findNearestDeliveryZone(lat, lon);
+
+        return {
+          name: props.name || displayName,
+          displayName: displayName || props.name,
+          lat,
+          lon,
+          type: props.osm_value || props.type || "place",
+          nearestZone: zone,
+          distanceToZone: distance,
+          isDeliverable: distance <= MAX_DELIVERY_DISTANCE_KM,
+        };
+      })
+      // Remove duplicates by name
+      .filter((result: PhotonResult, index: number, self: PhotonResult[]) => 
+        index === self.findIndex((r) => r.displayName === result.displayName)
+      );
+
+    return results;
+  } catch (error) {
+    if ((error as Error).name === "AbortError") {
+      // Request was cancelled, ignore
+      return [];
+    }
+    console.warn("Photon API error, falling back to local search:", error);
+    return [];
+  }
+}
+
 export default function HeroSection() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
@@ -71,8 +176,12 @@ export default function HeroSection() {
   const [locationError, setLocationError] = useState<string | null>(null);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [apiResults, setApiResults] = useState<PhotonResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState<{ name: string; lat: number; lon: number } | null>(null);
   
   const inputRef = useRef<HTMLInputElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -87,13 +196,61 @@ export default function HeroSection() {
     setRecentSearches(getRecentSearches());
   }, []);
 
-  // Debounce search query (150ms delay)
+  // Debounce search query (150ms for local, 300ms for API)
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQuery(searchQuery);
     }, 150);
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  // Fetch API suggestions when debounced query changes
+  useEffect(() => {
+    // Cancel previous request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    if (!debouncedQuery.trim() || debouncedQuery.length < 2) {
+      setApiResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
+    const fetchResults = async () => {
+      setIsSearching(true);
+      try {
+        // Add extra debounce for API calls
+        await new Promise((resolve) => setTimeout(resolve, 150));
+        
+        if (abortController.signal.aborted) return;
+        
+        const results = await fetchPhotonSuggestions(debouncedQuery, abortController.signal);
+        
+        if (!abortController.signal.aborted) {
+          setApiResults(results);
+        }
+      } catch (error) {
+        // Ignore abort errors
+        if ((error as Error).name !== "AbortError") {
+          console.warn("Search error:", error);
+        }
+      } finally {
+        if (!abortController.signal.aborted) {
+          setIsSearching(false);
+        }
+      }
+    };
+
+    fetchResults();
+
+    return () => {
+      abortController.abort();
+    };
+  }, [debouncedQuery]);
 
   // Click outside to close dropdown
   useEffect(() => {
@@ -107,7 +264,7 @@ export default function HeroSection() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Filter zones based on debounced search query
+  // Filter zones based on debounced search query (local fallback)
   const filteredZones = useMemo(() => {
     if (!debouncedQuery.trim()) return [];
     
@@ -123,10 +280,25 @@ export default function HeroSection() {
     });
   }, [debouncedQuery]);
 
-  // Get suggestions to display (filtered, popular, or recent)
+  // Combined suggestions: API results + local matches
   const displaySuggestions = useMemo(() => {
+    // If searching with a query
     if (debouncedQuery.trim()) {
-      return { type: "search" as const, zones: filteredZones };
+      // Combine API results with local delivery zone matches
+      const hasApiResults = apiResults.length > 0;
+      const hasLocalResults = filteredZones.length > 0;
+
+      if (hasApiResults || hasLocalResults) {
+        return { 
+          type: "search" as const, 
+          zones: filteredZones,
+          apiResults: apiResults,
+          hasApiResults,
+          hasLocalResults
+        };
+      }
+      
+      return { type: "search" as const, zones: [], apiResults: [], hasApiResults: false, hasLocalResults: false };
     }
     
     // Show recent searches first, then popular areas
@@ -135,24 +307,41 @@ export default function HeroSection() {
       .filter(Boolean) as typeof deliveryZones;
     
     if (recentZones.length > 0) {
-      return { type: "recent" as const, zones: recentZones };
+      return { type: "recent" as const, zones: recentZones, apiResults: [], hasApiResults: false, hasLocalResults: false };
     }
     
     const popular = popularAreas
       .map((name) => deliveryZones.find((z) => z.name === name))
       .filter(Boolean) as typeof deliveryZones;
     
-    return { type: "popular" as const, zones: popular };
-  }, [debouncedQuery, filteredZones, recentSearches]);
+    return { type: "popular" as const, zones: popular, apiResults: [], hasApiResults: false, hasLocalResults: false };
+  }, [debouncedQuery, filteredZones, recentSearches, apiResults]);
+
+  // Total items for keyboard navigation
+  const totalSuggestionItems = useMemo(() => {
+    return displaySuggestions.zones.length + (displaySuggestions.apiResults?.length || 0);
+  }, [displaySuggestions]);
 
   // Reset highlighted index when suggestions change
   useEffect(() => {
     setHighlightedIndex(-1);
-  }, [displaySuggestions.zones]);
+  }, [totalSuggestionItems]);
 
   const handleSearch = useCallback(() => {
     if (!searchQuery.trim()) return;
     
+    // First check API results
+    const deliverableApiResult = apiResults.find((r) => r.isDeliverable);
+    if (deliverableApiResult && deliverableApiResult.nearestZone) {
+      handleSelectZone(deliverableApiResult.nearestZone, {
+        name: deliverableApiResult.displayName,
+        lat: deliverableApiResult.lat,
+        lon: deliverableApiResult.lon
+      });
+      return;
+    }
+
+    // Then check local matches
     if (filteredZones.length > 0) {
       handleSelectZone(filteredZones[0]);
     } else {
@@ -161,25 +350,50 @@ export default function HeroSection() {
     }
     setShowSuggestions(false);
     setHighlightedIndex(-1);
-  }, [searchQuery, filteredZones]);
+  }, [searchQuery, filteredZones, apiResults]);
 
-  const handleSelectZone = useCallback((zone: typeof deliveryZones[0]) => {
-    setSearchQuery(zone.name);
-    setDebouncedQuery(zone.name);
+  const handleSelectZone = useCallback((zone: typeof deliveryZones[0], location?: { name: string; lat: number; lon: number }) => {
+    setSearchQuery(location?.name || zone.name);
+    setDebouncedQuery(location?.name || zone.name);
     setSelectedZone(zone);
+    setSelectedLocation(location || null);
     setShowNotFound(false);
     setShowSuggestions(false);
     setHighlightedIndex(-1);
     setLocationError(null);
+    setApiResults([]);
     saveRecentSearch(zone.name);
     setRecentSearches(getRecentSearches());
   }, []);
 
+  // Handle selecting an API result (location outside delivery zones)
+  const handleSelectApiResult = useCallback((result: PhotonResult) => {
+    if (result.isDeliverable && result.nearestZone) {
+      handleSelectZone(result.nearestZone, {
+        name: result.displayName,
+        lat: result.lat,
+        lon: result.lon
+      });
+    } else {
+      // Location is outside delivery area
+      setSearchQuery(result.displayName);
+      setDebouncedQuery(result.displayName);
+      setSelectedZone(null);
+      setSelectedLocation({ name: result.displayName, lat: result.lat, lon: result.lon });
+      setShowNotFound(true);
+      setShowSuggestions(false);
+      setHighlightedIndex(-1);
+      setApiResults([]);
+    }
+  }, [handleSelectZone]);
+
   // Keyboard navigation
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    const zones = displaySuggestions.zones;
+    const localZones = displaySuggestions.zones;
+    const apiItems = displaySuggestions.apiResults || [];
+    const totalItems = localZones.length + apiItems.length;
     
-    if (!showSuggestions || zones.length === 0) {
+    if (!showSuggestions || totalItems === 0) {
       if (e.key === "Enter") {
         handleSearch();
       }
@@ -189,18 +403,25 @@ export default function HeroSection() {
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault();
-        setHighlightedIndex((prev) => (prev < zones.length - 1 ? prev + 1 : 0));
+        setHighlightedIndex((prev) => (prev < totalItems - 1 ? prev + 1 : 0));
         break;
       case "ArrowUp":
         e.preventDefault();
-        setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : zones.length - 1));
+        setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : totalItems - 1));
         break;
       case "Enter":
         e.preventDefault();
-        if (highlightedIndex >= 0 && highlightedIndex < zones.length) {
-          handleSelectZone(zones[highlightedIndex]);
-        } else if (filteredZones.length > 0) {
-          handleSelectZone(filteredZones[0]);
+        if (highlightedIndex >= 0) {
+          if (highlightedIndex < localZones.length) {
+            // Selecting a local delivery zone
+            handleSelectZone(localZones[highlightedIndex]);
+          } else {
+            // Selecting an API result
+            const apiIndex = highlightedIndex - localZones.length;
+            if (apiIndex < apiItems.length) {
+              handleSelectApiResult(apiItems[apiIndex]);
+            }
+          }
         } else {
           handleSearch();
         }
@@ -211,7 +432,7 @@ export default function HeroSection() {
         inputRef.current?.blur();
         break;
     }
-  }, [showSuggestions, displaySuggestions.zones, highlightedIndex, handleSelectZone, handleSearch, filteredZones]);
+  }, [showSuggestions, displaySuggestions, highlightedIndex, handleSelectZone, handleSelectApiResult, handleSearch]);
 
   // Geolocation handler
   const handleGetLocation = useCallback(() => {
@@ -381,15 +602,23 @@ export default function HeroSection() {
                 </div>
 
                 {/* Suggestions Dropdown - Shows for search results, recent, or popular */}
-                {showSuggestions && displaySuggestions.zones.length > 0 && (
+                {showSuggestions && (displaySuggestions.zones.length > 0 || (displaySuggestions.apiResults && displaySuggestions.apiResults.length > 0) || isSearching) && (
                   <div 
                     ref={dropdownRef}
                     id="location-suggestions"
                     role="listbox"
-                    className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-20 animate-in fade-in slide-in-from-top-2 duration-200"
+                    className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-20 animate-in fade-in slide-in-from-top-2 duration-200 max-h-[320px] overflow-y-auto"
                   >
-                    {/* Section Header */}
-                    {displaySuggestions.type !== "search" && (
+                    {/* Loading indicator */}
+                    {isSearching && (
+                      <div className="px-4 py-3 flex items-center gap-2 text-gray-500 text-sm">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Searching locations...
+                      </div>
+                    )}
+
+                    {/* Section Header for non-search */}
+                    {displaySuggestions.type !== "search" && !isSearching && (
                       <div className="px-4 py-2 bg-gray-50 border-b border-gray-100">
                         <span className="text-xs font-medium text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
                           {displaySuggestions.type === "recent" ? (
@@ -406,41 +635,142 @@ export default function HeroSection() {
                         </span>
                       </div>
                     )}
-                    {displaySuggestions.zones.map((zone, index) => (
-                      <button
-                        key={zone.name}
-                        id={`suggestion-${index}`}
-                        role="option"
-                        aria-selected={highlightedIndex === index}
-                        onClick={() => handleSelectZone(zone)}
-                        onMouseEnter={() => setHighlightedIndex(index)}
-                        className={`w-full px-4 py-2.5 text-left flex items-center justify-between gap-4 transition-colors focus:outline-none ${
-                          highlightedIndex === index
-                            ? "bg-secondary/10 text-secondary"
-                            : "hover:bg-secondary/5"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <MapPin className={`w-4 h-4 ${highlightedIndex === index ? "text-secondary" : "text-secondary/70"}`} />
-                          <span className={`font-medium text-sm ${highlightedIndex === index ? "text-secondary" : "text-gray-900"}`}>
-                            {zone.name}
-                          </span>
-                        </div>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${
-                          highlightedIndex === index 
-                            ? "bg-secondary/20 text-secondary" 
-                            : "bg-gray-100 text-gray-500"
-                        }`}>
-                          {zone.estimatedTime}
-                        </span>
-                      </button>
-                    ))}
+
+                    {/* Local Delivery Zones (exact matches) */}
+                    {displaySuggestions.zones.length > 0 && (
+                      <>
+                        {displaySuggestions.type === "search" && displaySuggestions.hasApiResults && (
+                          <div className="px-4 py-2 bg-green-50 border-b border-green-100">
+                            <span className="text-xs font-medium text-green-700 uppercase tracking-wide flex items-center gap-1.5">
+                              <CheckCircle2 className="w-3 h-3" />
+                              Delivery Zones
+                            </span>
+                          </div>
+                        )}
+                        {displaySuggestions.zones.map((zone, index) => (
+                          <button
+                            key={`zone-${zone.name}`}
+                            id={`suggestion-${index}`}
+                            role="option"
+                            aria-selected={highlightedIndex === index}
+                            onClick={() => handleSelectZone(zone)}
+                            onMouseEnter={() => setHighlightedIndex(index)}
+                            className={`w-full px-4 py-2.5 text-left flex items-center justify-between gap-3 transition-colors focus:outline-none ${
+                              highlightedIndex === index
+                                ? "bg-secondary/10"
+                                : "hover:bg-secondary/5"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <MapPin className={`w-4 h-4 flex-shrink-0 ${highlightedIndex === index ? "text-secondary" : "text-secondary/70"}`} />
+                              <span className={`font-medium text-sm truncate ${highlightedIndex === index ? "text-secondary" : "text-gray-900"}`}>
+                                {zone.name}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
+                                ✓ We deliver
+                              </span>
+                              <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                highlightedIndex === index 
+                                  ? "bg-secondary/20 text-secondary" 
+                                  : "bg-gray-100 text-gray-500"
+                              }`}>
+                                {zone.estimatedTime}
+                              </span>
+                            </div>
+                          </button>
+                        ))}
+                      </>
+                    )}
+
+                    {/* API Results (other Uganda locations) */}
+                    {displaySuggestions.apiResults && displaySuggestions.apiResults.length > 0 && (
+                      <>
+                        {displaySuggestions.zones.length > 0 && (
+                          <div className="px-4 py-2 bg-gray-50 border-y border-gray-100">
+                            <span className="text-xs font-medium text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
+                              <Globe className="w-3 h-3" />
+                              Other Locations
+                            </span>
+                          </div>
+                        )}
+                        {displaySuggestions.apiResults.map((result, idx) => {
+                          const index = displaySuggestions.zones.length + idx;
+                          return (
+                            <button
+                              key={`api-${result.displayName}-${idx}`}
+                              id={`suggestion-${index}`}
+                              role="option"
+                              aria-selected={highlightedIndex === index}
+                              onClick={() => handleSelectApiResult(result)}
+                              onMouseEnter={() => setHighlightedIndex(index)}
+                              className={`w-full px-4 py-2.5 text-left flex items-center justify-between gap-3 transition-colors focus:outline-none ${
+                                highlightedIndex === index
+                                  ? "bg-secondary/10"
+                                  : "hover:bg-secondary/5"
+                              }`}
+                            >
+                              <div className="flex items-center gap-3 min-w-0">
+                                <MapPin className={`w-4 h-4 flex-shrink-0 ${
+                                  result.isDeliverable 
+                                    ? (highlightedIndex === index ? "text-secondary" : "text-secondary/70")
+                                    : "text-gray-400"
+                                }`} />
+                                <div className="min-w-0">
+                                  <span className={`font-medium text-sm truncate block ${
+                                    highlightedIndex === index ? "text-secondary" : "text-gray-900"
+                                  }`}>
+                                    {result.name}
+                                  </span>
+                                  {result.displayName !== result.name && (
+                                    <span className="text-xs text-gray-500 truncate block">
+                                      {result.displayName}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex-shrink-0">
+                                {result.isDeliverable ? (
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
+                                    ✓ We deliver
+                                  </span>
+                                ) : (
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                                    Outside area
+                                  </span>
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </>
+                    )}
+
+                    {/* No results message */}
+                    {!isSearching && displaySuggestions.type === "search" && displaySuggestions.zones.length === 0 && (!displaySuggestions.apiResults || displaySuggestions.apiResults.length === 0) && debouncedQuery.length >= 2 && (
+                      <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                        No locations found for "{debouncedQuery}"
+                      </div>
+                    )}
+
                     {/* Keyboard hint */}
-                    <div className="px-4 py-2 bg-gray-50 border-t border-gray-100 hidden sm:flex items-center justify-center gap-4 text-xs text-gray-400">
-                      <span><kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-gray-600">↑↓</kbd> Navigate</span>
-                      <span><kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-gray-600">Enter</kbd> Select</span>
-                      <span><kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-gray-600">Esc</kbd> Close</span>
-                    </div>
+                    {(displaySuggestions.zones.length > 0 || (displaySuggestions.apiResults && displaySuggestions.apiResults.length > 0)) && (
+                      <div className="px-4 py-2 bg-gray-50 border-t border-gray-100 hidden sm:flex items-center justify-center gap-4 text-xs text-gray-400">
+                        <span><kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-gray-600">↑↓</kbd> Navigate</span>
+                        <span><kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-gray-600">Enter</kbd> Select</span>
+                        <span><kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-gray-600">Esc</kbd> Close</span>
+                      </div>
+                    )}
+
+                    {/* OpenStreetMap Attribution */}
+                    {displaySuggestions.apiResults && displaySuggestions.apiResults.length > 0 && (
+                      <div className="px-4 py-1.5 bg-gray-50 border-t border-gray-100 text-center">
+                        <span className="text-[10px] text-gray-400">
+                          © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="hover:underline">OpenStreetMap</a> contributors
+                        </span>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
