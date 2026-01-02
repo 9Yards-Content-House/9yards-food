@@ -546,7 +546,7 @@ export default function HeroSection() {
             {/* Location Search Card */}
             <div 
               ref={containerRef}
-              className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-5 max-w-md mx-auto lg:mx-0 transition-shadow duration-300 hover:shadow-2xl"
+              className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-5 max-w-md mx-auto lg:mx-0 transition-shadow duration-300 hover:shadow-2xl relative z-30"
             >
               {/* Search Input */}
               <div className="relative">
@@ -607,7 +607,7 @@ export default function HeroSection() {
                     ref={dropdownRef}
                     id="location-suggestions"
                     role="listbox"
-                    className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-20 animate-in fade-in slide-in-from-top-2 duration-200 max-h-[320px] overflow-y-auto"
+                    className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200 max-h-[320px] overflow-y-auto"
                   >
                     {/* Loading indicator */}
                     {isSearching && (
