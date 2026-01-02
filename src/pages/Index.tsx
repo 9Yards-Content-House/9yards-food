@@ -2,7 +2,6 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import MobileNav from '@/components/layout/MobileNav';
 import HeroSection from '@/components/home/HeroSection';
-import SocialProofSection from '@/components/home/SocialProofSection';
 import HowItWorksSection from '@/components/home/HowItWorksSection';
 import PopularDishesSection from '@/components/home/PopularDishesSection';
 import WhyChooseUsSection from '@/components/home/WhyChooseUsSection';
@@ -15,7 +14,6 @@ export default function Index() {
       <Header />
       <main>
         <HeroSection />
-        <SocialProofSection />
         <HowItWorksSection />
         <PopularDishesSection />
         <WhyChooseUsSection />
