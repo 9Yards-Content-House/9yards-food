@@ -96,12 +96,12 @@ export default function TermsPage() {
                     </a>{' '}
                     or WhatsApp{' '}
                     <a 
-                      href="https://wa.me/256700488870" 
+                      href="https://wa.me/256708899597" 
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-secondary hover:underline"
                     >
-                      +256 700 488 870
+                      +256 708 899 597
                     </a>.
                   </p>
                 </div>

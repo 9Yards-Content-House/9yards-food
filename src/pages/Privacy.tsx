@@ -91,10 +91,10 @@ export default function PrivacyPage() {
                     </a>{" "}
                     or call{" "}
                     <a
-                      href="tel:+256700488870"
+                      href="tel:+256708899597"
                       className="text-secondary hover:underline"
                     >
-                      +256 700 488 870
+                      +256 708 899 597
                     </a>
                     .
                   </p>

@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
 
 export default function HeroSection() {
   return (
@@ -17,31 +16,28 @@ export default function HeroSection() {
         <div className="max-w-3xl mx-auto">
           {/* Headline */}
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-primary-foreground leading-tight mb-4 sm:mb-5 md:mb-6">
-            Authentic Ugandan
-            <br />
-            Cuisine, Delivered <span className="text-secondary">Fresh</span>
+            Authentic Ugandan Cuisine, Delivered <span className="text-secondary">Fresh</span>
           </h1>
 
           {/* Subheadline */}
           <p className="text-base sm:text-lg md:text-xl text-primary-foreground/80 mb-6 sm:mb-8 md:mb-10 leading-relaxed max-w-xl mx-auto px-2 sm:px-0">
-            Experience the rich flavors of Uganda with our freshly prepared
-            local dishes.
+            Freshly cooked local dishes with 100% natural ingredients. 
+            Ready in 30-45 minutes.
           </p>
 
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4 sm:px-0">
             <Link
               to="/menu"
-              className="btn-secondary text-sm sm:text-base md:text-lg px-5 sm:px-6 md:px-8 py-3 sm:py-3.5 md:py-4 flex items-center justify-center gap-2 cta-pulse"
+              className="btn-secondary text-sm sm:text-base px-5 sm:px-6 py-2.5 sm:py-3 flex items-center justify-center"
             >
-              Order Now
-              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+              Build Your Combo
             </Link>
             <Link
               to="/menu"
-              className="bg-primary-foreground/10 backdrop-blur-sm text-primary-foreground font-semibold text-sm sm:text-base md:text-lg px-5 sm:px-6 md:px-8 py-3 sm:py-3.5 md:py-4 rounded-lg transition-all duration-200 hover:bg-primary-foreground/20 text-center"
+              className="btn-ghost text-sm sm:text-base px-5 sm:px-6 py-2.5 sm:py-3 flex items-center justify-center"
             >
-              View Menu
+              Browse Menu
             </Link>
           </div>
         </div>

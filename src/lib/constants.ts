@@ -1,9 +1,11 @@
 // Centralized constants for 9Yards Food
 
 // Contact Information
-export const PHONE_NUMBER = '+256700488870';
-export const PHONE_NUMBER_FORMATTED = '+256 700 488 870';
-export const WHATSAPP_NUMBER = '256700488870'; // Without + for WhatsApp URLs
+export const PHONE_NUMBER = '+256708899597';
+export const PHONE_NUMBER_FORMATTED = '+256 708 899 597';
+export const PHONE_NUMBER_SECONDARY = '+256763058142';
+export const PHONE_NUMBER_SECONDARY_FORMATTED = '+256 763 058 142';
+export const WHATSAPP_NUMBER = '256708899597'; // Without + for WhatsApp URLs
 export const EMAIL = 'info@9yards.co.ug';
 
 // Social Media

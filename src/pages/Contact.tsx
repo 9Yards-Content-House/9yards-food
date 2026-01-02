@@ -160,7 +160,7 @@ export default function ContactPage() {
             <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
               {/* Call Card */}
               <a
-                href="tel:+256700488870"
+                href="tel:+256708899597"
                 className="bg-card border-2 border-border rounded-2xl p-6 text-center cursor-pointer transition-all hover:border-secondary hover:-translate-y-1 hover:shadow-xl"
               >
                 <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -173,7 +173,7 @@ export default function ContactPage() {
 
               {/* WhatsApp Card */}
               <a
-                href="https://wa.me/256700488870?text=Hi%209Yards%20Food!%20I%20have%20a%20question%20about..."
+                href="https://wa.me/256708899597?text=Hi%209Yards%20Food!%20I%20have%20a%20question%20about..."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-card border-2 border-green-500 rounded-2xl p-6 text-center cursor-pointer transition-all relative overflow-hidden hover:-translate-y-1 hover:shadow-xl"
@@ -226,17 +226,17 @@ export default function ContactPage() {
                       </div>
                       <div className="flex-1">
                         <h3 className="font-bold text-foreground">Call Us</h3>
-                        <p className="text-lg text-foreground font-medium">+256 700 488 870</p>
+                        <p className="text-lg text-foreground font-medium">+256 708 899 597</p>
                         <p className="text-sm text-muted-foreground mb-3">Available 7 days a week</p>
                         <a
-                          href="tel:+256700488870"
+                          href="tel:+256708899597"
                           className="text-sm font-bold text-secondary flex items-center gap-1 hover:underline"
                         >
                           Call Now <ChevronRight className="w-4 h-4" />
                         </a>
                       </div>
                       <button
-                        onClick={() => copyToClipboard('+256700488870')}
+                        onClick={() => copyToClipboard('+256708899597')}
                         className="p-2 hover:bg-muted rounded-lg transition-colors"
                         title="Copy number"
                       >
@@ -258,7 +258,7 @@ export default function ContactPage() {
                         </div>
                         <p className="text-sm text-muted-foreground mb-3">Chat with us directly - fastest response guaranteed</p>
                         <a
-                          href="https://wa.me/256700488870?text=Hi%209Yards%20Food!%20I%20have%20a%20question%20about..."
+                          href="https://wa.me/256708899597?text=Hi%209Yards%20Food!%20I%20have%20a%20question%20about..."
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 bg-green-500 text-white text-sm font-bold px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
@@ -620,7 +620,7 @@ export default function ContactPage() {
               </div>
 
               <a
-                href="https://wa.me/256700488870?text=Hi%209Yards%20Food!%20I%27d%20like%20to%20get%20a%20quote%20for%20bulk%2Fcatering%20order%20for%20my%20event."
+                href="https://wa.me/256708899597?text=Hi%209Yards%20Food!%20I%27d%20like%20to%20get%20a%20quote%20for%20bulk%2Fcatering%20order%20for%20my%20event."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-bold px-8 py-4 rounded-lg hover:bg-primary/90 transition-colors"
@@ -731,7 +731,7 @@ export default function ContactPage() {
               <p className="text-muted-foreground mb-4">Still have questions?</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a
-                  href="https://wa.me/256700488870?text=Hi%209Yards%20Food!%20I%20have%20a%20question..."
+                  href="https://wa.me/256708899597?text=Hi%209Yards%20Food!%20I%20have%20a%20question..."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 bg-green-500 text-white font-bold px-6 py-3 rounded-lg hover:bg-green-600 transition-colors"

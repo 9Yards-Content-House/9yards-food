@@ -175,20 +175,9 @@
     @apply shadow-elevated -translate-y-1;
   }
 
-  /* CTA pulse animation */
-  .cta-pulse {
-    animation: cta-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
+  /* CTA pulse animation - REMOVED */
+  /* Replaced with simple background hover effect */
 
-  @keyframes cta-pulse {
-    0%,
-    100% {
-      box-shadow: 0 0 0 0 hsl(12 82% 50% / 0.4);
-    }
-    50% {
-      box-shadow: 0 0 0 12px hsl(12 82% 50% / 0);
-    }
-  }
 
   /* Safe area utilities for notched devices */
   .safe-area-bottom {
@@ -216,19 +205,25 @@
 @layer components {
   /* Premium button styles */
   .btn-primary {
-    @apply bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-lg transition-all duration-200;
-    @apply hover:bg-primary/90 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
+    @apply bg-primary text-primary-foreground font-semibold px-5 py-2.5 rounded-lg transition-colors duration-200;
+    @apply hover:bg-primary/85 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
   }
 
   .btn-secondary {
-    @apply bg-secondary text-secondary-foreground font-semibold px-6 py-3 rounded-lg transition-all duration-200;
-    @apply hover:bg-secondary/90 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2;
+    @apply bg-secondary text-secondary-foreground font-semibold px-5 py-2.5 rounded-lg transition-colors duration-200;
+    @apply hover:bg-secondary/85 focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2;
     @apply shadow-sm hover:shadow-md;
   }
 
   .btn-outline {
-    @apply border-2 border-primary text-primary font-semibold px-6 py-3 rounded-lg transition-all duration-200;
-    @apply hover:bg-primary hover:text-primary-foreground active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
+    @apply border-2 border-primary text-primary font-semibold px-5 py-2.5 rounded-lg transition-colors duration-200;
+    @apply hover:bg-primary hover:text-primary-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
+  }
+
+  .btn-ghost {
+    @apply bg-white/20 backdrop-blur-sm text-white font-semibold px-5 py-2.5 rounded-lg transition-colors duration-200;
+    @apply hover:bg-white/30 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2;
+    @apply border border-white/30;
   }
 
   /* Card styles */

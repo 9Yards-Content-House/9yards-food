@@ -77,7 +77,7 @@ export default function DeliveryZonesPage() {
                 Contact us and we'll try to accommodate your delivery!
               </p>
               <a
-                href="https://wa.me/256700488870"
+                href="https://wa.me/256708899597"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-secondary inline-flex items-center gap-2"
