@@ -90,14 +90,13 @@ export default function HeroSection() {
           {/* Left Content */}
           <div className="flex-1 text-center lg:text-left w-full lg:max-w-xl xl:max-w-2xl lg:pt-4">
             {/* Headline */}
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-primary-foreground leading-[1.1] mb-3 sm:mb-4">
-              Craving Local Food? <br className="hidden sm:block" />
-              We've <span className="text-secondary">Got You.</span>
+            <h1 className="text-[1.6rem] sm:text-3xl md:text-4xl lg:text-[2.75rem] xl:text-5xl font-extrabold text-primary-foreground leading-[1.2] mb-3 sm:mb-4">
+              Craving Local Ugandan Food? We've <span className="text-secondary">Got You.</span>
             </h1>
 
             {/* Subheadline */}
-            <p className="text-sm sm:text-base md:text-lg text-primary-foreground/80 mb-5 sm:mb-6 leading-relaxed">
-              Find fresh, delicious Ugandan meals delivered to your door.
+            <p className="text-sm sm:text-base md:text-lg text-primary-foreground/80 mb-5 sm:mb-6 leading-relaxed max-w-md mx-auto lg:mx-0">
+              Freshly cooked with 100% natural ingredients and delivered hot to your door in 30-45 minutes.
             </p>
 
             {/* Location Search Card */}
@@ -109,7 +108,7 @@ export default function HeroSection() {
                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-secondary" />
                     <input
                       type="text"
-                      placeholder="Enter Your Address"
+                      placeholder="Enter delivery address"
                       value={searchQuery}
                       onChange={(e) => {
                         setSearchQuery(e.target.value);
@@ -203,6 +202,11 @@ export default function HeroSection() {
                 </div>
               )}
             </div>
+
+            {/* Secondary Message */}
+            <p className="text-primary-foreground/60 text-xs sm:text-sm mt-3 sm:mt-4 max-w-md mx-auto lg:mx-0">
+              Order via WhatsApp or Pay Online • Free Delivery on Orders 50K+
+            </p>
           </div>
 
           {/* Right Image */}
