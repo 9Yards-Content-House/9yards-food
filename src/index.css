@@ -178,6 +178,19 @@
   /* CTA pulse animation - REMOVED */
   /* Replaced with simple background hover effect */
 
+  /* Floating animation for hero image */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-12px);
+    }
+  }
 
   /* Safe area utilities for notched devices */
   .safe-area-bottom {
