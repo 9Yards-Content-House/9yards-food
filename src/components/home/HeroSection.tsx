@@ -842,15 +842,6 @@ export default function HeroSection() {
                         <span><kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-gray-600">Esc</kbd> Close</span>
                       </div>
                     )}
-
-                    {/* OpenStreetMap Attribution */}
-                    {displaySuggestions.apiResults && displaySuggestions.apiResults.length > 0 && (
-                      <div className="px-4 py-1.5 bg-gray-50 border-t border-gray-100 text-center">
-                        <span className="text-[10px] text-gray-400">
-                          © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="hover:underline">OpenStreetMap</a> contributors
-                        </span>
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
