@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { MapPin, Search, Clock, Truck, CheckCircle2, XCircle, Locate, Loader2, History, Globe } from "lucide-react";
 import { deliveryZones } from "@/data/menu";
 import { formatPrice } from "@/lib/utils/order";
@@ -14,6 +14,13 @@ const PHOTON_API_URL = "https://photon.komoot.io/api/";
 const PHOTON_DEBOUNCE_MS = 300;
 const MAX_DELIVERY_DISTANCE_KM = 10; // Maximum distance from a delivery zone center
 
+// Kampala metro area bounds (used to determine if location is in Kampala area)
+const KAMPALA_CENTER = { lat: 0.3476, lon: 32.5825 };
+const KAMPALA_METRO_RADIUS_KM = 25; // Approximate radius of greater Kampala metro area
+
+// Exact delivery zone names for matching
+const DELIVERY_ZONE_NAMES = deliveryZones.map((z) => z.name.toLowerCase());
+
 // Type for Photon API results
 interface PhotonResult {
   name: string;
@@ -24,6 +31,8 @@ interface PhotonResult {
   nearestZone: typeof deliveryZones[0] | null;
   distanceToZone: number;
   isDeliverable: boolean;
+  isInKampalaArea: boolean;
+  isExactZoneMatch: boolean;
 }
 
 // Extended location data with aliases for fuzzy matching (fallback)
@@ -71,6 +80,15 @@ function saveRecentSearch(zoneName: string): void {
     const recent = getRecentSearches().filter((name) => name !== zoneName);
     recent.unshift(zoneName);
     localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(recent.slice(0, MAX_RECENT_SEARCHES)));
+  } catch {
+    // Silently fail if localStorage is not available
+  }
+}
+
+// Clear all recent searches
+function clearRecentSearches(): void {
+  try {
+    localStorage.removeItem(RECENT_SEARCHES_KEY);
   } catch {
     // Silently fail if localStorage is not available
   }
@@ -137,6 +155,40 @@ async function fetchPhotonSuggestions(query: string, signal: AbortSignal): Promi
         // Find nearest delivery zone
         const { zone, distance } = findNearestDeliveryZone(lat, lon);
 
+        // Check if location is within Kampala metro area
+        const distanceToKampala = getDistanceFromLatLonInKm(lat, lon, KAMPALA_CENTER.lat, KAMPALA_CENTER.lon);
+        const isInKampalaArea = distanceToKampala <= KAMPALA_METRO_RADIUS_KM;
+
+        // Check if the location name exactly matches one of our delivery zones
+        const locationName = (props.name || "").toLowerCase().trim();
+        const locationWords = locationName.split(/[\s,]+/);
+        
+        // Strict matching: location name must BE one of our zones or start with it
+        const isExactZoneMatch = DELIVERY_ZONE_NAMES.some((zoneName) => {
+          // Exact match
+          if (locationName === zoneName) return true;
+          // Location starts with zone name (e.g., "Kololo Hill" starts with "kololo")
+          if (locationName.startsWith(zoneName + " ") || locationName.startsWith(zoneName + ",")) return true;
+          // First word is the zone name
+          if (locationWords[0] === zoneName) return true;
+          return false;
+        });
+
+        // Also check aliases for exact match (strict)
+        const matchesAlias = Object.entries(locationAliases).some(([, aliases]) => {
+          return aliases.some((alias) => {
+            // Exact match
+            if (locationName === alias) return true;
+            // Location starts with alias
+            if (locationName.startsWith(alias + " ") || locationName.startsWith(alias + ",")) return true;
+            // First word matches alias
+            if (locationWords[0] === alias) return true;
+            return false;
+          });
+        });
+
+        const isDeliverableZone = isExactZoneMatch || matchesAlias;
+
         return {
           name: props.name || displayName,
           displayName: displayName || props.name,
@@ -145,7 +197,10 @@ async function fetchPhotonSuggestions(query: string, signal: AbortSignal): Promi
           type: props.osm_value || props.type || "place",
           nearestZone: zone,
           distanceToZone: distance,
-          isDeliverable: distance <= MAX_DELIVERY_DISTANCE_KM,
+          // Deliverable ONLY if it's an exact match to our delivery zones
+          isDeliverable: isDeliverableZone,
+          isInKampalaArea,
+          isExactZoneMatch: isDeliverableZone,
         };
       })
       // Remove duplicates by name
@@ -301,7 +356,7 @@ export default function HeroSection() {
       return { type: "search" as const, zones: [], apiResults: [], hasApiResults: false, hasLocalResults: false };
     }
     
-    // Show recent searches first, then popular areas
+    // Show recent searches only (no popular areas)
     const recentZones = recentSearches
       .map((name) => deliveryZones.find((z) => z.name === name))
       .filter(Boolean) as typeof deliveryZones;
@@ -310,11 +365,8 @@ export default function HeroSection() {
       return { type: "recent" as const, zones: recentZones, apiResults: [], hasApiResults: false, hasLocalResults: false };
     }
     
-    const popular = popularAreas
-      .map((name) => deliveryZones.find((z) => z.name === name))
-      .filter(Boolean) as typeof deliveryZones;
-    
-    return { type: "popular" as const, zones: popular, apiResults: [], hasApiResults: false, hasLocalResults: false };
+    // Return empty - don't show dropdown if no recent searches
+    return { type: "empty" as const, zones: [], apiResults: [], hasApiResults: false, hasLocalResults: false };
   }, [debouncedQuery, filteredZones, recentSearches, apiResults]);
 
   // Total items for keyboard navigation
@@ -546,7 +598,7 @@ export default function HeroSection() {
             {/* Location Search Card */}
             <div 
               ref={containerRef}
-              className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-5 max-w-md mx-auto lg:mx-0 transition-shadow duration-300 hover:shadow-2xl relative z-30"
+              className="bg-white rounded-xl sm:rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.25)] p-4 sm:p-5 max-w-md mx-auto lg:mx-0 transition-shadow duration-300 hover:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.3)] relative z-[100]"
             >
               {/* Search Input */}
               <div className="relative">
@@ -607,7 +659,7 @@ export default function HeroSection() {
                     ref={dropdownRef}
                     id="location-suggestions"
                     role="listbox"
-                    className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200 max-h-[320px] overflow-y-auto"
+                    className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-[200] animate-in fade-in slide-in-from-top-2 duration-200 max-h-[320px] overflow-y-auto"
                   >
                     {/* Loading indicator */}
                     {isSearching && (
@@ -617,22 +669,26 @@ export default function HeroSection() {
                       </div>
                     )}
 
-                    {/* Section Header for non-search */}
-                    {displaySuggestions.type !== "search" && !isSearching && (
-                      <div className="px-4 py-2 bg-gray-50 border-b border-gray-100">
+                    {/* Section Header for recent searches */}
+                    {displaySuggestions.type === "recent" && !isSearching && (
+                      <div className="px-4 py-2 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
                         <span className="text-xs font-medium text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
-                          {displaySuggestions.type === "recent" ? (
-                            <>
-                              <History className="w-3 h-3" />
-                              Recent
-                            </>
-                          ) : (
-                            <>
-                              <MapPin className="w-3 h-3" />
-                              Popular Areas
-                            </>
-                          )}
+                          <History className="w-3 h-3" />
+                          Recent
                         </span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            clearRecentSearches();
+                            setRecentSearches([]);
+                            setShowSuggestions(false);
+                          }}
+                          className="text-xs text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1"
+                        >
+                          <XCircle className="w-3 h-3" />
+                          Clear
+                        </button>
                       </div>
                     )}
 
@@ -735,9 +791,13 @@ export default function HeroSection() {
                                   <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
                                     ✓ We deliver
                                   </span>
+                                ) : result.isInKampalaArea ? (
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">
+                                    Message to confirm
+                                  </span>
                                 ) : (
                                   <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
-                                    Outside area
+                                    Message to check
                                   </span>
                                 )}
                               </div>
@@ -826,8 +886,11 @@ export default function HeroSection() {
                       </p>
                       <button
                         onClick={handleWhatsAppContact}
-                        className="mt-2.5 bg-green-500 hover:bg-green-600 text-white text-xs px-4 py-2 rounded-lg font-semibold transition-colors active:scale-[0.98]"
+                        className="mt-2.5 bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs px-4 py-2 rounded-lg font-semibold transition-colors active:scale-[0.98] flex items-center gap-2"
                       >
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                        </svg>
                         WhatsApp Us
                       </button>
                     </div>
@@ -838,7 +901,7 @@ export default function HeroSection() {
 
             {/* Secondary Message */}
             <p className="text-primary-foreground/70 text-xs sm:text-sm mt-4 sm:mt-5 max-w-md mx-auto lg:mx-0">
-              Order in 2 minutes • No signup required • Free delivery UGX 50K+
+              No signup required • Order via WhatsApp or pay online
             </p>
           </div>
 
@@ -849,12 +912,12 @@ export default function HeroSection() {
             }`}
           >
             <div className="relative">
-              {/* Subtle glow effect behind image */}
-              <div className="absolute inset-0 bg-secondary/20 blur-3xl rounded-full scale-75 -z-10" />
+              {/* Subtle shadow effect behind image */}
+              <div className="absolute inset-0 bg-black/10 blur-3xl rounded-full scale-75 -z-10" />
               <img
                 src="/images/lusaniya/9Yards-Food-Lusaniya-01.png"
                 alt="Delicious Ugandan food platter featuring fresh local cuisine"
-                className="w-full h-auto object-contain drop-shadow-2xl animate-float"
+                className="w-full h-auto object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.25)]"
                 loading="eager"
                 fetchPriority="high"
               />
