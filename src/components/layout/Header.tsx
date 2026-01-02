@@ -67,7 +67,7 @@ export default function Header() {
         }`}
       >
         <div className="container-custom">
-          <div className="flex items-center justify-between h-16 md:h-20 px-4">
+          <div className="flex items-center justify-between h-16 sm:h-[4.5rem] md:h-20 px-4">
             {/* Logo */}
             <Link to="/" className="flex items-center">
               <img 
@@ -76,7 +76,7 @@ export default function Header() {
                   : "/images/logo/9Yards-Food-White-Logo-colored.png"
                 }
                 alt="9Yards Food"
-                className="h-14 md:h-[3.8rem] w-auto object-contain transition-opacity duration-300"
+                className="h-10 sm:h-12 md:h-14 lg:h-[3.8rem] w-auto object-contain transition-opacity duration-300"
               />
             </Link>
 
@@ -94,25 +94,25 @@ export default function Header() {
             </nav>
 
             {/* Right Actions */}
-            <div className="flex items-center gap-1 md:gap-2">
+            <div className="flex items-center gap-0.5 sm:gap-1 md:gap-2">
               {/* Search Button */}
               <button 
                 onClick={() => setIsSearchOpen(true)}
-                className="p-2 rounded-full hover:bg-muted/20 transition-colors"
+                className="p-1.5 sm:p-2 rounded-full hover:bg-muted/20 transition-colors"
                 aria-label="Search menu"
               >
-                <Search className={`w-5 h-5 ${iconColorClass} transition-colors`} />
+                <Search className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColorClass} transition-colors`} />
               </button>
 
               {/* Favorites */}
               <Link
                 to="/favorites"
-                className="p-2 rounded-full hover:bg-muted/20 transition-colors relative"
+                className="p-1.5 sm:p-2 rounded-full hover:bg-muted/20 transition-colors relative"
                 aria-label={`Favorites${state.favorites.length > 0 ? ` (${state.favorites.length} items)` : ''}`}
               >
-                <Heart className={`w-5 h-5 ${iconColorClass} transition-colors`} />
+                <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColorClass} transition-colors`} />
                 {state.favorites.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-secondary text-secondary-foreground text-xs font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-4 h-4 sm:w-5 sm:h-5 bg-secondary text-secondary-foreground text-[10px] sm:text-xs font-bold rounded-full flex items-center justify-center">
                     {state.favorites.length}
                   </span>
                 )}
@@ -121,13 +121,13 @@ export default function Header() {
               {/* Cart */}
               <Link
                 to="/cart"
-                className="p-2 rounded-full hover:bg-muted/20 transition-colors relative"
+                className="p-1.5 sm:p-2 rounded-full hover:bg-muted/20 transition-colors relative"
                 aria-label={`Cart${cartCount > 0 ? ` (${cartCount} items)` : ''}`}
               >
-                <ShoppingCart className={`w-5 h-5 ${iconColorClass} transition-colors`} />
+                <ShoppingCart className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColorClass} transition-colors`} />
                 {cartCount > 0 && (
                   <span
-                    className="absolute -top-1 -right-1 w-5 h-5 bg-secondary text-secondary-foreground text-xs font-bold rounded-full flex items-center justify-center"
+                    className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-4 h-4 sm:w-5 sm:h-5 bg-secondary text-secondary-foreground text-[10px] sm:text-xs font-bold rounded-full flex items-center justify-center"
                   >
                     {cartCount}
                   </span>
@@ -145,14 +145,14 @@ export default function Header() {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 rounded-full hover:bg-muted/20 transition-colors lg:hidden"
+                className="p-1.5 sm:p-2 rounded-full hover:bg-muted/20 transition-colors lg:hidden ml-0.5"
                 aria-expanded={isMobileMenuOpen}
                 aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
               >
                 {isMobileMenuOpen ? (
-                  <X className={`w-6 h-6 ${iconColorClass} transition-colors`} />
+                  <X className={`w-5 h-5 sm:w-6 sm:h-6 ${iconColorClass} transition-colors`} />
                 ) : (
-                  <Menu className={`w-6 h-6 ${iconColorClass} transition-colors`} />
+                  <Menu className={`w-5 h-5 sm:w-6 sm:h-6 ${iconColorClass} transition-colors`} />
                 )}
               </button>
             </div>
