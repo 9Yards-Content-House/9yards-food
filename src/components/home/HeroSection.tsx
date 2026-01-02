@@ -589,7 +589,7 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-[90svh] sm:min-h-[85svh] md:min-h-[80svh] lg:min-h-[80svh] flex items-center overflow-hidden pt-24 sm:pt-28 md:pt-28 lg:pt-24 pb-8 sm:pb-10 md:pb-12">
+    <section className="relative min-h-[90svh] sm:min-h-[85svh] md:min-h-[80svh] lg:min-h-[80svh] flex items-center overflow-visible pt-24 sm:pt-28 md:pt-28 lg:pt-24 pb-8 sm:pb-10 md:pb-12">
       {/* Background */}
       <div className="absolute inset-0 gradient-hero" />
       <div
@@ -683,7 +683,7 @@ export default function HeroSection() {
                     ref={dropdownRef}
                     id="location-suggestions"
                     role="listbox"
-                    className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-[200] animate-in fade-in slide-in-from-top-2 duration-200 max-h-[320px] overflow-y-auto"
+                    className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-visible z-[9999] animate-in fade-in slide-in-from-top-2 duration-200 max-h-[320px] overflow-y-auto"
                   >
                     {/* Loading indicator */}
                     {isSearching && (
