@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { MapPin, Search, Clock, Truck, CheckCircle2, XCircle } from "lucide-react";
 import { deliveryZones } from "@/data/menu";
@@ -25,6 +25,13 @@ export default function HeroSection() {
   const [selectedZone, setSelectedZone] = useState<typeof deliveryZones[0] | null>(null);
   const [showNotFound, setShowNotFound] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Trigger entrance animation
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Filter zones based on search query
   const filteredZones = useMemo(() => {
@@ -79,28 +86,34 @@ export default function HeroSection() {
       {/* Background */}
       <div className="absolute inset-0 gradient-hero" />
       <div
-        className="absolute inset-0 opacity-20"
+        className="absolute inset-0 opacity-15"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
         }}
       />
+      {/* Subtle gradient overlay for depth */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/10" />
 
       <div className="container-custom relative z-10 px-4 sm:px-6 md:px-8 lg:px-12 w-full">
         <div className="flex flex-col lg:flex-row items-center lg:items-start gap-6 sm:gap-8 lg:gap-12 xl:gap-16">
           {/* Left Content */}
-          <div className="flex-1 text-center lg:text-left w-full lg:max-w-xl xl:max-w-2xl lg:pt-4">
+          <div 
+            className={`flex-1 text-center lg:text-left w-full lg:max-w-xl xl:max-w-2xl lg:pt-4 transition-all duration-700 ease-out ${
+              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+            }`}
+          >
             {/* Headline */}
-            <h1 className="text-[1.6rem] sm:text-3xl md:text-4xl lg:text-[2.75rem] xl:text-[3.3rem] font-extrabold text-primary-foreground leading-[1.2] xl:leading-[1.2] mb-3 sm:mb-4">
+            <h1 className="text-[1.6rem] sm:text-3xl md:text-4xl lg:text-[2.75rem] xl:text-[3.3rem] font-extrabold text-primary-foreground leading-[1.15] xl:leading-[1.2] mb-3 sm:mb-4 text-balance">
               Craving Local Ugandan Food? We've <span className="text-secondary">Got You.</span>
             </h1>
 
             {/* Subheadline */}
-            <p className="text-sm sm:text-base md:text-lg text-primary-foreground/80 mb-5 sm:mb-6 leading-relaxed max-w-md mx-auto lg:mx-0">
+            <p className="text-sm sm:text-base md:text-lg text-primary-foreground/85 mb-5 sm:mb-6 leading-relaxed max-w-md mx-auto lg:mx-0">
               Freshly cooked with 100% natural ingredients and delivered hot to your door in 30-45 minutes.
             </p>
 
             {/* Location Search Card */}
-            <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-5 max-w-md mx-auto lg:mx-0">
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-5 max-w-md mx-auto lg:mx-0 transition-shadow duration-300 hover:shadow-2xl">
               {/* Search Input */}
               <div className="relative">
                 <div className="flex gap-2">
@@ -118,12 +131,14 @@ export default function HeroSection() {
                       }}
                       onFocus={() => setShowSuggestions(true)}
                       onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                      className="w-full pl-10 pr-3 py-2.5 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary text-sm"
+                      className="w-full pl-10 pr-3 py-2.5 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary text-sm transition-all duration-200"
+                      aria-label="Enter your delivery address"
                     />
                   </div>
                   <button
                     onClick={handleSearch}
-                    className="btn-secondary px-4 sm:px-5 py-2.5 sm:py-3 flex items-center gap-2 whitespace-nowrap text-sm"
+                    className="btn-secondary px-4 sm:px-5 py-2.5 sm:py-3 flex items-center gap-2 whitespace-nowrap text-sm active:scale-[0.98] transition-transform"
+                    aria-label="Search for delivery availability"
                   >
                     <Search className="w-4 h-4" />
                     <span className="hidden xs:inline">Find Food</span>
@@ -132,18 +147,18 @@ export default function HeroSection() {
 
                 {/* Suggestions Dropdown */}
                 {showSuggestions && searchQuery && filteredZones.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-20">
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-20 animate-in fade-in slide-in-from-top-2 duration-200">
                     {filteredZones.map((zone) => (
                       <button
                         key={zone.name}
                         onClick={() => handleSelectZone(zone)}
-                        className="w-full px-4 py-2.5 text-left hover:bg-gray-50 flex items-center justify-between gap-4 transition-colors"
+                        className="w-full px-4 py-2.5 text-left hover:bg-secondary/5 flex items-center justify-between gap-4 transition-colors focus:bg-secondary/5 focus:outline-none"
                       >
                         <div className="flex items-center gap-3">
                           <MapPin className="w-4 h-4 text-secondary" />
                           <span className="text-gray-900 font-medium text-sm">{zone.name}</span>
                         </div>
-                        <span className="text-xs text-gray-500">{zone.estimatedTime}</span>
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{zone.estimatedTime}</span>
                       </button>
                     ))}
                   </div>
@@ -152,28 +167,28 @@ export default function HeroSection() {
 
               {/* Result Messages */}
               {selectedZone && (
-                <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200 animate-in fade-in duration-200">
                   <div className="flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
                     <div className="flex-1">
                       <p className="text-green-800 font-semibold text-sm">
                         We deliver to {selectedZone.name}!
                       </p>
-                      <div className="flex items-center gap-3 mt-1 text-xs text-green-700">
+                      <div className="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-green-700">
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {selectedZone.estimatedTime}
                         </span>
                         <span className="flex items-center gap-1">
                           <Truck className="w-3 h-3" />
-                          {selectedZone.fee === 0 ? "Free" : formatPrice(selectedZone.fee)}
+                          {selectedZone.fee === 0 ? "Free Delivery" : formatPrice(selectedZone.fee)}
                         </span>
                       </div>
                       <button
                         onClick={handleOrderNow}
-                        className="mt-2 btn-secondary text-xs px-3 py-1.5"
+                        className="mt-2.5 btn-secondary text-xs px-4 py-2 active:scale-[0.98] transition-transform"
                       >
-                        Order Now
+                        Order Now →
                       </button>
                     </div>
                   </div>
@@ -181,19 +196,19 @@ export default function HeroSection() {
               )}
 
               {showNotFound && (
-                <div className="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                <div className="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-200 animate-in fade-in duration-200">
                   <div className="flex items-start gap-2">
                     <XCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
                     <div className="flex-1">
                       <p className="text-amber-800 font-semibold text-sm">
                         Area not found
                       </p>
-                      <p className="text-xs text-amber-700 mt-0.5">
-                        Contact us to check availability.
+                      <p className="text-xs text-amber-700 mt-1">
+                        Contact us to check availability in your area.
                       </p>
                       <button
                         onClick={handleWhatsAppContact}
-                        className="mt-2 bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors"
+                        className="mt-2.5 bg-green-500 hover:bg-green-600 text-white text-xs px-4 py-2 rounded-lg font-semibold transition-colors active:scale-[0.98]"
                       >
                         WhatsApp Us
                       </button>
@@ -204,18 +219,26 @@ export default function HeroSection() {
             </div>
 
             {/* Secondary Message */}
-            <p className="text-primary-foreground/60 text-xs sm:text-sm mt-3 sm:mt-4 max-w-md mx-auto lg:mx-0">
-              Order via WhatsApp or Pay Online • Free Delivery on Orders 50K+
+            <p className="text-primary-foreground/70 text-xs sm:text-sm mt-4 sm:mt-5 max-w-md mx-auto lg:mx-0">
+              Order in 2 minutes • No signup required • Free delivery UGX 50K+
             </p>
           </div>
 
           {/* Right Image */}
-          <div className="flex-1 w-full max-w-[200px] sm:max-w-[240px] md:max-w-[300px] lg:max-w-[340px] xl:max-w-[380px] lg:absolute lg:right-4 lg:top-1/2 lg:-translate-y-1/2 xl:right-12">
+          <div 
+            className={`flex-1 w-full max-w-[180px] sm:max-w-[220px] md:max-w-[280px] lg:max-w-[340px] xl:max-w-[400px] lg:absolute lg:right-4 lg:top-1/2 lg:-translate-y-1/2 xl:right-12 transition-all duration-700 delay-200 ease-out ${
+              isVisible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-4 scale-95"
+            }`}
+          >
             <div className="relative">
+              {/* Subtle glow effect behind image */}
+              <div className="absolute inset-0 bg-secondary/20 blur-3xl rounded-full scale-75 -z-10" />
               <img
                 src="/images/lusaniya/9Yards-Food-Lusaniya-01.png"
-                alt="Delicious Ugandan food platter"
+                alt="Delicious Ugandan food platter featuring fresh local cuisine"
                 className="w-full h-auto object-contain drop-shadow-2xl animate-float"
+                loading="eager"
+                fetchPriority="high"
               />
             </div>
           </div>
