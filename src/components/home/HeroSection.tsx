@@ -90,7 +90,7 @@ export default function HeroSection() {
           {/* Left Content */}
           <div className="flex-1 text-center lg:text-left w-full lg:max-w-xl xl:max-w-2xl lg:pt-4">
             {/* Headline */}
-            <h1 className="text-[1.6rem] sm:text-3xl md:text-4xl lg:text-[2.75rem] xl:text-5xl font-extrabold text-primary-foreground leading-[1.2] mb-3 sm:mb-4">
+            <h1 className="text-[1.6rem] sm:text-3xl md:text-4xl lg:text-[2.75rem] xl:text-[3.3rem] font-extrabold text-primary-foreground leading-[1.2] xl:leading-[1.2] mb-3 sm:mb-4">
               Craving Local Ugandan Food? We've <span className="text-secondary">Got You.</span>
             </h1>
 
