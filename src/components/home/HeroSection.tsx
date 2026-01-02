@@ -872,7 +872,7 @@ export default function HeroSection() {
                       <p className="text-green-800 font-semibold text-sm">
                         We deliver to {selectedZone.name}!
                       </p>
-                      <div className="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-green-700">
+                      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-1.5 text-xs text-green-700">
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {selectedZone.estimatedTime}
