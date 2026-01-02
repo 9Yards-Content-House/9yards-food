@@ -497,59 +497,83 @@ export default function HeroSection() {
     setLocationError(null);
     setSelectedZone(null);
     setShowNotFound(false);
+    setShowSuggestions(false);
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        
-        // Find the nearest delivery zone
-        let nearestZone: typeof deliveryZones[0] | null = null;
-        let minDistance = Infinity;
+    // First try with high accuracy, then fall back to low accuracy if it fails
+    const tryGetPosition = (highAccuracy: boolean) => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude, accuracy } = position.coords;
+          
+          console.log(`Location obtained: ${latitude}, ${longitude} (accuracy: ${accuracy}m, highAccuracy: ${highAccuracy})`);
+          
+          // Find the nearest delivery zone
+          let nearestZone: typeof deliveryZones[0] | null = null;
+          let minDistance = Infinity;
 
-        deliveryZones.forEach((zone) => {
-          if (zone.coordinates) {
-            const distance = getDistanceFromLatLonInKm(
-              latitude,
-              longitude,
-              zone.coordinates[0],
-              zone.coordinates[1]
-            );
-            if (distance < minDistance) {
-              minDistance = distance;
-              nearestZone = zone;
+          deliveryZones.forEach((zone) => {
+            if (zone.coordinates) {
+              const distance = getDistanceFromLatLonInKm(
+                latitude,
+                longitude,
+                zone.coordinates[0],
+                zone.coordinates[1]
+              );
+              if (distance < minDistance) {
+                minDistance = distance;
+                nearestZone = zone;
+              }
             }
+          });
+
+          setIsLocating(false);
+
+          if (nearestZone && minDistance < 15) {
+            // Within 15km of a delivery zone
+            handleSelectZone(nearestZone, {
+              name: `Near ${nearestZone.name}`,
+              lat: latitude,
+              lon: longitude
+            });
+          } else {
+            setSearchQuery("My Location");
+            setShowNotFound(true);
+            setLocationError("We don't deliver to your area yet");
           }
-        });
-
-        setIsLocating(false);
-
-        if (nearestZone && minDistance < 15) {
-          // Within 15km of a delivery zone
-          handleSelectZone(nearestZone);
-        } else {
-          setSearchQuery("My Location");
-          setShowNotFound(true);
-          setLocationError("We don't deliver to your area yet");
+        },
+        (error) => {
+          // If high accuracy fails, try with low accuracy
+          if (highAccuracy && error.code !== error.PERMISSION_DENIED) {
+            console.log("High accuracy failed, trying low accuracy...");
+            tryGetPosition(false);
+            return;
+          }
+          
+          setIsLocating(false);
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              setLocationError("Please enable location access in your browser settings");
+              break;
+            case error.POSITION_UNAVAILABLE:
+              setLocationError("Location unavailable. Please try again or enter address manually");
+              break;
+            case error.TIMEOUT:
+              setLocationError("Location request timed out. Please try again");
+              break;
+            default:
+              setLocationError("Unable to get location. Please enter address manually");
+          }
+        },
+        {
+          enableHighAccuracy: highAccuracy,
+          timeout: highAccuracy ? 10000 : 15000,
+          maximumAge: 0 // Always get fresh location
         }
-      },
-      (error) => {
-        setIsLocating(false);
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            setLocationError("Location access denied");
-            break;
-          case error.POSITION_UNAVAILABLE:
-            setLocationError("Location unavailable");
-            break;
-          case error.TIMEOUT:
-            setLocationError("Location request timed out");
-            break;
-          default:
-            setLocationError("Unable to get location");
-        }
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-    );
+      );
+    };
+
+    // Start with high accuracy
+    tryGetPosition(true);
   }, [handleSelectZone]);
 
   const handleOrderNow = () => {
@@ -578,10 +602,10 @@ export default function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/10" />
 
       <div className="container-custom relative z-10 px-4 sm:px-6 md:px-8 lg:px-12 w-full">
-        <div className="flex flex-col lg:flex-row items-center lg:items-start gap-6 sm:gap-8 lg:gap-12 xl:gap-16">
+        <div className="flex flex-col-reverse lg:flex-row items-center lg:items-start gap-4 sm:gap-6 lg:gap-12 xl:gap-16">
           {/* Left Content */}
           <div 
-            className={`flex-1 text-center lg:text-left w-full lg:max-w-xl xl:max-w-2xl lg:pt-4 transition-all duration-700 ease-out ${
+            className={`flex-1 text-center lg:text-left w-full lg:max-w-xl xl:max-w-2xl lg:pt-4 transition-all duration-700 ease-out relative z-20 ${
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >
@@ -598,7 +622,7 @@ export default function HeroSection() {
             {/* Location Search Card */}
             <div 
               ref={containerRef}
-              className="bg-white rounded-xl sm:rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.25)] p-4 sm:p-5 max-w-md mx-auto lg:mx-0 transition-shadow duration-300 hover:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.3)] relative z-[100]"
+              className="bg-white rounded-xl sm:rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.25)] p-3.5 sm:p-5 max-w-md mx-auto lg:mx-0 transition-shadow duration-300 hover:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.3)] relative z-[100]"
             >
               {/* Search Input */}
               <div className="relative">
@@ -619,7 +643,7 @@ export default function HeroSection() {
                       }}
                       onFocus={() => setShowSuggestions(true)}
                       onKeyDown={handleKeyDown}
-                      className="w-full pl-10 pr-10 py-2.5 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary text-sm transition-all duration-200"
+                      className="w-full pl-10 pr-10 py-2.5 sm:py-3 bg-gray-50 border border-transparent rounded-lg text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-transparent text-sm transition-all duration-200"
                       aria-label="Enter your delivery address"
                       aria-expanded={showSuggestions && displaySuggestions.zones.length > 0}
                       aria-haspopup="listbox"
@@ -725,7 +749,7 @@ export default function HeroSection() {
                             </div>
                             <div className="flex items-center gap-2 flex-shrink-0">
                               <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
-                                ✓ We deliver
+                                ✓ We deliver here
                               </span>
                               <span className={`text-xs px-2 py-0.5 rounded-full ${
                                 highlightedIndex === index 
@@ -789,15 +813,11 @@ export default function HeroSection() {
                               <div className="flex-shrink-0">
                                 {result.isDeliverable ? (
                                   <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
-                                    ✓ We deliver
-                                  </span>
-                                ) : result.isInKampalaArea ? (
-                                  <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">
-                                    Message to confirm
+                                    ✓ We deliver here
                                   </span>
                                 ) : (
-                                  <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
-                                    Message to check
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium">
+                                    ⚠ Message to confirm
                                   </span>
                                 )}
                               </div>
@@ -905,9 +925,9 @@ export default function HeroSection() {
             </p>
           </div>
 
-          {/* Right Image */}
+          {/* Right Image - Shows first on mobile (flex-col-reverse), positioned right on desktop */}
           <div 
-            className={`flex-1 w-full max-w-[180px] sm:max-w-[220px] md:max-w-[280px] lg:max-w-[340px] xl:max-w-[400px] lg:absolute lg:right-4 lg:top-1/2 lg:-translate-y-1/2 xl:right-12 transition-all duration-700 delay-200 ease-out ${
+            className={`flex-shrink-0 w-full max-w-[160px] sm:max-w-[180px] md:max-w-[220px] lg:max-w-[340px] xl:max-w-[400px] lg:absolute lg:right-4 lg:top-1/2 lg:-translate-y-1/2 xl:right-12 transition-all duration-700 delay-100 ease-out z-10 ${
               isVisible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-4 scale-95"
             }`}
           >
