@@ -60,23 +60,24 @@ export default function Header() {
   return (
     <>
       <header
-        className={`fixed left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed left-0 right-0 z-50 h-16 sm:h-[4.5rem] md:h-20 transition-colors transition-shadow duration-300 ${
           showStickyStyle
-            ? 'bg-white shadow-soft top-0'
-            : 'bg-transparent top-0'
+            ? 'bg-white shadow-soft'
+            : 'bg-transparent'
         }`}
+        style={{ top: 0 }}
       >
-        <div className="container-custom">
-          <div className="flex items-center justify-between h-16 sm:h-[4.5rem] md:h-20 px-4">
+        <div className="container-custom h-full">
+          <div className="flex items-center justify-between h-full px-4">
             {/* Logo */}
-            <Link to="/" className="flex items-center">
+            <Link to="/" className="flex items-center h-full py-2">
               <img 
                 src={useTransparentStyle 
                   ? "/images/logo/9Yards-Food-White-Logo.png" 
                   : "/images/logo/9Yards-Food-White-Logo-colored.png"
                 }
                 alt="9Yards Food"
-                className="h-10 sm:h-12 md:h-14 lg:h-[3.8rem] w-auto object-contain transition-opacity duration-300"
+                className="h-full max-h-10 sm:max-h-12 md:max-h-14 lg:max-h-[3.8rem] w-auto object-contain transition-opacity duration-300"
               />
             </Link>
 
