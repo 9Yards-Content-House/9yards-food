@@ -1,177 +1,102 @@
-import { Grid3X3, ChefHat, Truck, ChevronRight, CreditCard } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { getWhatsAppUrl, WHATSAPP_MESSAGES } from '@/lib/constants';
-import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
+import { UtensilsCrossed, ChefHat, Wallet, Truck } from 'lucide-react';
 
 const steps = [
   {
-    icon: Grid3X3,
+    icon: UtensilsCrossed,
     title: 'Build Your Combo',
-    description: "Click 'Build Your Combo' and customize your meal with your favorite main dishes and sauce",
-    bgColor: 'bg-[#212282]',
-    iconColor: 'text-white',
+    description: 'Choose your main dishes (matooke, rice, posho) and select your protein sauce',
   },
   {
     icon: ChefHat,
     title: 'Customize & Add Extras',
-    description: 'Choose your free side dish, add natural juices, and desserts to complete your order',
-    bgColor: 'bg-[#E6411C]',
-    iconColor: 'text-white',
+    description: 'Pick your FREE side dish, add 100% natural juices, and desserts',
   },
   {
-    icon: WhatsAppIcon,
+    icon: Wallet,
     title: 'Choose Payment Method',
-    description: 'Send order via WhatsApp for cash payment or pay online with Mobile Money/Card',
-    bgColor: 'bg-[#25D366]',
-    iconColor: 'text-white',
-    showPaymentOptions: true,
+    description: 'Order via WhatsApp and pay on delivery, or pay instantly with Mobile Money/Card',
   },
   {
     icon: Truck,
     title: 'Fresh Delivery',
-    description: 'Your food arrives hot and fresh within 30-45 minutes straight from our kitchen',
-    bgColor: 'bg-[#212282]',
-    iconColor: 'text-white',
+    description: 'Hot, fresh, and delivered to your door in 30-45 minutes',
   },
 ];
 
 export default function HowItWorksSection() {
   return (
     <section 
-      className="py-12 md:py-16 lg:py-20 bg-[#F5F5F5] overflow-hidden"
-      aria-labelledby="how-to-order-heading"
+      className="py-10 md:py-14 lg:py-16 bg-white"
+      aria-labelledby="how-it-works-heading"
     >
-      <div className="container-custom">
+      <div className="container-custom px-4 sm:px-6">
         {/* Section Header */}
-        <div className="text-center mb-12 md:mb-16">
-          <span className="text-[#E6411C] font-semibold text-sm uppercase tracking-wider">
+        <div className="text-center mb-8 md:mb-10 lg:mb-12">
+          <span className="text-[#E6411C] text-xs sm:text-sm font-bold uppercase tracking-wider">
             Simple Process
           </span>
           <h2 
-            id="how-to-order-heading"
-            className="text-3xl md:text-4xl font-bold text-[#212282] mt-2 mb-4 font-sans"
+            id="how-it-works-heading"
+            className="text-xl sm:text-2xl md:text-3xl font-bold text-[#212282] mt-1 mb-2"
           >
             How to Order
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto font-sans">
-            Building your perfect Ugandan meal is easy. Just follow these simple steps.
+          <p className="text-gray-600 text-sm sm:text-base">
+            Get your authentic Ugandan meal in 4 easy steps
           </p>
         </div>
 
-        {/* Steps */}
+        {/* Steps Container */}
         <div className="relative">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6">
+          {/* Connecting Line - Horizontal on lg+ */}
+          <div 
+            className="absolute hidden lg:block top-[52px] left-[calc(12.5%+32px)] right-[calc(12.5%+32px)] h-0.5 border-t-2 border-dashed border-gray-200 z-0"
+            aria-hidden="true"
+          />
+          {/* Vertical connecting line for mobile/tablet */}
+          <div 
+            className="absolute lg:hidden left-8 sm:left-10 top-20 bottom-20 w-0.5 border-l-2 border-dashed border-gray-200 z-0"
+            aria-hidden="true"
+          />
+
+          {/* Steps */}
+          <div className="relative z-10 flex flex-col lg:flex-row lg:justify-between gap-6 lg:gap-4">
             {steps.map((step, index) => (
               <div
                 key={index}
-                className="relative"
+                className="flex items-start lg:items-center lg:flex-col lg:text-center gap-4 lg:gap-0 flex-1"
               >
-                {/* Arrow Connector (desktop) */}
-                {index < steps.length - 1 && (
-                  <div 
-                    className="hidden lg:flex absolute top-[60px] -right-3 z-20"
-                    aria-hidden="true"
-                  >
-                    <ChevronRight className="w-6 h-6 text-[#E6411C]" />
-                  </div>
-                )}
-
-                {/* Card */}
-                <div 
-                  className="relative flex flex-col items-center text-center p-6 bg-white rounded-2xl transition-all duration-300 hover:shadow-lg group"
-                >
+                {/* Icon Circle with Step Number */}
+                <div className="relative flex-shrink-0">
                   {/* Step Number Badge */}
                   <div 
-                    className="absolute -top-5 left-1/2 -translate-x-1/2 w-10 h-10 bg-[#E6411C] text-white text-base font-bold rounded-full flex items-center justify-center z-20 shadow-md group-hover:scale-110 transition-transform"
+                    className="absolute -top-2 -left-2 w-6 h-6 sm:w-7 sm:h-7 bg-[#E6411C] text-white text-xs sm:text-sm font-bold rounded-full flex items-center justify-center z-10 shadow-md"
                     aria-label={`Step ${index + 1}`}
                   >
                     {index + 1}
                   </div>
-
-                  {/* Icon Container */}
-                  <div
-                    className={`w-20 h-20 ${step.bgColor} rounded-2xl flex items-center justify-center mb-5 shadow-md relative z-10 mt-6 group-hover:scale-105 transition-transform`}
+                  
+                  {/* Icon Circle */}
+                  <div 
+                    className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-[#FFF7F5] rounded-full flex items-center justify-center border border-orange-100 lg:mb-4"
                     aria-hidden="true"
                   >
-                    {typeof step.icon === 'function' && step.icon === WhatsAppIcon ? (
-                      <WhatsAppIcon className={`w-10 h-10 ${step.iconColor}`} />
-                    ) : (
-                      <step.icon className={`w-10 h-10 ${step.iconColor}`} />
-                    )}
+                    <step.icon className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 text-[#E6411C]" strokeWidth={1.5} />
                   </div>
-
-                  {/* Content */}
-                  <h3 className="text-lg font-bold text-[#212282] mb-2 font-sans">
-                    {step.title}
-                  </h3>
-                  <p className="text-gray-600 text-sm leading-relaxed mb-4 font-sans">
-                    {step.description}
-                  </p>
-
-                  {/* Payment options for step 3 */}
-                  {step.showPaymentOptions && (
-                    <div className="flex items-center justify-center gap-3 mt-auto">
-                      <a
-                        href={getWhatsAppUrl(WHATSAPP_MESSAGES.default)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 bg-[#25D366] hover:bg-[#22c55e] text-white px-3 py-2 rounded-lg text-xs font-semibold transition-colors shadow-sm"
-                        aria-label="Order via WhatsApp"
-                      >
-                        <WhatsAppIcon className="w-4 h-4" />
-                        WhatsApp
-                      </a>
-                      <Link
-                        to="/menu"
-                        className="flex items-center gap-1.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-3 py-2 rounded-lg text-xs font-semibold transition-colors shadow-sm"
-                        aria-label="Pay online"
-                      >
-                        <CreditCard className="w-4 h-4" />
-                        Online Pay
-                      </Link>
-                    </div>
-                  )}
                 </div>
 
-                {/* Mobile connector */}
-                {index < steps.length - 1 && (
-                  <div 
-                    className="flex lg:hidden justify-center my-4"
-                    aria-hidden="true"
-                  >
-                    <ChevronRight className="w-6 h-6 text-[#E6411C] rotate-90" />
-                  </div>
-                )}
+                {/* Content */}
+                <div className="flex-1 lg:flex-none">
+                  <h3 className="text-sm sm:text-base md:text-lg font-bold text-[#212282] uppercase tracking-wide mb-1 lg:mb-2">
+                    {step.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-gray-600 leading-relaxed lg:max-w-[200px] lg:mx-auto">
+                    {step.description}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Call-to-Action */}
-        <div className="text-center mt-12">
-          <Link
-            to="/menu?combo=true"
-            className="inline-flex items-center gap-2 bg-[#E6411C] hover:bg-[#d13a18] text-white px-8 py-4 rounded-xl text-lg font-bold transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
-            aria-label="Start building your combo"
-          >
-            Build Your Combo Now
-            <ChevronRight className="w-5 h-5" />
-          </Link>
-          <p className="text-gray-600 mt-4 text-sm font-sans">
-            Questions? Check our{' '}
-            <Link to="/how-it-works" className="text-[#212282] hover:text-[#E6411C] underline transition-colors">
-              FAQ
-            </Link>{' '}
-            or{' '}
-            <a 
-              href={getWhatsAppUrl(WHATSAPP_MESSAGES.inquiry)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#25D366] hover:text-[#22c55e] underline transition-colors"
-            >
-              contact us on WhatsApp
-            </a>
-          </p>
         </div>
       </div>
     </section>
