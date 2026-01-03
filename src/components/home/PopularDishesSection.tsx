@@ -1,58 +1,226 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Heart, Flame, TrendingUp } from 'lucide-react';
+import { Heart, Flame, Plus, ChevronRight } from 'lucide-react';
 import { menuData } from '@/data/menu';
 import { formatPrice } from '@/lib/utils/order';
 import { useCart } from '@/context/CartContext';
-import { useState } from 'react';
+import ComboBuilder from '@/components/menu/ComboBuilder';
 
-// Get featured items (first 2 from each category)
+// Curated selection of best-selling items to showcase
+// Mix of proteins (what drives combo value) and popular add-ons
 const featuredItems = [
-  ...menuData.sauces.slice(0, 3).map((s, index) => ({
-    id: s.id,
-    name: s.name,
-    image: s.image,
-    price: s.basePrice,
-    category: 'sauce',
-    available: s.available,
-    isBestSeller: index === 0, // First sauce is best seller
-    isPopular: index === 1,
-  })),
-  ...menuData.juices.slice(0, 2).map((j, index) => ({
-    id: j.id,
-    name: j.name,
-    image: j.image,
-    price: j.price,
-    category: 'juice',
-    available: j.available,
+  // Top 3 Protein Sauces - these are the stars of the combo
+  {
+    id: 'chicken',
+    name: 'Chicken',
+    description: 'Tender & juicy, prepared your way',
+    image: menuData.sauces.find(s => s.id === 'chicken')?.image || '',
+    price: menuData.sauces.find(s => s.id === 'chicken')?.basePrice || 18000,
+    categoryType: 'sauce' as const,
+    categoryLabel: 'Protein',
+    available: true,
+    isBestSeller: true,
+  },
+  {
+    id: 'meat',
+    name: 'Beef',
+    description: 'Premium cuts, slow-cooked',
+    image: menuData.sauces.find(s => s.id === 'meat')?.image || '',
+    price: menuData.sauces.find(s => s.id === 'meat')?.basePrice || 15000,
+    categoryType: 'sauce' as const,
+    categoryLabel: 'Protein',
+    available: true,
     isBestSeller: false,
-    isPopular: index === 0,
-  })),
-  ...menuData.desserts.slice(0, 1).map(d => ({
-    id: d.id,
-    name: d.name,
-    image: d.image,
-    price: d.price,
-    category: 'dessert',
-    available: d.available,
+  },
+  {
+    id: 'gnuts',
+    name: 'G-Nuts Sauce',
+    description: 'Rich groundnut flavor',
+    image: menuData.sauces.find(s => s.id === 'gnuts')?.image || '',
+    price: menuData.sauces.find(s => s.id === 'gnuts')?.basePrice || 12000,
+    categoryType: 'sauce' as const,
+    categoryLabel: 'Protein',
+    available: true,
     isBestSeller: false,
-    isPopular: true,
-  })),
+  },
+  // 1 Popular Main Dish
+  {
+    id: 'matooke',
+    name: 'Matooke',
+    description: 'Traditional Ugandan staple',
+    image: menuData.mainDishes.find(m => m.id === 'matooke')?.image || '',
+    price: 0,
+    categoryType: 'main' as const,
+    categoryLabel: 'Base',
+    available: true,
+    isBestSeller: false,
+    isIncluded: true,
+  },
+  // 1 Popular Juice
+  {
+    id: 'passion',
+    name: 'Passion Fruit',
+    description: 'Fresh & refreshing',
+    image: menuData.juices.find(j => j.id === 'passion')?.image || '',
+    price: menuData.juices.find(j => j.id === 'passion')?.price || 5000,
+    categoryType: 'juice' as const,
+    categoryLabel: 'Drink',
+    available: true,
+    isBestSeller: false,
+  },
+  // 1 Popular Snack
+  {
+    id: 'rolex',
+    name: 'Rolex',
+    description: 'Iconic Ugandan egg roll',
+    image: menuData.desserts.find(d => d.id === 'rolex')?.image || '',
+    price: menuData.desserts.find(d => d.id === 'rolex')?.price || 5000,
+    categoryType: 'dessert' as const,
+    categoryLabel: 'Snack',
+    available: true,
+    isBestSeller: false,
+  },
 ];
 
-// Skeleton loader component
-function DishCardSkeleton() {
+interface FeaturedItem {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  price: number;
+  categoryType: 'main' | 'sauce' | 'juice' | 'dessert';
+  categoryLabel: string;
+  available: boolean;
+  isBestSeller?: boolean;
+  isIncluded?: boolean;
+}
+
+interface DishCardProps {
+  item: FeaturedItem;
+  onAddToOrder: () => void;
+  onToggleFavorite: (id: string) => void;
+  isFavorite: boolean;
+  imageLoaded: boolean;
+  onImageLoad: () => void;
+}
+
+function DishCard({ 
+  item, 
+  onAddToOrder, 
+  onToggleFavorite, 
+  isFavorite,
+  imageLoaded,
+  onImageLoad
+}: DishCardProps) {
+  const getPriceDisplay = () => {
+    if (item.isIncluded) {
+      return <span className="text-muted-foreground font-medium text-sm">Included</span>;
+    }
+    return <span className="text-secondary font-bold text-base">{formatPrice(item.price)}</span>;
+  };
+
   return (
-    <div className="card-premium animate-pulse">
-      <div className="aspect-[4/3] bg-muted rounded-t-2xl" />
-      <div className="p-5">
-        <div className="flex justify-between gap-2">
-          <div className="flex-1">
-            <div className="h-5 bg-muted rounded w-3/4 mb-2" />
-            <div className="h-4 bg-muted rounded w-1/2" />
+    <div
+      onClick={() => item.available && onAddToOrder()}
+      className={`group relative bg-card rounded-2xl overflow-hidden border border-border 
+        hover:border-secondary/50 transition-all duration-200 flex flex-col
+        ${item.available ? 'cursor-pointer' : 'cursor-not-allowed'}
+        ${!item.available ? 'opacity-60' : ''}`}
+    >
+      {/* Image Container */}
+      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+        {/* Skeleton placeholder */}
+        {!imageLoaded && (
+          <div className="absolute inset-0 bg-muted animate-pulse" />
+        )}
+        
+        <img
+          src={item.image}
+          alt={item.name}
+          loading="lazy"
+          onLoad={onImageLoad}
+          className={`w-full h-full object-cover 
+            ${imageLoaded ? 'opacity-100' : 'opacity-0'}
+            ${!item.available ? 'grayscale' : ''}`}
+        />
+        
+        {/* Sold out overlay */}
+        {!item.available && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <span className="bg-black/70 text-white text-sm font-bold px-4 py-2 rounded-full border border-white/20">
+              Sold Out
+            </span>
           </div>
-          <div className="h-6 bg-muted rounded w-20" />
+        )}
+
+        {/* Badge - Top Left */}
+        <div className="absolute top-2.5 left-2.5">
+          {item.available && item.isBestSeller && (
+            <span className="bg-secondary text-secondary-foreground text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1">
+              <Flame className="w-3 h-3" />
+              Popular
+            </span>
+          )}
         </div>
-        <div className="h-6 bg-muted rounded w-24 mt-3" />
+
+        {/* Favorite Button - Top Right */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleFavorite(item.id);
+          }}
+          className="absolute top-2.5 right-2.5 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full 
+            flex items-center justify-center hover:bg-white transition-colors z-10"
+          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+        >
+          <Heart
+            className={`w-4 h-4 transition-colors ${
+              isFavorite
+                ? 'text-red-500 fill-red-500'
+                : 'text-gray-500'
+            }`}
+          />
+        </button>
+        
+        {/* Tap indicator on hover - desktop only */}
+        {item.available && (
+          <div className="absolute inset-0 bg-secondary/0 group-hover:bg-secondary/10 transition-colors flex items-center justify-center">
+            <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-secondary text-secondary-foreground text-xs font-semibold px-3 py-1.5 rounded-full hidden md:flex items-center gap-1.5">
+              <Plus className="w-3.5 h-3.5" />
+              Build Combo
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="p-3 md:p-4 flex flex-col flex-1">
+        {/* Category tag */}
+        <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">
+          {item.categoryLabel}
+        </span>
+        
+        {/* Name */}
+        <h3 className="font-bold text-foreground text-sm md:text-base leading-tight mb-0.5 line-clamp-1">
+          {item.name}
+        </h3>
+        
+        {/* Description */}
+        <p className="text-muted-foreground text-xs md:text-sm line-clamp-1 mb-2">
+          {item.description}
+        </p>
+        
+        {/* Price Row */}
+        <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/50">
+          {getPriceDisplay()}
+          
+          {/* Visual indicator for tappable - mobile */}
+          {item.available && (
+            <span className="text-muted-foreground text-[10px] md:text-xs flex items-center gap-1 md:hidden">
+              Tap to order
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -61,161 +229,71 @@ function DishCardSkeleton() {
 export default function PopularDishesSection() {
   const { toggleFavorite, isFavorite } = useCart();
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
-  const [isLoading] = useState(false); // Can be connected to actual loading state
+  const [isComboBuilderOpen, setIsComboBuilderOpen] = useState(false);
 
   const handleImageLoad = (id: string) => {
     setLoadedImages(prev => new Set(prev).add(id));
   };
 
   return (
-    <section className="section-padding bg-muted/30">
-      <div className="container-custom">
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-12">
-          <div>
-            <span className="text-secondary font-semibold text-sm uppercase tracking-wider">
-              Most Loved
+    <>
+      <section className="section-padding bg-muted/30">
+        <div className="container-custom">
+          {/* Section Header */}
+          <div className="text-center mb-10 md:mb-12">
+            <span className="inline-block text-secondary font-semibold text-sm uppercase tracking-wider mb-2">
+              Customer Favorites
             </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-2">
-              Popular Dishes
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
+              Most Loved Dishes
             </h2>
+            <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto">
+              Start with any of these popular picks and customize your perfect combo
+            </p>
           </div>
-          <Link
-            to="/menu"
-            className="text-secondary font-semibold hover:underline flex items-center gap-2"
-          >
-            See Full Menu
-            <span>→</span>
-          </Link>
-        </div>
 
-        {/* Dishes Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {isLoading ? (
-            // Skeleton loaders
-            Array.from({ length: 6 }).map((_, index) => (
-              <DishCardSkeleton key={index} />
-            ))
-          ) : (
-            featuredItems.map((item) => (
-              <div
+          {/* Dishes Grid - 2 cols mobile, 3 cols desktop */}
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {featuredItems.map((item) => (
+              <DishCard
                 key={item.id}
-                className="card-premium food-card-hover group"
+                item={item}
+                onAddToOrder={() => setIsComboBuilderOpen(true)}
+                onToggleFavorite={toggleFavorite}
+                isFavorite={isFavorite(item.id)}
+                imageLoaded={loadedImages.has(item.id)}
+                onImageLoad={() => handleImageLoad(item.id)}
+              />
+            ))}
+          </div>
+
+          {/* CTA */}
+          <div className="text-center mt-10 md:mt-12">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <button
+                onClick={() => setIsComboBuilderOpen(true)}
+                className="btn-secondary inline-flex items-center gap-2 text-base md:text-lg px-6 md:px-8 py-3 md:py-4 w-full sm:w-auto justify-center"
               >
-                {/* Image */}
-                <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                  {/* Skeleton placeholder while loading */}
-                  {!loadedImages.has(item.id) && (
-                    <div className="absolute inset-0 bg-muted animate-pulse" />
-                  )}
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    loading="lazy"
-                    onLoad={() => handleImageLoad(item.id)}
-                    className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-110 ${
-                      loadedImages.has(item.id) ? 'opacity-100' : 'opacity-0'
-                    }`}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                  {/* Favorite Button */}
-                  <button
-                    onClick={() => toggleFavorite(item.id)}
-                    className="absolute top-3 right-3 w-11 h-11 bg-card/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-card transition-colors"
-                    aria-label={isFavorite(item.id) ? 'Remove from favorites' : 'Add to favorites'}
-                  >
-                    <Heart
-                      className={`w-5 h-5 transition-colors ${
-                        isFavorite(item.id)
-                          ? 'text-secondary fill-secondary'
-                          : 'text-foreground/70'
-                      }`}
-                    />
-                  </button>
-
-                  {/* Badges - Best Seller / Popular */}
-                  <div className="absolute top-3 left-3 flex flex-col gap-2">
-                    {item.isBestSeller && (
-                      <span className="bg-secondary text-secondary-foreground text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg">
-                        <Flame className="w-3.5 h-3.5" />
-                        Best Seller
-                      </span>
-                    )}
-                    {item.isPopular && !item.isBestSeller && (
-                      <span className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg">
-                        <TrendingUp className="w-3.5 h-3.5" />
-                        Popular
-                      </span>
-                    )}
-                    {!item.isBestSeller && !item.isPopular && (
-                      <span className="bg-primary/90 text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full capitalize">
-                        {item.category}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Quick Add Button - Always visible on mobile, hover on desktop */}
-                  <Link
-                    to="/menu"
-                    className="absolute bottom-3 right-3 w-12 h-12 bg-secondary rounded-full flex items-center justify-center shadow-lg lg:opacity-0 lg:group-hover:opacity-100 lg:translate-y-2 lg:group-hover:translate-y-0 transition-all hover:scale-110"
-                    aria-label={`Add ${item.name} to cart`}
-                  >
-                    <Plus className="w-6 h-6 text-secondary-foreground" />
-                  </Link>
-                </div>
-
-                {/* Content */}
-                <div className="p-5">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <h3 className="font-bold text-foreground text-lg mb-1">
-                        {item.name}
-                      </h3>
-                      <p className="text-muted-foreground text-sm">
-                        Fresh & delicious
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-secondary font-bold text-xl">
-                        {formatPrice(item.price)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Availability */}
-                  <div className="mt-3 flex items-center justify-between">
-                    {item.available ? (
-                      <span className="badge-available inline-flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                        In Stock
-                      </span>
-                    ) : (
-                      <span className="badge-soldout inline-block">Sold Out</span>
-                    )}
-                    
-                    {/* Mobile: Add to Menu Link */}
-                    <Link
-                      to="/menu"
-                      className="lg:hidden text-secondary text-sm font-semibold hover:underline"
-                    >
-                      View Details →
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
+                Build Your Combo
+                <ChevronRight className="w-5 h-5" />
+              </button>
+              <Link 
+                to="/menu" 
+                className="text-secondary font-semibold hover:underline inline-flex items-center gap-1"
+              >
+                Or browse full menu
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
         </div>
+      </section>
 
-        {/* CTA */}
-        <div className="text-center mt-12">
-          <Link to="/menu" className="btn-secondary inline-flex items-center gap-2 text-lg px-8 py-4">
-            Explore Full Menu
-            <span>→</span>
-          </Link>
-        </div>
-      </div>
-    </section>
+      {/* Combo Builder Modal */}
+      <ComboBuilder
+        isOpen={isComboBuilderOpen}
+        onClose={() => setIsComboBuilderOpen(false)}
+      />
+    </>
   );
 }
