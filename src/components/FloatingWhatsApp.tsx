@@ -86,13 +86,6 @@ export default function FloatingWhatsApp() {
         ) : (
           <WhatsAppIcon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
         )}
-        
-        {/* Cart count badge - only when closed */}
-        {!isOpen && cartItemCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#E6411C] rounded-full text-white text-[10px] font-bold flex items-center justify-center shadow-sm">
-            {cartItemCount > 9 ? '9+' : cartItemCount}
-          </span>
-        )}
       </button>
 
       {/* Chat Widget - Mobile first responsive */}
