@@ -131,7 +131,7 @@ export default function Header() {
               {/* CTA Button - Desktop */}
               <button
                 onClick={() => setIsComboBuilderOpen(true)}
-                className="hidden md:flex btn-secondary text-sm py-2.5 px-5"
+                className="hidden md:flex btn-secondary text-sm py-2.5 px-5 lg:ml-6"
               >
                 Build Your Combo
               </button>
