@@ -563,7 +563,7 @@ export default function CartPage() {
                     />
                     <button
                       onClick={handleApplyPromo}
-                      className="flex-shrink-0 px-3 py-2 bg-[#212282] text-white rounded-lg text-sm font-bold hover:bg-[#212282]/90 transition-colors"
+                      className="flex-shrink-0 px-3 py-2 bg-[#212282] text-white rounded-xl text-sm font-bold hover:bg-[#212282]/90 transition-colors"
                     >
                       Apply
                     </button>

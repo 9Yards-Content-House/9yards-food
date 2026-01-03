@@ -598,7 +598,7 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                               ) : (
                                 <button
                                   onClick={() => updateJuiceQuantity(juice.id, 1)}
-                                  className="w-full h-9 flex items-center justify-center rounded-lg border border-gray-200 text-[#212282] text-sm font-bold hover:bg-gray-50 transition-colors"
+                                  className="w-full h-9 flex items-center justify-center rounded-xl border border-gray-200 text-[#212282] text-sm font-bold hover:bg-gray-50 transition-colors"
                                 >
                                   Add +
                                 </button>
@@ -665,7 +665,7 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                               ) : (
                                 <button
                                   onClick={() => updateDessertQuantity(dessert.id, 1)}
-                                  className="w-full h-9 flex items-center justify-center rounded-lg border border-gray-200 text-[#212282] text-sm font-bold hover:bg-gray-50 transition-colors"
+                                  className="w-full h-9 flex items-center justify-center rounded-xl border border-gray-200 text-[#212282] text-sm font-bold hover:bg-gray-50 transition-colors"
                                 >
                                   Add +
                                 </button>

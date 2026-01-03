@@ -561,7 +561,7 @@ export default function HowItWorksPage() {
                 </Link>
                 <Link
                   to="/menu"
-                  className="bg-primary-foreground/10 backdrop-blur-sm text-primary-foreground font-semibold px-8 py-4 rounded-lg transition-all hover:bg-primary-foreground/20 border-2 border-primary-foreground/30 flex items-center justify-center gap-2"
+                  className="bg-primary-foreground/10 backdrop-blur-sm text-primary-foreground font-semibold px-8 py-4 rounded-xl transition-all hover:bg-primary-foreground/20 border-2 border-primary-foreground/30 flex items-center justify-center gap-2"
                 >
                   📋 View Menu
                 </Link>

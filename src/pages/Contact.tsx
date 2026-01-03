@@ -187,7 +187,7 @@ export default function ContactPage() {
                 </div>
                 <h3 className="font-bold text-xl text-foreground mb-2">WhatsApp</h3>
                 <p className="text-muted-foreground text-sm mb-4">Fastest Response</p>
-                <div className="bg-green-500 text-white font-bold py-3 px-6 rounded-lg w-full">Chat Now</div>
+                <div className="bg-green-500 text-white font-bold py-3 px-6 rounded-xl w-full">Chat Now</div>
               </a>
 
               {/* Email Card */}
@@ -262,7 +262,7 @@ export default function ContactPage() {
                           href="https://wa.me/256708899597?text=Hi%209Yards%20Food!%20I%20have%20a%20question%20about..."
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 bg-green-500 text-white text-sm font-bold px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
+                          className="inline-flex items-center gap-1 bg-green-500 text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-green-600 transition-colors"
                         >
                           Open WhatsApp <ExternalLink className="w-3.5 h-3.5" />
                         </a>
@@ -401,7 +401,7 @@ export default function ContactPage() {
                               optIn: false,
                             });
                           }}
-                          className="px-6 py-3 border-2 border-border rounded-lg font-semibold hover:bg-muted transition-colors"
+                          className="px-6 py-3 border-2 border-border rounded-xl font-semibold hover:bg-muted transition-colors"
                         >
                           Send Another Message
                         </button>
@@ -624,7 +624,7 @@ export default function ContactPage() {
                 href="https://wa.me/256708899597?text=Hi%209Yards%20Food!%20I%27d%20like%20to%20get%20a%20quote%20for%20bulk%2Fcatering%20order%20for%20my%20event."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-bold px-8 py-4 rounded-lg hover:bg-primary/90 transition-colors"
+                className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-bold px-8 py-4 rounded-xl hover:bg-primary/90 transition-colors"
               >
                 Get a Custom Quote
                 <ChevronRight className="w-5 h-5" />
@@ -735,14 +735,14 @@ export default function ContactPage() {
                   href="https://wa.me/256708899597?text=Hi%209Yards%20Food!%20I%20have%20a%20question..."
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 bg-green-500 text-white font-bold px-6 py-3 rounded-lg hover:bg-green-600 transition-colors"
+                  className="inline-flex items-center justify-center gap-2 bg-green-500 text-white font-bold px-6 py-3 rounded-xl hover:bg-green-600 transition-colors"
                 >
                   <WhatsAppIcon className="w-5 h-5" />
                   Contact Support
                 </a>
                 <Link
                   to="/how-it-works"
-                  className="inline-flex items-center justify-center gap-2 border-2 border-border font-bold px-6 py-3 rounded-lg hover:bg-muted transition-colors"
+                  className="inline-flex items-center justify-center gap-2 border-2 border-border font-bold px-6 py-3 rounded-xl hover:bg-muted transition-colors"
                 >
                   View Order Guide
                   <ChevronRight className="w-4 h-4" />

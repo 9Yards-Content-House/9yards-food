@@ -731,13 +731,13 @@ export default function AboutPage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
                 <Link
                   to="/menu"
-                  className="bg-primary text-primary-foreground font-bold px-8 py-4 rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
+                  className="bg-primary text-primary-foreground font-bold px-8 py-4 rounded-xl hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
                 >
                   View Our Menu
                 </Link>
                 <Link
                   to="/menu"
-                  className="bg-secondary-foreground/10 backdrop-blur-sm text-secondary-foreground font-bold px-8 py-4 rounded-lg border-2 border-secondary-foreground/30 hover:bg-secondary-foreground/20 transition-colors flex items-center justify-center gap-2"
+                  className="bg-secondary-foreground/10 backdrop-blur-sm text-secondary-foreground font-bold px-8 py-4 rounded-xl border-2 border-secondary-foreground/30 hover:bg-secondary-foreground/20 transition-colors flex items-center justify-center gap-2"
                 >
                   Order Now - Get 10% Off
                 </Link>
