@@ -558,7 +558,7 @@ export default function CartPage() {
                       type="text"
                       value={promoCode}
                       onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                      placeholder="Enter code..."
+                      placeholder="Enter discount code (e.g., FIRST10)"
                       className="flex-1 min-w-0 bg-transparent border-none text-[#212282] placeholder:text-gray-400 text-sm font-medium focus:ring-0 p-2"
                     />
                     <button
@@ -640,7 +640,7 @@ export default function CartPage() {
                         onChange={(e) => setSelectedZone(e.target.value)}
                         className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]"
                       >
-                        <option value="">Select your area</option>
+                        <option value="">Select your delivery area...</option>
                         {deliveryZones.map((zone) => (
                           <option key={zone.name} value={zone.name}>
                             {zone.name} - {formatPrice(zone.fee)} ({zone.estimatedTime})
@@ -651,19 +651,19 @@ export default function CartPage() {
 
                     <div>
                       <label className="text-sm font-medium text-[#212282] mb-2 block">
-                        Full Name *
+                        Your Name *
                       </label>
                       <input
                         type="text"
                         value={state.userPreferences.name}
                         onChange={(e) => setUserPreferences({ name: e.target.value })}
-                        placeholder="e.g. Joshua Kayanja"
+                        placeholder="Enter your full name"
                         className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]"
                       />
                     </div>
                     <div>
                       <label className="text-sm font-medium text-[#212282] mb-2 block">
-                        Mobile Number *
+                        Phone Number *
                       </label>
                       <div className="flex">
                         <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-200 bg-gray-100 text-gray-500 text-sm">
@@ -673,31 +673,32 @@ export default function CartPage() {
                           type="tel"
                           value={state.userPreferences.phone}
                           onChange={(e) => setUserPreferences({ phone: e.target.value })}
-                          placeholder="77X XXX XXX"
+                          placeholder="700 123 456"
                           className="flex-1 p-3 rounded-r-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]"
                         />
                       </div>
+                      <p className="text-xs text-gray-400 mt-1">We'll call if we need directions.</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-[#212282] mb-2 block">
-                        Building / House No. *
+                        Delivery Address *
                       </label>
                       <input
                         type="text"
                         value={state.userPreferences.address}
                         onChange={(e) => setUserPreferences({ address: e.target.value })}
-                        placeholder="Apt 4B"
+                        placeholder="Enter your complete delivery address"
                         className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]"
                       />
                     </div>
                     <div>
                       <label className="text-sm font-medium text-[#212282] mb-2 block">
-                        Note to rider (Optional)
+                        Special Instructions (Optional)
                       </label>
                       <textarea
                         value={specialInstructions}
                         onChange={(e) => setSpecialInstructions(e.target.value)}
-                        placeholder="e.g. Leave at the reception desk"
+                        placeholder="Gate code, landmark, special requests..."
                         rows={2}
                         className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C] resize-none"
                       />
@@ -756,7 +757,7 @@ export default function CartPage() {
                     onChange={(e) => setSelectedZone(e.target.value)}
                     className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]"
                   >
-                    <option value="">Select your area</option>
+                    <option value="">Select your delivery area...</option>
                     {deliveryZones.map((zone) => (
                       <option key={zone.name} value={zone.name}>
                         {zone.name} - {formatPrice(zone.fee)} ({zone.estimatedTime})
@@ -775,7 +776,7 @@ export default function CartPage() {
                       type="text"
                       value={state.userPreferences.name}
                       onChange={(e) => setUserPreferences({ name: e.target.value })}
-                      placeholder="Enter your name"
+                      placeholder="Enter your full name"
                       className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]"
                     />
                   </div>
@@ -791,10 +792,11 @@ export default function CartPage() {
                         type="tel"
                         value={state.userPreferences.phone}
                         onChange={(e) => setUserPreferences({ phone: e.target.value })}
-                        placeholder="77X XXX XXX"
+                        placeholder="700 123 456"
                         className="flex-1 p-3 rounded-r-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]"
                       />
                     </div>
+                    <p className="text-xs text-gray-400 mt-1">We'll call if we need directions.</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-[#212282] mb-2 block">
@@ -803,7 +805,7 @@ export default function CartPage() {
                     <textarea
                       value={state.userPreferences.address}
                       onChange={(e) => setUserPreferences({ address: e.target.value })}
-                      placeholder="Enter delivery address"
+                      placeholder="Enter your complete delivery address"
                       rows={2}
                       className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C] resize-none"
                     />
@@ -815,7 +817,7 @@ export default function CartPage() {
                     <textarea
                       value={specialInstructions}
                       onChange={(e) => setSpecialInstructions(e.target.value)}
-                      placeholder="Gate code, landmarks, special requests..."
+                      placeholder="Gate code, landmark, special requests..."
                       rows={2}
                       className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C] resize-none"
                     />
@@ -847,8 +849,8 @@ export default function CartPage() {
                           type="text"
                           value={promoCode}
                           onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                          placeholder="Enter code"
-                          className="flex-1 min-w-0 p-3 bg-transparent border-none text-[#212282] focus:ring-0"
+                          placeholder="Enter discount code (e.g., FIRST10)"
+                          className="flex-1 min-w-0 p-3 bg-transparent border-none text-[#212282] focus:ring-0 placeholder:text-gray-400 text-sm"
                         />
                       </div>
                       <button
@@ -958,15 +960,15 @@ export default function CartPage() {
                 </div>
 
                 {/* Security Footer */}
-                <div className="mt-4 flex items-center justify-center gap-4 text-[10px] text-gray-400">
+                <div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-gray-400">
                   <span className="flex items-center gap-1">
                     <Lock className="w-3 h-3" />
-                    100% Secure
+                    100% Secure Payments
                   </span>
-                  <span>|</span>
+                  <span>•</span>
                   <span className="flex items-center gap-1">
                     <Shield className="w-3 h-3" />
-                    Info Protected
+                    Your Data is Protected
                   </span>
                 </div>
               </div>
@@ -1015,15 +1017,15 @@ export default function CartPage() {
           </button>
           
           {/* Security Footer - Mobile */}
-          <div className="flex items-center justify-center gap-3 text-[10px] text-gray-400 mt-1">
+          <div className="flex items-center justify-center gap-2 text-[10px] text-gray-400 mt-1">
             <span className="flex items-center gap-1">
               <Lock className="w-3 h-3" />
-              100% Secure
+              100% Secure Payments
             </span>
-            <span>|</span>
+            <span>•</span>
             <span className="flex items-center gap-1">
               <Shield className="w-3 h-3" />
-              Info Protected
+              Your Data is Protected
             </span>
           </div>
         </div>
