@@ -612,12 +612,12 @@ export default function HeroSection() {
           >
             {/* Headline */}
             <h1 className="text-[1.6rem] sm:text-3xl md:text-4xl lg:text-[2.75rem] xl:text-[3.3rem] font-extrabold text-primary-foreground leading-[1.15] xl:leading-[1.2] mb-3 sm:mb-4 text-balance">
-              Craving Local Ugandan Food? We've <span className="text-secondary">Got You.</span>
+              Craving Local Ugandan Food? <span className="text-secondary">We've Got You.</span>
             </h1>
 
             {/* Subheadline */}
             <p className="text-sm sm:text-base md:text-lg text-primary-foreground/85 mb-5 sm:mb-6 leading-relaxed max-w-md mx-auto lg:mx-0">
-              Freshly cooked with 100% natural ingredients and delivered hot to your door in 30-45 minutes.
+              Freshly cooked with 100% natural ingredients. Delivered hot and fast across Kampala.
             </p>
 
             {/* Location Search Card */}
@@ -925,7 +925,7 @@ export default function HeroSection() {
               {/* Subtle shadow effect behind image */}
               <div className="absolute inset-0 bg-black/10 blur-3xl rounded-full scale-75 -z-10" />
               <img
-                src="/images/lusaniya/9Yards-Food-Lusaniya-01.png"
+                src="/images/lusaniya/9Yards-Food-Lusaniya-05.png"
                 alt="Delicious Ugandan food platter featuring fresh local cuisine"
                 className="w-full h-auto object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.25)]"
                 loading="eager"
