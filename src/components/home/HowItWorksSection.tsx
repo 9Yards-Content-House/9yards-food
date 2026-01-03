@@ -29,7 +29,7 @@ export default function HowItWorksSection() {
       className="py-10 md:py-14 lg:py-16 bg-white"
       aria-labelledby="how-it-works-heading"
     >
-      <div className="container-custom px-4 sm:px-6">
+      <div className="container-custom px-5 sm:px-6 md:px-8">
         {/* Section Header */}
         <div className="text-center mb-8 md:mb-10 lg:mb-12">
           <span className="text-[#E6411C] text-xs sm:text-sm font-bold uppercase tracking-wider">
@@ -47,7 +47,7 @@ export default function HowItWorksSection() {
         </div>
 
         {/* Steps Container */}
-        <div className="relative">
+        <div className="relative pl-2 sm:pl-0">
           {/* Connecting Line - Horizontal on lg+ */}
           <div 
             className="absolute hidden lg:block top-[52px] left-[calc(12.5%+32px)] right-[calc(12.5%+32px)] h-0.5 border-t-2 border-dashed border-gray-200 z-0"
@@ -55,16 +55,16 @@ export default function HowItWorksSection() {
           />
           {/* Vertical connecting line for mobile/tablet */}
           <div 
-            className="absolute lg:hidden left-8 sm:left-10 top-20 bottom-20 w-0.5 border-l-2 border-dashed border-gray-200 z-0"
+            className="absolute lg:hidden left-[42px] sm:left-[46px] top-16 bottom-16 w-0.5 border-l-2 border-dashed border-gray-200 z-0"
             aria-hidden="true"
           />
 
           {/* Steps */}
-          <div className="relative z-10 flex flex-col lg:flex-row lg:justify-between gap-6 lg:gap-4">
+          <div className="relative z-10 flex flex-col lg:flex-row lg:justify-between gap-7 sm:gap-8 lg:gap-4">
             {steps.map((step, index) => (
               <div
                 key={index}
-                className="flex items-start lg:items-center lg:flex-col lg:text-center gap-4 lg:gap-0 flex-1"
+                className="flex items-start lg:items-center lg:flex-col lg:text-center gap-5 sm:gap-6 lg:gap-0 flex-1"
               >
                 {/* Icon Circle with Step Number */}
                 <div className="relative flex-shrink-0">
@@ -78,19 +78,19 @@ export default function HowItWorksSection() {
                   
                   {/* Icon Circle */}
                   <div 
-                    className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-[#FFF7F5] rounded-full flex items-center justify-center border border-orange-100 lg:mb-4"
+                    className="w-[72px] h-[72px] sm:w-20 sm:h-20 md:w-[88px] md:h-[88px] bg-[#FFF7F5] rounded-full flex items-center justify-center border border-orange-100 lg:mb-4"
                     aria-hidden="true"
                   >
-                    <step.icon className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 text-[#E6411C]" strokeWidth={1.5} />
+                    <step.icon className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-[#E6411C]" strokeWidth={1.5} />
                   </div>
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 lg:flex-none">
-                  <h3 className="text-sm sm:text-base md:text-lg font-bold text-[#212282] uppercase tracking-wide mb-1 lg:mb-2">
+                <div className="flex-1 lg:flex-none pt-1 sm:pt-2 lg:pt-0">
+                  <h3 className="text-sm sm:text-base md:text-lg font-bold text-[#212282] uppercase tracking-wide mb-1.5 lg:mb-2">
                     {step.title}
                   </h3>
-                  <p className="text-xs sm:text-sm text-gray-600 leading-relaxed lg:max-w-[200px] lg:mx-auto">
+                  <p className="text-sm sm:text-[15px] text-gray-600 leading-relaxed lg:max-w-[200px] lg:mx-auto">
                     {step.description}
                   </p>
                 </div>
