@@ -38,7 +38,7 @@ function MenuCardSkeleton() {
 }
 
 export default function MenuPage() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeCategory, setActiveCategory] = useState<Category>('all');
   const [isComboBuilderOpen, setIsComboBuilderOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -60,6 +60,10 @@ export default function MenuPage() {
     // Auto-open combo builder if combo param is present
     if (comboParam === 'true') {
       setIsComboBuilderOpen(true);
+      // Clear the combo param from URL to allow re-triggering
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('combo');
+      setSearchParams(newParams, { replace: true });
     }
     
     if (highlightParam) {
@@ -81,7 +85,7 @@ export default function MenuPage() {
         setActiveCategory(catMap[categoryParam]);
       }
     }
-  }, [searchParams]);
+  }, [searchParams, setSearchParams]);
 
   const categories = [
     { id: 'all', label: 'All Items' },
