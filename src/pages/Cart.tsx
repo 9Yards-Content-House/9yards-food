@@ -17,6 +17,8 @@ import {
   ArrowLeft,
   ChevronDown,
   ChevronUp,
+  Shield,
+  Lock,
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -894,44 +896,78 @@ export default function CartPage() {
                 </div>
 
                 {/* Checkout Buttons - Desktop */}
-                <div className="space-y-3">
-                  <button
-                    onClick={handleWhatsAppOrder}
-                    disabled={isProcessingPayment}
-                    className="w-full bg-[#25D366] text-white rounded-xl py-3.5 px-4 font-bold flex items-center justify-center gap-2 transition-colors hover:bg-[#22c55e] disabled:opacity-50"
-                  >
-                    <WhatsAppIcon className="w-5 h-5" />
-                    Order via WhatsApp
-                  </button>
+                <div className="space-y-4">
+                  {/* Section Header */}
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-bold text-[#212282]">Choose Your Payment Method</h3>
+                    <p className="text-sm text-gray-500">Select the option that works best for you.</p>
+                  </div>
+
+                  {/* WhatsApp Button */}
+                  <div className="space-y-2">
+                    <button
+                      onClick={handleWhatsAppOrder}
+                      disabled={isProcessingPayment}
+                      className="w-full bg-[#25D366] text-white rounded-xl py-3.5 px-4 flex items-center justify-center gap-2 transition-colors hover:bg-[#22c55e] disabled:opacity-50"
+                    >
+                      <WhatsAppIcon className="w-5 h-5" />
+                      <span className="font-bold">Order via WhatsApp</span>
+                    </button>
+                    <p className="text-xs text-gray-500 px-1 leading-relaxed">
+                      Quick & easy. Opens WhatsApp with your order ready to send. Pay when you receive your food.
+                    </p>
+                  </div>
+
+                  {/* Divider */}
                   <div className="relative flex items-center py-2">
                     <div className="flex-grow border-t border-gray-200"></div>
-                    <span className="mx-4 flex-shrink-0 text-xs font-semibold uppercase text-gray-400">Or pay securely</span>
+                    <span className="mx-4 flex-shrink-0 text-xs font-semibold uppercase text-gray-400">Or pay securely now</span>
                     <div className="flex-grow border-t border-gray-200"></div>
                   </div>
-                  <button
-                    onClick={handleOnlinePayment}
-                    disabled={isProcessingPayment}
-                    className="w-full bg-[#E6411C] text-white rounded-xl py-3.5 px-4 font-bold flex items-center justify-center gap-2 transition-colors hover:bg-[#d13a18] disabled:opacity-50"
-                  >
-                    {isProcessingPayment ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        <CreditCard className="w-5 h-5" />
-                        Pay Now
-                      </>
-                    )}
-                  </button>
+
+                  {/* Pay Now Button */}
+                  <div className="space-y-2">
+                    <button
+                      onClick={handleOnlinePayment}
+                      disabled={isProcessingPayment}
+                      className="w-full bg-[#E6411C] text-white rounded-xl py-3.5 px-4 flex items-center justify-center gap-2 transition-colors hover:bg-[#d13a18] disabled:opacity-50"
+                    >
+                      {isProcessingPayment ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          <span className="font-bold">Processing...</span>
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard className="w-5 h-5" />
+                          <span className="font-bold">Pay Now</span>
+                        </>
+                      )}
+                    </button>
+                    <p className="text-xs text-gray-500 px-1 leading-relaxed">
+                      Pay securely via Mobile Money or Card.
+                    </p>
+                    {/* Trust Badge */}
+                    <div className="flex justify-center mt-2">
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wide border border-gray-200 rounded px-2 py-1">
+                        <Shield className="w-3 h-3" />
+                        Secured by Flutterwave
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="mt-4 text-center">
-                  <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    Estimated delivery: {estimatedDelivery}
-                  </p>
+                {/* Security Footer */}
+                <div className="mt-4 flex items-center justify-center gap-3 text-[10px] text-gray-400">
+                  <span className="flex items-center gap-1">
+                    <CreditCard className="w-3 h-3" />
+                    100% Secure Payments
+                  </span>
+                  <span>|</span>
+                  <span className="flex items-center gap-1">
+                    <Lock className="w-3 h-3" />
+                    Your information is protected
+                  </span>
                 </div>
               </div>
             </div>
@@ -940,34 +976,56 @@ export default function CartPage() {
       </main>
 
       {/* Sticky Footer CTA - Mobile */}
-      <div className="lg:hidden fixed bottom-0 left-0 w-full z-40 bg-white border-t border-gray-100 shadow-[0_-8px_30px_rgba(0,0,0,0.05)] px-4 py-4 pb-6">
-        <div className="flex flex-col gap-3">
+      <div className="lg:hidden fixed bottom-0 left-0 w-full z-40 bg-white border-t border-gray-100 shadow-[0_-8px_30px_rgba(0,0,0,0.05)] px-4 py-3 pb-6">
+        <div className="flex flex-col gap-2">
+          {/* WhatsApp Button - Mobile */}
           <button
             onClick={handleWhatsAppOrder}
             disabled={isProcessingPayment}
-            className="w-full h-14 bg-[#25D366] text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 shadow-lg transition-colors hover:bg-[#22c55e] disabled:opacity-50"
+            className="w-full bg-[#25D366] text-white rounded-xl py-3 px-4 flex items-center justify-center gap-2 transition-colors hover:bg-[#22c55e] disabled:opacity-50"
           >
             <WhatsAppIcon className="w-5 h-5" />
-            Order via WhatsApp
+            <span className="font-bold">Order via WhatsApp</span>
           </button>
           
+          {/* Divider - Mobile */}
+          <div className="relative flex items-center py-1">
+            <div className="flex-grow border-t border-gray-200"></div>
+            <span className="mx-3 flex-shrink-0 text-[10px] font-semibold uppercase text-gray-400">Or pay securely now</span>
+            <div className="flex-grow border-t border-gray-200"></div>
+          </div>
+          
+          {/* Pay Now Button - Mobile */}
           <button
             onClick={handleOnlinePayment}
             disabled={isProcessingPayment}
-            className="w-full h-14 bg-[#E6411C] text-white rounded-xl font-bold text-lg flex items-center justify-between px-6 shadow-lg transition-colors hover:bg-[#d13a18] disabled:opacity-50"
+            className="w-full bg-[#E6411C] text-white rounded-xl py-3 px-4 flex items-center justify-center gap-2 transition-colors hover:bg-[#d13a18] disabled:opacity-50"
           >
             {isProcessingPayment ? (
-              <span className="flex items-center gap-2 mx-auto">
+              <span className="flex items-center gap-2">
                 <Loader2 className="w-5 h-5 animate-spin" />
-                Processing...
+                <span className="font-bold">Processing...</span>
               </span>
             ) : (
               <>
-                <span>Pay Now</span>
-                <span className="bg-white/20 px-3 py-1 rounded-lg text-base">{formatPrice(total)}</span>
+                <CreditCard className="w-5 h-5" />
+                <span className="font-bold">Pay Now</span>
               </>
             )}
           </button>
+          
+          {/* Security Footer - Mobile */}
+          <div className="flex items-center justify-center gap-2 text-[10px] text-gray-400 mt-1">
+            <span className="flex items-center gap-1">
+              <CreditCard className="w-3 h-3" />
+              100% Secure Payments
+            </span>
+            <span>|</span>
+            <span className="flex items-center gap-1">
+              <Lock className="w-3 h-3" />
+              Protected
+            </span>
+          </div>
         </div>
       </div>
 
