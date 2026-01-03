@@ -382,17 +382,17 @@ export default function CartPage() {
     <div className="min-h-screen bg-[#fcf9f8] pb-[280px] lg:pb-0">
       <Header />
 
-      <main className="pt-16 md:pt-20">
-        {/* Mobile Header */}
-        <div className="lg:hidden sticky top-16 z-30 bg-[#fcf9f8]/95 backdrop-blur-md px-4 py-4 border-b border-gray-100">
-          <div className="flex items-center justify-between">
+      <main className="pt-16 sm:pt-[4.5rem] md:pt-20">
+        {/* Mobile Header - matches main Header height behavior */}
+        <div className="lg:hidden sticky top-16 sm:top-[4.5rem] md:top-20 z-30 h-14 sm:h-16 bg-[#fcf9f8]/95 backdrop-blur-md px-4 border-b border-gray-100">
+          <div className="flex items-center justify-between h-full">
             <button 
               onClick={() => navigate(-1)}
-              className="flex items-center justify-center p-2 rounded-full hover:bg-gray-100 transition-colors"
+              className="flex items-center justify-center p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors"
             >
-              <ArrowLeft className="w-6 h-6 text-[#212282]" />
+              <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-[#212282]" />
             </button>
-            <h2 className="text-xl font-bold text-[#212282]">My Cart</h2>
+            <h2 className="text-lg sm:text-xl font-bold text-[#212282]">My Cart</h2>
             <button 
               onClick={() => {
                 clearCart();
