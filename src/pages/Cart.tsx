@@ -898,7 +898,7 @@ export default function CartPage() {
                 {/* Checkout Buttons - Desktop */}
                 <div className="space-y-4">
                   {/* Section Header */}
-                  <div className="space-y-1">
+                  <div className="text-center space-y-1">
                     <h3 className="text-lg font-bold text-[#212282]">Choose Your Payment Method</h3>
                     <p className="text-sm text-gray-500">Select the option that works best for you.</p>
                   </div>
@@ -913,7 +913,7 @@ export default function CartPage() {
                       <WhatsAppIcon className="w-5 h-5" />
                       <span className="font-bold">Order via WhatsApp</span>
                     </button>
-                    <p className="text-xs text-gray-500 px-1 leading-relaxed">
+                    <p className="text-xs text-gray-500 text-center leading-relaxed">
                       Quick & easy. Opens WhatsApp with your order ready to send. Pay when you receive your food.
                     </p>
                   </div>
@@ -930,7 +930,7 @@ export default function CartPage() {
                     <button
                       onClick={handleOnlinePayment}
                       disabled={isProcessingPayment}
-                      className="w-full bg-[#E6411C] text-white rounded-xl py-3.5 px-4 flex items-center justify-center gap-2 transition-colors hover:bg-[#d13a18] disabled:opacity-50"
+                      className="w-full bg-[#212282] text-white rounded-xl py-3.5 px-4 flex items-center justify-center gap-2 transition-colors hover:bg-[#1a1a6e] disabled:opacity-50"
                     >
                       {isProcessingPayment ? (
                         <>
@@ -944,8 +944,8 @@ export default function CartPage() {
                         </>
                       )}
                     </button>
-                    <p className="text-xs text-gray-500 px-1 leading-relaxed">
-                      Pay securely via Mobile Money or Card.
+                    <p className="text-xs text-gray-500 text-center leading-relaxed">
+                      Pay securely via MTN/Airtel Mobile Money or Card.
                     </p>
                     {/* Trust Badge */}
                     <div className="flex justify-center mt-2">
@@ -958,15 +958,15 @@ export default function CartPage() {
                 </div>
 
                 {/* Security Footer */}
-                <div className="mt-4 flex items-center justify-center gap-3 text-[10px] text-gray-400">
+                <div className="mt-4 flex items-center justify-center gap-4 text-[10px] text-gray-400">
                   <span className="flex items-center gap-1">
-                    <CreditCard className="w-3 h-3" />
-                    100% Secure Payments
+                    <Lock className="w-3 h-3" />
+                    100% Secure
                   </span>
                   <span>|</span>
                   <span className="flex items-center gap-1">
-                    <Lock className="w-3 h-3" />
-                    Your information is protected
+                    <Shield className="w-3 h-3" />
+                    Info Protected
                   </span>
                 </div>
               </div>
@@ -999,7 +999,7 @@ export default function CartPage() {
           <button
             onClick={handleOnlinePayment}
             disabled={isProcessingPayment}
-            className="w-full bg-[#E6411C] text-white rounded-xl py-3 px-4 flex items-center justify-center gap-2 transition-colors hover:bg-[#d13a18] disabled:opacity-50"
+            className="w-full bg-[#212282] text-white rounded-xl py-3 px-4 flex items-center justify-center gap-2 transition-colors hover:bg-[#1a1a6e] disabled:opacity-50"
           >
             {isProcessingPayment ? (
               <span className="flex items-center gap-2">
@@ -1015,15 +1015,15 @@ export default function CartPage() {
           </button>
           
           {/* Security Footer - Mobile */}
-          <div className="flex items-center justify-center gap-2 text-[10px] text-gray-400 mt-1">
+          <div className="flex items-center justify-center gap-3 text-[10px] text-gray-400 mt-1">
             <span className="flex items-center gap-1">
-              <CreditCard className="w-3 h-3" />
-              100% Secure Payments
+              <Lock className="w-3 h-3" />
+              100% Secure
             </span>
             <span>|</span>
             <span className="flex items-center gap-1">
-              <Lock className="w-3 h-3" />
-              Protected
+              <Shield className="w-3 h-3" />
+              Info Protected
             </span>
           </div>
         </div>
