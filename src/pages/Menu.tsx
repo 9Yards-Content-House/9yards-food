@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Heart, Plus, Search, X, ShoppingCart, Flame, TrendingUp, Utensils, Drumstick, GlassWater, Cake, Salad } from 'lucide-react';
+import { Heart, Plus, Search, X, ShoppingCart, Flame, Utensils, Drumstick, GlassWater, Cake, Salad } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -12,25 +12,255 @@ import { useCart } from '@/context/CartContext';
 type Category = 'all' | 'main' | 'sauce' | 'juice' | 'dessert' | 'side';
 
 // Category config with icons and colors
-const categoryConfig: Record<string, { icon: React.ElementType; emoji: string }> = {
-  all: { icon: Utensils, emoji: '🍽️' },
-  main: { icon: Utensils, emoji: '🌾' },
-  sauce: { icon: Drumstick, emoji: '🍖' },
-  juice: { icon: GlassWater, emoji: '🥤' },
-  dessert: { icon: Cake, emoji: '🍰' },
-  side: { icon: Salad, emoji: '🥗' },
+const categoryConfig: Record<string, { icon: React.ElementType; description: string }> = {
+  all: { icon: Utensils, description: 'Browse all our delicious offerings' },
+  main: { icon: Utensils, description: 'Choose your base - included with every combo' },
+  sauce: { icon: Drumstick, description: 'Select your protein - the heart of your meal' },
+  juice: { icon: GlassWater, description: '100% natural, freshly squeezed' },
+  dessert: { icon: Cake, description: 'Sweet treats to complete your meal' },
+  side: { icon: Salad, description: 'Fresh accompaniments - free with combos' },
 };
+
+// Item descriptions for better context
+const itemDescriptions: Record<string, string> = {
+  // Main dishes
+  matooke: 'Traditional steamed green bananas',
+  posho: 'Smooth cornmeal, Ugandan staple',
+  cassava: 'Soft boiled cassava root',
+  yam: 'Tender yam slices',
+  'sweet-potatoes': 'Naturally sweet & nutritious',
+  'irish-potatoes': 'Classic boiled potatoes',
+  rice: 'Fluffy white rice',
+  // Sauces
+  meat: 'Tender beef, your choice of style',
+  chicken: 'Juicy chicken, perfectly seasoned',
+  fish: 'Fresh Nile perch, fried or steamed',
+  gnuts: 'Rich groundnut sauce, authentic recipe',
+  'cow-peas': 'Traditional peas in savory sauce',
+  liver: 'Tender liver, rich in flavor',
+  // Juices
+  mango: '100% natural, no preservatives',
+  passion: 'Tangy & refreshing',
+  pineapple: 'Sweet tropical goodness',
+  watermelon: 'Cool & hydrating',
+  mixed: 'Best of all fruits',
+  cocktail: 'Premium fruit blend',
+  // Desserts
+  mandazi: 'Soft African donuts',
+  rolex: 'Famous egg & chapati roll',
+  samosa: 'Crispy savory pastry',
+  // Sides
+  greens: 'Fresh amaranth greens',
+  beans: 'Slow-cooked kidney beans',
+  cabbage: 'Lightly seasoned steamed cabbage',
+  sukuma: 'Kenyan-style collard greens',
+};
+
+// Best sellers - only top items (be selective)
+const bestSellers = ['fish', 'chicken', 'matooke'];
+const newItems: string[] = []; // Add item IDs here when you have new items
 
 // Skeleton loader for menu cards
 function MenuCardSkeleton() {
   return (
-    <div className="card-premium animate-pulse">
-      <div className="aspect-square bg-muted rounded-t-2xl" />
+    <div className="bg-card rounded-2xl overflow-hidden shadow-sm border border-border animate-pulse">
+      <div className="aspect-[4/3] bg-muted" />
       <div className="p-4">
-        <div className="h-5 bg-muted rounded w-3/4 mb-3" />
+        <div className="h-5 bg-muted rounded w-3/4 mb-2" />
+        <div className="h-4 bg-muted rounded w-1/2 mb-4" />
         <div className="flex justify-between items-center">
           <div className="h-6 bg-muted rounded w-24" />
-          <div className="h-5 bg-muted rounded w-16" />
+          <div className="h-10 bg-muted rounded w-10" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Menu item card component for cleaner code
+interface MenuItemCardProps {
+  item: {
+    id: string;
+    name: string;
+    image: string;
+    price: number | null;
+    category: string;
+    categoryType: Category;
+    available: boolean;
+    isFree?: boolean;
+    description?: string;
+  };
+  onAddToOrder: () => void;
+  onToggleFavorite: (id: string) => void;
+  isFavorite: boolean;
+  isHighlighted: boolean;
+  imageLoaded: boolean;
+  onImageLoad: () => void;
+}
+
+function MenuItemCard({ 
+  item, 
+  onAddToOrder, 
+  onToggleFavorite, 
+  isFavorite, 
+  isHighlighted,
+  imageLoaded,
+  onImageLoad 
+}: MenuItemCardProps) {
+  const isBestSeller = bestSellers.includes(item.id);
+  const isNew = newItems.includes(item.id);
+  
+  // Get description
+  const description = itemDescriptions[item.id] || item.category;
+  
+  // Determine price display based on item type
+  const getPriceDisplay = () => {
+    if (item.isFree) {
+      return (
+        <span className="inline-flex items-center gap-1 text-green-600 font-semibold text-sm">
+          FREE
+        </span>
+      );
+    }
+    if (item.price) {
+      // Sauces show the base price (determines combo cost)
+      if (item.categoryType === 'sauce') {
+        return <span className="text-secondary font-bold text-base">{formatPrice(item.price)}</span>;
+      }
+      // Juices and desserts show as add-ons
+      if (item.categoryType === 'juice' || item.categoryType === 'dessert') {
+        return <span className="text-secondary font-bold text-base">+{formatPrice(item.price)}</span>;
+      }
+      return <span className="text-secondary font-bold text-base">{formatPrice(item.price)}</span>;
+    }
+    // Main dishes - included in combo
+    return <span className="text-muted-foreground font-medium text-sm">Combo base</span>;
+  };
+  
+  // Get category label for card
+  const getCategoryLabel = () => {
+    switch (item.categoryType) {
+      case 'main': return 'Base';
+      case 'sauce': return 'Protein';
+      case 'juice': return 'Add-on';
+      case 'dessert': return 'Add-on';
+      case 'side': return 'Included';
+      default: return item.category;
+    }
+  };
+
+  return (
+    <div
+      onClick={() => item.available && onAddToOrder()}
+      className={`group relative bg-card rounded-2xl overflow-hidden border border-border 
+        hover:border-secondary/50 transition-all duration-200 flex flex-col
+        ${item.available ? 'cursor-pointer' : 'cursor-not-allowed'}
+        ${isHighlighted ? 'ring-4 ring-secondary ring-offset-2 animate-pulse' : ''}
+        ${!item.available ? 'opacity-60' : ''}`}
+    >
+      {/* Image Container */}
+      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+        {/* Skeleton placeholder */}
+        {!imageLoaded && (
+          <div className="absolute inset-0 bg-muted animate-pulse" />
+        )}
+        
+        <img
+          src={item.image}
+          alt={item.name}
+          loading="lazy"
+          onLoad={onImageLoad}
+          className={`w-full h-full object-cover 
+            ${imageLoaded ? 'opacity-100' : 'opacity-0'}
+            ${!item.available ? 'grayscale' : ''}`}
+        />
+        
+        {/* Sold out overlay */}
+        {!item.available && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <span className="bg-black/70 text-white text-sm font-bold px-4 py-2 rounded-full border border-white/20">
+              Sold Out
+            </span>
+          </div>
+        )}
+
+        {/* Badge - Top Left */}
+        <div className="absolute top-2.5 left-2.5">
+          {item.available && isBestSeller && (
+            <span className="bg-secondary text-secondary-foreground text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1">
+              <Flame className="w-3 h-3" />
+              Popular
+            </span>
+          )}
+          {item.available && isNew && !isBestSeller && (
+            <span className="bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full">
+              New
+            </span>
+          )}
+          {item.isFree && item.available && !isBestSeller && !isNew && (
+            <span className="bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full">
+              FREE
+            </span>
+          )}
+        </div>
+
+        {/* Favorite Button - Top Right */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleFavorite(item.id);
+          }}
+          className="absolute top-2.5 right-2.5 w-8 h-8 bg-white/90 dark:bg-black/70 backdrop-blur-sm rounded-full 
+            flex items-center justify-center hover:bg-white transition-colors z-10"
+          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+        >
+          <Heart
+            className={`w-4 h-4 transition-colors ${
+              isFavorite
+                ? 'text-red-500 fill-red-500'
+                : 'text-gray-500 dark:text-gray-300'
+            }`}
+          />
+        </button>
+        
+        {/* Tap indicator on hover - desktop only */}
+        {item.available && (
+          <div className="absolute inset-0 bg-secondary/0 group-hover:bg-secondary/10 transition-colors flex items-center justify-center">
+            <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-secondary text-secondary-foreground text-xs font-semibold px-3 py-1.5 rounded-full hidden md:flex items-center gap-1.5">
+              <Plus className="w-3.5 h-3.5" />
+              Add to Combo
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="p-3 md:p-4 flex flex-col flex-1">
+        {/* Category tag */}
+        <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">
+          {getCategoryLabel()}
+        </span>
+        
+        {/* Name */}
+        <h3 className="font-bold text-foreground text-sm md:text-base leading-tight mb-0.5 line-clamp-1">
+          {item.name}
+        </h3>
+        
+        {/* Description */}
+        <p className="text-muted-foreground text-xs md:text-sm line-clamp-1 mb-2">
+          {description}
+        </p>
+        
+        {/* Price Row */}
+        <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/50">
+          {getPriceDisplay()}
+          
+          {/* Visual indicator for tappable */}
+          {item.available && (
+            <span className="text-muted-foreground text-[10px] md:text-xs flex items-center gap-1 md:hidden">
+              Tap to add
+            </span>
+          )}
         </div>
       </div>
     </div>
@@ -116,17 +346,23 @@ export default function MenuPage() {
       categoryType: Category;
       available: boolean;
       isFree?: boolean;
-      isBestSeller?: boolean;
-      isPopular?: boolean;
+      description?: string;
     }> = [];
 
     if (activeCategory === 'all' || activeCategory === 'main') {
-      menuData.mainDishes.forEach((d, index) =>
-        items.push({ ...d, price: null, category: 'Main Dish', categoryType: 'main', isFree: false, isBestSeller: index === 0 })
+      menuData.mainDishes.forEach((d) =>
+        items.push({ 
+          ...d, 
+          price: null, 
+          category: 'Main Dish', 
+          categoryType: 'main', 
+          isFree: false,
+          description: itemDescriptions[d.id]
+        })
       );
     }
     if (activeCategory === 'all' || activeCategory === 'sauce') {
-      menuData.sauces.forEach((s, index) =>
+      menuData.sauces.forEach((s) =>
         items.push({
           id: s.id,
           name: s.name,
@@ -135,24 +371,40 @@ export default function MenuPage() {
           category: 'Sauce',
           categoryType: 'sauce',
           available: s.available,
-          isBestSeller: index === 0,
-          isPopular: index === 1,
+          description: itemDescriptions[s.id]
         })
       );
     }
     if (activeCategory === 'all' || activeCategory === 'juice') {
-      menuData.juices.forEach((j, index) =>
-        items.push({ ...j, category: 'Juice', categoryType: 'juice', isPopular: index === 0 })
+      menuData.juices.forEach((j) =>
+        items.push({ 
+          ...j, 
+          category: 'Juice', 
+          categoryType: 'juice',
+          description: itemDescriptions[j.id]
+        })
       );
     }
     if (activeCategory === 'all' || activeCategory === 'dessert') {
-      menuData.desserts.forEach((d, index) =>
-        items.push({ ...d, category: 'Dessert', categoryType: 'dessert', isPopular: index === 0 })
+      menuData.desserts.forEach((d) =>
+        items.push({ 
+          ...d, 
+          category: 'Dessert', 
+          categoryType: 'dessert',
+          description: itemDescriptions[d.id]
+        })
       );
     }
     if (activeCategory === 'all' || activeCategory === 'side') {
       menuData.sideDishes.forEach((s) =>
-        items.push({ ...s, price: null, category: 'Side Dish', categoryType: 'side', isFree: true })
+        items.push({ 
+          ...s, 
+          price: null, 
+          category: 'Side Dish', 
+          categoryType: 'side', 
+          isFree: true,
+          description: itemDescriptions[s.id]
+        })
       );
     }
 
@@ -184,27 +436,24 @@ export default function MenuPage() {
       <Header />
 
       <main className="pt-16 md:pt-20">
-        {/* Hero Header */}
-        <section className="bg-primary text-primary-foreground py-12 md:py-16">
+        {/* Hero Header - More compact */}
+        <section className="bg-primary text-primary-foreground py-8 md:py-12">
           <div className="container-custom px-4">
-            <div
-              className="max-w-3xl"
-            >
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">Our Menu</h1>
-              <p className="text-lg text-primary-foreground/80 mb-6 leading-relaxed">
-                Explore our authentic Ugandan dishes, all made fresh with 100% natural
-                ingredients. From savory main courses to refreshing juices.
+            <div className="max-w-3xl">
+              <h1 className="text-3xl md:text-4xl font-bold mb-3">Our Menu</h1>
+              <p className="text-base md:text-lg text-primary-foreground/80 mb-4 leading-relaxed">
+                Authentic Ugandan dishes made fresh with 100% natural ingredients.
               </p>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                 <button
                   onClick={() => setIsComboBuilderOpen(true)}
-                  className="btn-secondary inline-flex items-center gap-2 text-lg px-6 py-3"
+                  className="btn-secondary inline-flex items-center gap-2 text-base px-5 py-2.5"
                 >
                   <Plus className="w-5 h-5" />
                   Build Your Combo
                 </button>
                 <span className="text-primary-foreground/60 text-sm">
-                  {categoryCounts.all} delicious items available
+                  {categoryCounts.all} items available
                 </span>
               </div>
             </div>
@@ -212,18 +461,18 @@ export default function MenuPage() {
         </section>
 
         {/* Search & Filters */}
-        <section className="sticky top-16 md:top-20 z-30 bg-card/95 backdrop-blur-md border-b border-border shadow-sm">
-          <div className="container-custom px-4 py-4">
+        <section className="sticky top-16 md:top-20 z-30 bg-card/95 backdrop-blur-md border-b border-border">
+          <div className="container-custom px-4 py-3">
             {/* Search Bar */}
-            <div className="mb-4">
+            <div className="mb-3">
               <div className="relative max-w-md">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search menu items..."
-                  className="w-full pl-12 pr-10 py-3 rounded-xl border-2 border-border bg-background focus:border-secondary focus:outline-none transition-colors"
+                  placeholder="Search dishes (e.g. Luwombo)..."
+                  className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-border bg-background text-sm focus:border-secondary focus:ring-1 focus:ring-secondary/20 focus:outline-none transition-all"
                 />
                 {searchQuery && (
                   <button
@@ -231,14 +480,14 @@ export default function MenuPage() {
                     className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full transition-colors"
                     aria-label="Clear search"
                   >
-                    <X className="w-5 h-5 text-muted-foreground" />
+                    <X className="w-4 h-4 text-muted-foreground" />
                   </button>
                 )}
               </div>
             </div>
 
-            {/* Category Tabs */}
-            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
+            {/* Category Tabs - Horizontal scroll */}
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4">
               {categories.map((cat) => {
                 const config = categoryConfig[cat.id];
                 const count = categoryCounts[cat.id as Category];
@@ -248,16 +497,15 @@ export default function MenuPage() {
                   <button
                     key={cat.id}
                     onClick={() => setActiveCategory(cat.id as Category)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all border-2 min-h-[44px] hover:-translate-y-0.5 ${
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all border min-h-[40px] flex-shrink-0 ${
                       isActive
                         ? 'bg-secondary text-secondary-foreground border-secondary shadow-md'
-                        : 'bg-background text-muted-foreground border-border hover:border-secondary/50'
+                        : 'bg-card text-muted-foreground border-border hover:border-secondary/50 hover:bg-secondary/5'
                     }`}
                   >
-                    <span>{config.emoji}</span>
                     <span>{cat.label}</span>
-                    <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                      isActive ? 'bg-secondary-foreground/20' : 'bg-muted'
+                    <span className={`text-[11px] px-1.5 py-0.5 rounded-full ${
+                      isActive ? 'bg-white/20' : 'bg-muted'
                     }`}>
                       {count}
                     </span>
@@ -269,11 +517,11 @@ export default function MenuPage() {
         </section>
 
         {/* Menu Grid */}
-        <section className="section-padding">
-          <div className="container-custom">
+        <section className="py-6 md:py-8">
+          <div className="container-custom px-4">
             {/* Build Combo CTA Banner */}
             <div
-              className="mb-8 p-6 md:p-8 rounded-2xl bg-gradient-to-r from-secondary to-orange-500 text-secondary-foreground shadow-xl overflow-hidden relative"
+              className="mb-8 p-5 md:p-8 rounded-2xl bg-secondary text-white shadow-lg overflow-hidden relative"
             >
               {/* Background pattern */}
               <div className="absolute inset-0 opacity-10">
@@ -281,200 +529,94 @@ export default function MenuPage() {
                 <div className="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full translate-y-1/2 -translate-x-1/2" />
               </div>
               
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-6 relative z-10">
                 <div className="flex-1">
-                  <h3 className="text-2xl md:text-3xl font-bold mb-2">Ready to Order?</h3>
-                  <p className="text-secondary-foreground/90 text-lg mb-4">
-                    Build your perfect combo with main dishes, sauce, and free side dish!
+                  <h3 className="text-xl md:text-2xl font-bold mb-2">Ready to Build Your Combo?</h3>
+                  <p className="text-white/90 text-sm md:text-base mb-3 md:mb-0">
+                    Choose your main dish, protein sauce, and get a free side!
                   </p>
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium">
-                    <span className="flex items-center gap-1">✓ Choose Multiple Dishes</span>
-                    <span className="hidden sm:inline">•</span>
-                    <span className="flex items-center gap-1">✓ Pick Your Sauce</span>
-                    <span className="hidden sm:inline">•</span>
-                    <span className="flex items-center gap-1">✓ Free Side Included</span>
+                  <div className="hidden md:flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium mt-3 text-white/80">
+                    <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-white rounded-full"></span> Multiple Mains</span>
+                    <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-white rounded-full"></span> Pick Your Sauce</span>
+                    <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-white rounded-full"></span> Free Side</span>
                   </div>
                 </div>
                 <button
                   onClick={() => setIsComboBuilderOpen(true)}
-                  className="bg-primary-foreground text-primary font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-2xl transition-all text-lg flex items-center gap-2"
+                  className="w-full md:w-auto bg-white text-secondary font-bold px-6 py-3 md:px-8 md:py-4 rounded-xl border-2 border-white hover:bg-white/90 transition-colors text-base md:text-lg flex items-center justify-center gap-2"
                 >
-                  🍽️ Start Building
+                  Start Building
                 </button>
               </div>
             </div>
 
+            {/* Category Header (when filtered) */}
+            {activeCategory !== 'all' && (
+              <div className="mb-6">
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-1">
+                  {categories.find(c => c.id === activeCategory)?.label}
+                </h2>
+                <p className="text-muted-foreground text-sm md:text-base">
+                  {categoryConfig[activeCategory].description}
+                </p>
+              </div>
+            )}
+
             {/* Empty State */}
-              {items.length === 0 ? (
-                <div
-                  className="text-center py-16"
+            {items.length === 0 ? (
+              <div className="text-center py-16">
+                <div className="text-6xl mb-4">🔍</div>
+                <h3 className="text-2xl font-bold text-foreground mb-2">
+                  No items found
+                </h3>
+                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                  Try adjusting your search or filter to find what you're looking for
+                </p>
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setActiveCategory('all');
+                  }}
+                  className="btn-secondary"
                 >
-                  <div className="text-6xl mb-4">🔍</div>
-                  <h3 className="text-2xl font-bold text-foreground mb-2">
-                    No items found
-                  </h3>
-                  <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                    Try adjusting your search or filter to find what you're looking for
+                  Clear Filters
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Results count */}
+                {searchQuery && (
+                  <p className="text-muted-foreground text-sm mb-4">
+                    {items.length} {items.length === 1 ? 'result' : 'results'} for "{searchQuery}"
                   </p>
-                  <button
-                    onClick={() => {
-                      setSearchQuery('');
-                      setActiveCategory('all');
-                    }}
-                    className="btn-secondary"
-                  >
-                    Clear Filters
-                  </button>
-                </div>
-              ) : (
-                <div
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                >
-                  {items.map((item, index) => (
-                    <div
+                )}
+                
+                {/* Menu Grid - 3 cols desktop, 2 tablet, 2 mobile */}
+                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                  {items.map((item) => (
+                    <MenuItemCard
                       key={`${item.category}-${item.id}`}
-                      className={`card-premium food-card-hover group relative hover:-translate-y-2 transition-transform ${
-                        highlightedItem === item.id 
-                          ? 'ring-4 ring-secondary ring-offset-2 animate-pulse' 
-                          : ''
-                      }`}
-                    >
-                      {/* Image */}
-                      <div className="relative aspect-square overflow-hidden bg-muted">
-                        {/* Skeleton placeholder */}
-                        {!loadedImages.has(item.id) && (
-                          <div className="absolute inset-0 bg-muted animate-pulse" />
-                        )}
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          loading="lazy"
-                          onLoad={() => handleImageLoad(item.id)}
-                          className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-110 ${
-                            loadedImages.has(item.id) ? 'opacity-100' : 'opacity-0'
-                          }`}
-                        />
-                        
-                        {/* Hover overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                        {/* Favorite Button */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleFavorite(item.id);
-                          }}
-                          className="absolute top-3 right-3 w-11 h-11 bg-card/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-card transition-colors z-10"
-                          aria-label={isFavorite(item.id) ? 'Remove from favorites' : 'Add to favorites'}
-                        >
-                          <Heart
-                            className={`w-5 h-5 transition-colors ${
-                              isFavorite(item.id)
-                                ? 'text-secondary fill-secondary'
-                                : 'text-foreground/70'
-                            }`}
-                          />
-                        </button>
-
-                        {/* Badges - Top Left */}
-                        <div className="absolute top-3 left-3 flex flex-col gap-2">
-                          {item.isBestSeller && (
-                            <span className="bg-secondary text-secondary-foreground text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg">
-                              <Flame className="w-3.5 h-3.5" />
-                              Best Seller
-                            </span>
-                          )}
-                          {item.isPopular && !item.isBestSeller && (
-                            <span className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg">
-                              <TrendingUp className="w-3.5 h-3.5" />
-                              Popular
-                            </span>
-                          )}
-                          {!item.isBestSeller && !item.isPopular && (
-                            <span className="bg-primary/90 text-primary-foreground text-xs font-semibold px-2.5 py-1 rounded-full">
-                              {item.category}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Free Badge for side dishes */}
-                        {item.isFree && (
-                          <span className="absolute bottom-3 left-3 bg-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                            ✓ FREE with combo
-                          </span>
-                        )}
-
-                        {/* Quick Add Button (Desktop - on hover) */}
-                        <button
-                          onClick={() => setIsComboBuilderOpen(true)}
-                          className="absolute bottom-3 left-3 right-3 bg-secondary text-secondary-foreground py-3 rounded-lg font-bold opacity-0 group-hover:opacity-100 hover:scale-[1.02] transition-all hidden lg:flex items-center justify-center gap-2 shadow-lg"
-                        >
-                          <Plus className="w-5 h-5" />
-                          Add to Order
-                        </button>
-                      </div>
-
-                      {/* Content */}
-                      <div className="p-4">
-                        <h3 className="font-bold text-foreground text-lg mb-2">{item.name}</h3>
-                        
-                        {/* Included message for main/side dishes */}
-                        {(item.categoryType === 'main' || item.categoryType === 'side') && (
-                          <p className="text-sm text-muted-foreground mb-2">
-                            {item.categoryType === 'side' 
-                              ? 'Included free with every combo' 
-                              : 'Choose as part of your combo'
-                            }
-                          </p>
-                        )}
-                        
-                        <div className="flex items-center justify-between">
-                          {item.price ? (
-                            <span className="text-xl font-bold text-secondary">
-                              {item.category === 'Sauce' ? 'from ' : ''}
-                              {formatPrice(item.price)}
-                            </span>
-                          ) : item.isFree ? (
-                            <span className="text-lg font-bold text-green-600">
-                              FREE
-                            </span>
-                          ) : (
-                            <span className="text-muted-foreground text-sm font-medium">
-                              Part of combo
-                            </span>
-                          )}
-                          
-                          {/* Availability Badge */}
-                          {item.available ? (
-                            <span className="badge-available flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                              Available
-                            </span>
-                          ) : (
-                            <span className="badge-soldout">Sold Out</span>
-                          )}
-                        </div>
-
-                        {/* Mobile Add Button */}
-                        <button
-                          onClick={() => setIsComboBuilderOpen(true)}
-                          disabled={!item.available}
-                          className="w-full mt-3 bg-secondary text-secondary-foreground py-3 rounded-lg font-bold lg:hidden flex items-center justify-center gap-2 disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed transition-colors"
-                        >
-                          {item.available ? (
-                            <>
-                              <Plus className="w-5 h-5" />
-                              Add to Order
-                            </>
-                          ) : (
-                            'Sold Out'
-                          )}
-                        </button>
-                      </div>
-                    </div>
+                      item={item}
+                      onAddToOrder={() => setIsComboBuilderOpen(true)}
+                      onToggleFavorite={toggleFavorite}
+                      isFavorite={isFavorite(item.id)}
+                      isHighlighted={highlightedItem === item.id}
+                      imageLoaded={loadedImages.has(item.id)}
+                      onImageLoad={() => handleImageLoad(item.id)}
+                    />
                   ))}
                 </div>
-              )}
+
+                {/* End of list indicator */}
+                <div className="flex justify-center py-8">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 bg-border rounded-full" />
+                    <span className="w-1.5 h-1.5 bg-border rounded-full" />
+                    <span className="w-1.5 h-1.5 bg-border rounded-full" />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </section>
       </main>
@@ -483,21 +625,19 @@ export default function MenuPage() {
       <MobileNav />
       
       {/* Floating Cart Button (Mobile) */}
-        {cartCount > 0 && (
-          <div
-            className="fixed bottom-24 right-4 z-50 lg:hidden"
+      {cartCount > 0 && (
+        <div className="fixed bottom-24 right-4 z-40 lg:hidden">
+          <Link
+            to="/cart"
+            className="w-14 h-14 bg-secondary text-secondary-foreground rounded-full shadow-xl flex items-center justify-center relative hover:scale-110 active:scale-95 transition-transform"
           >
-            <Link
-              to="/cart"
-              className="w-16 h-16 bg-secondary text-secondary-foreground rounded-full shadow-2xl flex items-center justify-center relative hover:scale-110 transition-transform"
-            >
-              <ShoppingCart className="w-7 h-7" />
-              <span className="absolute -top-1 -right-1 w-6 h-6 bg-primary text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center">
-                {cartCount}
-              </span>
-            </Link>
-          </div>
-        )}
+            <ShoppingCart className="w-6 h-6" />
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
+              {cartCount}
+            </span>
+          </Link>
+        </div>
+      )}
 
       <ComboBuilder
         isOpen={isComboBuilderOpen}

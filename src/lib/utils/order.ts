@@ -1,5 +1,5 @@
 export function formatPrice(amount: number): string {
-  return `${amount.toLocaleString('en-UG')} UGX`;
+  return `UGX ${amount.toLocaleString('en-UG')}`;
 }
 
 export function generateOrderId(): string {
