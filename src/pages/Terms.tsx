@@ -89,10 +89,10 @@ export default function TermsPage() {
                   <p className="text-muted-foreground leading-relaxed">
                     For questions about these terms, contact us at{' '}
                     <a 
-                      href="mailto:info@9yards.co.ug" 
+                      href="mailto:deliveries@9yards.co.ug" 
                       className="text-secondary hover:underline"
                     >
-                      info@9yards.co.ug
+                      deliveries@9yards.co.ug
                     </a>{' '}
                     or WhatsApp{' '}
                     <a 

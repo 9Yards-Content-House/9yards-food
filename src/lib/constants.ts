@@ -6,7 +6,7 @@ export const PHONE_NUMBER_FORMATTED = '+256 708 899 597';
 export const PHONE_NUMBER_SECONDARY = '+256763058142';
 export const PHONE_NUMBER_SECONDARY_FORMATTED = '+256 763 058 142';
 export const WHATSAPP_NUMBER = '256708899597'; // Without + for WhatsApp URLs
-export const EMAIL = 'info@9yards.co.ug';
+export const EMAIL = 'deliveries@9yards.co.ug';
 
 // Social Media
 export const SOCIAL_LINKS = {

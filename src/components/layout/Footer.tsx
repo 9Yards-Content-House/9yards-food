@@ -59,11 +59,11 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="mailto:info@9yards.co.ug"
+                  href="mailto:deliveries@9yards.co.ug"
                   className="flex items-center gap-3 text-primary-foreground/70 hover:text-secondary transition-colors text-sm"
                 >
                   <Mail className="w-4 h-4" />
-                  info@9yards.co.ug
+                  deliveries@9yards.co.ug
                 </a>
               </li>
               <li>

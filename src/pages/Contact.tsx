@@ -192,7 +192,7 @@ export default function ContactPage() {
 
               {/* Email Card */}
               <a
-                href="mailto:info@9yards.co.ug?subject=Inquiry%20from%20Website"
+                href="mailto:deliveries@9yards.co.ug?subject=Inquiry%20from%20Website"
                 className="bg-card border-2 border-border rounded-2xl p-6 text-center cursor-pointer transition-all hover:border-secondary hover:-translate-y-1 hover:shadow-xl"
               >
                 <div className="w-16 h-16 bg-secondary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -278,17 +278,17 @@ export default function ContactPage() {
                       </div>
                       <div className="flex-1">
                         <h3 className="font-bold text-foreground">Email</h3>
-                        <p className="text-foreground">info@9yards.co.ug</p>
+                        <p className="text-foreground">deliveries@9yards.co.ug</p>
                         <p className="text-sm text-muted-foreground mb-3">We reply within 24 hours</p>
                         <a
-                          href="mailto:info@9yards.co.ug"
+                          href="mailto:deliveries@9yards.co.ug"
                           className="text-sm font-bold text-secondary flex items-center gap-1 hover:underline"
                         >
                           Send Email <ChevronRight className="w-4 h-4" />
                         </a>
                       </div>
                       <button
-                        onClick={() => copyToClipboard('info@9yards.co.ug')}
+                        onClick={() => copyToClipboard('deliveries@9yards.co.ug')}
                         className="p-2 hover:bg-muted rounded-lg transition-colors"
                         title="Copy email"
                       >

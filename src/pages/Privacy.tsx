@@ -84,10 +84,10 @@ export default function PrivacyPage() {
                     If you have questions about this Privacy Policy, please
                     contact us at{" "}
                     <a
-                      href="mailto:info@9yards.co.ug"
+                      href="mailto:deliveries@9yards.co.ug"
                       className="text-secondary hover:underline"
                     >
-                      info@9yards.co.ug
+                      deliveries@9yards.co.ug
                     </a>{" "}
                     or call{" "}
                     <a
