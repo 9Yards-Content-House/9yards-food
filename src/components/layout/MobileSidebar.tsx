@@ -84,7 +84,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
 
   if (!isOpen) return null;
 
-  const whatsappOrderUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi! I'd like to place an order from 9Yards Food 🍽️")}`;
+  const whatsappOrderUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi! I'd like to place an order from 9Yards Food.")}`;
 
   return (
     <div className="fixed inset-0 z-[100] lg:hidden">

@@ -172,7 +172,7 @@ export default function DeliveryZonesPreview() {
               <div className="text-xs uppercase tracking-wider opacity-80">
                 Orders over 50,000 UGX
               </div>
-              <div className="font-bold text-xl">FREE Delivery! 🎉</div>
+              <div className="font-bold text-xl">FREE Delivery!</div>
             </div>
 
             {/* Request new area */}

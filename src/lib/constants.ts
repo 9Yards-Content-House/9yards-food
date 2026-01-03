@@ -25,7 +25,7 @@ export const BUSINESS_HOURS = {
 
 // WhatsApp Pre-filled Messages
 export const WHATSAPP_MESSAGES = {
-  default: 'Hi! I would like to place an order from 9Yards Food 🍽️',
+  default: 'Hi! I would like to place an order from 9Yards Food.',
   inquiry: 'Hi 9Yards Food! I have a question about...',
   bulkOrder: "Hi 9Yards Food! I'd like to get a quote for bulk/catering order for my event.",
   support: 'Hi 9Yards Food! I need help with my order.',

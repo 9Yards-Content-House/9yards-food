@@ -340,7 +340,7 @@ export default function HowItWorksPage() {
                 {/* Pro Tip */}
                 <div className="bg-primary/5 border-l-4 border-primary p-4 rounded-r-lg">
                   <p className="text-sm text-foreground">
-                    <span className="font-bold">💡 Pro tip:</span> Orders over 50,000 UGX qualify for FREE delivery!
+                    <span className="font-bold">Pro tip:</span> Orders over 50,000 UGX qualify for FREE delivery!
                   </p>
                 </div>
               </div>
@@ -429,7 +429,7 @@ export default function HowItWorksPage() {
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                         step.celebrate ? 'bg-secondary text-secondary-foreground' : 'bg-green-500 text-white'
                       }`}>
-                        {step.celebrate ? '🎉' : <Check className="w-5 h-5" />}
+                        {step.celebrate ? <Check className="w-5 h-5" /> : <Check className="w-5 h-5" />}
                       </div>
                       <div>
                         <p className="font-bold text-foreground">{step.title}</p>
@@ -556,14 +556,14 @@ export default function HowItWorksPage() {
                   to="/menu"
                   className="btn-secondary text-lg px-8 py-4 flex items-center justify-center gap-2"
                 >
-                  🍽️ Start Your Order
+                  Start Your Order
                   <ChevronRight className="w-5 h-5" />
                 </Link>
                 <Link
                   to="/menu"
                   className="bg-primary-foreground/10 backdrop-blur-sm text-primary-foreground font-semibold px-8 py-4 rounded-xl transition-all hover:bg-primary-foreground/20 border-2 border-primary-foreground/30 flex items-center justify-center gap-2"
                 >
-                  📋 View Menu
+                  View Menu
                 </Link>
               </div>
 
@@ -590,7 +590,7 @@ export default function HowItWorksPage() {
           to="/menu"
           className="w-full btn-secondary text-lg py-4 flex items-center justify-center gap-2"
         >
-          🍽️ Start Your Order
+          Start Your Order
           <ChevronRight className="w-5 h-5" />
         </Link>
       </div>

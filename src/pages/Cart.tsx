@@ -19,6 +19,7 @@ import {
   ChevronUp,
   Shield,
   Lock,
+  UtensilsCrossed,
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -459,8 +460,8 @@ export default function CartPage() {
                   <div key={item.id}>
                     <div className="flex gap-4 items-start">
                       <div className="shrink-0">
-                        <div className="h-[88px] w-[88px] rounded-2xl bg-gray-100 shadow-sm flex items-center justify-center text-3xl">
-                          🍽️
+                        <div className="h-[88px] w-[88px] rounded-2xl bg-gray-100 shadow-sm flex items-center justify-center">
+                          <UtensilsCrossed className="w-10 h-10 text-[#212282]" />
                         </div>
                       </div>
 
@@ -666,8 +667,8 @@ export default function CartPage() {
                         Phone Number *
                       </label>
                       <div className="flex">
-                        <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-200 bg-gray-100 text-gray-500 text-sm">
-                          🇺🇬 +256
+                        <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-200 bg-gray-100 text-gray-500 text-sm font-medium">
+                          UG +256
                         </span>
                         <input
                           type="tel"
@@ -785,8 +786,8 @@ export default function CartPage() {
                       Phone Number *
                     </label>
                     <div className="flex">
-                      <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-200 bg-gray-100 text-gray-500 text-sm">
-                        🇺🇬 +256
+                      <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-200 bg-gray-100 text-gray-500 text-sm font-medium">
+                        UG +256
                       </span>
                       <input
                         type="tel"

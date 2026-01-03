@@ -9,6 +9,7 @@ import {
   Copy,
   MapPin,
   Check,
+  UtensilsCrossed,
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -80,7 +81,7 @@ export default function OrderConfirmation() {
   };
 
   const handleShare = async () => {
-    const shareText = `Just ordered delicious Ugandan food from 9Yards Food! 🍽️ Order #${orderData.orderId}`;
+    const shareText = `Just ordered delicious Ugandan food from 9Yards Food. Order #${orderData.orderId}`;
     
     if (navigator.share) {
       try {
@@ -151,7 +152,7 @@ export default function OrderConfirmation() {
               </div>
 
               <h1 className="text-[#212282] text-2xl md:text-3xl font-extrabold leading-tight tracking-tight mb-3">
-                Order Placed Successfully! 🎉
+                Order Placed Successfully!
               </h1>
               <p className="text-gray-500 text-base font-medium leading-relaxed max-w-[280px]">
                 Your cravings are in good hands. The kitchen has received your order.
@@ -223,8 +224,8 @@ export default function OrderConfirmation() {
                 {/* Items */}
                 {orderData.items.map((item, index) => (
                   <div key={index} className="flex items-start gap-4 p-4 border-b border-gray-100 last:border-b-0">
-                    <div className="w-12 h-12 rounded-lg bg-gray-100 shrink-0 flex items-center justify-center text-xl">
-                      🍽️
+                    <div className="w-12 h-12 rounded-lg bg-gray-100 shrink-0 flex items-center justify-center">
+                      <UtensilsCrossed className="w-6 h-6 text-[#212282]" />
                     </div>
                     <div className="flex-1">
                       <div className="flex justify-between items-start">

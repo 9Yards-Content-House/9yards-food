@@ -18,7 +18,7 @@ export default function NotFound() {
                   404
                 </div>
                 <div className="w-20 h-20 bg-secondary/10 rounded-full flex items-center justify-center mx-auto -mt-12">
-                  <span className="text-4xl">🍽️</span>
+                  <UtensilsCrossed className="w-10 h-10 text-secondary" />
                 </div>
               </div>
 

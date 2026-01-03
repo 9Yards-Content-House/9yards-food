@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Search, Clock, Truck, CheckCircle2, XCircle, Locate, Loader2, History, Globe } from "lucide-react";
+import { MapPin, Search, Clock, Truck, CheckCircle2, XCircle, Locate, Loader2, History, Globe, Check, AlertTriangle } from "lucide-react";
 import { deliveryZones } from "@/data/menu";
 import { formatPrice } from "@/lib/utils/order";
 import { WHATSAPP_NUMBER } from "@/lib/constants";
@@ -749,8 +749,8 @@ export default function HeroSection() {
                               </span>
                             </div>
                             <div className="flex items-center gap-2 flex-shrink-0">
-                              <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
-                                ✓ We deliver here
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium flex items-center gap-1">
+                                <Check className="w-3 h-3" /> We deliver here
                               </span>
                               <span className={`text-xs px-2 py-0.5 rounded-full ${
                                 highlightedIndex === index 
@@ -813,12 +813,12 @@ export default function HeroSection() {
                               </div>
                               <div className="flex-shrink-0">
                                 {result.isDeliverable ? (
-                                  <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
-                                    ✓ We deliver here
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium flex items-center gap-1">
+                                    <Check className="w-3 h-3" /> We deliver here
                                   </span>
                                 ) : (
-                                  <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium">
-                                    ⚠ Message to confirm
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium flex items-center gap-1">
+                                    <AlertTriangle className="w-3 h-3" /> Message to confirm
                                   </span>
                                 )}
                               </div>

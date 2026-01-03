@@ -49,12 +49,12 @@ const faqs = [
 
 // Inquiry types for form
 const inquiryTypes = [
-  { value: 'order', label: '🍽️ Order Question', icon: '🍽️' },
-  { value: 'delivery', label: '🚚 Delivery Inquiry', icon: '🚚' },
-  { value: 'bulk', label: '💰 Bulk/Catering Order', icon: '💰' },
-  { value: 'business', label: '💼 Business Partnership', icon: '💼' },
-  { value: 'issue', label: '🐛 Report an Issue', icon: '🐛' },
-  { value: 'feedback', label: '💬 General Feedback', icon: '💬' },
+  { value: 'order', label: 'Order Question', icon: 'order' },
+  { value: 'delivery', label: 'Delivery Inquiry', icon: 'delivery' },
+  { value: 'bulk', label: 'Bulk/Catering Order', icon: 'bulk' },
+  { value: 'business', label: 'Business Partnership', icon: 'business' },
+  { value: 'issue', label: 'Report an Issue', icon: 'issue' },
+  { value: 'feedback', label: 'General Feedback', icon: 'feedback' },
 ];
 
 export default function ContactPage() {
