@@ -347,7 +347,7 @@ export default function CartPage() {
   // Empty Cart State
   if (state.items.length === 0) {
     return (
-      <div className="min-h-screen bg-[#fcf9f8] pb-20 lg:pb-0">
+      <div className="min-h-screen bg-[#fcf9f8] pb-24 lg:pb-0">
         <Header />
         <main className="pt-16 md:pt-20">
           <div className="container-custom section-padding text-center">
@@ -379,7 +379,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fcf9f8] pb-20 lg:pb-0">
+    <div className="min-h-screen bg-[#fcf9f8] pb-[280px] lg:pb-0">
       <Header />
 
       <main className="pt-16 md:pt-20">
@@ -977,8 +977,8 @@ export default function CartPage() {
         </div>
       </main>
 
-      {/* Sticky Footer CTA - Mobile */}
-      <div className="lg:hidden fixed bottom-0 left-0 w-full z-40 bg-white border-t border-gray-100 shadow-[0_-8px_30px_rgba(0,0,0,0.05)] px-4 py-3 pb-6">
+      {/* Sticky Footer CTA - Mobile - positioned above bottom nav */}
+      <div className="lg:hidden fixed bottom-[72px] left-0 w-full z-40 bg-white border-t border-gray-100 shadow-[0_-8px_30px_rgba(0,0,0,0.05)] px-4 py-3 safe-area-bottom">
         <div className="flex flex-col gap-2">
           {/* WhatsApp Button - Mobile */}
           <button
