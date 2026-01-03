@@ -450,9 +450,9 @@ export default function MenuPage() {
         <section className="bg-primary text-primary-foreground py-8 md:py-12">
           <div className="container-custom px-4">
             <div className="max-w-3xl">
-              <h1 className="text-3xl md:text-4xl font-bold mb-3">Our Menu</h1>
+              <h1 className="text-3xl md:text-4xl font-bold mb-3">Discover Authentic Ugandan Flavors</h1>
               <p className="text-base md:text-lg text-primary-foreground/80 mb-4 leading-relaxed">
-                Authentic Ugandan dishes made fresh with 100% natural ingredients.
+                Choose your dishes, build your combo, enjoy authentic flavors.
               </p>
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                 <button
@@ -460,11 +460,8 @@ export default function MenuPage() {
                   className="btn-secondary inline-flex items-center gap-2 text-base px-5 py-2.5"
                 >
                   <Plus className="w-5 h-5" />
-                  Build Your Combo
+                  Build My Combo
                 </button>
-                <span className="text-primary-foreground/60 text-sm">
-                  {categoryCounts.all} items available
-                </span>
               </div>
             </div>
           </div>
@@ -481,7 +478,7 @@ export default function MenuPage() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search dishes (e.g. Luwombo)..."
+                  placeholder="Find your favorite dish..."
                   className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-border bg-background text-sm focus:border-secondary focus:ring-1 focus:ring-secondary/20 focus:outline-none transition-all"
                 />
                 {searchQuery && (
@@ -541,21 +538,21 @@ export default function MenuPage() {
               
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-6 relative z-10">
                 <div className="flex-1">
-                  <h3 className="text-xl md:text-2xl font-bold mb-2">Ready to Build Your Combo?</h3>
+                  <h3 className="text-xl md:text-2xl font-bold mb-2">Create Your Custom Meal</h3>
                   <p className="text-white/90 text-sm md:text-base mb-3 md:mb-0">
-                    Choose your main dish, protein sauce, and get a free side!
+                    Customize your perfect meal with unlimited mains, your choice of sauce, and a complimentary side dish.
                   </p>
                   <div className="hidden md:flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium mt-3 text-white/80">
-                    <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-white rounded-full"></span> Multiple Mains</span>
-                    <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-white rounded-full"></span> Pick Your Sauce</span>
-                    <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-white rounded-full"></span> Free Side</span>
+                    <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-white rounded-full"></span> Choose Multiple Mains</span>
+                    <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-white rounded-full"></span> Fresh Protein Sauce</span>
+                    <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-white rounded-full"></span> Complimentary Side</span>
                   </div>
                 </div>
                 <button
                   onClick={() => setIsComboBuilderOpen(true)}
                   className="w-full md:w-auto bg-white text-secondary font-bold px-6 py-3 md:px-8 md:py-4 rounded-xl border-2 border-white hover:bg-white/90 transition-colors text-base md:text-lg flex items-center justify-center gap-2"
                 >
-                  Start Building
+                  Create My Meal →
                 </button>
               </div>
             </div>
