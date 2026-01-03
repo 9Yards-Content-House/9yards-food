@@ -51,9 +51,15 @@ export default function MenuPage() {
     const searchParam = searchParams.get('search');
     const highlightParam = searchParams.get('highlight');
     const categoryParam = searchParams.get('category');
+    const comboParam = searchParams.get('combo');
 
     if (searchParam) {
       setSearchQuery(searchParam);
+    }
+
+    // Auto-open combo builder if combo param is present
+    if (comboParam === 'true') {
+      setIsComboBuilderOpen(true);
     }
     
     if (highlightParam) {

@@ -8,15 +8,13 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* About */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center">
-                <span className="text-secondary-foreground font-bold text-lg">9Y</span>
-              </div>
-              <div>
-                <span className="font-bold text-lg">9Yards</span>
-                <span className="font-bold text-lg text-secondary ml-1">Food</span>
-              </div>
-            </div>
+            <Link to="/" className="inline-block mb-4">
+              <img 
+                src="/images/logo/9Yards-Food-White-Logo.png"
+                alt="9Yards Food"
+                className="h-20 w-auto object-contain"
+              />
+            </Link>
             <p className="text-primary-foreground/70 text-sm leading-relaxed">
               Bringing authentic Ugandan cuisine to your doorstep. 100% natural ingredients, 
               cooked fresh with love in Kampala.

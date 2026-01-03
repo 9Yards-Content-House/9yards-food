@@ -137,7 +137,7 @@ export default function Header() {
 
               {/* CTA Button - Desktop */}
               <Link
-                to="/menu"
+                to="/menu?combo=true"
                 className="hidden md:flex btn-secondary text-sm py-2.5 px-5"
               >
                 Build Your Combo

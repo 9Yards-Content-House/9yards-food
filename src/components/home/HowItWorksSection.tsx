@@ -161,7 +161,7 @@ export default function HowItWorksSection() {
         {/* Call-to-Action */}
         <div className="text-center mt-12">
           <Link
-            to="/menu"
+            to="/menu?combo=true"
             className="inline-flex items-center gap-2 bg-[#E6411C] hover:bg-[#d13a18] text-white px-8 py-4 rounded-xl text-lg font-bold transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
             aria-label="Start building your combo"
           >
