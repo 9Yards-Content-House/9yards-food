@@ -151,6 +151,7 @@ function MenuItemCard({
 
   return (
     <div
+      data-item-id={item.id}
       onClick={() => item.available && onAddToOrder()}
       className={`group relative bg-card rounded-2xl overflow-hidden border border-border 
         hover:border-secondary/50 transition-all duration-200 flex flex-col
@@ -298,6 +299,15 @@ export default function MenuPage() {
     
     if (highlightParam) {
       setHighlightedItem(highlightParam);
+      
+      // Scroll to the highlighted item after a brief delay for rendering
+      setTimeout(() => {
+        const element = document.querySelector(`[data-item-id="${highlightParam}"]`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300);
+      
       // Clear highlight after 3 seconds
       const timer = setTimeout(() => setHighlightedItem(null), 3000);
       return () => clearTimeout(timer);

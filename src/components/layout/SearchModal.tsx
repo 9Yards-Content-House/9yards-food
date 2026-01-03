@@ -108,7 +108,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search menu... (e.g., chicken, fish, juice)"
+                  placeholder="What would you like to eat?"
                   className="w-full pl-12 pr-12 py-4 text-lg border-0 focus:outline-none focus:ring-0 bg-transparent"
                 />
                 <button
@@ -175,7 +175,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 <div className="border-t border-border p-4">
                   <p className="text-sm text-muted-foreground mb-3">Popular searches</p>
                   <div className="flex flex-wrap gap-2">
-                    {['Chicken', 'Fish', 'Matooke', 'Juice', 'Beef'].map((term) => (
+                    {['Lusaniya', 'Luwombo', 'Juice', 'Pilao', 'Beef'].map((term) => (
                       <button
                         key={term}
                         onClick={() => setQuery(term)}
