@@ -4,6 +4,7 @@ import { ShoppingCart, Heart, Menu, X, Search } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import SearchModal from './SearchModal';
 import MobileSidebar from './MobileSidebar';
+import ComboBuilder from '@/components/menu/ComboBuilder';
 
 // Simplified navigation - removed Order Guide and Delivery Areas (they remain in footer only)
 const navLinks = [
@@ -17,6 +18,7 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isComboBuilderOpen, setIsComboBuilderOpen] = useState(false);
   const location = useLocation();
   const { cartCount, state } = useCart();
 
@@ -127,12 +129,12 @@ export default function Header() {
               </Link>
 
               {/* CTA Button - Desktop */}
-              <Link
-                to="/menu?combo=true"
+              <button
+                onClick={() => setIsComboBuilderOpen(true)}
                 className="hidden md:flex btn-secondary text-sm py-2.5 px-5"
               >
                 Build Your Combo
-              </Link>
+              </button>
 
               {/* Mobile Menu Button */}
               <button
@@ -157,6 +159,12 @@ export default function Header() {
 
       {/* Mobile Sidebar */}
       <MobileSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+
+      {/* Combo Builder Modal */}
+      <ComboBuilder
+        isOpen={isComboBuilderOpen}
+        onClose={() => setIsComboBuilderOpen(false)}
+      />
     </>
   );
 }
