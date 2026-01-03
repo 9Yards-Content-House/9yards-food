@@ -558,7 +558,7 @@ export default function CartPage() {
                       type="text"
                       value={promoCode}
                       onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                      placeholder="Enter discount code (e.g., FIRST10)"
+                      placeholder="Enter discount code"
                       className="flex-1 min-w-0 bg-transparent border-none text-[#212282] placeholder:text-gray-400 text-sm font-medium focus:ring-0 p-2"
                     />
                     <button
@@ -849,7 +849,7 @@ export default function CartPage() {
                           type="text"
                           value={promoCode}
                           onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                          placeholder="Enter discount code (e.g., FIRST10)"
+                          placeholder="Enter discount code"
                           className="flex-1 min-w-0 p-3 bg-transparent border-none text-[#212282] focus:ring-0 placeholder:text-gray-400 text-sm"
                         />
                       </div>
