@@ -314,8 +314,8 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                             className="sr-only"
                             disabled={!dish.available}
                           />
-                          <div className={`flex h-full flex-col overflow-hidden rounded-2xl border-2 bg-white shadow-sm transition-all duration-200 hover:shadow-md ${
-                            isSelected ? 'border-[#E6411C] bg-[#E6411C]/5' : 'border-transparent'
+                          <div className={`flex h-full flex-col overflow-hidden rounded-2xl border-2 bg-white transition-all duration-200 ${
+                            isSelected ? 'border-[#E6411C] bg-[#E6411C]/5' : 'border-gray-200 hover:border-[#E6411C]'
                           }`}>
                             <div className="relative aspect-square w-full overflow-hidden bg-gray-100">
                               <img
