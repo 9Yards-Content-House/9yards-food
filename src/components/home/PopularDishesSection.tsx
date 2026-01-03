@@ -245,10 +245,10 @@ export default function PopularDishesSection() {
               Customer Favorites
             </span>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3">
-              Most Loved Dishes
+              Our Most Popular Combos & Extras
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-              Authentic Ugandan flavors our customers can't get enough of. Pick one and customize your combo!
+              Authentic Ugandan dishes our customers love most. Choose one and build your perfect combo!
             </p>
           </div>
 
