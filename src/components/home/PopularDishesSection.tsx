@@ -252,8 +252,8 @@ export default function PopularDishesSection() {
             </p>
           </div>
 
-          {/* Dishes Grid - 2 cols mobile, 3 cols desktop */}
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 px-4 md:px-0">
+          {/* Dishes Grid - 1 col mobile, 2 cols tablet, 3 cols desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-4 md:gap-6 px-4 md:px-0">
             {featuredItems.map((item) => (
               <DishCard
                 key={item.id}
