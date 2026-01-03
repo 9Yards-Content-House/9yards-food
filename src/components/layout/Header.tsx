@@ -60,7 +60,7 @@ export default function Header() {
   return (
     <>
       <header
-        className={`fixed left-0 right-0 z-50 h-16 sm:h-[4.5rem] md:h-20 transition-colors transition-shadow duration-300 ${
+        className={`fixed left-0 right-0 z-50 h-16 sm:h-[4.5rem] md:h-20 transition-all duration-300 ${
           showStickyStyle
             ? 'bg-white shadow-soft'
             : 'bg-transparent'

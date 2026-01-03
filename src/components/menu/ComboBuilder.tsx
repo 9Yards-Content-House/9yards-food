@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { X, Check, ChevronRight, ChevronLeft, Plus, Minus } from 'lucide-react';
-import { menuData, MainDish, Sauce, Juice, Dessert, SideDish } from '@/data/menu';
+import { X, Check, ChevronRight, Plus, Minus, ArrowLeft } from 'lucide-react';
+import { menuData, Sauce } from '@/data/menu';
 import { formatPrice } from '@/lib/utils/order';
 import { useCart, CartItem, SauceSelection, ExtraItem } from '@/context/CartContext';
 import { toast } from 'sonner';
@@ -48,7 +48,6 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
 
     if (isOpen) {
       document.addEventListener('keydown', handleKeyDown);
-      // Prevent body scroll when modal is open
       document.body.style.overflow = 'hidden';
     }
 
@@ -174,400 +173,575 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
     }
   };
 
+  // Get summary text for footer
+  const getSummaryText = () => {
+    const mainNames = selectedMainDishes
+      .map((id) => menuData.mainDishes.find((d) => d.id === id)?.name)
+      .filter(Boolean);
+    
+    if (step === 1) {
+      return mainNames.length > 0 ? mainNames.join(', ') : 'Select your food';
+    }
+    
+    if (step === 2 && selectedSauce && sauceSize) {
+      return `${mainNames.join(' + ')} + ${selectedSauce.name} (${saucePreparation || '...'}, ${sauceSize.name})`;
+    }
+    
+    if (step >= 3) {
+      const sideName = menuData.sideDishes.find((s) => s.id === selectedSideDish)?.name;
+      const parts = [...mainNames];
+      if (selectedSauce) parts.push(selectedSauce.name);
+      if (sideName) parts.push(sideName);
+      return parts.join(' + ');
+    }
+    
+    return mainNames.join(', ');
+  };
+
+  const getNextButtonText = () => {
+    switch (step) {
+      case 1:
+        return 'Next: Choose Your Sauce';
+      case 2:
+        return 'Next: Choose Your Side Dish';
+      case 3:
+        return 'Next: Add Extras';
+      case 4:
+        return 'Add to Cart';
+      default:
+        return 'Next';
+    }
+  };
+
+  // Calculate extras count
+  const extrasCount = selectedJuices.reduce((acc, j) => acc + j.quantity, 0) + 
+                      selectedDesserts.reduce((acc, d) => acc + d.quantity, 0);
+
   return (
     <>
       {isOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-end md:items-center justify-center"
-        >
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-foreground/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={handleClose}
           />
 
-          {/* Modal */}
+          {/* Modal Container */}
           <div
-            className="relative w-full max-w-2xl max-h-[90vh] bg-card rounded-t-3xl md:rounded-3xl shadow-elevated overflow-hidden flex flex-col"
+            className="relative w-full max-w-md md:max-w-2xl lg:max-w-3xl h-[95vh] md:h-[90vh] md:max-h-[800px] bg-[#FAFAFA] md:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden flex flex-col"
             role="dialog"
             aria-modal="true"
             aria-labelledby="combo-builder-title"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-border">
-              <div>
-                <h2 id="combo-builder-title" className="text-xl font-bold text-foreground">Build Your Meal</h2>
-                <p className="text-sm text-muted-foreground">
-                  Step {step} of 4:{' '}
-                  {step === 1 && 'Choose Your Food'}
-                  {step === 2 && 'Choose Your Sauce'}
-                  {step === 3 && 'Choose Your Side Dish'}
-                  {step === 4 && 'Add Extras'}
-                </p>
-              </div>
-              <button
-                onClick={handleClose}
-                className="w-10 h-10 rounded-full hover:bg-muted flex items-center justify-center transition-colors"
-                aria-label="Close combo builder"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="px-6 py-3 bg-muted/30">
-              <div className="flex gap-2">
-                {[1, 2, 3, 4].map((s) => (
-                  <div
-                    key={s}
-                    className={`h-1.5 flex-1 rounded-full transition-colors ${
-                      s <= step ? 'bg-secondary' : 'bg-border'
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6">
-              <>
-                {/* Step 1: Main Dishes */}
-                {step === 1 && (
-                  <div
-                    className="space-y-4"
-                  >
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Select one or more main dishes for your combo
-                    </p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      {menuData.mainDishes.map((dish) => (
-                        <button
-                          key={dish.id}
-                          onClick={() => toggleMainDish(dish.id)}
-                          disabled={!dish.available}
-                          className={`relative p-3 rounded-xl border-2 transition-all ${
-                            selectedMainDishes.includes(dish.id)
-                              ? 'border-secondary bg-secondary/10'
-                              : 'border-border hover:border-secondary/50'
-                          } ${!dish.available && 'opacity-50 cursor-not-allowed'}`}
-                        >
-                          <img
-                            src={dish.image}
-                            alt={dish.name}
-                            className="w-full aspect-square object-cover rounded-lg mb-2"
-                          />
-                          <span className="font-medium text-sm text-foreground">
-                            {dish.name}
-                          </span>
-                          {selectedMainDishes.includes(dish.id) && (
-                            <div className="absolute top-2 right-2 w-6 h-6 bg-secondary rounded-full flex items-center justify-center">
-                              <Check className="w-4 h-4 text-secondary-foreground" />
-                            </div>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 2: Sauce */}
-                {step === 2 && (
-                  <div
-                    className="space-y-6"
-                  >
-                    <p className="text-sm text-muted-foreground">
-                      Choose your sauce and customize it
-                    </p>
-
-                    {/* Sauce Selection */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      {menuData.sauces.map((sauce) => (
-                        <button
-                          key={sauce.id}
-                          onClick={() => {
-                            setSelectedSauce(sauce);
-                            setSaucePreparation('');
-                            setSauceSize(null);
-                          }}
-                          disabled={!sauce.available}
-                          className={`relative p-3 rounded-xl border-2 transition-all ${
-                            selectedSauce?.id === sauce.id
-                              ? 'border-secondary bg-secondary/10'
-                              : 'border-border hover:border-secondary/50'
-                          } ${!sauce.available && 'opacity-50 cursor-not-allowed'}`}
-                        >
-                          <img
-                            src={sauce.image}
-                            alt={sauce.name}
-                            className="w-full aspect-square object-cover rounded-lg mb-2"
-                          />
-                          <span className="font-medium text-sm text-foreground block">
-                            {sauce.name}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            from {formatPrice(sauce.basePrice)}
-                          </span>
-                          {selectedSauce?.id === sauce.id && (
-                            <div className="absolute top-2 right-2 w-6 h-6 bg-secondary rounded-full flex items-center justify-center">
-                              <Check className="w-4 h-4 text-secondary-foreground" />
-                            </div>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-
-                    {/* Sauce Options */}
-                    {selectedSauce && (
-                      <div className="space-y-4 pt-4 border-t border-border">
-                        {/* Preparation */}
-                        <div>
-                          <label className="text-sm font-medium text-foreground mb-2 block">
-                            Preparation Style
-                          </label>
-                          <div className="flex gap-2">
-                            {selectedSauce.preparations.map((prep) => (
-                              <button
-                                key={prep}
-                                onClick={() => setSaucePreparation(prep)}
-                                className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
-                                  saucePreparation === prep
-                                    ? 'border-secondary bg-secondary text-secondary-foreground'
-                                    : 'border-border hover:border-secondary/50 text-foreground'
-                                }`}
-                              >
-                                {prep}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Size */}
-                        <div>
-                          <label className="text-sm font-medium text-foreground mb-2 block">
-                            Size / Portion
-                          </label>
-                          <div className="flex flex-wrap gap-2">
-                            {selectedSauce.sizes.map((size) => (
-                              <button
-                                key={size.name}
-                                onClick={() => setSauceSize(size)}
-                                className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
-                                  sauceSize?.name === size.name
-                                    ? 'border-secondary bg-secondary text-secondary-foreground'
-                                    : 'border-border hover:border-secondary/50 text-foreground'
-                                }`}
-                              >
-                                {size.name} - {formatPrice(size.price)}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Step 3: Side Dish */}
-                {step === 3 && (
-                  <div
-                    className="space-y-4"
-                  >
-                    <div className="flex items-center gap-2 mb-4">
-                      <span className="badge-free">FREE</span>
-                      <p className="text-sm text-muted-foreground">
-                        Choose your complimentary side dish
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      {menuData.sideDishes.map((side) => (
-                        <button
-                          key={side.id}
-                          onClick={() => setSelectedSideDish(side.id)}
-                          disabled={!side.available}
-                          className={`relative p-3 rounded-xl border-2 transition-all ${
-                            selectedSideDish === side.id
-                              ? 'border-secondary bg-secondary/10'
-                              : 'border-border hover:border-secondary/50'
-                          } ${!side.available && 'opacity-50 cursor-not-allowed'}`}
-                        >
-                          <img
-                            src={side.image}
-                            alt={side.name}
-                            className="w-full aspect-square object-cover rounded-lg mb-2"
-                          />
-                          <span className="font-medium text-sm text-foreground">
-                            {side.name}
-                          </span>
-                          {selectedSideDish === side.id && (
-                            <div className="absolute top-2 right-2 w-6 h-6 bg-secondary rounded-full flex items-center justify-center">
-                              <Check className="w-4 h-4 text-secondary-foreground" />
-                            </div>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 4: Extras */}
-                {step === 4 && (
-                  <div
-                    className="space-y-6"
-                  >
-                    <p className="text-sm text-muted-foreground">
-                      Add natural juices or desserts (optional)
-                    </p>
-
-                    {/* Juices */}
-                    <div>
-                      <h4 className="font-semibold text-foreground mb-3">
-                        Natural Juices
-                      </h4>
-                      <div className="space-y-2">
-                        {menuData.juices.map((juice) => {
-                          const selected = selectedJuices.find((j) => j.id === juice.id);
-                          return (
-                            <div
-                              key={juice.id}
-                              className="flex items-center justify-between p-3 rounded-xl bg-muted/50"
-                            >
-                              <div className="flex items-center gap-3">
-                                <img
-                                  src={juice.image}
-                                  alt={juice.name}
-                                  className="w-12 h-12 rounded-lg object-cover"
-                                />
-                                <div>
-                                  <span className="font-medium text-sm text-foreground">
-                                    {juice.name}
-                                  </span>
-                                  <span className="text-xs text-muted-foreground block">
-                                    {formatPrice(juice.price)}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <button
-                                  onClick={() => updateJuiceQuantity(juice.id, -1)}
-                                  className="w-11 h-11 rounded-full bg-muted flex items-center justify-center hover:bg-secondary/20 transition-colors"
-                                  aria-label={`Decrease ${juice.name} quantity`}
-                                >
-                                  <Minus className="w-4 h-4" />
-                                </button>
-                                <span className="w-8 text-center font-medium" aria-label={`Quantity: ${selected?.quantity || 0}`}>
-                                  {selected?.quantity || 0}
-                                </span>
-                                <button
-                                  onClick={() => updateJuiceQuantity(juice.id, 1)}
-                                  className="w-11 h-11 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors"
-                                  aria-label={`Increase ${juice.name} quantity`}
-                                >
-                                  <Plus className="w-4 h-4 text-secondary-foreground" />
-                                </button>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Desserts */}
-                    <div>
-                      <h4 className="font-semibold text-foreground mb-3">Desserts</h4>
-                      <div className="space-y-2">
-                        {menuData.desserts.map((dessert) => {
-                          const selected = selectedDesserts.find((d) => d.id === dessert.id);
-                          return (
-                            <div
-                              key={dessert.id}
-                              className="flex items-center justify-between p-3 rounded-xl bg-muted/50"
-                            >
-                              <div className="flex items-center gap-3">
-                                <img
-                                  src={dessert.image}
-                                  alt={dessert.name}
-                                  className="w-12 h-12 rounded-lg object-cover"
-                                />
-                                <div>
-                                  <span className="font-medium text-sm text-foreground">
-                                    {dessert.name}
-                                  </span>
-                                  <span className="text-xs text-muted-foreground block">
-                                    {formatPrice(dessert.price)}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <button
-                                  onClick={() => updateDessertQuantity(dessert.id, -1)}
-                                  className="w-11 h-11 rounded-full bg-muted flex items-center justify-center hover:bg-secondary/20 transition-colors"
-                                  aria-label={`Decrease ${dessert.name} quantity`}
-                                >
-                                  <Minus className="w-4 h-4" />
-                                </button>
-                                <span className="w-8 text-center font-medium" aria-label={`Quantity: ${selected?.quantity || 0}`}>
-                                  {selected?.quantity || 0}
-                                </span>
-                                <button
-                                  onClick={() => updateDessertQuantity(dessert.id, 1)}
-                                  className="w-11 h-11 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors"
-                                  aria-label={`Increase ${dessert.name} quantity`}
-                                >
-                                  <Plus className="w-4 h-4 text-secondary-foreground" />
-                                </button>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </>
-            </div>
-
-            {/* Footer */}
-            <div className="p-6 border-t border-border bg-muted/30">
-              {/* Price Summary */}
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-sm text-muted-foreground">Total</span>
-                <span className="text-xl font-bold text-foreground">
-                  {formatPrice(calculateTotal())}
-                </span>
-              </div>
-
-              {/* Navigation Buttons */}
-              <div className="flex gap-3">
-                {step > 1 && (
+            <header className="flex-none bg-white px-4 pt-4 pb-3 shadow-sm z-20 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                {step > 1 ? (
                   <button
                     onClick={() => setStep(step - 1)}
-                    className="flex-1 btn-outline flex items-center justify-center gap-2"
+                    className="flex size-10 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors text-[#212282]"
+                    aria-label="Go back"
                   >
-                    <ChevronLeft className="w-4 h-4" />
-                    Back
-                  </button>
-                )}
-                {step < 4 ? (
-                  <button
-                    onClick={() => setStep(step + 1)}
-                    disabled={!canProceed()}
-                    className="flex-1 btn-secondary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Next
-                    <ChevronRight className="w-4 h-4" />
+                    <ArrowLeft className="w-5 h-5" />
                   </button>
                 ) : (
                   <button
-                    onClick={handleAddToCart}
-                    disabled={!canProceed()}
-                    className="flex-1 btn-secondary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={handleClose}
+                    className="flex size-10 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors text-[#212282]"
+                    aria-label="Close combo builder"
                   >
-                    Add to Cart
-                    <Check className="w-4 h-4" />
+                    <X className="w-5 h-5" />
                   </button>
                 )}
+                <div className="flex flex-col items-center">
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#E6411C]">
+                    Step {step} of 4
+                  </span>
+                  <div className="mt-1.5 flex gap-1">
+                    {[1, 2, 3, 4].map((s) => (
+                      <div
+                        key={s}
+                        className={`h-1 rounded-full transition-all duration-300 ${
+                          s === step ? 'w-8 bg-[#E6411C]' : s < step ? 'w-2 bg-[#212282]' : 'w-2 bg-gray-200'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <button
+                  onClick={handleClose}
+                  className="flex h-10 items-center justify-center rounded-full px-2 hover:bg-red-50 transition-colors"
+                >
+                  <span className="text-[#E6411C] text-sm font-bold">Cancel</span>
+                </button>
               </div>
-            </div>
+            </header>
+
+            {/* Scrollable Content */}
+            <main className="flex-1 overflow-y-auto pb-44 md:pb-48">
+              {/* Step 1: Choose Your Food */}
+              {step === 1 && (
+                <div className="animate-in fade-in duration-300">
+                  <div className="px-5 pt-5 pb-3">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h1 id="combo-builder-title" className="text-[28px] font-extrabold leading-tight tracking-tight text-[#212282]">
+                        Choose Your Food
+                      </h1>
+                      {selectedMainDishes.length > 0 && (
+                        <span className="px-2.5 py-1 rounded-full bg-[#E6411C] text-white text-sm font-bold">
+                          {selectedMainDishes.length} selected
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-base text-gray-500 font-medium">
+                      Choose as many as you like — they're all included!
+                    </p>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4 px-4 py-4 md:grid-cols-3 lg:grid-cols-4">
+                    {menuData.mainDishes.map((dish) => {
+                      const isSelected = selectedMainDishes.includes(dish.id);
+                      return (
+                        <label
+                          key={dish.id}
+                          className={`group relative cursor-pointer block ${!dish.available && 'opacity-50 pointer-events-none'}`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleMainDish(dish.id)}
+                            className="sr-only"
+                            disabled={!dish.available}
+                          />
+                          <div className={`flex h-full flex-col overflow-hidden rounded-2xl border-2 bg-white shadow-sm transition-all duration-200 hover:shadow-md ${
+                            isSelected ? 'border-[#E6411C] bg-[#E6411C]/5' : 'border-transparent'
+                          }`}>
+                            <div className="relative aspect-square w-full overflow-hidden bg-gray-100">
+                              <img
+                                src={dish.image}
+                                alt={dish.name}
+                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                              {/* Checkmark Badge */}
+                              <div className={`absolute top-3 right-3 flex size-6 items-center justify-center rounded-full bg-[#E6411C] text-white shadow-lg transition-all duration-300 ${
+                                isSelected ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
+                              }`}>
+                                <Check className="w-4 h-4" strokeWidth={3} />
+                              </div>
+                            </div>
+                            <div className="flex flex-col p-3">
+                              <span className="text-sm font-bold text-[#212282]">{dish.name}</span>
+                            </div>
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Step 2: Choose Your Sauce */}
+              {step === 2 && (
+                <div className="animate-in fade-in duration-300">
+                  <div className="px-5 pt-5 pb-2">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h1 className="text-2xl font-bold text-[#212282] tracking-tight">Choose Your Sauce</h1>
+                      <span className="px-2 py-0.5 rounded-full bg-[#E6411C]/10 text-[#E6411C] text-[10px] font-bold uppercase tracking-wider border border-[#E6411C]/20">
+                        Required
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-500">Select one sauce to accompany your meal.</p>
+                  </div>
+
+                  <div className="flex flex-col gap-3 p-4">
+                    {menuData.sauces.map((sauce) => {
+                      const isSelected = selectedSauce?.id === sauce.id;
+                      return (
+                        <div
+                          key={sauce.id}
+                          className={`group relative flex flex-col rounded-xl border-2 bg-white transition-all duration-300 shadow-sm overflow-hidden ${
+                            isSelected ? 'border-[#E6411C] bg-[#E6411C]/[0.03]' : 'border-gray-100 hover:border-[#E6411C]/50'
+                          } ${!sauce.available && 'opacity-50 pointer-events-none'}`}
+                        >
+                          {/* Main Click Area */}
+                          <label className="flex items-center gap-4 p-4 cursor-pointer">
+                            <img
+                              src={sauce.image}
+                              alt={sauce.name}
+                              className="w-16 h-16 rounded-xl object-cover flex-shrink-0"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <h3 className="text-[#212282] font-bold text-lg">{sauce.name}</h3>
+                                  <p className="text-gray-500 text-sm mt-0.5">from {formatPrice(sauce.basePrice)}</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="relative flex items-center justify-center w-6 h-6">
+                              <input
+                                type="radio"
+                                name="sauce"
+                                checked={isSelected}
+                                onChange={() => {
+                                  setSelectedSauce(sauce);
+                                  setSaucePreparation('');
+                                  setSauceSize(null);
+                                }}
+                                className="peer appearance-none w-6 h-6 border-2 border-gray-300 rounded-full checked:border-[#E6411C] checked:border-[6px] transition-all bg-white"
+                                disabled={!sauce.available}
+                              />
+                            </div>
+                          </label>
+
+                          {/* Expanded Sub-options */}
+                          {isSelected && (
+                            <div className="px-4 pb-4 pt-0 animate-in fade-in slide-in-from-top-2 duration-300">
+                              <div className="h-px w-full bg-[#E6411C]/10 mb-4" />
+                              
+                              {/* Preparation Style */}
+                              <div className="mb-4">
+                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 block">
+                                  Preparation Style
+                                </label>
+                                <div className="flex flex-wrap gap-2">
+                                  {sauce.preparations.map((prep) => (
+                                    <button
+                                      key={prep}
+                                      onClick={() => setSaucePreparation(prep)}
+                                      className={`px-4 py-2.5 rounded-xl border-2 transition-all text-sm font-semibold ${
+                                        saucePreparation === prep
+                                          ? 'border-[#E6411C] bg-[#E6411C] text-white'
+                                          : 'border-gray-200 bg-white text-gray-600 hover:border-[#E6411C]/50'
+                                      }`}
+                                    >
+                                      {prep}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Portion Size */}
+                              <div>
+                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 block">
+                                  Portion Size
+                                </label>
+                                <div className="flex flex-col gap-2">
+                                  {sauce.sizes.map((size) => (
+                                    <label
+                                      key={size.name}
+                                      className={`flex items-center justify-between p-3 rounded-xl border bg-white cursor-pointer transition-all ${
+                                        sauceSize?.name === size.name
+                                          ? 'border-[#E6411C] bg-[#E6411C]/5'
+                                          : 'border-gray-200 hover:border-gray-300'
+                                      }`}
+                                    >
+                                      <div className="flex flex-col">
+                                        <span className="text-sm font-medium text-gray-700">{size.name}</span>
+                                        <span className="text-xs text-[#E6411C] font-semibold">
+                                          {formatPrice(size.price)}
+                                        </span>
+                                      </div>
+                                      <input
+                                        type="radio"
+                                        name="size"
+                                        checked={sauceSize?.name === size.name}
+                                        onChange={() => setSauceSize(size)}
+                                        className="w-5 h-5 text-[#E6411C] border-gray-300 focus:ring-[#E6411C]"
+                                      />
+                                    </label>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Step 3: Choose Your FREE Side Dish */}
+              {step === 3 && (
+                <div className="animate-in fade-in duration-300">
+                  <div className="px-5 pt-5 pb-3">
+                    <h1 className="text-[28px] font-extrabold leading-[1.1] text-[#212282] mb-2">
+                      Choose Your <span className="text-[#E6411C]">FREE</span> Side Dish
+                    </h1>
+                    <p className="text-base text-gray-600 leading-relaxed">
+                      Every order comes with a free side dish of your choice! Select one option to complete your meal.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-3 px-4 pb-4">
+                    {menuData.sideDishes.map((side) => {
+                      const isSelected = selectedSideDish === side.id;
+                      return (
+                        <label
+                          key={side.id}
+                          className={`group relative cursor-pointer block ${!side.available && 'opacity-50 pointer-events-none'}`}
+                        >
+                          <input
+                            type="radio"
+                            name="side-dish"
+                            checked={isSelected}
+                            onChange={() => setSelectedSideDish(side.id)}
+                            className="sr-only"
+                            disabled={!side.available}
+                          />
+                          <div className={`flex items-center gap-4 bg-white p-3 rounded-2xl shadow-sm border-2 transition-all duration-200 hover:shadow-md ${
+                            isSelected ? 'border-[#E6411C] bg-[#FFF8F6]' : 'border-transparent'
+                          }`}>
+                            <div className="relative flex-shrink-0">
+                              <img
+                                src={side.image}
+                                alt={side.name}
+                                className="w-20 h-20 rounded-xl object-cover shadow-inner"
+                              />
+                              <span className="absolute -top-2 -left-2 bg-[#E6411C] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm uppercase tracking-wide border border-white">
+                                Free
+                              </span>
+                            </div>
+                            <div className="flex flex-col flex-1 min-w-0 py-1">
+                              <p className="text-[#212282] text-lg font-bold leading-tight truncate pr-2">
+                                {side.name}
+                              </p>
+                              <p className="text-[#E6411C] text-xs font-bold mt-1.5 uppercase tracking-wide">
+                                Included
+                              </p>
+                            </div>
+                            <div className="flex-shrink-0 pr-2">
+                              <div className={`w-6 h-6 rounded-full border-2 relative transition-colors ${
+                                isSelected ? 'border-[#E6411C] bg-[#E6411C]' : 'border-gray-300'
+                              }`}>
+                                {isSelected && (
+                                  <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="w-2 h-2 rounded-full bg-white" />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Step 4: Add Extras */}
+              {step === 4 && (
+                <div className="animate-in fade-in duration-300">
+                  <div className="px-4 pt-5 pb-3">
+                    <h1 className="text-[#212282] tracking-tight text-[28px] font-extrabold leading-tight">
+                      Add Extras <span className="text-gray-400 font-medium text-xl ml-1">(Optional)</span>
+                    </h1>
+                  </div>
+
+                  {/* Natural Juices Section */}
+                  <section className="mb-6">
+                    <div className="px-4 mb-3 flex justify-between items-end">
+                      <div>
+                        <h3 className="text-[#212282] text-xl font-bold leading-tight tracking-tight">Natural Juice</h3>
+                        <p className="text-gray-500 text-sm font-medium mt-1">Freshly squeezed • 100% Natural</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 px-4 md:grid-cols-3 lg:grid-cols-4">
+                      {menuData.juices.map((juice) => {
+                        const selected = selectedJuices.find((j) => j.id === juice.id);
+                        const isSelected = !!selected;
+                        return (
+                          <div
+                            key={juice.id}
+                            className={`group relative flex flex-col bg-white rounded-xl overflow-hidden shadow-sm border-2 transition-all ${
+                              isSelected ? 'border-[#E6411C]' : 'border-gray-100 hover:border-gray-200'
+                            } ${!juice.available && 'opacity-50 pointer-events-none'}`}
+                          >
+                            <div className="absolute top-2 left-2 z-10 bg-[#212282] text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md uppercase tracking-wider">
+                              100% Natural
+                            </div>
+                            <div className="aspect-square w-full bg-gray-100 relative overflow-hidden">
+                              <img
+                                src={juice.image}
+                                alt={juice.name}
+                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                              />
+                            </div>
+                            <div className="p-3 flex flex-col flex-1 justify-between">
+                              <div className="mb-2">
+                                <p className="text-[#212282] text-base font-bold leading-tight">{juice.name}</p>
+                                <p className="text-gray-500 text-xs mt-0.5">{formatPrice(juice.price)}</p>
+                              </div>
+                              {isSelected ? (
+                                <div className="flex items-center justify-between bg-[#E6411C]/10 rounded-lg p-1">
+                                  <button
+                                    onClick={() => updateJuiceQuantity(juice.id, -1)}
+                                    className="size-8 flex items-center justify-center rounded-md bg-white text-[#E6411C] shadow-sm hover:scale-105 transition-transform"
+                                    aria-label={`Decrease ${juice.name} quantity`}
+                                  >
+                                    <Minus className="w-4 h-4" />
+                                  </button>
+                                  <span className="text-[#E6411C] font-bold text-sm w-6 text-center">
+                                    {selected.quantity}
+                                  </span>
+                                  <button
+                                    onClick={() => updateJuiceQuantity(juice.id, 1)}
+                                    className="size-8 flex items-center justify-center rounded-md bg-[#E6411C] text-white shadow-sm hover:scale-105 transition-transform"
+                                    aria-label={`Increase ${juice.name} quantity`}
+                                  >
+                                    <Plus className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => updateJuiceQuantity(juice.id, 1)}
+                                  className="w-full h-9 flex items-center justify-center rounded-lg border border-gray-200 text-[#212282] text-sm font-bold hover:bg-gray-50 transition-colors"
+                                >
+                                  Add +
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </section>
+
+                  {/* Divider */}
+                  <div className="h-2 bg-gray-100 w-full mb-6" />
+
+                  {/* Desserts Section */}
+                  <section className="mb-4">
+                    <div className="px-4 mb-3">
+                      <h3 className="text-[#212282] text-xl font-bold leading-tight tracking-tight">Desserts</h3>
+                      <p className="text-gray-500 text-sm font-medium mt-1">Sweet finish</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 px-4 md:grid-cols-3 lg:grid-cols-4">
+                      {menuData.desserts.map((dessert) => {
+                        const selected = selectedDesserts.find((d) => d.id === dessert.id);
+                        const isSelected = !!selected;
+                        return (
+                          <div
+                            key={dessert.id}
+                            className={`group relative flex flex-col bg-white rounded-xl overflow-hidden shadow-sm border-2 transition-all ${
+                              isSelected ? 'border-[#E6411C]' : 'border-gray-100 hover:border-gray-200'
+                            } ${!dessert.available && 'opacity-50 pointer-events-none'}`}
+                          >
+                            <div className="aspect-[4/3] w-full bg-gray-100 overflow-hidden">
+                              <img
+                                src={dessert.image}
+                                alt={dessert.name}
+                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                              />
+                            </div>
+                            <div className="p-3 flex flex-col flex-1">
+                              <div className="flex-1 mb-2">
+                                <p className="text-[#212282] text-base font-bold leading-tight">{dessert.name}</p>
+                                <p className="text-gray-500 text-sm">{formatPrice(dessert.price)}</p>
+                              </div>
+                              {isSelected ? (
+                                <div className="flex items-center justify-between bg-[#E6411C]/10 rounded-lg p-1">
+                                  <button
+                                    onClick={() => updateDessertQuantity(dessert.id, -1)}
+                                    className="size-8 flex items-center justify-center rounded-md bg-white text-[#E6411C] shadow-sm hover:scale-105 transition-transform"
+                                    aria-label={`Decrease ${dessert.name} quantity`}
+                                  >
+                                    <Minus className="w-4 h-4" />
+                                  </button>
+                                  <span className="text-[#E6411C] font-bold text-sm w-6 text-center">
+                                    {selected.quantity}
+                                  </span>
+                                  <button
+                                    onClick={() => updateDessertQuantity(dessert.id, 1)}
+                                    className="size-8 flex items-center justify-center rounded-md bg-[#E6411C] text-white shadow-sm hover:scale-105 transition-transform"
+                                    aria-label={`Increase ${dessert.name} quantity`}
+                                  >
+                                    <Plus className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => updateDessertQuantity(dessert.id, 1)}
+                                  className="w-full h-9 flex items-center justify-center rounded-lg border border-gray-200 text-[#212282] text-sm font-bold hover:bg-gray-50 transition-colors"
+                                >
+                                  Add +
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </section>
+                </div>
+              )}
+            </main>
+
+            {/* Sticky Footer */}
+            <footer className="absolute bottom-0 left-0 right-0 z-30">
+              <div className={`p-4 pb-6 md:pb-4 ${
+                step >= 2 ? 'bg-[#212282]' : 'bg-white border-t border-gray-100'
+              }`}>
+                <div className="flex flex-col gap-3 max-w-xl mx-auto">
+                  {/* Order Summary */}
+                  <div className="flex justify-between items-start gap-4">
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-xs font-medium uppercase tracking-wider mb-1 ${
+                        step >= 2 ? 'text-white/60' : 'text-gray-500'
+                      }`}>
+                        {step === 4 ? 'Order Summary' : 'Your Combo'}
+                      </p>
+                      {step === 4 ? (
+                        <div className={`flex items-center gap-1 text-sm font-bold ${
+                          step >= 2 ? 'text-white' : 'text-[#212282]'
+                        }`}>
+                          <span>1 Combo</span>
+                          <span className={step >= 2 ? 'text-white/40' : 'text-gray-300'}>•</span>
+                          <span>1 Side</span>
+                          {extrasCount > 0 && (
+                            <>
+                              <span className={step >= 2 ? 'text-white/40' : 'text-gray-300'}>•</span>
+                              <span className="text-[#E6411C]">{extrasCount} Extra{extrasCount > 1 ? 's' : ''}</span>
+                            </>
+                          )}
+                        </div>
+                      ) : (
+                        <p className={`text-sm font-medium leading-relaxed truncate ${
+                          step >= 2 ? 'text-white/80' : 'text-[#212282]'
+                        }`}>
+                          {getSummaryText()}
+                        </p>
+                      )}
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className={`text-xs font-medium uppercase tracking-wider mb-1 ${
+                        step >= 2 ? 'text-white/60' : 'text-gray-500'
+                      }`}>
+                        Total
+                      </p>
+                      <p className={`text-xl font-extrabold tracking-tight ${
+                        step >= 2 ? 'text-white' : 'text-[#212282]'
+                      }`}>
+                        {formatPrice(calculateTotal())}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Action Button */}
+                  <button
+                    onClick={step < 4 ? () => setStep(step + 1) : handleAddToCart}
+                    disabled={!canProceed()}
+                    className="w-full flex items-center justify-center gap-2 rounded-xl h-14 text-white text-lg font-bold shadow-md transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed bg-[#E6411C] hover:bg-[#d13a18]"
+                  >
+                    <span>{getNextButtonText()}</span>
+                    {step < 4 && <ChevronRight className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+            </footer>
           </div>
         </div>
       )}
