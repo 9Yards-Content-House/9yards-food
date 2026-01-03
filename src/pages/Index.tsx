@@ -5,7 +5,6 @@ import HeroSection from '@/components/home/HeroSection';
 import HowItWorksSection from '@/components/home/HowItWorksSection';
 import PopularDishesSection from '@/components/home/PopularDishesSection';
 import WhyChooseUsSection from '@/components/home/WhyChooseUsSection';
-import DeliveryZonesPreview from '@/components/home/DeliveryZonesPreview';
 import FloatingWhatsApp from '@/components/FloatingWhatsApp';
 
 export default function Index() {
@@ -17,7 +16,6 @@ export default function Index() {
         <HowItWorksSection />
         <PopularDishesSection />
         <WhyChooseUsSection />
-        <DeliveryZonesPreview />
       </main>
       <Footer />
       <MobileNav />
