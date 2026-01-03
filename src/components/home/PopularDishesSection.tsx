@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Flame, Plus, ChevronRight } from 'lucide-react';
+import { Heart, Flame, Plus } from 'lucide-react';
 import { menuData } from '@/data/menu';
 import { formatPrice } from '@/lib/utils/order';
 import { useCart } from '@/context/CartContext';
@@ -240,20 +240,20 @@ export default function PopularDishesSection() {
       <section className="section-padding bg-muted/30">
         <div className="container-custom">
           {/* Section Header */}
-          <div className="text-center mb-10 md:mb-12">
-            <span className="inline-block text-secondary font-semibold text-sm uppercase tracking-wider mb-2">
+          <div className="text-center mb-8 md:mb-12 px-4">
+            <span className="inline-block text-secondary font-semibold text-xs sm:text-sm uppercase tracking-wider mb-2">
               Customer Favorites
             </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3">
               Most Loved Dishes
             </h2>
-            <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto">
-              Start with any of these popular picks and customize your perfect combo
+            <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+              Authentic Ugandan flavors our customers can't get enough of. Pick one and customize your combo!
             </p>
           </div>
 
           {/* Dishes Grid - 2 cols mobile, 3 cols desktop */}
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 px-4 md:px-0">
             {featuredItems.map((item) => (
               <DishCard
                 key={item.id}
@@ -268,21 +268,20 @@ export default function PopularDishesSection() {
           </div>
 
           {/* CTA */}
-          <div className="text-center mt-10 md:mt-12">
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="text-center mt-8 md:mt-12 px-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
               <button
                 onClick={() => setIsComboBuilderOpen(true)}
-                className="btn-secondary inline-flex items-center gap-2 text-base md:text-lg px-6 md:px-8 py-3 md:py-4 w-full sm:w-auto justify-center"
+                className="btn-secondary inline-flex items-center justify-center gap-2 text-sm sm:text-base md:text-lg px-5 sm:px-6 md:px-8 py-3 md:py-4 w-full sm:w-auto"
               >
-                Build Your Combo
-                <ChevronRight className="w-5 h-5" />
+                Start Building Your Combo
               </button>
               <Link 
                 to="/menu" 
-                className="text-secondary font-semibold hover:underline inline-flex items-center gap-1"
+                className="text-secondary font-semibold inline-flex items-center gap-1 text-sm sm:text-base py-2 group"
               >
-                Or browse full menu
-                <ChevronRight className="w-4 h-4" />
+                <span className="group-hover:underline">View Full Menu</span>
+                <span>→</span>
               </Link>
             </div>
           </div>
