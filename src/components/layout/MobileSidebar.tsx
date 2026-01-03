@@ -108,9 +108,9 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
             <img 
               src="/images/logo/9Yards-Food-White-Logo.png" 
               alt="9Yards Food"
-              className="h-9 w-auto object-contain"
+              className="h-[2.8rem] w-auto object-contain"
             />
-            <p className="text-white/80 text-xs">Authentic Ugandan Cuisine</p>
+            <p className="text-white/80 text-[0.8rem]">Authentic Ugandan Cuisine</p>
           </div>
           <button
             ref={firstFocusableRef}
@@ -136,7 +136,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
                     to={link.href}
                     className={`flex items-center h-12 px-4 -mx-1 text-[16px] font-medium rounded-xl transition-all duration-200 ${
                       isActive
-                        ? 'text-[#E6411C] font-semibold bg-[#E6411C]/5 border-l-4 border-[#E6411C] pl-3'
+                        ? 'text-[#E6411C] font-semibold'
                         : 'text-gray-700 hover:text-[#E6411C] hover:bg-gray-50'
                     }`}
                   >
@@ -251,16 +251,18 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
                 <TikTokIcon className="w-5 h-5" />
               </a>
 
-              {/* YouTube */}
-              <a
-                href={SOCIAL_LINKS.youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white transition-transform hover:scale-110"
-                aria-label="Subscribe on YouTube"
-              >
-                <Youtube className="w-5 h-5" />
-              </a>
+              {/* YouTube - Only show if link exists */}
+              {SOCIAL_LINKS.youtube && (
+                <a
+                  href={SOCIAL_LINKS.youtube}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white transition-transform hover:scale-110"
+                  aria-label="Subscribe on YouTube"
+                >
+                  <Youtube className="w-5 h-5" />
+                </a>
+              )}
             </div>
           </div>
 

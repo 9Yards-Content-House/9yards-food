@@ -10,9 +10,9 @@ export const EMAIL = 'deliveries@9yards.co.ug';
 
 // Social Media
 export const SOCIAL_LINKS = {
-  instagram: 'https://instagram.com/9yardsfood',
-  tiktok: 'https://tiktok.com/@9yardsfood',
-  youtube: 'https://youtube.com/@9yardsfood',
+  instagram: 'https://www.instagram.com/9yards_food/',
+  tiktok: 'https://www.tiktok.com/@9yardsfood',
+  youtube: '',
   website: 'https://9yards.co.ug',
 };
 

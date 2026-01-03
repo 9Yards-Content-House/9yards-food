@@ -665,13 +665,13 @@ export default function AboutPage() {
                 Follow Our Food Journey
               </h2>
               <a
-                href="https://instagram.com/9yardsfood"
+                href="https://www.instagram.com/9yards_food/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-secondary font-bold text-lg hover:underline flex items-center justify-center gap-2"
               >
                 <Instagram className="w-5 h-5" />
-                @9yardsfood
+                @9yards_food
               </a>
             </div>
 
@@ -679,7 +679,7 @@ export default function AboutPage() {
               {instagramPosts.map((post, index) => (
                 <a
                   key={index}
-                  href="https://instagram.com/9yardsfood"
+                  href="https://www.instagram.com/9yards_food/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="relative rounded-xl overflow-hidden group"
@@ -703,7 +703,7 @@ export default function AboutPage() {
               className="text-center mt-8"
             >
               <a
-                href="https://instagram.com/9yardsfood"
+                href="https://www.instagram.com/9yards_food/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-secondary inline-flex items-center gap-2"

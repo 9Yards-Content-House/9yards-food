@@ -340,7 +340,7 @@ export default function ContactPage() {
                     <h3 className="font-bold text-foreground mb-3">Follow Us</h3>
                     <div className="flex gap-3">
                       <a
-                        href="https://instagram.com/9yardsfood"
+                        href="https://www.instagram.com/9yards_food/"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="w-12 h-12 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-xl flex items-center justify-center hover:scale-105 transition-transform"
@@ -348,20 +348,12 @@ export default function ContactPage() {
                         <Instagram className="w-5 h-5 text-white" />
                       </a>
                       <a
-                        href="https://tiktok.com/@9yardsfood"
+                        href="https://www.tiktok.com/@9yardsfood"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="w-12 h-12 bg-black rounded-xl flex items-center justify-center hover:scale-105 transition-transform"
                       >
                         <Music2 className="w-5 h-5 text-white" />
-                      </a>
-                      <a
-                        href="https://youtube.com/@9yardsfood"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center hover:scale-105 transition-transform"
-                      >
-                        <Youtube className="w-5 h-5 text-white" />
                       </a>
                     </div>
                   </div>

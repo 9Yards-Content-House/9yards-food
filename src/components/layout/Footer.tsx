@@ -139,15 +139,17 @@ export default function Footer() {
               >
                 <WhatsAppIcon className="w-5 h-5" />
               </a>
-              <a
-                href={SOCIAL_LINKS.youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Subscribe on YouTube"
-                className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-secondary transition-colors"
-              >
-                <Youtube className="w-5 h-5" />
-              </a>
+              {SOCIAL_LINKS.youtube && (
+                <a
+                  href={SOCIAL_LINKS.youtube}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Subscribe on YouTube"
+                  className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-secondary transition-colors"
+                >
+                  <Youtube className="w-5 h-5" />
+                </a>
+              )}
             </div>
             <div className="mt-6">
               <p className="text-primary-foreground/50 text-xs">Part of</p>

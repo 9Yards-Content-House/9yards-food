@@ -148,14 +148,16 @@ export default function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
               >
                 <TikTokIcon className="w-5 h-5" />
               </a>
-              <a
-                href={SOCIAL_LINKS.youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center text-white"
-              >
-                <Youtube className="w-5 h-5" />
-              </a>
+              {SOCIAL_LINKS.youtube && (
+                <a
+                  href={SOCIAL_LINKS.youtube}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center text-white"
+                >
+                  <Youtube className="w-5 h-5" />
+                </a>
+              )}
             </div>
           </div>
 
