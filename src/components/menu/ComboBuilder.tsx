@@ -321,7 +321,7 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                               <img
                                 src={dish.image}
                                 alt={dish.name}
-                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                className="h-full w-full object-cover"
                               />
                               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                               {/* Checkmark Badge */}
