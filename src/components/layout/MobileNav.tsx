@@ -1,7 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, UtensilsCrossed, ShoppingCart, Heart, Phone } from 'lucide-react';
+import { Home, UtensilsCrossed, ShoppingCart, Heart } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
-import { PHONE_NUMBER } from '@/lib/constants';
+import { WHATSAPP_NUMBER } from '@/lib/constants';
+import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },
@@ -14,8 +15,11 @@ export default function MobileNav() {
   const location = useLocation();
   const { cartCount, favoritesCount } = useCart();
 
-  const handleCallClick = () => {
-    window.location.href = `tel:${PHONE_NUMBER}`;
+  const handleWhatsAppClick = () => {
+    const hour = new Date().getHours();
+    const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+    const message = `${greeting}! I'd like to place an order from 9Yards Food.`;
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   return (
@@ -56,17 +60,16 @@ export default function MobileNav() {
           );
         })}
         
-        {/* Click-to-Call Button */}
+        {/* WhatsApp Order Button */}
         <button
-          onClick={handleCallClick}
-          className="flex flex-col items-center justify-center gap-0.5 min-w-[60px] py-1.5 px-2 rounded-xl text-muted-foreground hover:text-green-600 transition-colors"
-          aria-label="Call 9Yards Food"
+          onClick={handleWhatsAppClick}
+          className="flex flex-col items-center justify-center gap-0.5 min-w-[60px] py-1.5 px-2 rounded-xl text-muted-foreground hover:text-secondary transition-colors"
+          aria-label="Order via WhatsApp"
         >
           <div className="relative">
-            <Phone className="w-5 h-5" />
-            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+            <WhatsAppIcon className="w-5 h-5" />
           </div>
-          <span className="text-[11px] font-medium">Call</span>
+          <span className="text-[11px] font-medium">WhatsApp</span>
         </button>
       </div>
     </nav>
