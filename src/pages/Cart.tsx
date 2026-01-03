@@ -668,7 +668,7 @@ export default function CartPage() {
                       </label>
                       <div className="flex">
                         <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-200 bg-gray-100 text-gray-500 text-sm font-medium">
-                          UG +256
+                          🇺🇬 +256
                         </span>
                         <input
                           type="tel"
@@ -787,7 +787,7 @@ export default function CartPage() {
                     </label>
                     <div className="flex">
                       <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-200 bg-gray-100 text-gray-500 text-sm font-medium">
-                        UG +256
+                        🇺🇬 +256
                       </span>
                       <input
                         type="tel"
