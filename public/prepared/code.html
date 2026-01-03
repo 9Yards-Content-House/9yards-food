@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Menu Page - All Dishes</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#e6431e", // 9Yards Orange
+                        "secondary": "#212282", // 9Yards Blue
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#211411",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hiding for horizontal scroll areas */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased selection:bg-primary selection:text-white">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden pb-24">
+<!-- Sticky Header -->
+<header class="sticky top-0 z-50 w-full bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-gray-100 dark:border-white/5 transition-all duration-300">
+<div class="flex items-center justify-between px-4 py-3">
+<!-- Branding / Title -->
+<div class="flex items-center gap-3">
+<h1 class="text-[#212282] dark:text-white text-xl font-extrabold tracking-tight">Our Menu</h1>
+</div>
+<!-- Cart Action -->
+<button class="relative group p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-[#212282] dark:text-white text-[28px]">shopping_cart</span>
+<!-- Badge -->
+<span class="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white shadow-sm ring-2 ring-background-light dark:ring-background-dark">
+                        2
+                    </span>
+</button>
+</div>
+<!-- Search Bar Area -->
+<div class="px-4 pb-3">
+<div class="relative flex items-center w-full h-12 rounded-xl bg-white dark:bg-[#2a1e1b] shadow-sm ring-1 ring-gray-900/5 dark:ring-white/10 overflow-hidden group focus-within:ring-2 focus-within:ring-primary/50 transition-all">
+<div class="flex items-center justify-center pl-4 text-gray-400">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="w-full h-full border-none bg-transparent px-3 text-base text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-0 focus:outline-none" placeholder="Search for dishes (e.g. Luwombo)..." type="text"/>
+</div>
+</div>
+</header>
+<!-- Category Navigation (Sticky below header effect via position sticky if needed, but standard scroll here for better mobile feel) -->
+<div class="sticky top-[108px] z-40 bg-background-light dark:bg-background-dark py-3 pl-4 border-b border-transparent">
+<div class="flex gap-3 overflow-x-auto no-scrollbar pr-4 snap-x">
+<!-- Active Chip -->
+<button class="snap-start shrink-0 flex items-center justify-center px-5 py-2.5 rounded-full bg-primary shadow-lg shadow-primary/25 transition-transform active:scale-95">
+<span class="text-white text-sm font-bold leading-none">All</span>
+</button>
+<!-- Inactive Chips -->
+<button class="snap-start shrink-0 flex items-center justify-center px-5 py-2.5 rounded-full bg-white dark:bg-[#2a1e1b] border border-gray-100 dark:border-white/5 text-[#212282] dark:text-gray-300 shadow-sm transition-transform active:scale-95 whitespace-nowrap">
+<span class="text-sm font-semibold leading-none">Main Dishes</span>
+</button>
+<button class="snap-start shrink-0 flex items-center justify-center px-5 py-2.5 rounded-full bg-white dark:bg-[#2a1e1b] border border-gray-100 dark:border-white/5 text-[#212282] dark:text-gray-300 shadow-sm transition-transform active:scale-95 whitespace-nowrap">
+<span class="text-sm font-semibold leading-none">Sauces</span>
+</button>
+<button class="snap-start shrink-0 flex items-center justify-center px-5 py-2.5 rounded-full bg-white dark:bg-[#2a1e1b] border border-gray-100 dark:border-white/5 text-[#212282] dark:text-gray-300 shadow-sm transition-transform active:scale-95 whitespace-nowrap">
+<span class="text-sm font-semibold leading-none">Natural Juices</span>
+</button>
+<button class="snap-start shrink-0 flex items-center justify-center px-5 py-2.5 rounded-full bg-white dark:bg-[#2a1e1b] border border-gray-100 dark:border-white/5 text-[#212282] dark:text-gray-300 shadow-sm transition-transform active:scale-95 whitespace-nowrap">
+<span class="text-sm font-semibold leading-none">Desserts</span>
+</button>
+<button class="snap-start shrink-0 flex items-center justify-center px-5 py-2.5 rounded-full bg-white dark:bg-[#2a1e1b] border border-gray-100 dark:border-white/5 text-[#212282] dark:text-gray-300 shadow-sm transition-transform active:scale-95 whitespace-nowrap">
+<span class="text-sm font-semibold leading-none">Side Dishes</span>
+</button>
+</div>
+</div>
+<!-- Main Content: Food Grid -->
+<main class="flex-1 px-4 pt-2">
+<h2 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4 ml-1">Popular Now</h2>
+<div class="grid grid-cols-2 gap-4 pb-6">
+<!-- Card 1 -->
+<div class="group flex flex-col bg-white dark:bg-[#2a1e1b] rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-white/5 transition-all hover:shadow-md">
+<div class="relative w-full aspect-[4/3] overflow-hidden">
+<div class="absolute inset-0 bg-gray-200 animate-pulse"></div> <!-- Loading skeleton placeholder logic -->
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Traditional Luwombo chicken stew served in banana leaves" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDDQ6MHghwKdoExQ4IsngoAxDFGNVr34NjyTsgsUf3zY7J2av-L8iABxZ3TTJQ7py48DDoRpYog7WgECwR62mAY_i0o-Gu7asSFCBXxpJ2yANzREVdX0Efh_HbV66roqm1FrgjB7Hm6iQw0HUiC_knZ_-THrMZkWEU054mb7vyTBdj2Y-UoG6wkelMvnPpVE2kzHlUEhxGevN-10WGalQ_lLdKfSAzQn7FIQQwHp9JmMskj8DFIAWFGu6vopgDgGv0IKYZNUr8jS_o');">
+</div>
+<div class="absolute top-2 left-2 bg-white/95 dark:bg-black/80 backdrop-blur text-[#212282] dark:text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">
+                            Available
+                        </div>
+<div class="absolute bottom-2 right-2 bg-white/95 dark:bg-black/80 backdrop-blur rounded-full p-1.5 shadow-sm text-primary">
+<span class="material-symbols-outlined text-[18px]">favorite</span>
+</div>
+</div>
+<div class="flex flex-col flex-1 p-3">
+<div class="flex-1">
+<h3 class="text-[#212282] dark:text-white text-base font-bold leading-tight mb-1 line-clamp-2">Chicken Luwombo</h3>
+<p class="text-gray-500 text-xs font-medium line-clamp-1 mb-3">Steamed in banana leaves</p>
+</div>
+<div class="flex items-center justify-between mt-auto">
+<span class="text-primary font-extrabold text-sm">UGX 25k</span>
+<button class="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white shadow-lg shadow-primary/30 active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group flex flex-col bg-white dark:bg-[#2a1e1b] rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-white/5 transition-all hover:shadow-md">
+<div class="relative w-full aspect-[4/3] overflow-hidden">
+<div class="absolute inset-0 bg-gray-200 animate-pulse"></div>
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Close up of a delicious Rolex chapati roll with eggs and veggies" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD02bShxeqPb3Q7qeSScgPRsZuSWJIq1x8hUtLPEyqyaJWUpA4WsRcYFRH7x0lSFpcNo3JBPhgZfJKGEHgd3yPz4xhDAuKxGtq4x9H-XYHk-xL_tSDTEJKq5_wAJtScCAvGEZrTeG8SwHogZ43lEWfXlOuzF7fniIA5-V2-ZKBvkSMSp1unKiiRS_nW805Sdya_F5T83Q4h7FdfCJ_JtUR-soCFCRT0el9xFLYqP5VSZRbk8iXVKwp8nwutn-b7TLdNvC_8-bJexMA');">
+</div>
+<div class="absolute top-2 left-2 bg-red-50 text-red-600 text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">
+                            Hot
+                        </div>
+</div>
+<div class="flex flex-col flex-1 p-3">
+<div class="flex-1">
+<h3 class="text-[#212282] dark:text-white text-base font-bold leading-tight mb-1 line-clamp-2">Special Rolex</h3>
+<p class="text-gray-500 text-xs font-medium line-clamp-1 mb-3">Eggs, veggies, chapati</p>
+</div>
+<div class="flex items-center justify-between mt-auto">
+<span class="text-primary font-extrabold text-sm">UGX 8k</span>
+<button class="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white shadow-lg shadow-primary/30 active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group flex flex-col bg-white dark:bg-[#2a1e1b] rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-white/5 transition-all hover:shadow-md">
+<div class="relative w-full aspect-[4/3] overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Plate of Matooke mash with groundnut sauce" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCz6FR3UrH0oamf24ym01IXyf8LEd-4jkhTxrc2fca2Km3XrkOI1_RbvcZe8s09DKfTrZ-zaJjcVMsEfhShjJwNHGtw2Qr2bwqpcyOMgkov-FnD-y2yH66a6xzMIvHvkZn4Cf3FTfgAQ2CtV-QnmNAIWFhsvzSEN-TJ0q4WukPPGovBfDajKIDTSyfrziWz1IJEqSseONuOylWRww5zAXJr6XTygll1UZ3FYvzo2B8fIYmnPN5HwcZ966SpsiVZ4P_3uE-MCy58bew');">
+</div>
+<div class="absolute top-2 left-2 bg-white/95 dark:bg-black/80 backdrop-blur text-[#212282] dark:text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">
+                            Available
+                        </div>
+</div>
+<div class="flex flex-col flex-1 p-3">
+<div class="flex-1">
+<h3 class="text-[#212282] dark:text-white text-base font-bold leading-tight mb-1 line-clamp-2">Matooke &amp; Gnut Sauce</h3>
+<p class="text-gray-500 text-xs font-medium line-clamp-1 mb-3">Traditional mash</p>
+</div>
+<div class="flex items-center justify-between mt-auto">
+<span class="text-primary font-extrabold text-sm">UGX 15k</span>
+<button class="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white shadow-lg shadow-primary/30 active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="group flex flex-col bg-white dark:bg-[#2a1e1b] rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-white/5 transition-all hover:shadow-md">
+<div class="relative w-full aspect-[4/3] overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Rich beef stew in a dark bowl with herbs" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCewJwkyW0ALBubt89oEQ-he9g1XBX97qhVA_HLaz8XGOMqyurZG9zeoP0afcu-xpLakLwAEFxvIPN6vh1Vag-HflezxvOU4RlDaCoketCuPw5Z1cPv3kopXr-5tnmVKgQdXXXFqP08cQQ3UJ9x36CLwGPZrPHasGsiBPfSw11jV0KZ9kmc4CA5w9VuRwunClJQonUXZRKxWBowZQzyanEroG_WyxQEANc6Q60UmH5bc5w-egvaxRTTe_g-O1Y9_Iz-tv-zLlTkWJQ');">
+</div>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+<span class="bg-black/60 text-white text-xs font-bold px-3 py-1.5 rounded-full border border-white/20">Sold Out</span>
+</div>
+</div>
+<div class="flex flex-col flex-1 p-3 opacity-75">
+<div class="flex-1">
+<h3 class="text-[#212282] dark:text-white text-base font-bold leading-tight mb-1 line-clamp-2">Beef Stew</h3>
+<p class="text-gray-500 text-xs font-medium line-clamp-1 mb-3">Slow cooked tender beef</p>
+</div>
+<div class="flex items-center justify-between mt-auto">
+<span class="text-gray-400 font-extrabold text-sm line-through">UGX 20k</span>
+<button class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 text-gray-400 cursor-not-allowed" disabled="">
+<span class="material-symbols-outlined text-[20px]">block</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="group flex flex-col bg-white dark:bg-[#2a1e1b] rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-white/5 transition-all hover:shadow-md">
+<div class="relative w-full aspect-[4/3] overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Freshly grilled Tilapia fish with lemon garnish" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBSypaEtDrqp8LNtk0pEk85p75HNMBv6_B2DxfyFLjoCT1XM2iEDBe1JUw8VQDiGZXz_uBStgwNTz88_cMSE527Z6gIqoaEbqLCVPgIjlGCQraPJHqpABtte0-cd4oqziW9KdhQVbaZXt6r7K9VjFtzgTNs2tTLd54y3H2xCUNjGHn5sBDZf94eT1ivhNsB1AeXQSBSQeGUB3oAxF1khZ0Fk-VuGtFi7yjr-SQEVdIMBW6XeT-_VYGpzao3QGvgaoWpuEM3962Hcz8');">
+</div>
+<div class="absolute top-2 left-2 bg-white/95 dark:bg-black/80 backdrop-blur text-[#212282] dark:text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">
+                            Available
+                        </div>
+</div>
+<div class="flex flex-col flex-1 p-3">
+<div class="flex-1">
+<h3 class="text-[#212282] dark:text-white text-base font-bold leading-tight mb-1 line-clamp-2">Grilled Tilapia</h3>
+<p class="text-gray-500 text-xs font-medium line-clamp-1 mb-3">Whole fish with spices</p>
+</div>
+<div class="flex items-center justify-between mt-auto">
+<span class="text-primary font-extrabold text-sm">UGX 35k</span>
+<button class="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white shadow-lg shadow-primary/30 active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 6 -->
+<div class="group flex flex-col bg-white dark:bg-[#2a1e1b] rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-white/5 transition-all hover:shadow-md">
+<div class="relative w-full aspect-[4/3] overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Glass of fresh passion fruit juice with ice" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBWb6GGSMgxfFHhKBF4ZmB2R9axg5zYfxWetzMVDji9nwyKwmGA94CBrlqSjIHeql1v65bJF7W0cORN13deF318Xdq87u5ZBSSagDtG0Dg_JKBFgcCuLw83EnDvF2YIrRcN-0s13m6pItLufkgmApJszjRkO2Xjg9FbIDaqqlvi8fwV-bJEZ7nHqEwEgmuQ208CW7g5HEmSD8VtfjiiidivkCbOFf3hHemrKFoH-MyeSlwTyJ27KBY4K-jKtcKHvqa-UkwnnBLbApQ');">
+</div>
+<div class="absolute top-2 left-2 bg-white/95 dark:bg-black/80 backdrop-blur text-[#212282] dark:text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">
+                            Available
+                        </div>
+</div>
+<div class="flex flex-col flex-1 p-3">
+<div class="flex-1">
+<h3 class="text-[#212282] dark:text-white text-base font-bold leading-tight mb-1 line-clamp-2">Passion Juice</h3>
+<p class="text-gray-500 text-xs font-medium line-clamp-1 mb-3">Freshly squeezed</p>
+</div>
+<div class="flex items-center justify-between mt-auto">
+<span class="text-primary font-extrabold text-sm">UGX 5k</span>
+<button class="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white shadow-lg shadow-primary/30 active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- End of list loader indication -->
+<div class="flex justify-center pb-8">
+<span class="w-1.5 h-1.5 bg-gray-300 rounded-full mx-1"></span>
+<span class="w-1.5 h-1.5 bg-gray-300 rounded-full mx-1"></span>
+<span class="w-1.5 h-1.5 bg-gray-300 rounded-full mx-1"></span>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 z-50 w-full bg-white dark:bg-[#2a1e1b] border-t border-gray-100 dark:border-white/5 pb-safe pt-2 px-6 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+<div class="flex items-center justify-between h-[60px]">
+<a class="flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-primary transition-colors w-16" href="#">
+<span class="material-symbols-outlined text-[24px]">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 text-[#212282] dark:text-white w-16" href="#">
+<div class="bg-[#212282]/10 dark:bg-white/10 px-4 py-1 rounded-full">
+<span class="material-symbols-outlined text-[24px] text-[#212282] dark:text-white fill-1">restaurant_menu</span>
+</div>
+<span class="text-[10px] font-bold text-[#212282] dark:text-white">Menu</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-primary transition-colors w-16" href="#">
+<span class="material-symbols-outlined text-[24px]">receipt_long</span>
+<span class="text-[10px] font-medium">Orders</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-primary transition-colors w-16" href="#">
+<span class="material-symbols-outlined text-[24px]">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</a>
+</div>
+<!-- Safe area spacer for newer iPhones -->
+<div class="h-4 w-full"></div>
+</nav>
+</div>
+</body></html>
