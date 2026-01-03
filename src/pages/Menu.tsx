@@ -127,9 +127,9 @@ function MenuItemCard({
       if (item.categoryType === 'sauce') {
         return <span className="text-secondary font-bold text-base">{formatPrice(item.price)}</span>;
       }
-      // Juices and desserts show as add-ons
+      // Juices and desserts
       if (item.categoryType === 'juice' || item.categoryType === 'dessert') {
-        return <span className="text-secondary font-bold text-base">+{formatPrice(item.price)}</span>;
+        return <span className="text-secondary font-bold text-base">{formatPrice(item.price)}</span>;
       }
       return <span className="text-secondary font-bold text-base">{formatPrice(item.price)}</span>;
     }
@@ -565,7 +565,7 @@ export default function MenuPage() {
             {/* Empty State */}
             {items.length === 0 ? (
               <div className="text-center py-16">
-                <div className="text-6xl mb-4">🔍</div>
+                <Search className="w-16 h-16 mx-auto mb-4 text-muted-foreground/50" />
                 <h3 className="text-2xl font-bold text-foreground mb-2">
                   No items found
                 </h3>
