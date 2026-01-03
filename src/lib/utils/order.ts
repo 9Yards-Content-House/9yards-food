@@ -43,10 +43,10 @@ export function generateWhatsAppMessage(
 ): string {
   const orderDate = formatOrderDate();
   
-  let message = `🍽️ *NEW ORDER - 9Yards Food*\n\n`;
+  let message = `*NEW ORDER - 9Yards Food*\n\n`;
   message += `*Order #:* ${orderId}\n`;
   message += `*Date:* ${orderDate}\n\n`;
-  message += `📋 *ORDER DETAILS:*\n`;
+  message += `*ORDER DETAILS:*\n`;
   
   items.forEach((item, index) => {
     const dishes = item.mainDishes.join(' + ');
@@ -62,7 +62,7 @@ export function generateWhatsAppMessage(
     }
   });
   
-  message += `\n🚚 *DELIVERY INFO:*\n`;
+  message += `\n*DELIVERY INFO:*\n`;
   message += `*Name:* ${customerInfo.name}\n`;
   message += `*Phone:* ${customerInfo.phone}\n`;
   message += `*Location:* ${customerInfo.location}\n`;
@@ -72,12 +72,12 @@ export function generateWhatsAppMessage(
     message += `*Special Instructions:* ${customerInfo.specialInstructions}\n`;
   }
   
-  message += `\n💰 *PAYMENT SUMMARY:*\n`;
+  message += `\n*PAYMENT SUMMARY:*\n`;
   message += `*Subtotal:* ${formatPrice(subtotal)}\n`;
   message += `*Delivery Fee:* ${formatPrice(deliveryFee)}\n`;
   message += `*Total:* ${formatPrice(total)}\n\n`;
   message += `*Payment Method:* ${paymentMethod}\n\n`;
-  message += `⏰ *Estimated Delivery:* 30-45 minutes`;
+  message += `*Estimated Delivery:* 30-45 minutes`;
   
   return encodeURIComponent(message);
 }

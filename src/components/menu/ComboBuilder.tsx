@@ -734,7 +734,7 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                   <button
                     onClick={step < 4 ? () => setStep(step + 1) : handleAddToCart}
                     disabled={!canProceed()}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl h-14 text-white text-lg font-bold shadow-md transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed bg-[#E6411C] hover:bg-[#d13a18]"
+                    className="w-full flex items-center justify-center gap-2 rounded-xl h-14 text-white text-lg font-bold shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-[#E6411C] hover:bg-[#d13a18]"
                   >
                     <span>{getNextButtonText()}</span>
                     {step < 4 && <ChevronRight className="w-5 h-5" />}

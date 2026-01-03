@@ -1,6 +1,7 @@
-import { MessageCircle, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useState } from 'react';
 import { WHATSAPP_NUMBER, WHATSAPP_MESSAGES } from '@/lib/constants';
+import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 
 const DEFAULT_MESSAGE = WHATSAPP_MESSAGES.default;
 
@@ -19,22 +20,18 @@ export default function FloatingWhatsApp() {
       {/* Floating Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-24 lg:bottom-8 right-4 z-50 w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95"
+        className="fixed bottom-24 lg:bottom-8 right-4 z-50 w-14 h-14 bg-[#25D366] hover:bg-[#22c55e] rounded-full flex items-center justify-center shadow-lg transition-colors"
         aria-label="Chat on WhatsApp"
       >
         {isOpen ? (
-          <div>
-            <X className="w-6 h-6 text-white" />
-          </div>
+          <X className="w-6 h-6 text-white" />
         ) : (
-          <div>
-            <MessageCircle className="w-6 h-6 text-white fill-white" />
-          </div>
+          <WhatsAppIcon className="w-7 h-7 text-white" />
         )}
         
         {/* Ping animation when closed */}
         {!isOpen && (
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-secondary rounded-full animate-ping" />
+          <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#212282] rounded-full animate-ping" />
         )}
       </button>
 
@@ -44,7 +41,7 @@ export default function FloatingWhatsApp() {
           className="fixed bottom-44 lg:bottom-28 right-4 z-50 w-80 bg-card rounded-2xl shadow-2xl overflow-hidden border border-border"
         >
             {/* Header */}
-            <div className="bg-green-500 p-4 text-white">
+            <div className="bg-[#25D366] p-4 text-white">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
                   <span className="text-lg font-bold">9Y</span>
@@ -88,12 +85,12 @@ export default function FloatingWhatsApp() {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Type a message..."
-                  className="flex-1 px-4 py-2.5 rounded-full bg-card border border-border focus:outline-none focus:border-green-500 text-sm"
+                  className="flex-1 px-4 py-2.5 rounded-full bg-card border border-border focus:outline-none focus:border-[#25D366] text-sm"
                   onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                 />
                 <button
                   onClick={handleSendMessage}
-                  className="w-10 h-10 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center transition-colors"
+                  className="w-10 h-10 bg-[#25D366] hover:bg-[#22c55e] rounded-full flex items-center justify-center transition-colors"
                   aria-label="Send message"
                 >
                   <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">

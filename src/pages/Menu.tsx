@@ -248,7 +248,7 @@ export default function MenuPage() {
                   <button
                     key={cat.id}
                     onClick={() => setActiveCategory(cat.id as Category)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all border-2 min-h-[44px] hover:-translate-y-0.5 active:scale-[0.98] ${
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all border-2 min-h-[44px] hover:-translate-y-0.5 ${
                       isActive
                         ? 'bg-secondary text-secondary-foreground border-secondary shadow-md'
                         : 'bg-background text-muted-foreground border-border hover:border-secondary/50'
@@ -297,7 +297,7 @@ export default function MenuPage() {
                 </div>
                 <button
                   onClick={() => setIsComboBuilderOpen(true)}
-                  className="bg-primary-foreground text-primary font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 active:scale-[0.98] transition-all text-lg flex items-center gap-2"
+                  className="bg-primary-foreground text-primary font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-2xl transition-all text-lg flex items-center gap-2"
                 >
                   🍽️ Start Building
                 </button>

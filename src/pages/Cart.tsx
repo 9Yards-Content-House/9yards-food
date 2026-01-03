@@ -4,21 +4,24 @@ import {
   Trash2,
   Plus,
   Minus,
-  MessageCircle,
   CreditCard,
   MapPin,
   Truck,
-  Gift,
   ChevronRight,
   Clock,
   AlertTriangle,
   CheckCircle,
   X,
   Loader2,
+  Tag,
+  ArrowLeft,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import MobileNav from '@/components/layout/MobileNav';
+import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import { useCart, OrderHistoryItem } from '@/context/CartContext';
 import { deliveryZones, promoCodes } from '@/data/menu';
 import {
@@ -36,14 +39,12 @@ const FLUTTERWAVE_PUBLIC_KEY = 'FLWPUBK_TEST-2cbeceb8352891cbcd28a983ce8d57ac-X'
 function isPeakHours(): boolean {
   const now = new Date();
   const hour = now.getHours();
-  // Lunch: 12-2PM, Dinner: 6-8PM
   return (hour >= 12 && hour < 14) || (hour >= 18 && hour < 20);
 }
 
 function getEstimatedDeliveryTime(zone: string | undefined): string {
   const baseTime = deliveryZones.find(z => z.name === zone)?.estimatedTime || '30-45 mins';
   if (isPeakHours()) {
-    // Add 15 mins to both ends for peak hours
     const match = baseTime.match(/(\d+)-(\d+)/);
     if (match) {
       return `${parseInt(match[1]) + 15}-${parseInt(match[2]) + 15} mins`;
@@ -52,7 +53,6 @@ function getEstimatedDeliveryTime(zone: string | undefined): string {
   return baseTime;
 }
 
-// Promo code validation
 interface PromoResult {
   valid: boolean;
   discount: number;
@@ -78,7 +78,6 @@ function validatePromoCode(code: string, subtotal: number, deliveryFee: number):
     };
   }
   
-  // Handle FREESHIP special case
   if (upperCode === 'FREESHIP') {
     return {
       valid: true,
@@ -109,7 +108,6 @@ function validatePromoCode(code: string, subtotal: number, deliveryFee: number):
   };
 }
 
-// Flutterwave payment handler
 declare global {
   interface Window {
     FlutterwaveCheckout: (config: FlutterwaveConfig) => void;
@@ -160,14 +158,15 @@ export default function CartPage() {
   const [promoResult, setPromoResult] = useState<PromoResult | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [specialInstructions, setSpecialInstructions] = useState('');
+  const [showDeliveryForm, setShowDeliveryForm] = useState(false);
 
-  // Calculate delivery fee
   const selectedZoneData = deliveryZones.find((z) => z.name === selectedZone);
   const baseDeliveryFee = selectedZoneData?.fee || 0;
   const freeDeliveryThreshold = 50000;
   const qualifiesForFreeDelivery = cartTotal >= freeDeliveryThreshold;
+  const freeDeliveryProgress = Math.min(100, (cartTotal / freeDeliveryThreshold) * 100);
+  const amountToFreeDelivery = freeDeliveryThreshold - cartTotal;
   
-  // Apply promo adjustments
   const deliveryFee = useMemo(() => {
     if (qualifiesForFreeDelivery) return 0;
     if (promoResult?.valid && promoResult.discountType === 'free_delivery') return 0;
@@ -207,18 +206,22 @@ export default function CartPage() {
   const validateForm = (): boolean => {
     if (!state.userPreferences.name?.trim()) {
       toast.error('Please enter your name');
+      setShowDeliveryForm(true);
       return false;
     }
     if (!state.userPreferences.phone?.trim()) {
       toast.error('Please enter your phone number');
+      setShowDeliveryForm(true);
       return false;
     }
     if (!selectedZone) {
       toast.error('Please select a delivery zone');
+      setShowDeliveryForm(true);
       return false;
     }
     if (!state.userPreferences.address?.trim()) {
       toast.error('Please enter your delivery address');
+      setShowDeliveryForm(true);
       return false;
     }
     return true;
@@ -277,16 +280,9 @@ export default function CartPage() {
       'Pay on Delivery'
     );
 
-    // Save to history
     saveOrderToHistory(orderId, 'whatsapp');
-
-    // Navigate to confirmation
     const orderData = createOrderData(orderId, 'whatsapp');
-    
-    // Open WhatsApp
     window.open(getWhatsAppLink(message), '_blank');
-    
-    // Clear cart and navigate
     clearCart();
     navigate('/order-confirmation', { state: orderData });
   };
@@ -294,9 +290,7 @@ export default function CartPage() {
   const handleOnlinePayment = () => {
     if (!validateForm()) return;
 
-    // Check if Flutterwave is loaded
     if (typeof window.FlutterwaveCheckout !== 'function') {
-      // Load Flutterwave script dynamically
       const script = document.createElement('script');
       script.src = 'https://checkout.flutterwave.com/v3.js';
       script.async = true;
@@ -331,16 +325,10 @@ export default function CartPage() {
         setIsProcessingPayment(false);
         
         if (response.status === 'successful') {
-          // Save to history
           saveOrderToHistory(orderId, 'online');
-          
-          // Navigate to confirmation
           const orderData = createOrderData(orderId, 'online');
-          
-          // Clear cart and navigate
           clearCart();
           navigate('/order-confirmation', { state: orderData });
-          
           toast.success('Payment successful!');
         } else {
           toast.error('Payment failed. Please try again.');
@@ -354,26 +342,28 @@ export default function CartPage() {
     window.FlutterwaveCheckout(config);
   };
 
+  // Empty Cart State
   if (state.items.length === 0) {
     return (
-      <div className="min-h-screen bg-background pb-20 lg:pb-0">
+      <div className="min-h-screen bg-[#fcf9f8] pb-20 lg:pb-0">
         <Header />
         <main className="pt-16 md:pt-20">
           <div className="container-custom section-padding text-center">
-            <div
-              className="max-w-md mx-auto"
-            >
-              <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
-                <Truck className="w-12 h-12 text-muted-foreground" />
+            <div className="max-w-md mx-auto">
+              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Truck className="w-12 h-12 text-gray-400" />
               </div>
-              <h1 className="text-2xl font-bold text-foreground mb-2">
+              <h1 className="text-2xl font-bold text-[#212282] mb-2">
                 Your Cart is Empty
               </h1>
-              <p className="text-muted-foreground mb-8">
+              <p className="text-gray-500 mb-8">
                 Looks like you haven't added any items yet. Explore our menu and
                 build your perfect meal!
               </p>
-              <Link to="/menu" className="btn-secondary inline-flex items-center gap-2">
+              <Link 
+                to="/menu" 
+                className="inline-flex items-center gap-2 bg-[#E6411C] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#d13a18] transition-colors"
+              >
                 Browse Menu
                 <ChevronRight className="w-5 h-5" />
               </Link>
@@ -387,164 +377,382 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20 lg:pb-0">
+    <div className="min-h-screen bg-[#fcf9f8] pb-20 lg:pb-0">
       <Header />
 
       <main className="pt-16 md:pt-20">
+        {/* Mobile Header */}
+        <div className="lg:hidden sticky top-16 z-30 bg-[#fcf9f8]/95 backdrop-blur-md px-4 py-4 border-b border-gray-100">
+          <div className="flex items-center justify-between">
+            <button 
+              onClick={() => navigate(-1)}
+              className="flex items-center justify-center p-2 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <ArrowLeft className="w-6 h-6 text-[#212282]" />
+            </button>
+            <h2 className="text-xl font-bold text-[#212282]">My Cart</h2>
+            <button 
+              onClick={() => {
+                clearCart();
+                toast.success('Cart cleared');
+              }}
+              className="text-[#E6411C] text-sm font-bold hover:text-[#E6411C]/80 transition-colors"
+            >
+              Clear All
+            </button>
+          </div>
+        </div>
+
         <div className="container-custom section-padding">
-          <h1
-            className="text-2xl md:text-3xl font-bold text-foreground mb-8"
-          >
-            Your Cart ({state.items.length} items)
+          {/* Desktop Title */}
+          <h1 className="hidden lg:block text-2xl md:text-3xl font-bold text-[#212282] mb-8">
+            Your Cart ({state.items.length} {state.items.length === 1 ? 'item' : 'items'})
           </h1>
 
           {/* Peak Hours Alert */}
           {peakHours && (
-            <div
-              className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl flex items-start gap-3"
-            >
-              <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium text-yellow-800">Peak Hours</p>
-                <p className="text-sm text-yellow-700">
-                  High demand right now! Delivery may take {estimatedDelivery}.
+            <div className="mb-6 p-4 bg-orange-50 border border-orange-100 rounded-xl flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-[#E6411C] flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="font-bold text-gray-900 text-sm">High Demand</p>
+                <p className="text-sm text-gray-600">
+                  Deliveries may take 15-20 mins longer than usual due to peak hours.
                 </p>
               </div>
+              <button className="text-gray-400 hover:text-gray-600">
+                <X className="w-5 h-5" />
+              </button>
             </div>
           )}
 
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Cart Items */}
-            <div className="lg:col-span-2 space-y-4">
-              {state.items.map((item) => (
-                <div
-                  key={item.id}
-                  className="card-premium p-4 md:p-6"
-                >
-                  <div className="flex gap-4">
-                    {/* Image placeholder */}
-                    <div className="w-20 h-20 md:w-24 md:h-24 bg-muted rounded-xl flex-shrink-0 flex items-center justify-center">
-                      <span className="text-2xl">🍽️</span>
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-foreground mb-1">
-                        {item.mainDishes.join(' + ')} Combo
-                      </h3>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        {item.sauce?.name} ({item.sauce?.preparation},{' '}
-                        {item.sauce?.size}) + {item.sideDish}
+            {/* Cart Items Column */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Free Delivery Progress - Mobile */}
+              {!qualifiesForFreeDelivery && (
+                <div className="lg:hidden">
+                  <div className="flex flex-col gap-3">
+                    <div className="flex justify-between items-end">
+                      <p className="text-[#212282] text-sm font-medium">
+                        Add <span className="font-bold text-[#E6411C]">{formatPrice(amountToFreeDelivery)}</span> for free delivery
                       </p>
-                      {item.extras.length > 0 && (
-                        <p className="text-xs text-muted-foreground">
-                          + {item.extras.map((e) => `${e.name} (${e.quantity})`).join(', ')}
-                        </p>
-                      )}
+                      <div className="flex items-center gap-1">
+                        <Truck className="w-4 h-4 text-[#E6411C]" />
+                        <p className="text-xs font-bold text-[#E6411C]">{Math.round(freeDeliveryProgress)}%</p>
+                      </div>
+                    </div>
+                    <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-[#E6411C] rounded-full transition-all duration-500"
+                        style={{ width: `${freeDeliveryProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
 
-                      {/* Price & Actions */}
-                      <div className="flex items-center justify-between mt-4">
-                        <span className="text-secondary font-bold">
-                          {formatPrice(item.totalPrice * item.quantity)}
-                        </span>
+              {/* Cart Items */}
+              <div className="flex flex-col gap-4">
+                {state.items.map((item, index) => (
+                  <div key={item.id}>
+                    <div className="flex gap-4 items-start">
+                      <div className="shrink-0">
+                        <div className="h-[88px] w-[88px] rounded-2xl bg-gray-100 shadow-sm flex items-center justify-center text-3xl">
+                          🍽️
+                        </div>
+                      </div>
 
-                        <div className="flex items-center gap-3">
-                          {/* Quantity */}
-                          <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
+                      <div className="flex flex-1 flex-col justify-between min-h-[88px]">
+                        <div>
+                          <div className="flex justify-between items-start">
+                            <h3 className="text-[#212282] text-base font-bold leading-tight mb-1">
+                              {item.mainDishes.join(' + ')} Combo
+                            </h3>
+                            <button 
+                              onClick={() => removeItem(item.id)}
+                              className="text-gray-400 hover:text-red-500 transition-colors -mt-1 -mr-2 p-2"
+                              aria-label="Remove item"
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          </div>
+                          <p className="text-gray-500 text-xs font-medium leading-normal line-clamp-1">
+                            {item.sauce?.name} ({item.sauce?.preparation}, {item.sauce?.size}) + {item.sideDish}
+                          </p>
+                          {item.extras.length > 0 && (
+                            <p className="text-gray-500 text-xs italic mt-0.5">
+                              + {item.extras.map((e) => `${e.name} (${e.quantity})`).join(', ')}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-between mt-2">
+                          <p className="text-[#E6411C] font-bold text-base">
+                            {formatPrice(item.totalPrice * item.quantity)}
+                          </p>
+                          
+                          <div className="flex items-center bg-gray-100 rounded-full p-1 h-8 shadow-sm">
                             <button
-                              onClick={() =>
-                                updateQuantity(item.id, Math.max(1, item.quantity - 1))
-                              }
-                              className="w-10 h-10 rounded-md flex items-center justify-center hover:bg-background transition-colors"
+                              onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                              className="w-7 h-7 flex items-center justify-center rounded-full bg-white text-[#212282] shadow-sm transition-colors hover:bg-gray-50"
                               aria-label="Decrease quantity"
                             >
                               <Minus className="w-4 h-4" />
                             </button>
-                            <span className="w-8 text-center font-medium" aria-label={`Quantity: ${item.quantity}`}>
+                            <span className="w-8 text-center text-sm font-bold text-[#212282]">
                               {item.quantity}
                             </span>
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="w-10 h-10 rounded-md flex items-center justify-center hover:bg-background transition-colors"
+                              className="w-7 h-7 flex items-center justify-center rounded-full bg-[#E6411C] text-white shadow-md transition-colors hover:bg-[#d13a18]"
                               aria-label="Increase quantity"
                             >
                               <Plus className="w-4 h-4" />
                             </button>
                           </div>
-
-                          {/* Remove */}
-                          <button
-                            onClick={() => removeItem(item.id)}
-                            className="w-11 h-11 rounded-lg bg-destructive/10 text-destructive flex items-center justify-center hover:bg-destructive/20 transition-colors"
-                            aria-label="Remove item"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
                         </div>
                       </div>
                     </div>
+                    {index < state.items.length - 1 && (
+                      <div className="h-px bg-gray-100 w-full mt-4" />
+                    )}
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
 
               <Link
                 to="/menu"
-                className="inline-flex items-center gap-2 text-secondary font-medium hover:underline"
+                className="inline-flex items-center gap-2 text-[#212282] font-medium hover:text-[#E6411C] transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 Add More Items
               </Link>
+
+              {/* Promo Code - Mobile */}
+              <div className="lg:hidden mt-4">
+                <h4 className="text-sm font-bold text-[#212282] mb-3">Promo Code</h4>
+                {promoResult?.valid ? (
+                  <div className="flex items-center justify-between p-3 bg-green-50 border border-green-100 rounded-lg">
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <div className="bg-green-100 p-1.5 rounded-full flex-shrink-0">
+                        <CheckCircle className="w-4 h-4 text-green-700" />
+                      </div>
+                      <span className="text-sm font-semibold text-green-800 truncate">
+                        {promoResult.code} ({promoResult.message})
+                      </span>
+                    </div>
+                    <button
+                      onClick={handleRemovePromo}
+                      className="text-green-600 hover:text-green-800 flex-shrink-0 ml-2"
+                      aria-label="Remove promo code"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex w-full items-center rounded-xl bg-gray-50 border border-gray-100 p-1 pl-3 shadow-sm focus-within:ring-2 focus-within:ring-[#E6411C]/20 transition-all overflow-hidden">
+                    <Tag className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                    <input
+                      type="text"
+                      value={promoCode}
+                      onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                      placeholder="Enter code..."
+                      className="flex-1 min-w-0 bg-transparent border-none text-[#212282] placeholder:text-gray-400 text-sm font-medium focus:ring-0 p-2"
+                    />
+                    <button
+                      onClick={handleApplyPromo}
+                      className="flex-shrink-0 px-3 py-2 bg-[#212282] text-white rounded-lg text-sm font-bold hover:bg-[#212282]/90 transition-colors"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Payment Summary - Mobile */}
+              <div className="lg:hidden mt-4">
+                <h4 className="text-sm font-bold text-[#212282] mb-4">Payment Summary</h4>
+                <div className="flex flex-col gap-3">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-gray-500 font-medium">Subtotal</span>
+                    <span className="text-[#212282] font-bold">{formatPrice(cartTotal)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-gray-500 font-medium">Delivery Fee</span>
+                    <span className="text-[#212282] font-bold">
+                      {qualifiesForFreeDelivery || (promoResult?.valid && promoResult.discountType === 'free_delivery') ? (
+                        <span className="text-green-600">FREE</span>
+                      ) : selectedZone ? (
+                        formatPrice(baseDeliveryFee)
+                      ) : (
+                        'Select zone'
+                      )}
+                    </span>
+                  </div>
+                  {promoResult?.valid && promoResult.discountType !== 'free_delivery' && (
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-green-600 font-medium">Discount</span>
+                      <span className="text-green-600 font-bold">-{formatPrice(discount)}</span>
+                    </div>
+                  )}
+                  <div className="my-2 border-t border-dashed border-gray-300" />
+                  <div className="flex justify-between items-end">
+                    <span className="text-[#212282] font-bold text-base">Total</span>
+                    <span className="text-[#212282] font-extrabold text-2xl">{formatPrice(total)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Delivery Form Toggle - Mobile */}
+              <div className="lg:hidden mt-6">
+                <button
+                  onClick={() => setShowDeliveryForm(!showDeliveryForm)}
+                  className="w-full flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200 shadow-sm"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-[#212282]/10 flex items-center justify-center">
+                      <MapPin className="w-5 h-5 text-[#212282]" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-sm font-bold text-[#212282]">Delivery Details</p>
+                      <p className="text-xs text-gray-500">
+                        {selectedZone ? `${selectedZone} • ${estimatedDelivery}` : 'Add your delivery info'}
+                      </p>
+                    </div>
+                  </div>
+                  {showDeliveryForm ? (
+                    <ChevronUp className="w-5 h-5 text-gray-400" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-gray-400" />
+                  )}
+                </button>
+
+                {showDeliveryForm && (
+                  <div className="mt-4 p-4 bg-white rounded-xl border border-gray-200 space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-[#212282] mb-2 block">
+                        Delivery Zone *
+                      </label>
+                      <select
+                        value={selectedZone}
+                        onChange={(e) => setSelectedZone(e.target.value)}
+                        className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]"
+                      >
+                        <option value="">Select your area</option>
+                        {deliveryZones.map((zone) => (
+                          <option key={zone.name} value={zone.name}>
+                            {zone.name} - {formatPrice(zone.fee)} ({zone.estimatedTime})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium text-[#212282] mb-2 block">
+                        Full Name *
+                      </label>
+                      <input
+                        type="text"
+                        value={state.userPreferences.name}
+                        onChange={(e) => setUserPreferences({ name: e.target.value })}
+                        placeholder="e.g. Joshua Kayanja"
+                        className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-[#212282] mb-2 block">
+                        Mobile Number *
+                      </label>
+                      <div className="flex">
+                        <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-200 bg-gray-100 text-gray-500 text-sm">
+                          🇺🇬 +256
+                        </span>
+                        <input
+                          type="tel"
+                          value={state.userPreferences.phone}
+                          onChange={(e) => setUserPreferences({ phone: e.target.value })}
+                          placeholder="77X XXX XXX"
+                          className="flex-1 p-3 rounded-r-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-[#212282] mb-2 block">
+                        Building / House No. *
+                      </label>
+                      <input
+                        type="text"
+                        value={state.userPreferences.address}
+                        onChange={(e) => setUserPreferences({ address: e.target.value })}
+                        placeholder="Apt 4B"
+                        className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-[#212282] mb-2 block">
+                        Note to rider (Optional)
+                      </label>
+                      <textarea
+                        value={specialInstructions}
+                        onChange={(e) => setSpecialInstructions(e.target.value)}
+                        placeholder="e.g. Leave at the reception desk"
+                        rows={2}
+                        className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C] resize-none"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Order Summary */}
-            <div className="lg:col-span-1">
-              <div
-                className="card-premium p-6 sticky top-28"
-              >
-                <h2 className="text-lg font-bold text-foreground mb-6">
+            {/* Order Summary - Desktop Sidebar */}
+            <div className="hidden lg:block lg:col-span-1">
+              <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm sticky top-28">
+                <h2 className="text-lg font-bold text-[#212282] mb-6">
                   Order Summary
                 </h2>
 
-                {/* Free Delivery Progress */}
+                {/* Free Delivery Progress - Desktop */}
                 {!qualifiesForFreeDelivery && (
-                  <div className="mb-6 p-4 bg-secondary/10 rounded-xl">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Gift className="w-4 h-4 text-secondary" />
-                      <span className="text-sm font-medium text-foreground">
-                        Free Delivery Progress
-                      </span>
+                  <div className="mb-6 p-4 bg-[#212282] rounded-xl overflow-hidden">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <Truck className="w-4 h-4 text-[#E6411C]" />
+                          <p className="text-white/80 text-xs font-bold uppercase tracking-wider">Spend & Save</p>
+                        </div>
+                        <h3 className="text-white text-xl font-bold">Free Delivery</h3>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-white font-bold text-lg">
+                          {formatPrice(cartTotal)} <span className="text-white/60 text-sm font-normal">/ {formatPrice(freeDeliveryThreshold)}</span>
+                        </p>
+                      </div>
                     </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden mb-2">
-                      <div
-                        className="h-full bg-secondary rounded-full transition-all"
-                        style={{
-                          width: `${Math.min(
-                            100,
-                            (cartTotal / freeDeliveryThreshold) * 100
-                          )}%`,
-                        }}
-                      />
+                    <div className="flex flex-col gap-2">
+                      <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-[#E6411C] rounded-full transition-all"
+                          style={{ width: `${freeDeliveryProgress}%` }}
+                        />
+                      </div>
+                      <p className="text-white/90 text-sm font-medium">
+                        You are <span className="text-[#E6411C] font-bold">{formatPrice(amountToFreeDelivery)}</span> away from Free Delivery!
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      Spend{' '}
-                      <span className="font-semibold text-secondary">
-                        {formatPrice(freeDeliveryThreshold - cartTotal)}
-                      </span>{' '}
-                      more for free delivery!
-                    </p>
                   </div>
                 )}
 
-                {/* Delivery Zone */}
+                {/* Delivery Zone - Desktop */}
                 <div className="mb-6">
-                  <label className="text-sm font-medium text-foreground mb-2 block">
+                  <label className="text-sm font-medium text-[#212282] mb-2 block">
                     <MapPin className="w-4 h-4 inline mr-1" />
                     Delivery Zone *
                   </label>
                   <select
                     value={selectedZone}
                     onChange={(e) => setSelectedZone(e.target.value)}
-                    className="w-full p-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-secondary"
+                    className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]"
                   >
                     <option value="">Select your area</option>
                     {deliveryZones.map((zone) => (
@@ -555,10 +763,10 @@ export default function CartPage() {
                   </select>
                 </div>
 
-                {/* Customer Info */}
+                {/* Customer Info - Desktop */}
                 <div className="space-y-4 mb-6">
                   <div>
-                    <label className="text-sm font-medium text-foreground mb-2 block">
+                    <label className="text-sm font-medium text-[#212282] mb-2 block">
                       Your Name *
                     </label>
                     <input
@@ -566,23 +774,28 @@ export default function CartPage() {
                       value={state.userPreferences.name}
                       onChange={(e) => setUserPreferences({ name: e.target.value })}
                       placeholder="Enter your name"
-                      className="w-full p-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-secondary"
+                      className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]"
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-foreground mb-2 block">
+                    <label className="text-sm font-medium text-[#212282] mb-2 block">
                       Phone Number *
                     </label>
-                    <input
-                      type="tel"
-                      value={state.userPreferences.phone}
-                      onChange={(e) => setUserPreferences({ phone: e.target.value })}
-                      placeholder="+256 700 000 000"
-                      className="w-full p-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-secondary"
-                    />
+                    <div className="flex">
+                      <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-200 bg-gray-100 text-gray-500 text-sm">
+                        🇺🇬 +256
+                      </span>
+                      <input
+                        type="tel"
+                        value={state.userPreferences.phone}
+                        onChange={(e) => setUserPreferences({ phone: e.target.value })}
+                        placeholder="77X XXX XXX"
+                        className="flex-1 p-3 rounded-r-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]"
+                      />
+                    </div>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-foreground mb-2 block">
+                    <label className="text-sm font-medium text-[#212282] mb-2 block">
                       Delivery Address *
                     </label>
                     <textarea
@@ -590,11 +803,11 @@ export default function CartPage() {
                       onChange={(e) => setUserPreferences({ address: e.target.value })}
                       placeholder="Enter delivery address"
                       rows={2}
-                      className="w-full p-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-secondary resize-none"
+                      className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C] resize-none"
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-foreground mb-2 block">
+                    <label className="text-sm font-medium text-[#212282] mb-2 block">
                       Special Instructions (Optional)
                     </label>
                     <textarea
@@ -602,65 +815,61 @@ export default function CartPage() {
                       onChange={(e) => setSpecialInstructions(e.target.value)}
                       placeholder="Gate code, landmarks, special requests..."
                       rows={2}
-                      className="w-full p-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-secondary resize-none"
+                      className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C] resize-none"
                     />
                   </div>
                 </div>
 
-                {/* Promo Code */}
+                {/* Promo Code - Desktop */}
                 <div className="mb-6">
-                  <label className="text-sm font-medium text-foreground mb-2 block">
+                  <label className="text-sm font-medium text-[#212282] mb-2 block">
                     Promo Code
                   </label>
                   {promoResult?.valid ? (
-                    <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm font-medium text-green-800">
+                    <div className="flex items-center justify-between p-3 bg-green-50 border border-green-100 rounded-xl">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="bg-green-100 p-1.5 rounded-full flex-shrink-0">
+                          <CheckCircle className="w-4 h-4 text-green-700" />
+                        </div>
+                        <span className="text-sm font-semibold text-green-800 truncate">
                           {promoResult.code}
                         </span>
                       </div>
-                      <button
-                        onClick={handleRemovePromo}
-                        className="text-green-600 hover:text-green-800"
-                        aria-label="Remove promo code"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
+                      <span className="text-green-700 text-sm font-bold flex-shrink-0 ml-2">-{formatPrice(discount)}</span>
                     </div>
                   ) : (
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={promoCode}
-                        onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                        placeholder="Enter code"
-                        className="flex-1 p-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-secondary"
-                      />
+                    <div className="flex gap-2 w-full">
+                      <div className="flex-1 min-w-0 flex items-center rounded-xl bg-gray-50 border border-gray-200 pl-3 overflow-hidden">
+                        <Tag className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                        <input
+                          type="text"
+                          value={promoCode}
+                          onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                          placeholder="Enter code"
+                          className="flex-1 min-w-0 p-3 bg-transparent border-none text-[#212282] focus:ring-0"
+                        />
+                      </div>
                       <button
                         onClick={handleApplyPromo}
-                        className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+                        className="flex-shrink-0 px-4 py-2 bg-[#212282] text-white rounded-xl font-bold hover:bg-[#212282]/90 transition-colors"
                       >
                         Apply
                       </button>
                     </div>
                   )}
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Try: FIRST10, SAVE5K, or FREESHIP
-                  </p>
                 </div>
 
-                {/* Price Breakdown */}
-                <div className="space-y-3 mb-6 pt-4 border-t border-border">
+                {/* Price Breakdown - Desktop */}
+                <div className="space-y-3 mb-6 pt-4 border-t border-gray-200">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Subtotal</span>
-                    <span className="text-foreground">{formatPrice(cartTotal)}</span>
+                    <span className="text-gray-500">Subtotal</span>
+                    <span className="text-[#212282] font-semibold">{formatPrice(cartTotal)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Delivery Fee</span>
-                    <span className="text-foreground">
+                    <span className="text-gray-500">Delivery Fee</span>
+                    <span className="text-[#212282] font-semibold">
                       {qualifiesForFreeDelivery || (promoResult?.valid && promoResult.discountType === 'free_delivery') ? (
-                        <span className="text-secondary font-medium">FREE</span>
+                        <span className="text-green-600 font-bold">FREE</span>
                       ) : selectedZone ? (
                         formatPrice(baseDeliveryFee)
                       ) : (
@@ -671,33 +880,38 @@ export default function CartPage() {
                   {promoResult?.valid && promoResult.discountType !== 'free_delivery' && (
                     <div className="flex justify-between text-sm">
                       <span className="text-green-600">Discount</span>
-                      <span className="text-green-600">
+                      <span className="text-green-600 font-bold">
                         -{formatPrice(discount)}
                       </span>
                     </div>
                   )}
-                  <div className="flex justify-between pt-3 border-t border-border">
-                    <span className="font-bold text-foreground">Total</span>
-                    <span className="font-bold text-xl text-secondary">
+                  <div className="flex justify-between pt-3 border-t border-dashed border-gray-300">
+                    <span className="font-bold text-[#212282]">Total</span>
+                    <span className="font-extrabold text-xl text-[#E6411C]">
                       {formatPrice(total)}
                     </span>
                   </div>
                 </div>
 
-                {/* Checkout Buttons */}
+                {/* Checkout Buttons - Desktop */}
                 <div className="space-y-3">
                   <button
                     onClick={handleWhatsAppOrder}
                     disabled={isProcessingPayment}
-                    className="w-full btn-secondary flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="w-full bg-[#25D366] text-white rounded-xl py-3.5 px-4 font-bold flex items-center justify-center gap-2 transition-colors hover:bg-[#22c55e] disabled:opacity-50"
                   >
-                    <MessageCircle className="w-5 h-5" />
+                    <WhatsAppIcon className="w-5 h-5" />
                     Order via WhatsApp
                   </button>
+                  <div className="relative flex items-center py-2">
+                    <div className="flex-grow border-t border-gray-200"></div>
+                    <span className="mx-4 flex-shrink-0 text-xs font-semibold uppercase text-gray-400">Or pay securely</span>
+                    <div className="flex-grow border-t border-gray-200"></div>
+                  </div>
                   <button
                     onClick={handleOnlinePayment}
                     disabled={isProcessingPayment}
-                    className="w-full btn-outline flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="w-full bg-[#E6411C] text-white rounded-xl py-3.5 px-4 font-bold flex items-center justify-center gap-2 transition-colors hover:bg-[#d13a18] disabled:opacity-50"
                   >
                     {isProcessingPayment ? (
                       <>
@@ -707,28 +921,55 @@ export default function CartPage() {
                     ) : (
                       <>
                         <CreditCard className="w-5 h-5" />
-                        Pay Online
+                        Pay Now
                       </>
                     )}
                   </button>
                 </div>
 
                 <div className="mt-4 text-center">
-                  <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+                  <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
                     <Clock className="w-3 h-3" />
                     Estimated delivery: {estimatedDelivery}
                   </p>
-                  {peakHours && (
-                    <p className="text-xs text-yellow-600 mt-1">
-                      (Peak hours - may take longer)
-                    </p>
-                  )}
                 </div>
               </div>
             </div>
           </div>
         </div>
       </main>
+
+      {/* Sticky Footer CTA - Mobile */}
+      <div className="lg:hidden fixed bottom-0 left-0 w-full z-40 bg-white border-t border-gray-100 shadow-[0_-8px_30px_rgba(0,0,0,0.05)] px-4 py-4 pb-6">
+        <div className="flex flex-col gap-3">
+          <button
+            onClick={handleWhatsAppOrder}
+            disabled={isProcessingPayment}
+            className="w-full h-14 bg-[#25D366] text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 shadow-lg transition-colors hover:bg-[#22c55e] disabled:opacity-50"
+          >
+            <WhatsAppIcon className="w-5 h-5" />
+            Order via WhatsApp
+          </button>
+          
+          <button
+            onClick={handleOnlinePayment}
+            disabled={isProcessingPayment}
+            className="w-full h-14 bg-[#E6411C] text-white rounded-xl font-bold text-lg flex items-center justify-between px-6 shadow-lg transition-colors hover:bg-[#d13a18] disabled:opacity-50"
+          >
+            {isProcessingPayment ? (
+              <span className="flex items-center gap-2 mx-auto">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Processing...
+              </span>
+            ) : (
+              <>
+                <span>Pay Now</span>
+                <span className="bg-white/20 px-3 py-1 rounded-lg text-base">{formatPrice(total)}</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
 
       <Footer />
       <MobileNav />

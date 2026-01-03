@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, ReactNode, useState } from 'react';
 
 export interface SauceSelection {
   id: string;
@@ -143,30 +143,47 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const STORAGE_KEY = '9yards_cart';
 
-export function CartProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(cartReducer, initialState);
-
-  // Load state from localStorage on mount
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        dispatch({ type: 'LOAD_STATE', payload: parsed });
+// Load initial state from localStorage
+function getInitialState(): CartState {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Validate that parsed data has expected structure
+      if (parsed && Array.isArray(parsed.items)) {
+        return {
+          items: parsed.items || [],
+          favorites: parsed.favorites || [],
+          userPreferences: parsed.userPreferences || initialState.userPreferences,
+          orderHistory: parsed.orderHistory || [],
+        };
       }
-    } catch (e) {
-      console.error('Failed to load cart from storage:', e);
     }
+  } catch (e) {
+    console.error('Failed to load cart from storage:', e);
+  }
+  return initialState;
+}
+
+export function CartProvider({ children }: { children: ReactNode }) {
+  const [state, dispatch] = useReducer(cartReducer, initialState, getInitialState);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Mark as initialized after first render
+  useEffect(() => {
+    setIsInitialized(true);
   }, []);
 
-  // Save state to localStorage on change
+  // Save state to localStorage on change (only after initialization)
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch (e) {
-      console.error('Failed to save cart to storage:', e);
+    if (isInitialized) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.error('Failed to save cart to storage:', e);
+      }
     }
-  }, [state]);
+  }, [state, isInitialized]);
 
   const addItem = (item: CartItem) => dispatch({ type: 'ADD_ITEM', payload: item });
   const removeItem = (id: string) => dispatch({ type: 'REMOVE_ITEM', payload: id });

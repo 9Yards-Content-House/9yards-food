@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { 
-  UtensilsCrossed, ChefHat, Truck, MessageCircle, CreditCard, 
+  UtensilsCrossed, ChefHat, Truck, CreditCard, 
   Check, ChevronRight, ChevronDown, Star, Clock, Leaf, Award,
   Smartphone, Wallet, MapPin, Phone
 } from 'lucide-react';
@@ -8,6 +8,7 @@ import { useState, useRef, useEffect } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import MobileNav from '@/components/layout/MobileNav';
+import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 
 // Animated counter hook
 function useCountUp(end: number, duration: number = 2000) {
@@ -308,7 +309,7 @@ export default function HowItWorksPage() {
                     className="border-2 border-green-500 rounded-xl p-6 bg-card transition-all cursor-pointer hover:-translate-y-1 hover:shadow-xl"
                   >
                     <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center mb-4">
-                      <MessageCircle className="w-6 h-6 text-green-600" />
+                      <WhatsAppIcon className="w-6 h-6 text-green-600" />
                     </div>
                     <h3 className="font-bold text-lg text-foreground mb-2">WhatsApp Order</h3>
                     <p className="text-sm text-muted-foreground mb-3">Quick & convenient - pay on delivery</p>

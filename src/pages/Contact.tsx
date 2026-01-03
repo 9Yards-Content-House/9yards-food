@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { 
-  Phone, Mail, MapPin, MessageCircle, Clock, ChevronDown, ChevronRight,
+  Phone, Mail, MapPin, Clock, ChevronDown, ChevronRight,
   Zap, Check, ShieldCheck, Users, Sparkles, PartyPopper, Building2,
   Cake, Briefcase, Instagram, Youtube, Music2, ExternalLink, Copy
 } from 'lucide-react';
@@ -8,6 +8,7 @@ import { useState } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import MobileNav from '@/components/layout/MobileNav';
+import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import { toast } from 'sonner';
 
 // FAQ data
@@ -182,7 +183,7 @@ export default function ContactPage() {
                   Fastest
                 </div>
                 <div className="w-16 h-16 bg-green-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <MessageCircle className="w-8 h-8 text-green-500" />
+                  <WhatsAppIcon className="w-8 h-8 text-green-500" />
                 </div>
                 <h3 className="font-bold text-xl text-foreground mb-2">WhatsApp</h3>
                 <p className="text-muted-foreground text-sm mb-4">Fastest Response</p>
@@ -249,7 +250,7 @@ export default function ContactPage() {
                   <div className="bg-card border-2 border-green-500/30 rounded-xl p-4 hover:border-green-500 transition-colors">
                     <div className="flex items-start gap-4">
                       <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <MessageCircle className="w-5 h-5 text-green-500" />
+                        <WhatsAppIcon className="w-5 h-5 text-green-500" />
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
@@ -736,7 +737,7 @@ export default function ContactPage() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 bg-green-500 text-white font-bold px-6 py-3 rounded-lg hover:bg-green-600 transition-colors"
                 >
-                  <MessageCircle className="w-5 h-5" />
+                  <WhatsAppIcon className="w-5 h-5" />
                   Contact Support
                 </a>
                 <Link
