@@ -1,86 +1,60 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Flame, Plus } from 'lucide-react';
+import { Heart, Flame, Plus, Star } from 'lucide-react';
 import { menuData } from '@/data/menu';
 import { formatPrice } from '@/lib/utils/order';
 import { useCart } from '@/context/CartContext';
 import ComboBuilder from '@/components/menu/ComboBuilder';
 
-// Curated selection of best-selling items to showcase
-// Mix of proteins (what drives combo value) and popular add-ons
-const featuredItems = [
-  // Top 3 Protein Sauces - these are the stars of the combo
-  {
-    id: 'chicken',
-    name: 'Chicken',
-    description: 'Tender & juicy, prepared your way',
-    image: menuData.sauces.find(s => s.id === 'chicken')?.image || '',
-    price: menuData.sauces.find(s => s.id === 'chicken')?.basePrice || 18000,
-    categoryType: 'sauce' as const,
-    categoryLabel: 'Protein',
-    available: true,
-    isBestSeller: true,
-  },
-  {
-    id: 'meat',
-    name: 'Beef',
-    description: 'Premium cuts, slow-cooked',
-    image: menuData.sauces.find(s => s.id === 'meat')?.image || '',
-    price: menuData.sauces.find(s => s.id === 'meat')?.basePrice || 15000,
-    categoryType: 'sauce' as const,
-    categoryLabel: 'Protein',
-    available: true,
-    isBestSeller: false,
-  },
-  {
-    id: 'gnuts',
-    name: 'G-Nuts Sauce',
-    description: 'Rich groundnut flavor',
-    image: menuData.sauces.find(s => s.id === 'gnuts')?.image || '',
-    price: menuData.sauces.find(s => s.id === 'gnuts')?.basePrice || 12000,
-    categoryType: 'sauce' as const,
-    categoryLabel: 'Protein',
-    available: true,
-    isBestSeller: false,
-  },
-  // 1 Popular Main Dish
-  {
-    id: 'matooke',
-    name: 'Matooke',
-    description: 'Traditional Ugandan staple',
-    image: menuData.mainDishes.find(m => m.id === 'matooke')?.image || '',
-    price: 0,
-    categoryType: 'main' as const,
-    categoryLabel: 'Base',
-    available: true,
-    isBestSeller: false,
-    isIncluded: true,
-  },
-  // 1 Popular Juice
-  {
-    id: 'passion',
-    name: 'Passion Fruit',
-    description: 'Fresh & refreshing',
-    image: menuData.juices.find(j => j.id === 'passion')?.image || '',
-    price: menuData.juices.find(j => j.id === 'passion')?.price || 5000,
-    categoryType: 'juice' as const,
-    categoryLabel: 'Drink',
-    available: true,
-    isBestSeller: false,
-  },
-  // 1 Popular Snack
-  {
-    id: 'rolex',
-    name: 'Rolex',
-    description: 'Iconic Ugandan egg roll',
-    image: menuData.desserts.find(d => d.id === 'rolex')?.image || '',
-    price: menuData.desserts.find(d => d.id === 'rolex')?.price || 5000,
-    categoryType: 'dessert' as const,
-    categoryLabel: 'Snack',
-    available: true,
-    isBestSeller: false,
-  },
-];
+// IDs of featured items to display - pulled dynamically from menuData
+const FEATURED_SAUCE_IDS = ['chicken-stew', 'fresh-fish', 'beef-stew', 'cowpeas'];
+const FEATURED_LUSANIYA_IDS = ['ordinary-lusaniya', 'beef-pilao-lusaniya'];
+
+// Build featured items dynamically from menuData
+const getFeaturedItems = () => {
+  const items: FeaturedItem[] = [];
+  
+  // Add sauces
+  FEATURED_SAUCE_IDS.forEach((id, index) => {
+    const sauce = menuData.sauces.find(s => s.id === id);
+    if (sauce) {
+      items.push({
+        id: sauce.id,
+        name: sauce.name,
+        description: sauce.preparations.length > 0 
+          ? `${sauce.preparations.join(', ')}` 
+          : 'Traditional preparation',
+        image: sauce.image,
+        price: sauce.basePrice,
+        categoryType: 'sauce' as const,
+        categoryLabel: 'Protein',
+        available: sauce.available,
+        isBestSeller: index === 0, // First item is best seller
+      });
+    }
+  });
+  
+  // Add lusaniya items
+  FEATURED_LUSANIYA_IDS.forEach((id) => {
+    const lusaniya = menuData.lusaniya.find(l => l.id === id);
+    if (lusaniya) {
+      items.push({
+        id: lusaniya.id,
+        name: lusaniya.name,
+        description: lusaniya.description,
+        image: lusaniya.image,
+        price: lusaniya.price,
+        categoryType: 'lusaniya' as const,
+        categoryLabel: 'Special',
+        available: lusaniya.available,
+        isBestSeller: false,
+        isLusaniya: true,
+      });
+    }
+  });
+  
+  return items;
+};
 
 interface FeaturedItem {
   id: string;
@@ -88,11 +62,12 @@ interface FeaturedItem {
   description: string;
   image: string;
   price: number;
-  categoryType: 'main' | 'sauce' | 'juice' | 'dessert';
+  categoryType: 'main' | 'sauce' | 'juice' | 'dessert' | 'lusaniya';
   categoryLabel: string;
   available: boolean;
   isBestSeller?: boolean;
   isIncluded?: boolean;
+  isLusaniya?: boolean;
 }
 
 interface DishCardProps {
@@ -102,6 +77,7 @@ interface DishCardProps {
   isFavorite: boolean;
   imageLoaded: boolean;
   onImageLoad: () => void;
+  isInCart?: boolean;
 }
 
 function DishCard({ 
@@ -110,13 +86,22 @@ function DishCard({
   onToggleFavorite, 
   isFavorite,
   imageLoaded,
-  onImageLoad
+  onImageLoad,
+  isInCart
 }: DishCardProps) {
   const getPriceDisplay = () => {
     if (item.isIncluded) {
       return <span className="text-muted-foreground font-medium text-sm">Included</span>;
     }
     return <span className="text-secondary font-bold text-base">{formatPrice(item.price)}</span>;
+  };
+
+  // Determine button text based on item type
+  const getActionText = () => {
+    if (item.isLusaniya) {
+      return isInCart ? 'In Cart' : 'Add to Cart';
+    }
+    return 'Build Combo';
   };
 
   return (
@@ -154,11 +139,17 @@ function DishCard({
         )}
 
         {/* Badge - Top Left */}
-        <div className="absolute top-2.5 left-2.5">
+        <div className="absolute top-2.5 left-2.5 flex flex-col gap-1">
           {item.available && item.isBestSeller && (
             <span className="bg-secondary text-secondary-foreground text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1">
               <Flame className="w-3 h-3" />
               Popular
+            </span>
+          )}
+          {item.isLusaniya && (
+            <span className="bg-yards-blue text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1">
+              <Star className="w-3 h-3" />
+              Special
             </span>
           )}
         </div>
@@ -185,9 +176,11 @@ function DishCard({
         {/* Tap indicator on hover - desktop only */}
         {item.available && (
           <div className="absolute inset-0 bg-secondary/0 group-hover:bg-secondary/10 transition-colors flex items-center justify-center">
-            <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-secondary text-secondary-foreground text-xs font-semibold px-3 py-1.5 rounded-full hidden md:flex items-center gap-1.5">
+            <span className={`opacity-0 group-hover:opacity-100 transition-opacity text-secondary-foreground text-xs font-semibold px-3 py-1.5 rounded-full hidden md:flex items-center gap-1.5 ${
+              item.isLusaniya && isInCart ? 'bg-green-500' : 'bg-secondary'
+            }`}>
               <Plus className="w-3.5 h-3.5" />
-              Build Combo
+              {getActionText()}
             </span>
           </div>
         )}
@@ -227,12 +220,53 @@ function DishCard({
 }
 
 export default function PopularDishesSection() {
-  const { toggleFavorite, isFavorite } = useCart();
+  const { toggleFavorite, isFavorite, addItem, state } = useCart();
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [isComboBuilderOpen, setIsComboBuilderOpen] = useState(false);
+  
+  // Get featured items dynamically from menuData
+  const featuredItems = getFeaturedItems();
 
   const handleImageLoad = (id: string) => {
     setLoadedImages(prev => new Set(prev).add(id));
+  };
+
+  // Check if a Lusaniya item is in the cart
+  const isLusaniyaInCart = (itemId: string) => {
+    return state.items.some(item => item.id.startsWith(`lusaniya-${itemId}`));
+  };
+
+  // Handle adding Lusaniya items to cart
+  const handleAddLusaniyaToCart = (item: FeaturedItem) => {
+    if (isLusaniyaInCart(item.id)) {
+      return; // Already in cart
+    }
+    
+    const lusaniyaItem = menuData.lusaniya.find(l => l.id === item.id);
+    if (!lusaniyaItem) return;
+    
+    const cartItem = {
+      id: `lusaniya-${item.id}-${Date.now()}`,
+      type: 'single' as const,
+      mainDishes: [item.name],
+      sauce: null,
+      sideDish: '',
+      extras: [],
+      quantity: 1,
+      totalPrice: item.price,
+      description: lusaniyaItem.description,
+    };
+    
+    addItem(cartItem);
+  };
+
+  // Handle item click - different behavior for Lusaniya vs regular items
+  const handleItemClick = (item: FeaturedItem) => {
+    if (item.isLusaniya) {
+      handleAddLusaniyaToCart(item);
+    } else {
+      setIsComboBuilderOpen(true);
+    }
   };
 
   return (
@@ -258,11 +292,12 @@ export default function PopularDishesSection() {
               <DishCard
                 key={item.id}
                 item={item}
-                onAddToOrder={() => setIsComboBuilderOpen(true)}
+                onAddToOrder={() => handleItemClick(item)}
                 onToggleFavorite={toggleFavorite}
                 isFavorite={isFavorite(item.id)}
                 imageLoaded={loadedImages.has(item.id)}
                 onImageLoad={() => handleImageLoad(item.id)}
+                isInCart={item.isLusaniya ? isLusaniyaInCart(item.id) : false}
               />
             ))}
           </div>
