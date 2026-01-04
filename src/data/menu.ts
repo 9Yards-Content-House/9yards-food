@@ -33,6 +33,7 @@ export interface Juice {
 export interface Dessert {
   id: string;
   name: string;
+  description: string;
   price: number;
   image: string;
   available: boolean;
@@ -78,7 +79,7 @@ export const menuData: MenuData = {
     {
       id: "liver",
       name: "Liver",
-      description: "Tender and flavorful liver, rich in iron and protein",
+      description: "Succulent pan-fried liver in a savory onion and herb gravy",
       basePrice: 20000,
       image: "/images/menu/sauces/9Yards-Liver-Menu.jpg",
       available: true,
@@ -90,7 +91,7 @@ export const menuData: MenuData = {
     {
       id: "gnuts",
       name: "G-Nuts",
-      description: "Creamy groundnut sauce with authentic Ugandan spices",
+      description: "Rich, velvety groundnut paste simmered with traditional spices",
       basePrice: 15000,
       image: "/images/menu/sauces/9Yards-G-Nuts-Menu.jpg",
       available: true,
@@ -102,7 +103,7 @@ export const menuData: MenuData = {
     {
       id: "chicken-stew",
       name: "Chicken Stew",
-      description: "Juicy chicken pieces in a rich, aromatic tomato-based stew",
+      description: "Tender chicken slow-cooked in a rich tomato and onion gravy",
       basePrice: 20000,
       image: "/images/menu/sauces/9Yards-Chicken-Stew-Menu.jpg",
       available: true,
@@ -116,7 +117,7 @@ export const menuData: MenuData = {
     {
       id: "beef-stew",
       name: "Beef Stew",
-      description: "Tender beef chunks slow-cooked in savory gravy",
+      description: "Melt-in-your-mouth beef chunks in a hearty, seasoned gravy",
       basePrice: 15000,
       image: "/images/menu/sauces/9Yards-Beef-Stew-Menu.jpg",
       available: true,
@@ -128,7 +129,7 @@ export const menuData: MenuData = {
     {
       id: "fish",
       name: "Fish",
-      description: "Fresh Nile perch, perfectly seasoned and cooked to order",
+      description: "Fresh tilapia, golden-fried or expertly smoked to perfection",
       basePrice: 15000,
       image: "/images/menu/sauces/9Yards-Fresh-Fish-Menu.jpg",
       available: true,
@@ -140,7 +141,7 @@ export const menuData: MenuData = {
     {
       id: "fish-gnuts",
       name: "Fish & G-Nuts",
-      description: "Delicious fish paired with creamy groundnut sauce",
+      description: "Crispy fish swimming in a luscious groundnut sauce",
       basePrice: 20000,
       image: "/images/menu/sauces/9Yards-Fish-&-G-Nuts-Menu.jpg",
       available: true,
@@ -152,7 +153,7 @@ export const menuData: MenuData = {
     {
       id: "fresh-fish",
       name: "Fresh Fish",
-      description: "Premium whole fish, freshly prepared with herbs and spices",
+      description: "Whole tilapia, seasoned and prepared fresh daily",
       basePrice: 20000,
       image: "/images/menu/sauces/9Yards-Fresh-Fish-Menu.jpg",
       available: true,
@@ -164,7 +165,7 @@ export const menuData: MenuData = {
     {
       id: "cowpeas",
       name: "Cowpeas",
-      description: "Hearty cowpeas simmered in a traditional savory sauce",
+      description: "Creamy cowpeas slow-cooked in aromatic local spices",
       basePrice: 15000,
       image: "/images/menu/sauces/9Yards-cowpeas-Menu.jpg",
       available: true,
@@ -182,8 +183,8 @@ export const menuData: MenuData = {
     { id: "beetroot", name: "Beetroot Juice", description: "Pure beetroot juice. Earthy, naturally sweet, and incredibly nutritious", price: 5000, image: "/images/menu/juices/9yards-beetroot-juice-menu.jpg", available: true },
   ],
   desserts: [
-    { id: "chapati", name: "Chapati", price: 2000, image: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400", available: true },
-    { id: "samosa", name: "Samosa", price: 1000, image: "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400", available: true },
+    { id: "chapati", name: "Chapati", description: "Soft, flaky flatbread - perfect for scooping up your favorite stews", price: 2000, image: "/images/menu/desserts/Chapati.jpg", available: true },
+    { id: "samosa", name: "Samosa", description: "Crispy golden pastry filled with spiced meat or vegetables", price: 1000, image: "/images/menu/desserts/Samosa.jpg", available: true },
   ],
   sideDishes: [
     { id: "mixed-greens", name: "Mixed Greens", image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400", available: true },
@@ -193,43 +194,27 @@ export const menuData: MenuData = {
   ],
   lusaniya: [
     { 
-      id: "chicken-pilao-single", 
-      name: "Chicken Pilao (Single Meal)", 
-      description: "Delicious chicken served with flavored pilao rice",
-      price: 15000, 
-      image: "/images/lusaniya/chicken-pilao.png", 
-      available: true 
-    },
-    { 
-      id: "beef-pilao-single", 
-      name: "Beef Pilao (Single Meal)", 
-      description: "Tender beef served with flavored pilao rice",
-      price: 15000, 
-      image: "/images/lusaniya/beef-pilao.png", 
-      available: true 
-    },
-    { 
       id: "whole-chicken-pilao-lusaniya", 
       name: "Whole Chicken with Pilao Lusaniya", 
-      description: "Full chicken mixed with pilao and kachumbari - serves 2-3 people",
+      description: "A feast for sharing! Whole roasted chicken on fragrant pilao with fresh kachumbari. Serves 2-3",
       price: 45000, 
-      image: "/images/lusaniya/9Yards-Food-Lusaniya-05.png", 
+      image: "/images/menu/lusaniya/whole-chicken-lusaniya.jpg", 
       available: true 
     },
     { 
       id: "beef-pilao-lusaniya", 
       name: "Beef & Pilao Lusaniya", 
-      description: "Generous beef portions with pilao and kachumbari - serves 2-3 people",
+      description: "Generous tender beef over spiced pilao rice, topped with zesty kachumbari. Serves 2-3",
       price: 35000, 
-      image: "/images/lusaniya/9Yards-Food-Lusaniya-02.png", 
+      image: "/images/menu/lusaniya/beef-&-pilao-lusaniya.jpg", 
       available: true 
     },
     { 
       id: "ordinary-lusaniya", 
       name: "Ordinary Lusaniya", 
-      description: "Classic lusaniya with pilao and kachumbari",
+      description: "Our signature combo - aromatic pilao with your choice of protein and fresh kachumbari",
       price: 30000, 
-      image: "/images/lusaniya/ordinary-lusaniya.png", 
+      image: "/images/menu/lusaniya/ordinary-lusaniya.jpg", 
       available: true 
     },
   ],

@@ -486,7 +486,7 @@ export default function MenuPage() {
           ...d, 
           category: 'Dessert', 
           categoryType: 'dessert',
-          description: itemDescriptions[d.id]
+          description: d.description || itemDescriptions[d.id]
         })
       );
     }
