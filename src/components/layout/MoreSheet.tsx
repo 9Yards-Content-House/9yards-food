@@ -1,14 +1,7 @@
-import { Link } from 'react-router-dom';
 import { 
   Phone, 
-  Mail, 
-  MapPin, 
   Instagram, 
   Youtube,
-  FileText,
-  Shield,
-  Info,
-  HelpCircle,
   Clock,
   ExternalLink
 } from 'lucide-react';
@@ -27,18 +20,6 @@ interface MoreSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-const exploreLinks = [
-  { href: '/how-it-works', label: 'How to Order', icon: HelpCircle },
-  { href: '/delivery-zones', label: 'Delivery Areas', icon: MapPin },
-  { href: '/about', label: 'About Us', icon: Info },
-  { href: '/contact', label: 'Contact', icon: Mail },
-];
-
-const legalLinks = [
-  { href: '/privacy', label: 'Privacy Policy', icon: Shield },
-  { href: '/terms', label: 'Terms & Conditions', icon: FileText },
-];
 
 export default function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
   const defaultWhatsAppUrl = getWhatsAppUrl(WHATSAPP_MESSAGES.default);
@@ -90,26 +71,6 @@ export default function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
             </div>
           </div>
 
-          {/* Explore Links */}
-          <div>
-            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-              Explore
-            </h3>
-            <div className="grid grid-cols-2 gap-2">
-              {exploreLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  onClick={() => onOpenChange(false)}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
-                >
-                  <link.icon className="w-5 h-5 text-muted-foreground" />
-                  <span className="text-sm font-medium">{link.label}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-
           {/* Business Hours */}
           <div>
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
@@ -158,25 +119,6 @@ export default function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
                   <Youtube className="w-5 h-5" />
                 </a>
               )}
-            </div>
-          </div>
-
-          {/* Legal Links */}
-          <div>
-            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-              Legal
-            </h3>
-            <div className="flex gap-4">
-              {legalLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  onClick={() => onOpenChange(false)}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {link.label}
-                </Link>
-              ))}
             </div>
           </div>
 

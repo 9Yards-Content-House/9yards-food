@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import { 
-  Phone, Mail, MapPin, Clock, ChevronDown, ChevronRight,
-  Zap, Check, ShieldCheck, Users, Sparkles, PartyPopper, Building2,
-  Cake, Briefcase, Instagram, Youtube, Music2, ExternalLink, Copy
+  Phone, Mail, MapPin, Clock, ChevronRight,
+  Zap, Check, ShieldCheck, Users, Sparkles,
+  Instagram, Music2, ExternalLink, Copy
 } from 'lucide-react';
 import { useState } from 'react';
 import Header from '@/components/layout/Header';
@@ -10,42 +10,6 @@ import Footer from '@/components/layout/Footer';
 import MobileNav from '@/components/layout/MobileNav';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import { toast } from 'sonner';
-
-// FAQ data
-const faqs = [
-  {
-    question: 'How do I place an order?',
-    answer: 'You can order in two ways: 1) Browse our menu, add items to cart, and send your order via WhatsApp. 2) Complete payment online through our secure checkout using Mobile Money or Card. Both methods are fast and easy!'
-  },
-  {
-    question: 'What areas do you deliver to?',
-    answer: 'We deliver across Kampala including Central, Nakawa, Kololo, Muyenga, Ntinda, Bukoto, Bugolobi, and many more areas. Check our Delivery Areas page for full coverage details and delivery fees.'
-  },
-  {
-    question: 'How long does delivery take?',
-    answer: 'Most deliveries arrive within 30-45 minutes, depending on your location in Kampala. During peak hours (lunch 12-2PM and dinner 6-8PM), it may take up to 60 minutes. We always cook fresh, so your food is never sitting around!'
-  },
-  {
-    question: 'What payment methods do you accept?',
-    answer: 'We accept Cash on Delivery (via WhatsApp orders), Mobile Money (MTN MoMo and Airtel Money), and Credit/Debit Cards (Visa, Mastercard) via our secure online checkout.'
-  },
-  {
-    question: 'Can I cancel or modify my order?',
-    answer: 'Yes! Contact us via WhatsApp immediately if you need to modify or cancel. If we haven\'t started cooking yet, we can make changes. Once cooking begins, modifications may not be possible, but we\'ll always try our best.'
-  },
-  {
-    question: 'Do you cater for events or bulk orders?',
-    answer: 'Absolutely! We cater for weddings, corporate events, birthday parties, conferences, and more. Contact us for a custom quote - we offer special pricing for bulk orders and can customize menus for your event.'
-  },
-  {
-    question: 'What if I\'m not satisfied with my order?',
-    answer: 'Your satisfaction is our priority! If there\'s any issue with your order, contact us immediately via WhatsApp. We\'ll make it right - whether that means a refund, replacement, or credit for your next order.'
-  },
-  {
-    question: 'Are your ingredients really 100% natural?',
-    answer: 'Yes! We use only fresh, natural ingredients sourced from local Ugandan farmers and markets. No preservatives, no artificial flavors, no shortcuts. That\'s our promise to you.'
-  },
-];
 
 // Inquiry types for form
 const inquiryTypes = [
@@ -58,7 +22,6 @@ const inquiryTypes = [
 ];
 
 export default function ContactPage() {
-  const [openFaq, setOpenFaq] = useState<number>(0); // First FAQ open by default
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -139,12 +102,6 @@ export default function ContactPage() {
                 Have a question? Need support? Want to place a bulk order?
                 <br className="hidden md:block" /> We'd love to hear from you!
               </p>
-              <div
-                className="inline-flex items-center gap-2 bg-secondary/20 backdrop-blur-sm px-4 py-2 rounded-full"
-              >
-                <Zap className="w-5 h-5 text-secondary" />
-                <span className="text-sm font-medium">Average Response Time: <span className="text-secondary font-bold">Under 2 Hours</span></span>
-              </div>
             </div>
           </div>
         </section>
@@ -162,7 +119,7 @@ export default function ContactPage() {
               {/* Call Card */}
               <a
                 href="tel:+256708899597"
-                className="bg-card border-2 border-border rounded-2xl p-6 text-center cursor-pointer transition-all hover:border-secondary hover:-translate-y-1 hover:shadow-xl"
+                className="bg-card border-2 border-border rounded-2xl p-6 text-center cursor-pointer transition-all hover:border-secondary hover:shadow-xl"
               >
                 <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Phone className="w-8 h-8 text-blue-500" />
@@ -177,7 +134,7 @@ export default function ContactPage() {
                 href="https://wa.me/256708899597?text=Hi%209Yards%20Food!%20I%20have%20a%20question%20about..."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-card border-2 border-green-500 rounded-2xl p-6 text-center cursor-pointer transition-all relative overflow-hidden hover:-translate-y-1 hover:shadow-xl"
+                className="bg-card border-2 border-green-500 rounded-2xl p-6 text-center cursor-pointer transition-all relative overflow-hidden hover:shadow-xl"
               >
                 <div className="absolute top-3 right-3 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                   Fastest
@@ -193,7 +150,7 @@ export default function ContactPage() {
               {/* Email Card */}
               <a
                 href="mailto:deliveries@9yards.co.ug?subject=Inquiry%20from%20Website"
-                className="bg-card border-2 border-border rounded-2xl p-6 text-center cursor-pointer transition-all hover:border-secondary hover:-translate-y-1 hover:shadow-xl"
+                className="bg-card border-2 border-border rounded-2xl p-6 text-center cursor-pointer transition-all hover:border-secondary hover:shadow-xl"
               >
                 <div className="w-16 h-16 bg-secondary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Mail className="w-8 h-8 text-secondary" />
@@ -584,47 +541,6 @@ export default function ContactPage() {
           </div>
         </section>
 
-        {/* Bulk/Catering CTA */}
-        <section className="py-12 md:py-16 bg-gradient-to-br from-secondary to-secondary/80 text-secondary-foreground">
-          <div className="container-custom px-4">
-            <div
-              className="max-w-4xl mx-auto text-center"
-            >
-              <div className="inline-flex items-center gap-2 mb-4">
-                <PartyPopper className="w-8 h-8" />
-                <span className="text-2xl md:text-3xl font-bold">Planning an Event?</span>
-              </div>
-              <p className="text-lg md:text-xl text-secondary-foreground/90 mb-6">
-                We cater for parties, corporate events, and bulk orders
-              </p>
-
-              <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 mb-8">
-                {[
-                  { icon: PartyPopper, text: 'Weddings & Celebrations' },
-                  { icon: Building2, text: 'Office Lunches' },
-                  { icon: Cake, text: 'Birthday Parties' },
-                  { icon: Briefcase, text: 'Conference Catering' },
-                ].map((item, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <Check className="w-5 h-5" />
-                    <span className="font-medium">{item.text}</span>
-                  </div>
-                ))}
-              </div>
-
-              <a
-                href="https://wa.me/256708899597?text=Hi%209Yards%20Food!%20I%27d%20like%20to%20get%20a%20quote%20for%20bulk%2Fcatering%20order%20for%20my%20event."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-bold px-8 py-4 rounded-xl hover:bg-primary/90 transition-colors"
-              >
-                Get a Custom Quote
-                <ChevronRight className="w-5 h-5" />
-              </a>
-            </div>
-          </div>
-        </section>
-
         {/* Operating Hours Visual */}
         <section className="py-12 md:py-16">
           <div className="container-custom px-4">
@@ -671,74 +587,6 @@ export default function ContactPage() {
                     <span className="text-foreground">Order 1 Hour Before Closing</span>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* FAQ Section */}
-        <section className="py-12 md:py-20 bg-muted/30">
-          <div className="container-custom px-4">
-            <div
-              className="text-center mb-12"
-            >
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                Frequently Asked Questions
-              </h2>
-              <p className="text-muted-foreground">
-                Quick answers to common questions
-              </p>
-            </div>
-
-            <div className="max-w-3xl mx-auto space-y-4">
-              {faqs.map((faq, index) => (
-                <div
-                  key={index}
-                  className={`border-2 rounded-xl overflow-hidden transition-all ${
-                    openFaq === index ? 'border-secondary bg-card shadow-lg' : 'border-border bg-card hover:border-secondary/50'
-                  }`}
-                >
-                  <button
-                    onClick={() => setOpenFaq(openFaq === index ? -1 : index)}
-                    className="w-full p-5 text-left flex items-center justify-between gap-4"
-                  >
-                    <h3 className="font-bold text-foreground">{faq.question}</h3>
-                    <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform flex-shrink-0 ${
-                      openFaq === index ? 'rotate-180' : ''
-                    }`} />
-                  </button>
-                  <div
-                    className={`overflow-hidden transition-all duration-300 ${openFaq === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
-                  >
-                    <p className="px-5 pb-5 text-muted-foreground leading-relaxed">
-                      {faq.answer}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div
-              className="text-center mt-8"
-            >
-              <p className="text-muted-foreground mb-4">Still have questions?</p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a
-                  href="https://wa.me/256708899597?text=Hi%209Yards%20Food!%20I%20have%20a%20question..."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 bg-green-500 text-white font-bold px-6 py-3 rounded-xl hover:bg-green-600 transition-colors"
-                >
-                  <WhatsAppIcon className="w-5 h-5" />
-                  Contact Support
-                </a>
-                <Link
-                  to="/how-it-works"
-                  className="inline-flex items-center justify-center gap-2 border-2 border-border font-bold px-6 py-3 rounded-xl hover:bg-muted transition-colors"
-                >
-                  View Order Guide
-                  <ChevronRight className="w-4 h-4" />
-                </Link>
               </div>
             </div>
           </div>
