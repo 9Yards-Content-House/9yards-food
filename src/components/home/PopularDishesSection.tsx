@@ -275,7 +275,7 @@ export default function PopularDishesSection() {
         <div className="container-custom">
           {/* Section Header */}
           <div className="text-center mb-8 md:mb-12 px-4">
-            <span className="inline-block text-secondary font-semibold text-xs sm:text-sm uppercase tracking-wider mb-2">
+            <span className="inline-block px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-xs font-bold tracking-wider uppercase mb-2">
               Customer Favorites
             </span>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3">

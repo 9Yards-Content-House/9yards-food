@@ -32,12 +32,12 @@ export default function HowItWorksSection() {
       <div className="container-custom px-5 sm:px-6 md:px-8">
         {/* Section Header */}
         <div className="text-center mb-8 md:mb-10 lg:mb-12">
-          <span className="text-[#E6411C] text-xs sm:text-sm font-bold uppercase tracking-wider">
+          <span className="inline-block px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-xs font-bold tracking-wider uppercase mb-2">
             Simple Process
           </span>
           <h2 
             id="how-it-works-heading"
-            className="text-xl sm:text-2xl md:text-3xl font-bold text-[#212282] mt-1 mb-2"
+            className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mt-1 mb-2"
           >
             How to Order
           </h2>

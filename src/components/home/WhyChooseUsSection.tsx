@@ -77,108 +77,116 @@ export default function WhyChooseUsSection() {
   };
 
   return (
-    <section className="section-padding bg-gradient-to-b from-background to-muted/30">
-      <div className="container-custom">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          {/* Carousel Side */}
-          <div className="relative order-2 lg:order-1">
-            <div className="relative aspect-[4/5] sm:aspect-[3/4] lg:aspect-[4/5] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl bg-muted">
-              {/* Carousel Images */}
+    <section className="py-16 md:py-24 bg-gradient-to-b from-background via-secondary/5 to-background overflow-hidden">
+      <div className="container-custom px-4">
+        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          
+          {/* Content Side - Order 1 on Mobile, 2 on Desktop (if we want image left) */}
+          {/* Based on plan: Heading First on Mobile */}
+          <div className="order-1 lg:order-2 w-full">
+            <div className="mb-8 md:mb-10">
+              <div className="inline-block px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-xs font-bold tracking-wider uppercase mb-4">
+                Premium Natural Juices
+              </div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3">
+                Pure Ugandan Fruit Juice
+              </h2>
+              <p className="text-muted-foreground text-lg leading-relaxed max-w-xl">
+                We blend fresh, locally-sourced fruits daily to create authentic Ugandan juices. 
+                No preservatives, no artificial flavors, just pure, natural refreshment.
+              </p>
+            </div>
+
+            {/* Features Grid */}
+            <div className="grid sm:grid-cols-2 gap-4">
+              {features.map((feature, index) => (
+                <div
+                  key={index}
+                  className="bg-card/50 hover:bg-card border border-border/50 hover:border-secondary/20 p-5 rounded-xl transition-all duration-300 group"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-secondary group-hover:text-white transition-colors">
+                      <feature.icon className="w-5 h-5 text-secondary group-hover:text-white transition-colors" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-foreground mb-1">
+                        {feature.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {feature.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Image/Carousel Side - Order 2 on Mobile, 1 on Desktop */}
+          <div className="order-2 lg:order-1 w-full relative">
+            {/* Decorative Elements */}
+            <div className="absolute -top-10 -left-10 w-40 h-40 bg-secondary/10 rounded-full blur-3xl" />
+            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-green-500/10 rounded-full blur-3xl" />
+            
+            <div className="relative aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white/50 dark:border-white/5 bg-muted">
               {juiceImages.map((image, index) => (
                 <div
                   key={index}
-                  className={`absolute inset-0 transition-opacity duration-500 ${
-                    index === currentSlide ? 'opacity-100' : 'opacity-0'
+                  className={`absolute inset-0 transition-all duration-700 ease-in-out transform ${
+                    index === currentSlide 
+                      ? 'opacity-100 scale-100' 
+                      : 'opacity-0 scale-110'
                   }`}
                 >
                   <img
                     src={image.src}
                     alt={image.alt}
                     className="w-full h-full object-cover"
-                    loading={index === 0 ? 'eager' : 'lazy'}
                   />
+                  {/* Gradient Overlay for Text Readability if needed, though clean looks good */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                 </div>
               ))}
 
-              {/* Navigation Arrows */}
-              <button
-                onClick={goToPrevious}
-                className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-105"
-                aria-label="Previous image"
-              >
-                <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-gray-800" />
-              </button>
-              <button
-                onClick={goToNext}
-                className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-105"
-                aria-label="Next image"
-              >
-                <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-gray-800" />
-              </button>
+              {/* Controls Overlay */}
+              <div className="absolute inset-x-0 bottom-0 p-6 flex justify-between items-end bg-gradient-to-t from-black/60 to-transparent pt-20">
+                {/* Dots */}
+                <div className="flex gap-2">
+                  {juiceImages.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => goToSlide(index)}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        index === currentSlide
+                          ? 'bg-white w-6'
+                          : 'bg-white/40 w-2 hover:bg-white/60'
+                      }`}
+                      aria-label={`Go to slide ${index + 1}`}
+                    />
+                  ))}
+                </div>
 
-              {/* Dots Indicator */}
-              <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-                {juiceImages.map((_, index) => (
+                {/* Arrows */}
+                <div className="flex gap-2">
                   <button
-                    key={index}
-                    onClick={() => goToSlide(index)}
-                    className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all ${
-                      index === currentSlide
-                        ? 'bg-white w-6 sm:w-8'
-                        : 'bg-white/50 hover:bg-white/75'
-                    }`}
-                    aria-label={`Go to slide ${index + 1}`}
-                  />
-                ))}
+                    onClick={goToPrevious}
+                    className="w-10 h-10 rounded-full bg-black/20 hover:bg-white/20 backdrop-blur-md flex items-center justify-center text-white transition-all border border-white/10"
+                    aria-label="Previous"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={goToNext}
+                    className="w-10 h-10 rounded-full bg-black/20 hover:bg-white/20 backdrop-blur-md flex items-center justify-center text-white transition-all border border-white/10"
+                    aria-label="Next"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Content Side */}
-          <div className="order-1 lg:order-2">
-            <div>
-              <span className="text-secondary font-semibold text-xs sm:text-sm uppercase tracking-wider">
-                PREMIUM NATURAL JUICES
-              </span>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mt-2 mb-4 sm:mb-6">
-                Pure Ugandan Fruit Juice
-              </h2>
-              <p className="text-muted-foreground mb-6 sm:mb-8 leading-relaxed text-sm sm:text-base lg:text-lg">
-                We blend fresh, locally-sourced fruits daily to create authentic Ugandan juices. 
-                No preservatives, no artificial flavors, just pure, natural refreshment 
-                that perfectly complements your meal.
-              </p>
-            </div>
-
-            {/* Features List */}
-            <div className="space-y-3 sm:space-y-4">
-              {features.map((feature, index) => (
-                <div
-                  key={index}
-                  className="flex gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl hover:bg-muted/50 transition-colors cursor-default"
-                >
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <feature.icon className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <h3 className="font-bold text-foreground text-sm sm:text-base">
-                        {feature.title}
-                      </h3>
-                      {feature.badge && (
-                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${feature.badgeColor}`}>
-                          {feature.badge}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
-                      {feature.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
     </section>
