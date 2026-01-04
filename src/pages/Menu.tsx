@@ -466,7 +466,7 @@ export default function MenuPage() {
           category: 'Sauce',
           categoryType: 'sauce',
           available: s.available,
-          description: itemDescriptions[s.id]
+          description: s.description || itemDescriptions[s.id]
         })
       );
     }

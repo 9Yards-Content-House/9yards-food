@@ -13,6 +13,7 @@ export interface SauceOption {
 export interface Sauce {
   id: string;
   name: string;
+  description: string;
   basePrice: number;
   image: string;
   available: boolean;
@@ -77,8 +78,9 @@ export const menuData: MenuData = {
     {
       id: "liver",
       name: "Liver",
+      description: "Tender and flavorful liver, rich in iron and protein",
       basePrice: 20000,
-      image: "https://images.unsplash.com/photo-1432139555190-58524dae6a55?w=400",
+      image: "/images/menu/sauces/9Yards-Liver-Menu.jpg",
       available: true,
       preparations: [],
       sizes: [
@@ -88,8 +90,9 @@ export const menuData: MenuData = {
     {
       id: "gnuts",
       name: "G-Nuts",
+      description: "Creamy groundnut sauce with authentic Ugandan spices",
       basePrice: 15000,
-      image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400",
+      image: "/images/menu/sauces/9Yards-G-Nuts-Menu.jpg",
       available: true,
       preparations: [],
       sizes: [
@@ -99,8 +102,9 @@ export const menuData: MenuData = {
     {
       id: "chicken-stew",
       name: "Chicken Stew",
+      description: "Juicy chicken pieces in a rich, aromatic tomato-based stew",
       basePrice: 20000,
-      image: "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400",
+      image: "/images/menu/sauces/9Yards-Chicken-Stew-Menu.jpg",
       available: true,
       preparations: ["Fried", "Boiled", "Grilled"],
       sizes: [
@@ -112,32 +116,11 @@ export const menuData: MenuData = {
     {
       id: "beef-stew",
       name: "Beef Stew",
+      description: "Tender beef chunks slow-cooked in savory gravy",
       basePrice: 15000,
-      image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=400",
+      image: "/images/menu/sauces/9Yards-Beef-Stew-Menu.jpg",
       available: true,
       preparations: ["Fried", "Boiled"],
-      sizes: [
-        { name: "Regular", price: 15000 },
-      ],
-    },
-    {
-      id: "goat-stew",
-      name: "Goat Stew",
-      basePrice: 20000,
-      image: "https://images.unsplash.com/photo-1574484284002-952d92456975?w=400",
-      available: true,
-      preparations: ["Fried", "Boiled"],
-      sizes: [
-        { name: "Regular", price: 20000 },
-      ],
-    },
-    {
-      id: "meat-gnuts",
-      name: "Meat & G-Nuts",
-      basePrice: 15000,
-      image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400",
-      available: true,
-      preparations: [],
       sizes: [
         { name: "Regular", price: 15000 },
       ],
@@ -145,8 +128,9 @@ export const menuData: MenuData = {
     {
       id: "fish",
       name: "Fish",
+      description: "Fresh Nile perch, perfectly seasoned and cooked to order",
       basePrice: 15000,
-      image: "https://images.unsplash.com/photo-1510130387422-82bed34b37e9?w=400",
+      image: "/images/menu/sauces/9Yards-Fresh-Fish-Menu.jpg",
       available: true,
       preparations: ["Fried", "Smoked", "Boiled"],
       sizes: [
@@ -156,8 +140,9 @@ export const menuData: MenuData = {
     {
       id: "fish-gnuts",
       name: "Fish & G-Nuts",
+      description: "Delicious fish paired with creamy groundnut sauce",
       basePrice: 20000,
-      image: "https://images.unsplash.com/photo-1510130387422-82bed34b37e9?w=400",
+      image: "/images/menu/sauces/9Yards-Fish-&-G-Nuts-Menu.jpg",
       available: true,
       preparations: [],
       sizes: [
@@ -167,8 +152,9 @@ export const menuData: MenuData = {
     {
       id: "fresh-fish",
       name: "Fresh Fish",
+      description: "Premium whole fish, freshly prepared with herbs and spices",
       basePrice: 20000,
-      image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400",
+      image: "/images/menu/sauces/9Yards-Fresh-Fish-Menu.jpg",
       available: true,
       preparations: [],
       sizes: [
@@ -178,19 +164,9 @@ export const menuData: MenuData = {
     {
       id: "cowpeas",
       name: "Cowpeas",
+      description: "Hearty cowpeas simmered in a traditional savory sauce",
       basePrice: 15000,
-      image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400",
-      available: true,
-      preparations: [],
-      sizes: [
-        { name: "Regular", price: 15000 },
-      ],
-    },
-    {
-      id: "beans-sauce",
-      name: "Beans",
-      basePrice: 15000,
-      image: "https://images.unsplash.com/photo-1551462147-ff29053bfc14?w=400",
+      image: "/images/menu/sauces/9Yards-cowpeas-Menu.jpg",
       available: true,
       preparations: [],
       sizes: [
