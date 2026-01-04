@@ -1,44 +1,41 @@
-import { Link } from 'react-router-dom';
-import { 
-  Phone, Mail, MapPin, Clock, ChevronRight,
-  Zap, Check, ShieldCheck, Users, Sparkles,
-  Instagram, Music2, ExternalLink, Copy
-} from 'lucide-react';
-import { useState } from 'react';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
-import MobileNav from '@/components/layout/MobileNav';
-import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
-import { toast } from 'sonner';
-
-// Inquiry types for form
-const inquiryTypes = [
-  { value: 'order', label: 'Order Question', icon: 'order' },
-  { value: 'delivery', label: 'Delivery Inquiry', icon: 'delivery' },
-  { value: 'bulk', label: 'Bulk/Catering Order', icon: 'bulk' },
-  { value: 'business', label: 'Business Partnership', icon: 'business' },
-  { value: 'issue', label: 'Report an Issue', icon: 'issue' },
-  { value: 'feedback', label: 'General Feedback', icon: 'feedback' },
-];
+import { Link } from "react-router-dom";
+import {
+  Phone,
+  Mail,
+  Clock,
+  ChevronRight,
+  Check,
+  ExternalLink,
+  Copy,
+} from "lucide-react";
+import { useState } from "react";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import MobileNav from "@/components/layout/MobileNav";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
+import { toast } from "sonner";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    inquiryType: '',
-    subject: '',
-    message: '',
-    optIn: false,
+    name: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value, type } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+      [name]:
+        type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
     }));
   };
 
@@ -51,30 +48,28 @@ export default function ContactPage() {
 
     try {
       // Submit to Netlify Forms
-      const response = await fetch('/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      const response = await fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams(formDataObj as any).toString(),
       });
 
       if (response.ok) {
         setIsSubmitted(true);
-        toast.success('Message sent successfully! We\'ll respond within 2 hours.');
+        toast.success("Message sent successfully! We'll get back to you soon.");
         // Reset form
         setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          inquiryType: '',
-          subject: '',
-          message: '',
-          optIn: false,
+          name: "",
+          email: "",
+          phone: "",
+          subject: "",
+          message: "",
         });
       } else {
-        throw new Error('Form submission failed');
+        throw new Error("Form submission failed");
       }
     } catch (error) {
-      toast.error('Failed to send message. Please try WhatsApp instead.');
+      toast.error("Failed to send message. Please try WhatsApp instead.");
     } finally {
       setIsSubmitting(false);
     }
@@ -82,7 +77,7 @@ export default function ContactPage() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast.success('Copied to clipboard!');
+    toast.success("Copied to clipboard!");
   };
 
   return (
@@ -92,9 +87,7 @@ export default function ContactPage() {
         {/* Hero Section */}
         <section className="bg-primary text-primary-foreground py-12 md:py-20">
           <div className="container-custom px-4">
-            <div
-              className="max-w-2xl mx-auto text-center"
-            >
+            <div className="max-w-2xl mx-auto text-center">
               <h1 className="text-3xl md:text-5xl font-bold mb-4">
                 We're Here to Help
               </h1>
@@ -109,9 +102,7 @@ export default function ContactPage() {
         {/* Quick Action Buttons */}
         <section className="py-12 md:py-16 bg-card border-b border-border">
           <div className="container-custom px-4">
-            <h2
-              className="text-2xl md:text-3xl font-bold text-center text-foreground mb-8"
-            >
+            <h2 className="text-2xl md:text-3xl font-bold text-center text-foreground mb-8">
               Choose How to Reach Us
             </h2>
 
@@ -124,8 +115,12 @@ export default function ContactPage() {
                 <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Phone className="w-8 h-8 text-blue-500" />
                 </div>
-                <h3 className="font-bold text-xl text-foreground mb-2">Call Us</h3>
-                <p className="text-muted-foreground text-sm mb-4">Instant Support</p>
+                <h3 className="font-bold text-xl text-foreground mb-2">
+                  Call Us
+                </h3>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Instant Support
+                </p>
                 <div className="btn-secondary w-full">Call Now</div>
               </a>
 
@@ -142,9 +137,15 @@ export default function ContactPage() {
                 <div className="w-16 h-16 bg-green-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <WhatsAppIcon className="w-8 h-8 text-green-500" />
                 </div>
-                <h3 className="font-bold text-xl text-foreground mb-2">WhatsApp</h3>
-                <p className="text-muted-foreground text-sm mb-4">Fastest Response</p>
-                <div className="bg-green-500 text-white font-bold py-3 px-6 rounded-xl w-full">Chat Now</div>
+                <h3 className="font-bold text-xl text-foreground mb-2">
+                  WhatsApp
+                </h3>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Fastest Response
+                </p>
+                <div className="bg-green-500 text-white font-bold py-3 px-6 rounded-xl w-full">
+                  Chat Now
+                </div>
               </a>
 
               {/* Email Card */}
@@ -155,8 +156,12 @@ export default function ContactPage() {
                 <div className="w-16 h-16 bg-secondary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Mail className="w-8 h-8 text-secondary" />
                 </div>
-                <h3 className="font-bold text-xl text-foreground mb-2">Email</h3>
-                <p className="text-muted-foreground text-sm mb-4">Detailed Inquiries</p>
+                <h3 className="font-bold text-xl text-foreground mb-2">
+                  Email
+                </h3>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Detailed Inquiries
+                </p>
                 <div className="btn-secondary w-full">Send Email</div>
               </a>
             </div>
@@ -168,9 +173,7 @@ export default function ContactPage() {
           <div className="container-custom px-4">
             <div className="grid lg:grid-cols-5 gap-12">
               {/* Left: Contact Info */}
-              <div
-                className="lg:col-span-2"
-              >
+              <div className="lg:col-span-2">
                 <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
                   Get in Touch
                 </h2>
@@ -184,8 +187,12 @@ export default function ContactPage() {
                       </div>
                       <div className="flex-1">
                         <h3 className="font-bold text-foreground">Call Us</h3>
-                        <p className="text-lg text-foreground font-medium">+256 708 899 597</p>
-                        <p className="text-sm text-muted-foreground mb-3">Available 7 days a week</p>
+                        <p className="text-lg text-foreground font-medium">
+                          +256 708 899 597
+                        </p>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Available 7 days a week
+                        </p>
                         <a
                           href="tel:+256708899597"
                           className="text-sm font-bold text-secondary flex items-center gap-1 hover:underline"
@@ -194,7 +201,7 @@ export default function ContactPage() {
                         </a>
                       </div>
                       <button
-                        onClick={() => copyToClipboard('+256708899597')}
+                        onClick={() => copyToClipboard("+256708899597")}
                         className="p-2 hover:bg-muted rounded-lg transition-colors"
                         title="Copy number"
                       >
@@ -211,10 +218,16 @@ export default function ContactPage() {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <h3 className="font-bold text-foreground">WhatsApp</h3>
-                          <span className="bg-green-500/10 text-green-600 text-xs font-bold px-2 py-0.5 rounded-full">Fastest</span>
+                          <h3 className="font-bold text-foreground">
+                            WhatsApp
+                          </h3>
+                          <span className="bg-green-500/10 text-green-600 text-xs font-bold px-2 py-0.5 rounded-full">
+                            Fastest
+                          </span>
                         </div>
-                        <p className="text-sm text-muted-foreground mb-3">Chat with us directly - fastest response guaranteed</p>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Chat with us directly - fastest response guaranteed
+                        </p>
                         <a
                           href="https://wa.me/256708899597?text=Hi%209Yards%20Food!%20I%20have%20a%20question%20about..."
                           target="_blank"
@@ -235,8 +248,12 @@ export default function ContactPage() {
                       </div>
                       <div className="flex-1">
                         <h3 className="font-bold text-foreground">Email</h3>
-                        <p className="text-foreground">deliveries@9yards.co.ug</p>
-                        <p className="text-sm text-muted-foreground mb-3">We reply within 24 hours</p>
+                        <p className="text-foreground">
+                          deliveries@9yards.co.ug
+                        </p>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          We reply within 24 hours
+                        </p>
                         <a
                           href="mailto:deliveries@9yards.co.ug"
                           className="text-sm font-bold text-secondary flex items-center gap-1 hover:underline"
@@ -245,7 +262,9 @@ export default function ContactPage() {
                         </a>
                       </div>
                       <button
-                        onClick={() => copyToClipboard('deliveries@9yards.co.ug')}
+                        onClick={() =>
+                          copyToClipboard("deliveries@9yards.co.ug")
+                        }
                         className="p-2 hover:bg-muted rounded-lg transition-colors"
                         title="Copy email"
                       >
@@ -261,9 +280,13 @@ export default function ContactPage() {
                         <Clock className="w-5 h-5 text-secondary" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-bold text-foreground">Operating Hours</h3>
+                        <h3 className="font-bold text-foreground">
+                          Operating Hours
+                        </h3>
                         <p className="text-foreground">Monday - Sunday</p>
-                        <p className="text-lg font-bold text-foreground">10:00 AM - 10:00 PM</p>
+                        <p className="text-lg font-bold text-foreground">
+                          10:00 AM - 10:00 PM
+                        </p>
                         <div className="mt-2 inline-flex items-center gap-1.5 bg-green-500/10 text-green-600 text-sm font-bold px-3 py-1 rounded-full">
                           <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                           Open Every Day!
@@ -272,29 +295,11 @@ export default function ContactPage() {
                     </div>
                   </div>
 
-                  {/* Location */}
-                  <div className="bg-card border border-border rounded-xl p-4 hover:border-secondary transition-colors">
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <MapPin className="w-5 h-5 text-secondary" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-bold text-foreground">Location</h3>
-                        <p className="text-foreground">Kampala, Uganda</p>
-                        <p className="text-sm text-muted-foreground mb-3">(Online delivery only)</p>
-                        <Link
-                          to="/delivery-zones"
-                          className="text-sm font-bold text-secondary flex items-center gap-1 hover:underline"
-                        >
-                          View Delivery Areas <ChevronRight className="w-4 h-4" />
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-
                   {/* Social Media */}
                   <div className="bg-card border border-border rounded-xl p-4">
-                    <h3 className="font-bold text-foreground mb-3">Follow Us</h3>
+                    <h3 className="font-bold text-foreground mb-3">
+                      Follow Us
+                    </h3>
                     <div className="flex gap-3">
                       <a
                         href="https://www.instagram.com/9yards_food/"
@@ -302,7 +307,7 @@ export default function ContactPage() {
                         rel="noopener noreferrer"
                         className="w-12 h-12 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-xl flex items-center justify-center hover:scale-105 transition-transform"
                       >
-                        <Instagram className="w-5 h-5 text-white" />
+                        <i className="fa-brands fa-instagram text-white text-xl"></i>
                       </a>
                       <a
                         href="https://www.tiktok.com/@9yardsfood"
@@ -310,7 +315,7 @@ export default function ContactPage() {
                         rel="noopener noreferrer"
                         className="w-12 h-12 bg-black rounded-xl flex items-center justify-center hover:scale-105 transition-transform"
                       >
-                        <Music2 className="w-5 h-5 text-white" />
+                        <i className="fa-brands fa-tiktok text-white text-xl"></i>
                       </a>
                     </div>
                   </div>
@@ -318,20 +323,18 @@ export default function ContactPage() {
               </div>
 
               {/* Right: Contact Form */}
-              <div
-                className="lg:col-span-3"
-              >
+              <div className="lg:col-span-3">
                 <div className="bg-card border border-border rounded-2xl p-6 md:p-8 shadow-lg">
                   {isSubmitted ? (
-                    <div
-                      className="text-center py-12"
-                    >
+                    <div className="text-center py-12">
                       <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
                         <Check className="w-10 h-10 text-green-500" />
                       </div>
-                      <h3 className="text-2xl font-bold text-foreground mb-2">Message Sent!</h3>
+                      <h3 className="text-2xl font-bold text-foreground mb-2">
+                        Message Sent!
+                      </h3>
                       <p className="text-muted-foreground mb-6">
-                        Thank you for reaching out. We'll get back to you within 2 hours.
+                        Thank you for reaching out. We'll get back to you soon.
                       </p>
                       <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Link to="/menu" className="btn-secondary">
@@ -341,13 +344,11 @@ export default function ContactPage() {
                           onClick={() => {
                             setIsSubmitted(false);
                             setFormData({
-                              name: '',
-                              email: '',
-                              phone: '',
-                              inquiryType: '',
-                              subject: '',
-                              message: '',
-                              optIn: false,
+                              name: "",
+                              email: "",
+                              phone: "",
+                              subject: "",
+                              message: "",
                             });
                           }}
                           className="px-6 py-3 border-2 border-border rounded-xl font-semibold hover:bg-muted transition-colors"
@@ -365,40 +366,23 @@ export default function ContactPage() {
                         What can we help you with today?
                       </p>
 
-                      {/* Inquiry Type Selector */}
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-                        {inquiryTypes.map((type) => (
-                          <button
-                            key={type.value}
-                            type="button"
-                            onClick={() => setFormData(prev => ({ ...prev, inquiryType: type.value }))}
-                            className={`p-3 rounded-xl border-2 text-sm font-medium transition-all text-left ${
-                              formData.inquiryType === type.value
-                                ? 'border-secondary bg-secondary/5 text-secondary'
-                                : 'border-border hover:border-secondary/50'
-                            }`}
-                          >
-                            <span className="text-lg">{type.icon}</span>
-                            <span className="block mt-1">{type.label.replace(type.icon + ' ', '')}</span>
-                          </button>
-                        ))}
-                      </div>
-
-                      <form 
-                        name="contact" 
-                        method="POST" 
-                        data-netlify="true" 
+                      <form
+                        name="contact"
+                        method="POST"
+                        data-netlify="true"
                         netlify-honeypot="bot-field"
-                        onSubmit={handleSubmit} 
+                        onSubmit={handleSubmit}
                         className="space-y-4"
                       >
                         {/* Hidden fields for Netlify */}
                         <input type="hidden" name="form-name" value="contact" />
-                        <input type="hidden" name="inquiry-type" value={formData.inquiryType} />
                         <p className="hidden">
-                          <label>Don't fill this out if you're human: <input name="bot-field" /></label>
+                          <label>
+                            Don't fill this out if you're human:{" "}
+                            <input name="bot-field" />
+                          </label>
                         </p>
-                        
+
                         <div className="grid md:grid-cols-2 gap-4">
                           <div>
                             <label className="text-sm font-medium text-foreground mb-2 block">
@@ -479,20 +463,6 @@ export default function ContactPage() {
                           </p>
                         </div>
 
-                        <div className="flex items-start gap-3">
-                          <input
-                            type="checkbox"
-                            id="optIn"
-                            name="optIn"
-                            checked={formData.optIn}
-                            onChange={handleInputChange}
-                            className="w-5 h-5 rounded border-border text-secondary focus:ring-secondary mt-0.5"
-                          />
-                          <label htmlFor="optIn" className="text-sm text-muted-foreground cursor-pointer">
-                            I'd like to receive promotional offers and updates from 9Yards Food
-                          </label>
-                        </div>
-
                         <button
                           type="submit"
                           disabled={isSubmitting}
@@ -510,31 +480,9 @@ export default function ContactPage() {
                             </>
                           )}
                         </button>
-
-                        <p className="text-center text-sm text-muted-foreground flex items-center justify-center gap-2">
-                          <Zap className="w-4 h-4 text-secondary" />
-                          We typically respond within 2 hours
-                        </p>
                       </form>
                     </>
                   )}
-                </div>
-
-                {/* Trust Badges */}
-                <div
-                  className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6"
-                >
-                  {[
-                    { icon: ShieldCheck, text: 'Verified Business' },
-                    { icon: Users, text: '10,000+ Customers' },
-                    { icon: Zap, text: 'Fast Response' },
-                    { icon: Sparkles, text: 'Secure & Private' },
-                  ].map((badge, index) => (
-                    <div key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <badge.icon className="w-4 h-4 text-green-500" />
-                      <span>{badge.text}</span>
-                    </div>
-                  ))}
                 </div>
               </div>
             </div>
@@ -544,22 +492,22 @@ export default function ContactPage() {
         {/* Operating Hours Visual */}
         <section className="py-12 md:py-16">
           <div className="container-custom px-4">
-            <div
-              className="max-w-3xl mx-auto"
-            >
+            <div className="max-w-3xl mx-auto">
               <h2 className="text-2xl md:text-3xl font-bold text-center text-foreground mb-8">
                 When We're Available
               </h2>
 
               <div className="bg-card border border-border rounded-2xl p-6 md:p-8">
-                <p className="text-center font-bold text-lg text-foreground mb-4">Monday - Sunday</p>
-                
+                <p className="text-center font-bold text-lg text-foreground mb-4">
+                  Monday - Sunday
+                </p>
+
                 {/* Timeline Visual */}
                 <div className="relative mb-6">
                   <div className="h-4 bg-muted rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full bg-gradient-to-r from-green-400 to-green-500 rounded-full"
-                      style={{ marginLeft: '25%', width: '50%' }}
+                      style={{ marginLeft: "25%", width: "50%" }}
                     />
                   </div>
                   <div className="flex justify-between mt-2 text-sm text-muted-foreground">
@@ -584,7 +532,9 @@ export default function ContactPage() {
                   </div>
                   <div className="flex items-center justify-center gap-2 text-sm">
                     <Check className="w-5 h-5 text-green-500" />
-                    <span className="text-foreground">Order 1 Hour Before Closing</span>
+                    <span className="text-foreground">
+                      Order 1 Hour Before Closing
+                    </span>
                   </div>
                 </div>
               </div>
@@ -592,7 +542,7 @@ export default function ContactPage() {
           </div>
         </section>
       </main>
-      
+
       <Footer />
       <MobileNav />
     </div>
