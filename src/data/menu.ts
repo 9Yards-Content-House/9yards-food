@@ -1,6 +1,7 @@
 export interface MainDish {
   id: string;
   name: string;
+  description: string;
   image: string;
   available: boolean;
 }
@@ -66,14 +67,11 @@ export interface MenuData {
 
 export const menuData: MenuData = {
   mainDishes: [
-    { id: "matooke", name: "Matooke", image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400", available: true },
-    { id: "white-rice", name: "White Rice", image: "https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400", available: true },
-    { id: "pilao", name: "Pilao", image: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=400", available: true },
-    { id: "posho", name: "Posho", image: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400", available: true },
-    { id: "cassava", name: "Cassava", image: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400", available: true },
-    { id: "yam", name: "Yam", image: "https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=400", available: true },
-    { id: "sweet-potatoes", name: "Sweet Potatoes", image: "https://images.unsplash.com/photo-1596097635121-14b63b7a0b17?w=400", available: true },
-    { id: "irish-potatoes", name: "Irish Potatoes", image: "https://images.unsplash.com/photo-1518977676601-b53f82ber5d8?w=400", available: true },
+    { id: "matooke", name: "Matooke", description: "Steamed green bananas mashed to silky perfection - Uganda's beloved staple", image: "/images/menu/main-dishes/matooke.jpg", available: true },
+    { id: "white-rice", name: "White Rice", description: "Fluffy, perfectly steamed long-grain rice", image: "/images/menu/main-dishes/9yards-food-white-rice.jpg", available: true },
+    { id: "pilao", name: "Pilao", description: "Fragrant spiced rice cooked with aromatic herbs and spices", image: "/images/menu/main-dishes/9yards-food-pilao.jpg", available: true },
+    { id: "posho", name: "Posho", description: "Traditional maize meal, soft and smooth - perfect with any stew", image: "/images/menu/main-dishes/9yards-food-posho.jpg", available: true },
+    { id: "cassava", name: "Cassava", description: "Tender boiled cassava, naturally sweet and satisfying", image: "/images/menu/main-dishes/9yards-food-cassava.jpg", available: true },
   ],
   sauces: [
     {

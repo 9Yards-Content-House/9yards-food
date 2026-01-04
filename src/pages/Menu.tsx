@@ -452,7 +452,7 @@ export default function MenuPage() {
           category: 'Main Dish', 
           categoryType: 'main', 
           isFree: false,
-          description: itemDescriptions[d.id]
+          description: d.description || itemDescriptions[d.id]
         })
       );
     }
