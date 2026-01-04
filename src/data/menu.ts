@@ -43,6 +43,7 @@ export interface Dessert {
 export interface SideDish {
   id: string;
   name: string;
+  description: string;
   image: string;
   available: boolean;
 }
@@ -185,10 +186,8 @@ export const menuData: MenuData = {
     { id: "samosa", name: "Samosa", description: "Crispy golden pastry filled with spiced meat or vegetables", price: 1000, image: "/images/menu/desserts/Samosa.jpg", available: true },
   ],
   sideDishes: [
-    { id: "mixed-greens", name: "Mixed Greens", image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400", available: true },
-    { id: "cabbage", name: "Cabbage", image: "https://images.unsplash.com/photo-1598030343246-eec71cb44930?w=400", available: true },
-    { id: "beans", name: "Beans", image: "https://images.unsplash.com/photo-1551462147-ff29053bfc14?w=400", available: true },
-    { id: "avocado", name: "Avocado", image: "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=400", available: true },
+    { id: "cabbage", name: "Cabbage", description: "Fresh sautéed cabbage with onions and mild spices", image: "/images/menu/side-dish/9Yards-cabbage-Menu.jpg", available: true },
+    { id: "avocado", name: "Avocado", description: "Creamy ripe avocado - the perfect healthy addition", image: "/images/menu/side-dish/9Yards-avocado-Menu.jpg", available: true },
   ],
   lusaniya: [
     { 

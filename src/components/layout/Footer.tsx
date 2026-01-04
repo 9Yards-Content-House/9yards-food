@@ -46,9 +46,9 @@ export default function Footer() {
             <ul className="space-y-2">
               {[
                 { href: '/menu', label: 'Menu' },
-                { href: '/how-it-works', label: 'How to Order' },
-                { href: '/delivery-zones', label: 'Delivery Areas' },
-                { href: '/about', label: 'About Us' },
+                { href: '#', label: 'How to Order' },
+                { href: '#', label: 'Delivery Areas' },
+                { href: '#', label: 'About Us' },
                 { href: '/contact', label: 'Contact' },
               ].map((link) => (
                 <li key={link.href}>
@@ -170,12 +170,12 @@ export default function Footer() {
             © {new Date().getFullYear()} 9Yards Food. All rights reserved.
           </p>
           <div className="flex gap-6 text-sm">
-            <Link to="/privacy" className="text-primary-foreground/50 hover:text-secondary transition-colors">
+            <span className="text-primary-foreground/50">
               Privacy Policy
-            </Link>
-            <Link to="/terms" className="text-primary-foreground/50 hover:text-secondary transition-colors">
+            </span>
+            <span className="text-primary-foreground/50">
               Terms & Conditions
-            </Link>
+            </span>
           </div>
         </div>
       </div>

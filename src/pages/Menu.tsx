@@ -498,7 +498,7 @@ export default function MenuPage() {
           category: 'Side Dish', 
           categoryType: 'side', 
           isFree: true,
-          description: itemDescriptions[s.id]
+          description: s.description || itemDescriptions[s.id]
         })
       );
     }
