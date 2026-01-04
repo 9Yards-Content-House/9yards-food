@@ -32,6 +32,10 @@ const getAllMenuItems = () => {
     items.push({ id: item.id, name: item.name, category: 'Side', image: item.image });
   });
   
+  menuData.lusaniya.forEach(item => {
+    items.push({ id: item.id, name: item.name, category: 'Lusaniya', image: item.image, price: item.price ?? undefined });
+  });
+  
   return items;
 };
 
