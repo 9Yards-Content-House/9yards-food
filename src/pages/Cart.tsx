@@ -483,7 +483,16 @@ export default function CartPage() {
                             {item.type === 'single' && item.description ? (
                               item.description
                             ) : (
-                              <>{item.sauce?.name} ({item.sauce?.preparation}, {item.sauce?.size}) + {item.sideDish}</>
+                              <>
+                                {item.sauce?.name}
+                                {(item.sauce?.preparation && item.sauce.preparation !== 'Default') || (item.sauce?.size && item.sauce.size !== 'Regular') ? (
+                                  <> ({[
+                                    item.sauce?.preparation !== 'Default' ? item.sauce?.preparation : null,
+                                    item.sauce?.size !== 'Regular' ? item.sauce?.size : null
+                                  ].filter(Boolean).join(', ')})</>
+                                ) : null}
+                                {item.sideDish ? ` + ${item.sideDish}` : ''}
+                              </>
                             )}
                           </p>
                           {item.extras.length > 0 && (

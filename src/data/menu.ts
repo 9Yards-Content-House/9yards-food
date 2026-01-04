@@ -79,7 +79,7 @@ export const menuData: MenuData = {
       basePrice: 20000,
       image: "https://images.unsplash.com/photo-1432139555190-58524dae6a55?w=400",
       available: true,
-      preparations: ["Fried", "Boiled"],
+      preparations: [],
       sizes: [
         { name: "Regular", price: 20000 },
       ],
@@ -90,7 +90,7 @@ export const menuData: MenuData = {
       basePrice: 15000,
       image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400",
       available: true,
-      preparations: ["Traditional"],
+      preparations: [],
       sizes: [
         { name: "Regular", price: 15000 },
       ],
@@ -136,7 +136,7 @@ export const menuData: MenuData = {
       basePrice: 15000,
       image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400",
       available: true,
-      preparations: ["Traditional"],
+      preparations: [],
       sizes: [
         { name: "Regular", price: 15000 },
       ],
@@ -158,7 +158,7 @@ export const menuData: MenuData = {
       basePrice: 20000,
       image: "https://images.unsplash.com/photo-1510130387422-82bed34b37e9?w=400",
       available: true,
-      preparations: ["Traditional"],
+      preparations: [],
       sizes: [
         { name: "Regular", price: 20000 },
       ],
@@ -169,7 +169,7 @@ export const menuData: MenuData = {
       basePrice: 20000,
       image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400",
       available: true,
-      preparations: ["Fried", "Boiled"],
+      preparations: [],
       sizes: [
         { name: "Regular", price: 20000 },
       ],
@@ -180,7 +180,7 @@ export const menuData: MenuData = {
       basePrice: 15000,
       image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400",
       available: true,
-      preparations: ["Traditional"],
+      preparations: [],
       sizes: [
         { name: "Regular", price: 15000 },
       ],
@@ -191,7 +191,7 @@ export const menuData: MenuData = {
       basePrice: 15000,
       image: "https://images.unsplash.com/photo-1551462147-ff29053bfc14?w=400",
       available: true,
-      preparations: ["Traditional"],
+      preparations: [],
       sizes: [
         { name: "Regular", price: 15000 },
       ],
