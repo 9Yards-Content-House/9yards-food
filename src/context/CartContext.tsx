@@ -24,6 +24,7 @@ export interface CartItem {
   extras: ExtraItem[];
   quantity: number;
   totalPrice: number;
+  description?: string; // For single items like Lusaniya
 }
 
 export interface UserPreferences {

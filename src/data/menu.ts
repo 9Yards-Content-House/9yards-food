@@ -43,12 +43,22 @@ export interface SideDish {
   available: boolean;
 }
 
+export interface LusaniyaItem {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  available: boolean;
+}
+
 export interface MenuData {
   mainDishes: MainDish[];
   sauces: Sauce[];
   juices: Juice[];
   desserts: Dessert[];
   sideDishes: SideDish[];
+  lusaniya: LusaniyaItem[];
 }
 
 export const menuData: MenuData = {
@@ -154,6 +164,24 @@ export const menuData: MenuData = {
     { id: "beans", name: "Beans", image: "https://images.unsplash.com/photo-1551462147-ff29053bfc14?w=400", available: true },
     { id: "cabbage", name: "Steamed Cabbage", image: "https://images.unsplash.com/photo-1598030343246-eec71cb44930?w=400", available: true },
     { id: "sukuma", name: "Sukuma Wiki", image: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400", available: true },
+  ],
+  lusaniya: [
+    { 
+      id: "whole-chicken-lusaniya", 
+      name: "Whole Chicken with Pilao", 
+      description: "Full chicken mixed with Pilao and Kachumbari",
+      price: 45000, 
+      image: "/images/lusaniya/9Yards-Food-Lusaniya-05.png", 
+      available: true 
+    },
+    { 
+      id: "beef-lusaniya", 
+      name: "Beef Lusaniya", 
+      description: "Cow beef with pilao and Kachumbari",
+      price: 35000, 
+      image: "/images/lusaniya/9Yards-Food-Lusaniya-02.png", 
+      available: true 
+    },
   ],
 };
 

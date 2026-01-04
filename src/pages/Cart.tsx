@@ -469,7 +469,7 @@ export default function CartPage() {
                         <div>
                           <div className="flex justify-between items-start">
                             <h3 className="text-[#212282] text-base font-bold leading-tight mb-1">
-                              {item.mainDishes.join(' + ')} Combo
+                              {item.mainDishes.join(' + ')}{item.type !== 'single' ? ' Combo' : ''}
                             </h3>
                             <button 
                               onClick={() => removeItem(item.id)}
@@ -480,7 +480,11 @@ export default function CartPage() {
                             </button>
                           </div>
                           <p className="text-gray-500 text-xs font-medium leading-normal line-clamp-1">
-                            {item.sauce?.name} ({item.sauce?.preparation}, {item.sauce?.size}) + {item.sideDish}
+                            {item.type === 'single' && item.description ? (
+                              item.description
+                            ) : (
+                              <>{item.sauce?.name} ({item.sauce?.preparation}, {item.sauce?.size}) + {item.sideDish}</>
+                            )}
                           </p>
                           {item.extras.length > 0 && (
                             <p className="text-gray-500 text-xs italic mt-0.5">
