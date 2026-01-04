@@ -23,6 +23,7 @@ export interface Sauce {
 export interface Juice {
   id: string;
   name: string;
+  description: string;
   price: number;
   image: string;
   available: boolean;
@@ -198,11 +199,11 @@ export const menuData: MenuData = {
     },
   ],
   juices: [
-    { id: "passion", name: "Passion Fruit", price: 5000, image: "https://images.unsplash.com/photo-1622597467836-f3285f2131b8?w=400", available: true },
-    { id: "mango", name: "Mango", price: 5000, image: "https://images.unsplash.com/photo-1546173159-315724a31696?w=400", available: true },
-    { id: "watermelon", name: "Watermelon", price: 5000, image: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400", available: true },
-    { id: "pineapple", name: "Pineapple", price: 5000, image: "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=400", available: true },
-    { id: "beetroot", name: "Beetroot", price: 5000, image: "https://images.unsplash.com/photo-1518977676601-b53f82abe5d8?w=400", available: true },
+    { id: "passion", name: "Passion Fruit Juice", description: "Tangy and refreshing with natural tropical sweetness", price: 5000, image: "/images/menu/juices/9yards-passion-fruit-juice-menu.jpg", available: true },
+    { id: "mango", name: "Mango Juice", description: "Sweet, smooth, and bursting with tropical mango flavor", price: 5000, image: "/images/menu/juices/9yards-mango-juice-menu.jpg", available: true },
+    { id: "watermelon", name: "Watermelon Juice", description: "Light, refreshing, and naturally hydrating", price: 5000, image: "/images/menu/juices/9yards-watermelon-juice-menu.jpg", available: true },
+    { id: "pineapple", name: "Pineapple Juice", description: "Sweet, tangy, and tropical. Fresh pineapple blended to perfection", price: 5000, image: "/images/menu/juices/9yards-pineapple-juice-menu.jpg", available: true },
+    { id: "beetroot", name: "Beetroot Juice", description: "Pure beetroot juice. Earthy, naturally sweet, and incredibly nutritious", price: 5000, image: "/images/menu/juices/9yards-beetroot-juice-menu.jpg", available: true },
   ],
   desserts: [
     { id: "chapati", name: "Chapati", price: 2000, image: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400", available: true },

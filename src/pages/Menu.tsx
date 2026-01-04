@@ -476,7 +476,7 @@ export default function MenuPage() {
           ...j, 
           category: 'Juice', 
           categoryType: 'juice',
-          description: itemDescriptions[j.id]
+          description: j.description || itemDescriptions[j.id]
         })
       );
     }
