@@ -171,223 +171,151 @@ export default function ContactPage() {
         {/* Main Content Section */}
         <section className="py-12 md:py-20">
           <div className="container-custom px-4">
-            <div className="grid lg:grid-cols-5 gap-12">
+            <div className="grid lg:grid-cols-5 gap-12 items-start">
               {/* Left: Contact Info */}
-              <div className="lg:col-span-2">
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
-                  Get in Touch
-                </h2>
+              <div className="lg:col-span-2 space-y-8">
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground mb-4">
+                    Get in Touch
+                  </h2>
+                  <p className="text-muted-foreground text-lg">
+                    Have questions or need assistance? We're here to help you.
+                  </p>
+                </div>
 
-                <div className="space-y-4">
+                <div className="space-y-6">
                   {/* Call Us */}
-                  <div className="bg-card border border-border rounded-xl p-4 hover:border-secondary transition-colors">
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Phone className="w-5 h-5 text-blue-500" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-bold text-foreground">Call Us</h3>
-                        <p className="text-lg text-foreground font-medium">
-                          +256 708 899 597
-                        </p>
-                        <p className="text-sm text-muted-foreground mb-3">
-                          Available 7 days a week
-                        </p>
-                        <a
-                          href="tel:+256708899597"
-                          className="text-sm font-bold text-secondary flex items-center gap-1 hover:underline"
-                        >
-                          Call Now <ChevronRight className="w-4 h-4" />
-                        </a>
-                      </div>
-                      <button
-                        onClick={() => copyToClipboard("+256708899597")}
-                        className="p-2 hover:bg-muted rounded-lg transition-colors"
-                        title="Copy number"
-                      >
-                        <Copy className="w-4 h-4 text-muted-foreground" />
-                      </button>
+                  <div className="flex items-start gap-4 p-4 rounded-lg bg-card/50 border border-border/50">
+                    <div className="w-10 h-10 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0 text-blue-600">
+                      <Phone className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground mb-1">Phone</h3>
+                      <p className="text-muted-foreground mb-2 text-sm">Mon-Sun from 10am to 10pm.</p>
+                      <a href="tel:+256708899597" className="text-foreground hover:text-blue-600 transition-colors font-medium">
+                        +256 708 899 597
+                      </a>
                     </div>
                   </div>
 
                   {/* WhatsApp */}
-                  <div className="bg-card border-2 border-green-500/30 rounded-xl p-4 hover:border-green-500 transition-colors">
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <WhatsAppIcon className="w-5 h-5 text-green-500" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-bold text-foreground">
-                            WhatsApp
-                          </h3>
-                          <span className="bg-green-500/10 text-green-600 text-xs font-bold px-2 py-0.5 rounded-full">
-                            Fastest
-                          </span>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-3">
-                          Chat with us directly - fastest response guaranteed
-                        </p>
-                        <a
-                          href="https://wa.me/256708899597?text=Hi%209Yards%20Food!%20I%20have%20a%20question%20about..."
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 bg-green-500 text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-green-600 transition-colors"
-                        >
-                          Open WhatsApp <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
-                      </div>
+                  <div className="flex items-start gap-4 p-4 rounded-lg bg-card/50 border border-border/50">
+                    <div className="w-10 h-10 rounded-lg bg-green-50 border border-green-100 flex items-center justify-center flex-shrink-0 text-green-600">
+                      <WhatsAppIcon className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground mb-1">WhatsApp</h3>
+                      <p className="text-muted-foreground mb-2 text-sm">Chat with us directly.</p>
+                      <a 
+                        href="https://wa.me/256708899597" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-foreground hover:text-green-600 transition-colors font-medium"
+                      >
+                        Start Chat
+                      </a>
                     </div>
                   </div>
 
                   {/* Email */}
-                  <div className="bg-card border border-border rounded-xl p-4 hover:border-secondary transition-colors">
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Mail className="w-5 h-5 text-secondary" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-bold text-foreground">Email</h3>
-                        <p className="text-foreground">
-                          deliveries@9yards.co.ug
-                        </p>
-                        <p className="text-sm text-muted-foreground mb-3">
-                          We reply within 24 hours
-                        </p>
-                        <a
-                          href="mailto:deliveries@9yards.co.ug"
-                          className="text-sm font-bold text-secondary flex items-center gap-1 hover:underline"
-                        >
-                          Send Email <ChevronRight className="w-4 h-4" />
-                        </a>
-                      </div>
-                      <button
-                        onClick={() =>
-                          copyToClipboard("deliveries@9yards.co.ug")
-                        }
-                        className="p-2 hover:bg-muted rounded-lg transition-colors"
-                        title="Copy email"
-                      >
-                        <Copy className="w-4 h-4 text-muted-foreground" />
-                      </button>
+                  <div className="flex items-start gap-4 p-4 rounded-lg bg-card/50 border border-border/50">
+                    <div className="w-10 h-10 rounded-lg bg-orange-50 border border-orange-100 flex items-center justify-center flex-shrink-0 text-orange-600">
+                      <Mail className="w-5 h-5" />
                     </div>
-                  </div>
-
-                  {/* Operating Hours */}
-                  <div className="bg-card border border-border rounded-xl p-4">
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Clock className="w-5 h-5 text-secondary" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-bold text-foreground">
-                          Operating Hours
-                        </h3>
-                        <p className="text-foreground">Monday - Sunday</p>
-                        <p className="text-lg font-bold text-foreground">
-                          10:00 AM - 10:00 PM
-                        </p>
-                        <div className="mt-2 inline-flex items-center gap-1.5 bg-green-500/10 text-green-600 text-sm font-bold px-3 py-1 rounded-full">
-                          <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                          Open Every Day!
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Social Media */}
-                  <div className="bg-card border border-border rounded-xl p-4">
-                    <h3 className="font-bold text-foreground mb-3">
-                      Follow Us
-                    </h3>
-                    <div className="flex gap-3">
-                      <a
-                        href="https://www.instagram.com/9yards_food/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-12 h-12 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-xl flex items-center justify-center hover:scale-105 transition-transform"
-                      >
-                        <i className="fa-brands fa-instagram text-white text-xl"></i>
-                      </a>
-                      <a
-                        href="https://www.tiktok.com/@9yardsfood"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-12 h-12 bg-black rounded-xl flex items-center justify-center hover:scale-105 transition-transform"
-                      >
-                        <i className="fa-brands fa-tiktok text-white text-xl"></i>
+                    <div>
+                      <h3 className="font-semibold text-foreground mb-1">Email</h3>
+                      <p className="text-muted-foreground mb-2 text-sm">Our friendly team is here to help.</p>
+                      <a href="mailto:deliveries@9yards.co.ug" className="text-foreground hover:text-orange-600 transition-colors font-medium">
+                        deliveries@9yards.co.ug
                       </a>
                     </div>
+                  </div>
+                </div>
+
+                {/* Social Media */}
+                <div className="pt-6 border-t border-border">
+                  <h3 className="font-semibold text-foreground mb-4">Follow Us</h3>
+                  <div className="flex gap-4">
+                    <a
+                      href="https://www.instagram.com/9yards_food/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-pink-600 hover:border-pink-200 hover:bg-pink-50 transition-all"
+                    >
+                      <i className="fa-brands fa-instagram text-xl"></i>
+                    </a>
+                    <a
+                      href="https://www.tiktok.com/@9yardsfood"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-black hover:border-gray-300 hover:bg-gray-50 transition-all"
+                    >
+                      <i className="fa-brands fa-tiktok text-xl"></i>
+                    </a>
                   </div>
                 </div>
               </div>
 
               {/* Right: Contact Form */}
               <div className="lg:col-span-3">
-                <div className="bg-card border border-border rounded-2xl p-6 md:p-8 shadow-lg">
+                <div className="bg-card border border-border rounded-xl p-6 md:p-8">
                   {isSubmitted ? (
                     <div className="text-center py-12">
-                      <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Check className="w-10 h-10 text-green-500" />
+                      <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600">
+                        <Check className="w-8 h-8" />
                       </div>
-                      <h3 className="text-2xl font-bold text-foreground mb-2">
-                        Message Sent!
-                      </h3>
-                      <p className="text-muted-foreground mb-6">
+                      <h3 className="text-xl font-bold text-foreground mb-2">Message Sent</h3>
+                      <p className="text-muted-foreground mb-8">
                         Thank you for reaching out. We'll get back to you soon.
                       </p>
                       <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <Link to="/menu" className="btn-secondary">
-                          View Our Menu
+                        <Link to="/menu" className="btn-secondary min-w-[160px]">
+                          View Menu
                         </Link>
                         <button
                           onClick={() => {
                             setIsSubmitted(false);
                             setFormData({
-                              name: "",
-                              email: "",
-                              phone: "",
-                              subject: "",
-                              message: "",
+                              name: '',
+                              email: '',
+                              phone: '',
+                              subject: '',
+                              message: '',
                             });
                           }}
-                          className="px-6 py-3 border-2 border-border rounded-xl font-semibold hover:bg-muted transition-colors"
+                          className="px-6 py-3 border border-border rounded-lg font-medium hover:bg-secondary/5 transition-colors min-w-[160px]"
                         >
-                          Send Another Message
+                          Send Another
                         </button>
                       </div>
                     </div>
                   ) : (
                     <>
-                      <h2 className="text-xl md:text-2xl font-bold text-foreground mb-2">
-                        Send Us a Message
-                      </h2>
-                      <p className="text-muted-foreground mb-6">
-                        What can we help you with today?
-                      </p>
+                      <div className="mb-8">
+                        <h2 className="text-xl font-bold text-foreground mb-2">
+                          Send a Message
+                        </h2>
+                        <p className="text-muted-foreground">
+                          Fill out the form below and we'll get back to you.
+                        </p>
+                      </div>
 
-                      <form
-                        name="contact"
-                        method="POST"
-                        data-netlify="true"
+                      <form 
+                        name="contact" 
+                        method="POST" 
+                        data-netlify="true" 
                         netlify-honeypot="bot-field"
-                        onSubmit={handleSubmit}
-                        className="space-y-4"
+                        onSubmit={handleSubmit} 
+                        className="space-y-5"
                       >
-                        {/* Hidden fields for Netlify */}
                         <input type="hidden" name="form-name" value="contact" />
                         <p className="hidden">
-                          <label>
-                            Don't fill this out if you're human:{" "}
-                            <input name="bot-field" />
-                          </label>
+                          <label>Don't fill this out if you're human: <input name="bot-field" /></label>
                         </p>
-
-                        <div className="grid md:grid-cols-2 gap-4">
+                        
+                        <div className="grid md:grid-cols-2 gap-5">
                           <div>
-                            <label className="text-sm font-medium text-foreground mb-2 block">
-                              Name <span className="text-red-500">*</span>
-                            </label>
+                            <label className="text-sm font-medium text-foreground mb-2 block">Name</label>
                             <input
                               type="text"
                               name="name"
@@ -395,13 +323,11 @@ export default function ContactPage() {
                               value={formData.name}
                               onChange={handleInputChange}
                               placeholder="Your full name"
-                              className="w-full p-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary"
+                              className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
                             />
                           </div>
                           <div>
-                            <label className="text-sm font-medium text-foreground mb-2 block">
-                              Email <span className="text-red-500">*</span>
-                            </label>
+                            <label className="text-sm font-medium text-foreground mb-2 block">Email</label>
                             <input
                               type="email"
                               name="email"
@@ -409,75 +335,63 @@ export default function ContactPage() {
                               value={formData.email}
                               onChange={handleInputChange}
                               placeholder="you@example.com"
-                              className="w-full p-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary"
+                              className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
                             />
                           </div>
                         </div>
 
-                        <div className="grid md:grid-cols-2 gap-4">
+                        <div className="grid md:grid-cols-2 gap-5">
                           <div>
-                            <label className="text-sm font-medium text-foreground mb-2 block">
-                              Phone <span className="text-red-500">*</span>
-                            </label>
+                            <label className="text-sm font-medium text-foreground mb-2 block">Phone</label>
                             <input
                               type="tel"
                               name="phone"
                               required
                               value={formData.phone}
                               onChange={handleInputChange}
-                              placeholder="+256 700 000 000"
-                              className="w-full p-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary"
+                              placeholder="+256..."
+                              className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
                             />
                           </div>
                           <div>
-                            <label className="text-sm font-medium text-foreground mb-2 block">
-                              Subject <span className="text-red-500">*</span>
-                            </label>
+                            <label className="text-sm font-medium text-foreground mb-2 block">Subject</label>
                             <input
                               type="text"
                               name="subject"
                               required
                               value={formData.subject}
                               onChange={handleInputChange}
-                              placeholder="What's this about?"
-                              className="w-full p-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary"
+                              placeholder="Topic"
+                              className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
                             />
                           </div>
                         </div>
 
                         <div>
-                          <label className="text-sm font-medium text-foreground mb-2 block">
-                            Message <span className="text-red-500">*</span>
-                          </label>
+                          <label className="text-sm font-medium text-foreground mb-2 block">Message</label>
                           <textarea
                             name="message"
                             required
                             rows={5}
                             value={formData.message}
                             onChange={handleInputChange}
-                            placeholder="Tell us more about your inquiry..."
-                            className="w-full p-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary resize-none"
+                            placeholder="How can we help?"
+                            className="w-full p-4 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary resize-none transition-all"
                           />
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {formData.message.length} characters
-                          </p>
                         </div>
 
                         <button
                           type="submit"
                           disabled={isSubmitting}
-                          className="w-full btn-secondary text-lg py-4 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                          className="w-full btn-secondary text-base py-3.5 rounded-lg flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed mt-2"
                         >
                           {isSubmitting ? (
                             <>
-                              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                               Sending...
                             </>
                           ) : (
-                            <>
-                              Send Message
-                              <ChevronRight className="w-5 h-5" />
-                            </>
+                            'Send Message'
                           )}
                         </button>
                       </form>
