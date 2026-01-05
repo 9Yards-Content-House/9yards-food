@@ -91,7 +91,7 @@ function DishCard({
     if (item.isIncluded) {
       return <span className="text-muted-foreground font-medium text-sm">Included</span>;
     }
-    return <span className="text-secondary font-bold text-base">{formatPrice(item.price)}</span>;
+    return <span className="text-secondary font-extrabold text-lg">{formatPrice(item.price)}</span>;
   };
 
   // Determine button text based on item type
@@ -105,8 +105,8 @@ function DishCard({
   return (
     <div
       onClick={() => item.available && onAddToOrder()}
-      className={`group relative bg-card rounded-2xl overflow-hidden border border-border 
-        hover:border-secondary/50 transition-all duration-200 flex flex-col
+      className={`group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md 
+        transition-all duration-200 flex flex-col
         ${item.available ? 'cursor-pointer' : 'cursor-not-allowed'}
         ${!item.available ? 'opacity-60' : ''}`}
     >
@@ -189,7 +189,7 @@ function DishCard({
         </h3>
         
         {/* Description */}
-        <p className="text-muted-foreground text-xs md:text-sm line-clamp-1 mb-2">
+        <p className="text-gray-600 text-xs md:text-sm line-clamp-1 mb-2">
           {item.description}
         </p>
         

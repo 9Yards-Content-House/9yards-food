@@ -184,7 +184,7 @@ function MenuItemCard({
         );
       }
       return (
-        <span className="text-secondary font-bold text-base">
+        <span className="text-secondary font-extrabold text-lg">
           {formatPrice(item.price)}
         </span>
       );
@@ -228,8 +228,8 @@ function MenuItemCard({
           onAddToOrder();
         }
       }}
-      className={`group relative bg-card rounded-2xl overflow-hidden border border-border 
-        hover:border-secondary/50 transition-all duration-200 flex flex-col
+      className={`group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md 
+        transition-all duration-200 flex flex-col
         ${item.available ? "cursor-pointer" : "cursor-not-allowed"}
         ${
           isHighlighted
@@ -338,7 +338,7 @@ function MenuItemCard({
         </h3>
 
         {/* Description */}
-        <p className="text-muted-foreground text-xs md:text-sm line-clamp-1 mb-2">
+        <p className="text-gray-600 text-xs md:text-sm line-clamp-1 mb-2">
           {description}
         </p>
 
@@ -664,7 +664,7 @@ export default function MenuPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20 lg:pb-0">
+    <div className="min-h-screen bg-gray-50 pb-20 lg:pb-0">
       <SEO
         title="Our Menu | Authentic Ugandan Dishes & Combos"
         description="Explore our diverse menu of authentic Ugandan food. Build your own combo with Matooke, Rice, Beef, Chicken, Fish and more."
@@ -893,6 +893,17 @@ export default function MenuPage() {
           </Link>
         </div>
       )}
+
+      {/* Sticky Create Meal Button (Mobile) */}
+      <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 lg:hidden w-auto">
+         <button
+            onClick={() => setIsComboBuilderOpen(true)}
+            className="bg-primary text-primary-foreground font-bold px-6 py-3 rounded-full shadow-xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-transform border border-white/20"
+          >
+            <Plus className="w-5 h-5" />
+            Create Meal
+          </button>
+      </div>
 
       <ComboBuilder
         isOpen={isComboBuilderOpen}
