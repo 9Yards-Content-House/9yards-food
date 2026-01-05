@@ -4,6 +4,7 @@ import { menuData, Sauce } from '@/data/menu';
 import { formatPrice } from '@/lib/utils/order';
 import { useCart, CartItem, SauceSelection, ExtraItem } from '@/context/CartContext';
 import { toast } from 'sonner';
+import { vibrate } from '@/lib/utils/ui';
 
 interface ComboBuilderProps {
   isOpen: boolean;
@@ -154,6 +155,7 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
     };
 
     addItem(cartItem);
+    vibrate(50);
     toast.success('Combo added to order!');
     handleClose();
   };

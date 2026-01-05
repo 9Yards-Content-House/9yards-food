@@ -24,6 +24,7 @@ import { formatPrice } from "@/lib/utils/order";
 import { useCart } from "@/context/CartContext";
 import { toast } from "sonner";
 import SEO from "@/components/SEO";
+import { vibrate } from '@/lib/utils/ui'; // Add import
 
 type Category =
   | "all"
@@ -133,6 +134,8 @@ interface MenuItemCardProps {
   onToggleFavorite: (id: string) => void;
   isFavorite: boolean;
   isHighlighted: boolean;
+  lusaniyaCount?: number;
+  onRemoveLusaniya?: () => void;
 }
 
 function MenuItemCard({
@@ -143,6 +146,8 @@ function MenuItemCard({
   onToggleFavorite,
   isFavorite,
   isHighlighted,
+  lusaniyaCount = 0,
+  onRemoveLusaniya,
 }: MenuItemCardProps) {
   const isBestSeller = bestSellers.includes(item.id);
   const isNew = newItems.includes(item.id);
@@ -277,7 +282,7 @@ function MenuItemCard({
             e.stopPropagation();
             onToggleFavorite(item.id);
           }}
-          className="absolute top-2.5 right-2.5 w-8 h-8 bg-white/90 dark:bg-black/70 backdrop-blur-sm rounded-full 
+          className="absolute top-2 right-2 w-10 h-10 bg-white/90 dark:bg-black/70 backdrop-blur-sm rounded-full 
             flex items-center justify-center hover:bg-white transition-colors z-10"
           aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
         >
@@ -343,21 +348,39 @@ function MenuItemCard({
 
           {/* Add to Cart button for Lusaniya items */}
           {item.available && isLusaniya && onAddToCart && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (!isInCart) {
+            lusaniyaCount > 0 ? (
+               <div className="flex items-center gap-2 bg-secondary/10 rounded-full px-2 py-1">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemoveLusaniya?.();
+                  }}
+                  className="w-7 h-7 flex items-center justify-center bg-white text-secondary rounded-full shadow-sm"
+                >
+                  -
+                </button>
+                <span className="text-sm font-bold w-4 text-center">{lusaniyaCount}</span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAddToCart();
+                  }}
+                  className="w-7 h-7 flex items-center justify-center bg-secondary text-white rounded-full shadow-sm"
+                >
+                  +
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
                   onAddToCart();
-                }
-              }}
-              className={`text-xs font-bold px-3 py-2 rounded-full transition-all ${
-                isInCart
-                  ? "bg-green-500 text-white cursor-default"
-                  : "bg-secondary hover:bg-secondary/90 text-secondary-foreground hover:scale-105 active:scale-95"
-              }`}
-            >
-              {isInCart ? "Added to Order" : "Add to Order"}
-            </button>
+                }}
+                className="text-xs font-bold px-3 py-2 rounded-full transition-all bg-secondary hover:bg-secondary/90 text-secondary-foreground hover:scale-105 active:scale-95"
+              >
+                Add to Order
+              </button>
+            )
           )}
 
           {/* Visual indicator for tappable - non-Lusaniya items */}
@@ -378,7 +401,7 @@ export default function MenuPage() {
   const [isComboBuilderOpen, setIsComboBuilderOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [highlightedItem, setHighlightedItem] = useState<string | null>(null);
-  const { toggleFavorite, isFavorite, cartCount, addItem, state } = useCart();
+  const { toggleFavorite, isFavorite, cartCount, addItem, removeItem, state } = useCart();
 
   // Check if a Lusaniya item is in cart
   const isLusaniyaInCart = (itemId: string) => {
@@ -386,6 +409,23 @@ export default function MenuPage() {
       (cartItem) =>
         cartItem.type === "single" && cartItem.id.includes(`lusaniya-${itemId}`)
     );
+  };
+
+  const getLusaniyaCount = (itemId: string) => {
+    return state.items.filter(
+      (item) => item.type === "single" && item.id.includes(`lusaniya-${itemId}`)
+    ).length;
+  };
+
+  const handleRemoveLusaniya = (itemId: string) => {
+    const matches = state.items.filter(
+      (item) => item.type === "single" && item.id.includes(`lusaniya-${itemId}`)
+    );
+    if (matches.length > 0) {
+      const lastMatch = matches[matches.length - 1];
+      removeItem(lastMatch.id);
+      vibrate(50);
+    }
   };
 
   // Handle search params from SearchModal navigation
@@ -440,6 +480,11 @@ export default function MenuPage() {
       }
     }
   }, [searchParams, setSearchParams]);
+
+  // Scroll to top on category change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [activeCategory]);
 
   const categories = [
     { id: "all", label: "All Items" },
@@ -664,6 +709,9 @@ export default function MenuPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Find your favorite dish..."
                   className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-border bg-background text-sm focus:border-secondary focus:ring-1 focus:ring-secondary/20 focus:outline-none transition-all"
+                  inputMode="search"
+                  enterKeyHint="search"
+                  autoComplete="off"
                 />
                 {searchQuery && (
                   <button
@@ -814,6 +862,8 @@ export default function MenuPage() {
                       onToggleFavorite={toggleFavorite}
                       isFavorite={isFavorite(item.id)}
                       isHighlighted={highlightedItem === item.id}
+                      lusaniyaCount={item.isLusaniya ? getLusaniyaCount(item.id) : 0}
+                      onRemoveLusaniya={item.isLusaniya ? () => handleRemoveLusaniya(item.id) : undefined}
                     />
                   ))}
                 </div>

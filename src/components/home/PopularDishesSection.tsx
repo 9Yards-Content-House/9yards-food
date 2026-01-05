@@ -6,6 +6,7 @@ import { menuData } from '@/data/menu';
 import { formatPrice } from '@/lib/utils/order';
 import { useCart } from '@/context/CartContext';
 import ComboBuilder from '@/components/menu/ComboBuilder';
+import { vibrate } from '@/lib/utils/ui';
 
 // IDs of featured items to display - pulled dynamically from menuData
 const FEATURED_SAUCE_IDS = ['chicken-stew', 'fresh-fish', 'beef-stew', 'cowpeas'];
@@ -149,7 +150,7 @@ function DishCard({
             e.stopPropagation();
             onToggleFavorite(item.id);
           }}
-          className="absolute top-2.5 right-2.5 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full 
+          className="absolute top-2 right-2 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full 
             flex items-center justify-center hover:bg-white transition-colors z-10"
           aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
         >
@@ -242,6 +243,7 @@ export default function PopularDishesSection() {
     };
     
     addItem(cartItem);
+    vibrate(50);
   };
 
   // Handle item click - different behavior for Lusaniya vs regular items
