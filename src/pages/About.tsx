@@ -8,6 +8,7 @@ import { useState, useRef, useEffect } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import MobileNav from '@/components/layout/MobileNav';
+import SEO from '@/components/SEO';
 
 // Animated counter hook
 function useCountUp(end: number, duration: number = 2000) {
@@ -226,12 +227,33 @@ const instagramPosts = [
   { likes: 567, image: 'https://images.unsplash.com/photo-1499028344343-cd173ffc68a9?w=300' },
 ];
 
+function StatItem({ value, suffix, label }: { value: number; suffix: string; label: string }) {
+  const { count, ref } = useCountUp(value);
+  
+  return (
+    <div ref={ref} className="text-center">
+      <div className="flex items-center justify-center text-3xl md:text-4xl font-bold text-secondary mb-2">
+        <span>{count}</span>
+        <span>{suffix}</span>
+      </div>
+      <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+        {label}
+      </p>
+    </div>
+  );
+}
+
 export default function AboutPage() {
   const [videoModal, setVideoModal] = useState<string | null>(null);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   return (
     <div className="min-h-screen bg-background pb-24 lg:pb-0">
+      <SEO 
+        title="Our Story | Authentic Ugandan Cuisine"
+        description="Learn about 9Yards Food, our mission to bring authentic Ugandan cuisine to your doorstep, and the team behind your meals."
+        url="/about"
+      />
       <Header />
       <main className="pt-16 md:pt-20">
         {/* Hero Section */}
@@ -795,23 +817,6 @@ export default function AboutPage() {
           />
         </div>
       )}
-    </div>
-  );
-}
-
-// Stat item component with count-up
-function StatItem({ value, suffix, label }: { value: number; suffix: string; label: string }) {
-  const { count, ref } = useCountUp(value, 2000);
-
-  return (
-    <div
-      ref={ref}
-      className="text-center"
-    >
-      <p className="text-4xl md:text-5xl font-bold text-primary mb-2">
-        {count.toLocaleString()}{suffix}
-      </p>
-      <p className="text-sm text-muted-foreground">{label}</p>
     </div>
   );
 }

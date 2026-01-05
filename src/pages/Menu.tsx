@@ -10,6 +10,7 @@ import { menuData } from '@/data/menu';
 import { formatPrice } from '@/lib/utils/order';
 import { useCart } from '@/context/CartContext';
 import { toast } from 'sonner';
+import SEO from '@/components/SEO';
 
 type Category = 'all' | 'lusaniya' | 'main' | 'sauce' | 'juice' | 'dessert' | 'side';
 
@@ -546,6 +547,11 @@ export default function MenuPage() {
 
   return (
     <div className="min-h-screen bg-background pb-20 lg:pb-0">
+      <SEO 
+        title="Our Menu | Authentic Ugandan Dishes & Combos"
+        description="Explore our diverse menu of authentic Ugandan food. Build your own combo with Matooke, Rice, Beef, Chicken, Fish and more."
+        url="/menu"
+      />
       <Header />
 
       <main className="pt-16 md:pt-20">
