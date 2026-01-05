@@ -33,7 +33,7 @@ export default function OrderHistory() {
         totalPrice: item.totalPrice,
       });
     });
-    toast.success('Items added to cart!');
+    toast.success('Items added to order!');
   };
 
   const formatDate = (dateString: string) => {

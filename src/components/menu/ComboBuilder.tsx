@@ -154,7 +154,7 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
     };
 
     addItem(cartItem);
-    toast.success('Combo added to cart!');
+    toast.success('Combo added to order!');
     handleClose();
   };
 
@@ -212,7 +212,7 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
       case 3:
         return 'Next: Add Extras';
       case 4:
-        return 'Add to Cart';
+        return 'Add to Order';
       default:
         return 'Next';
     }

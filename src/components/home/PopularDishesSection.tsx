@@ -96,9 +96,9 @@ function DishCard({
   // Determine button text based on item type
   const getActionText = () => {
     if (item.isLusaniya) {
-      return isInCart ? 'In Cart' : 'Add to Cart';
+      return isInCart ? 'In Order' : 'Add to Order';
     }
-    return 'Build Combo';
+    return 'Build Your Combo';
   };
 
   return (
