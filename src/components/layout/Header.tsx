@@ -69,6 +69,7 @@ export default function Header() {
                   : "/images/logo/9Yards-Food-White-Logo-colored.png"
                 }
                 alt="9Yards Food"
+                fetchPriority="high"
                 className="h-10 sm:h-12 md:h-14 lg:h-[3.8rem] w-auto object-contain"
               />
             </Link>

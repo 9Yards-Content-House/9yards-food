@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Heart, Plus, Search, X, ShoppingCart, Flame, Utensils, Drumstick, GlassWater, Cake, Salad, Star } from 'lucide-react';
+import OptimizedImage from '@/components/ui/optimized-image';
 import { Link, useSearchParams } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -102,8 +103,6 @@ interface MenuItemCardProps {
   onToggleFavorite: (id: string) => void;
   isFavorite: boolean;
   isHighlighted: boolean;
-  imageLoaded: boolean;
-  onImageLoad: () => void;
 }
 
 function MenuItemCard({ 
@@ -113,9 +112,7 @@ function MenuItemCard({
   isInCart,
   onToggleFavorite, 
   isFavorite, 
-  isHighlighted,
-  imageLoaded,
-  onImageLoad 
+  isHighlighted
 }: MenuItemCardProps) {
   const isBestSeller = bestSellers.includes(item.id);
   const isNew = newItems.includes(item.id);
@@ -180,18 +177,10 @@ function MenuItemCard({
     >
       {/* Image Container */}
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-        {/* Skeleton placeholder */}
-        {!imageLoaded && (
-          <div className="absolute inset-0 bg-muted animate-pulse" />
-        )}
-        
-        <img
+        <OptimizedImage
           src={item.image}
           alt={item.name}
-          loading="lazy"
-          onLoad={onImageLoad}
           className={`w-full h-full object-cover 
-            ${imageLoaded ? 'opacity-100' : 'opacity-0'}
             ${!item.available ? 'grayscale' : ''}`}
         />
         
@@ -331,7 +320,6 @@ export default function MenuPage() {
   const [isComboBuilderOpen, setIsComboBuilderOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [highlightedItem, setHighlightedItem] = useState<string | null>(null);
-  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const { toggleFavorite, isFavorite, cartCount, addItem, state } = useCart();
 
   // Check if a Lusaniya item is in cart
@@ -518,9 +506,7 @@ export default function MenuPage() {
     );
   }, [activeCategory, searchQuery]);
 
-  const handleImageLoad = (id: string) => {
-    setLoadedImages(prev => new Set(prev).add(id));
-  };
+
 
   const clearSearch = () => {
     setSearchQuery('');
@@ -727,8 +713,6 @@ export default function MenuPage() {
                       onToggleFavorite={toggleFavorite}
                       isFavorite={isFavorite(item.id)}
                       isHighlighted={highlightedItem === item.id}
-                      imageLoaded={loadedImages.has(item.id)}
-                      onImageLoad={() => handleImageLoad(item.id)}
                     />
                   ))}
                 </div>

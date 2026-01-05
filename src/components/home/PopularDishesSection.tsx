@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Flame, Plus, Star } from 'lucide-react';
+import OptimizedImage from '@/components/ui/optimized-image';
 import { menuData } from '@/data/menu';
 import { formatPrice } from '@/lib/utils/order';
 import { useCart } from '@/context/CartContext';
@@ -75,8 +76,6 @@ interface DishCardProps {
   onAddToOrder: () => void;
   onToggleFavorite: (id: string) => void;
   isFavorite: boolean;
-  imageLoaded: boolean;
-  onImageLoad: () => void;
   isInCart?: boolean;
 }
 
@@ -85,8 +84,6 @@ function DishCard({
   onAddToOrder, 
   onToggleFavorite, 
   isFavorite,
-  imageLoaded,
-  onImageLoad,
   isInCart
 }: DishCardProps) {
   const getPriceDisplay = () => {
@@ -114,18 +111,10 @@ function DishCard({
     >
       {/* Image Container */}
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-        {/* Skeleton placeholder */}
-        {!imageLoaded && (
-          <div className="absolute inset-0 bg-muted animate-pulse" />
-        )}
-        
-        <img
+        <OptimizedImage
           src={item.image}
           alt={item.name}
-          loading="lazy"
-          onLoad={onImageLoad}
           className={`w-full h-full object-cover 
-            ${imageLoaded ? 'opacity-100' : 'opacity-0'}
             ${!item.available ? 'grayscale' : ''}`}
         />
         
@@ -221,15 +210,10 @@ function DishCard({
 
 export default function PopularDishesSection() {
   const { toggleFavorite, isFavorite, addItem, state } = useCart();
-  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [isComboBuilderOpen, setIsComboBuilderOpen] = useState(false);
   
   // Get featured items dynamically from menuData
   const featuredItems = getFeaturedItems();
-
-  const handleImageLoad = (id: string) => {
-    setLoadedImages(prev => new Set(prev).add(id));
-  };
 
   // Check if a Lusaniya item is in the cart
   const isLusaniyaInCart = (itemId: string) => {
@@ -295,8 +279,6 @@ export default function PopularDishesSection() {
                 onAddToOrder={() => handleItemClick(item)}
                 onToggleFavorite={toggleFavorite}
                 isFavorite={isFavorite(item.id)}
-                imageLoaded={loadedImages.has(item.id)}
-                onImageLoad={() => handleImageLoad(item.id)}
                 isInCart={item.isLusaniya ? isLusaniyaInCart(item.id) : false}
               />
             ))}
