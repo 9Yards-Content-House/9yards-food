@@ -879,29 +879,16 @@ export default function MenuPage() {
       <Footer />
       <MobileNav />
 
-      {/* Floating Cart Button (Mobile) */}
-      {cartCount > 0 && (
-        <div className="fixed bottom-24 right-4 z-40 lg:hidden">
-          <Link
-            to="/cart"
-            className="w-14 h-14 bg-secondary text-secondary-foreground rounded-full shadow-xl flex items-center justify-center relative hover:scale-110 active:scale-95 transition-transform"
-          >
-            <ShoppingCart className="w-6 h-6" />
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
-              {cartCount}
-            </span>
-          </Link>
-        </div>
-      )}
 
-      {/* Sticky Create Meal Button (Mobile) */}
+
+      {/* Sticky Build Combo Button (Mobile) */}
       <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 lg:hidden w-auto">
          <button
             onClick={() => setIsComboBuilderOpen(true)}
-            className="bg-primary text-primary-foreground font-bold px-6 py-3 rounded-full shadow-xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-transform border border-white/20"
+            className="bg-primary text-primary-foreground font-bold px-6 py-3 rounded-full shadow-xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-transform"
           >
-            <Plus className="w-5 h-5" />
-            Create Meal
+            <Plus className="w-4 h-4" />
+            <span className="text-sm">Start Order</span>
           </button>
       </div>
 
