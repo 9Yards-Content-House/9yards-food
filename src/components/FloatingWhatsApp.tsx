@@ -78,7 +78,7 @@ export default function FloatingWhatsApp() {
       {/* Floating Button - Mobile first positioning */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-20 right-3 sm:bottom-6 sm:right-4 lg:bottom-8 lg:right-6 z-50 w-12 h-12 sm:w-14 sm:h-14 bg-[#25D366] hover:bg-[#22c55e] rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-105 active:scale-95"
+        className="fixed bottom-24 right-4 z-50 w-12 h-12 sm:w-14 sm:h-14 sm:bottom-32 lg:bottom-8 lg:right-6 bg-[#25D366] hover:bg-[#22c55e] rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 border-2 border-white/20"
         aria-label="Chat on WhatsApp"
       >
         {isOpen ? (
@@ -97,7 +97,7 @@ export default function FloatingWhatsApp() {
             onClick={() => setIsOpen(false)}
           />
           
-          <div className="fixed z-50 bottom-0 left-0 right-0 sm:bottom-24 sm:left-auto sm:right-4 lg:right-6 lg:bottom-28 w-full sm:w-[340px] lg:w-[360px] bg-white sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden border-0 sm:border border-gray-200 animate-in slide-in-from-bottom-5 duration-200 max-h-[85vh] sm:max-h-[480px]">
+          <div className="fixed z-50 bottom-0 left-0 right-0 sm:bottom-48 sm:left-auto sm:right-4 lg:right-6 lg:bottom-28 w-full sm:w-[340px] lg:w-[360px] bg-white sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden border-0 sm:border border-gray-200 animate-in slide-in-from-bottom-5 duration-200 max-h-[85vh] sm:max-h-[480px]">
             {/* Header - Compact */}
             <div className="bg-[#212282] px-4 py-3 text-white">
               <div className="flex items-center justify-between">
