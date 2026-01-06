@@ -28,126 +28,117 @@ export default function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent 
         side="bottom" 
-        className="rounded-t-[32px] max-h-[90vh] overflow-hidden flex flex-col p-0 gap-0 border-none shadow-2xl safe-area-bottom bg-gray-50/95 backdrop-blur-xl"
+        className="rounded-t-[32px] max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0 border-none shadow-2xl safe-area-bottom bg-white [&>button]:hidden"
       >
-        {/* User Header Section */}
-        <div className="bg-white px-6 pt-8 pb-6 border-b border-gray-100 flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-primary to-blue-500 p-1">
-                <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
-                    <img 
-                        src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" 
-                        alt="User" 
-                        className="w-full h-full object-cover"
-                    />
-                </div>
-            </div>
-            <div>
-                <h2 className="text-xl font-bold text-primary">Welcome, Guest</h2>
-                <p className="text-sm text-gray-500">Discover flavors today!</p>
-            </div>
+        {/* Grab Handle */}
+        <div className="w-full h-10 flex items-center justify-center shrink-0">
+          <div className="w-12 h-1.5 rounded-full bg-gray-200" />
         </div>
 
         {/* Scrollable Content */}
-        <div className="overflow-y-auto flex-1 p-6 space-y-6">
+        <div className="overflow-y-auto flex-1 px-6 pb-6 space-y-8">
           
-          {/* Quick Actions Group */}
-          <div className="space-y-3">
-             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Support & Order</h3>
-             <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-                  <a
-                    href={`tel:${PHONE_NUMBER_FORMATTED.replace(/\s/g, '')}`}
-                    className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
-                      <Phone className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-semibold text-gray-900">Call Us</p>
-                      <p className="text-xs text-gray-500">{PHONE_NUMBER_FORMATTED}</p>
-                    </div>
-                  </a>
+          {/* Main Actions Group */}
+          <div className="grid gap-3">
+              <a
+                href={defaultWhatsAppUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 p-5 rounded-3xl bg-gray-50 active:scale-[0.98] transition-transform"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center shrink-0 border border-gray-100">
+                  <WhatsAppIcon className="w-6 h-6 text-gray-800" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-extrabold text-gray-900 text-lg tracking-tight">Order on WhatsApp</p>
+                  <p className="text-sm text-gray-500">Fast & easy ordering</p>
+                </div>
+              </a>
 
-                  <a
-                    href={defaultWhatsAppUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center shrink-0">
-                      <WhatsAppIcon className="w-5 h-5 text-green-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-semibold text-gray-900">Order via WhatsApp</p>
-                      <p className="text-xs text-gray-500">Chat with us directly</p>
-                    </div>
-                  </a>
-             </div>
+              <a
+                href={`tel:${PHONE_NUMBER_FORMATTED.replace(/\s/g, '')}`}
+                className="flex items-center gap-4 p-5 rounded-3xl bg-gray-50 active:scale-[0.98] transition-transform"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center shrink-0 border border-gray-100">
+                  <Phone className="w-6 h-6 text-gray-800" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-extrabold text-gray-900 text-lg tracking-tight">Call for Support</p>
+                  <p className="text-sm text-gray-500">Available daily 10am-10pm</p>
+                </div>
+              </a>
           </div>
 
-          {/* Info Group */}
-          <div className="space-y-3">
-             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Information</h3>
-             <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-                <div className="flex items-center gap-4 p-4 border-b border-gray-100 last:border-0">
-                    <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center shrink-0">
-                        <Clock className="w-5 h-5 text-orange-600" />
-                    </div>
+          {/* Settings & Info */}
+          <div className="space-y-4">
+             <div className="flex items-center justify-between px-2">
+                <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Information</h3>
+                <Clock className="w-4 h-4 text-gray-300" />
+             </div>
+             
+             <div className="bg-gray-50/50 rounded-3xl p-6 border border-gray-100">
+                <div className="flex items-center justify-between mb-8">
                     <div>
-                        <p className="font-semibold text-gray-900">Opening Hours</p>
-                        <p className="text-xs text-gray-500">Daily: 10:00 AM - 10:00 PM</p>
+                        <p className="text-sm font-bold text-gray-900 mb-1">Kitchen Hours</p>
+                        <p className="text-xs text-gray-500">Cooking fresh from 10:00 AM</p>
                     </div>
+                    <div className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border border-green-100">
+                        Open Now
+                    </div>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-3">
+                    <a
+                        href={SOCIAL_LINKS.instagram}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex flex-col items-center justify-center gap-2.5 py-4 rounded-2xl bg-white shadow-sm border border-gray-100 active:scale-95 transition-transform"
+                    >
+                        <Instagram className="w-6 h-6 text-gray-700" />
+                        <span className="text-[11px] font-bold text-gray-700">Instagram</span>
+                    </a>
+                    <a
+                        href={SOCIAL_LINKS.tiktok}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex flex-col items-center justify-center gap-2.5 py-4 rounded-2xl bg-white shadow-sm border border-gray-100 active:scale-95 transition-transform"
+                    >
+                        <TikTokIcon className="w-6 h-6 text-gray-700" />
+                        <span className="text-[11px] font-bold text-gray-700">TikTok</span>
+                    </a>
+                    {SOCIAL_LINKS.youtube && (
+                        <a
+                            href={SOCIAL_LINKS.youtube}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex flex-col items-center justify-center gap-2.5 py-4 rounded-2xl bg-white shadow-sm border border-gray-100 active:scale-95 transition-transform"
+                        >
+                            <Youtube className="w-6 h-6 text-gray-700" />
+                            <span className="text-[11px] font-bold text-gray-700">YouTube</span>
+                        </a>
+                    )}
                 </div>
              </div>
           </div>
 
-          {/* Social Media */}
-          <div className="space-y-3">
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Follow Us</h3>
-            <div className="flex gap-4">
-              <a
-                href={SOCIAL_LINKS.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 h-14 rounded-2xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 flex items-center justify-center text-white shadow-md hover:scale-105 transition-transform"
-              >
-                <Instagram className="w-6 h-6" />
-              </a>
-              <a
-                href={SOCIAL_LINKS.tiktok}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 h-14 rounded-2xl bg-black flex items-center justify-center text-white shadow-md hover:scale-105 transition-transform"
-              >
-                <TikTokIcon className="w-6 h-6" />
-              </a>
-              {SOCIAL_LINKS.youtube && (
-                <a
-                  href={SOCIAL_LINKS.youtube}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 h-14 rounded-2xl bg-red-600 flex items-center justify-center text-white shadow-md hover:scale-105 transition-transform"
-                >
-                  <Youtube className="w-6 h-6" />
-                </a>
-              )}
-            </div>
-          </div>
+          {/* Footer & Close */}
+          <div className="pt-4 flex flex-col items-center gap-6">
+            <button
+              onClick={() => onOpenChange(false)}
+              className="w-full py-4 rounded-full bg-gray-900 text-white font-bold text-sm shadow-xl active:scale-[0.98] transition-all"
+            >
+              Close Menu
+            </button>
 
-          {/* Footer */}
-          <div className="pt-6 pb-20 text-center">
-            <p className="text-xs text-gray-400 mb-2">Part of</p>
             <a
               href="https://9yards.co.ug"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm font-bold text-primary hover:text-primary/80 transition-colors"
+              className="inline-flex items-center gap-2 text-[11px] font-bold text-gray-400 hover:text-gray-600 transition-colors uppercase tracking-widest"
             >
-              9yards.co.ug
+              Part of 9yards.co.ug
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
-            <p className="text-[10px] text-gray-300 mt-4">
-              v1.0.2 • © {new Date().getFullYear()} 9Yards Food
-            </p>
           </div>
         </div>
       </SheetContent>
