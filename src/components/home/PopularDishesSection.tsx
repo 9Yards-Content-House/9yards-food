@@ -11,7 +11,6 @@ import { vibrate } from '@/lib/utils/ui';
 // IDs of featured items to display - pulled dynamically from menuData
 const FEATURED_SAUCE_IDS = ['chicken-stew', 'fresh-fish', 'beef-stew', 'cowpeas'];
 const FEATURED_LUSANIYA_IDS = ['ordinary-lusaniya', 'beef-pilao-lusaniya'];
-const FEATURED_EXTRA_IDS = ['passion', 'chapati'];
 
 // Build featured items dynamically from menuData
 const getFeaturedItems = () => {
@@ -37,9 +36,6 @@ const getFeaturedItems = () => {
     }
   });
   
-    }
-  });
-  
   // Add lusaniya items
   FEATURED_LUSANIYA_IDS.forEach((id) => {
     const lusaniya = menuData.lusaniya.find(l => l.id === id);
@@ -53,44 +49,6 @@ const getFeaturedItems = () => {
         categoryType: 'lusaniya' as const,
         categoryLabel: 'Special',
         available: lusaniya.available,
-        isBestSeller: false,
-        isIndividual: true,
-      });
-    }
-  });
-  
-  // Add featured extras (juices/desserts)
-  FEATURED_EXTRA_IDS.forEach((id) => {
-    // Try finding in juices
-    const juice = menuData.juices.find(j => j.id === id);
-    if (juice) {
-      items.push({
-        id: juice.id,
-        name: juice.name,
-        description: juice.description,
-        image: juice.image,
-        price: juice.price,
-        categoryType: 'juice' as const,
-        categoryLabel: 'Refreshment',
-        available: juice.available,
-        isBestSeller: false,
-        isIndividual: true,
-      });
-      return;
-    }
-    
-    // Try finding in desserts
-    const dessert = menuData.desserts.find(d => d.id === id);
-    if (dessert) {
-      items.push({
-        id: dessert.id,
-        name: dessert.name,
-        description: dessert.description,
-        image: dessert.image,
-        price: dessert.price,
-        categoryType: 'dessert' as const,
-        categoryLabel: 'Sweet Treat',
-        available: dessert.available,
         isBestSeller: false,
         isIndividual: true,
       });
@@ -266,12 +224,8 @@ export default function PopularDishesSection() {
 
   // Handle adding individual items to cart
   const handleIndividualAddToCart = (item: FeaturedItem) => {
-    if (isIndividualInCart(item.id, item.categoryType)) {
-      return; // Already in cart
-    }
-    
     const cartItem = {
-      id: `${item.categoryType}-${item.id}-${Date.now()}`,
+      id: `${item.categoryType}-${item.id}`,
       type: 'single' as const,
       mainDishes: [item.name],
       sauce: null,

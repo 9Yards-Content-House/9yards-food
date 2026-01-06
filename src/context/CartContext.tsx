@@ -81,8 +81,22 @@ const initialState: CartState = {
 
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
-    case 'ADD_ITEM':
+    case 'ADD_ITEM': {
+      const existingItemIndex = state.items.findIndex(item => item.id === action.payload.id);
+      
+      if (existingItemIndex !== -1) {
+        // Item already exists, increment quantity
+        const updatedItems = [...state.items];
+        updatedItems[existingItemIndex] = {
+          ...updatedItems[existingItemIndex],
+          quantity: updatedItems[existingItemIndex].quantity + (action.payload.quantity || 1)
+        };
+        return { ...state, items: updatedItems };
+      }
+      
+      // New item, add to list
       return { ...state, items: [...state.items, action.payload] };
+    }
     case 'REMOVE_ITEM':
       return { ...state, items: state.items.filter(item => item.id !== action.payload) };
     case 'UPDATE_QUANTITY':

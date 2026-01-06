@@ -408,7 +408,7 @@ export default function MenuPage() {
   const [isComboBuilderOpen, setIsComboBuilderOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [highlightedItem, setHighlightedItem] = useState<string | null>(null);
-  const { toggleFavorite, isFavorite, cartCount, addItem, removeItem, state } =
+  const { toggleFavorite, isFavorite, cartCount, addItem, removeItem, updateQuantity, state } =
     useCart();
 
   // Check if an individual item is in cart
@@ -421,20 +421,24 @@ export default function MenuPage() {
   };
 
   const getIndividualCount = (itemId: string, category: string) => {
-    return state.items.filter(
-      (item) =>
-        item.type === "single" && item.id.includes(`${category}-${itemId}`)
-    ).length;
+    const item = state.items.find(
+      (cartItem) =>
+        cartItem.type === "single" && cartItem.id === `${category}-${itemId}`
+    );
+    return item ? item.quantity : 0;
   };
 
   const handleRemoveIndividual = (itemId: string, category: string) => {
-    const matches = state.items.filter(
-      (item) =>
-        item.type === "single" && item.id.includes(`${category}-${itemId}`)
+    const existingItem = state.items.find(
+      (item) => item.type === "single" && item.id === `${category}-${itemId}`
     );
-    if (matches.length > 0) {
-      const lastMatch = matches[matches.length - 1];
-      removeItem(lastMatch.id);
+    
+    if (existingItem) {
+      if (existingItem.quantity > 1) {
+        updateQuantity(existingItem.id, existingItem.quantity - 1);
+      } else {
+        removeItem(existingItem.id);
+      }
       vibrate(50);
     }
   };
@@ -639,7 +643,6 @@ export default function MenuPage() {
     setSearchQuery("");
   };
 
-  // Handle adding individual items directly to cart
   const handleIndividualAddToCart = (item: {
     id: string;
     name: string;
@@ -650,7 +653,7 @@ export default function MenuPage() {
     if (!item.price) return;
 
     const cartItem = {
-      id: `${item.categoryType}-${item.id}-${Date.now()}`,
+      id: `${item.categoryType}-${item.id}`,
       type: "single" as const,
       mainDishes: [item.name],
       sauce: null,
