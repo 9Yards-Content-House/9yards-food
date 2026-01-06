@@ -24,8 +24,7 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 
 // Navigation links
 const navLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/menu', label: 'Menu' },
+  { href: '/menu', label: 'Our Menu' },
   { href: '/contact', label: 'Contact' },
   { href: '/delivery-zones', label: 'Delivery Areas' },
 ];
