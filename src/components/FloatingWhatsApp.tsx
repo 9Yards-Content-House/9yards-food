@@ -159,10 +159,7 @@ export default function FloatingWhatsApp() {
 
               {/* Welcome Message (Received - White Bubble) */}
               <div className="flex justify-start mb-1">
-                <div className="relative bg-white rounded-lg rounded-tl-sm shadow-sm px-2 py-1.5 max-w-[85%] sm:max-w-[80%]">
-                  {/* Tail */}
-                  <div className="absolute -left-[6px] top-0 w-0 h-0 border-t-[8px] border-t-white border-r-[6px] border-r-transparent"></div>
-                  
+                <div className="relative bg-white rounded-lg shadow-sm px-2 py-1.5 max-w-[85%] sm:max-w-[80%]">
                   <p className="text-[#303030] text-[13.5px] sm:text-[14.2px] leading-[1.4] whitespace-pre-wrap">
                     {getGreeting()}! 👋{'\n'}Welcome to 9Yards Food!
                   </p>
@@ -181,11 +178,8 @@ export default function FloatingWhatsApp() {
                   <div key={index} className="flex justify-end">
                     <button
                       onClick={() => handleQuickReply(reply.message)}
-                      className="relative bg-[#d9fdd3] rounded-lg rounded-tr-sm shadow-sm px-2 py-1.5 max-w-[85%] sm:max-w-[80%] text-left hover:bg-[#d1f8ca] active:scale-[0.98] transition-all"
+                      className="relative bg-[#d9fdd3] rounded-lg shadow-sm px-2 py-1.5 max-w-[85%] sm:max-w-[80%] text-left hover:bg-[#d1f8ca] active:scale-[0.98] transition-all"
                     >
-                      {/* Tail */}
-                      <div className="absolute -right-[6px] top-0 w-0 h-0 border-t-[8px] border-t-[#d9fdd3] border-l-[6px] border-l-transparent"></div>
-                      
                       <p className="text-[#303030] text-[13.5px] sm:text-[14.2px] leading-[1.4]">
                         {reply.text}
                       </p>
@@ -205,10 +199,7 @@ export default function FloatingWhatsApp() {
               {/* Cart Info Message (if items in cart) - Received */}
               {cartItemCount > 0 && (
                 <div className="flex justify-start mb-1 mt-2">
-                  <div className="relative bg-white rounded-lg rounded-tl-sm shadow-sm px-2 py-1.5 max-w-[85%] sm:max-w-[80%]">
-                    {/* Tail */}
-                    <div className="absolute -left-[6px] top-0 w-0 h-0 border-t-[8px] border-t-white border-r-[6px] border-r-transparent"></div>
-                    
+                  <div className="relative bg-white rounded-lg shadow-sm px-2 py-1.5 max-w-[85%] sm:max-w-[80%]">
                     <p className="text-[#303030] text-[13.5px] sm:text-[14.2px] leading-[1.4]">
                       I see you have <span className="font-semibold text-[#25D366]">{cartItemCount} item{cartItemCount > 1 ? 's' : ''}</span> in your cart! 🛒
                     </p>
@@ -221,10 +212,7 @@ export default function FloatingWhatsApp() {
 
               {/* Operating Hours Info - Received */}
               <div className="flex justify-start mb-1 mt-2">
-                <div className="relative bg-white rounded-lg rounded-tl-sm shadow-sm px-2 py-1.5 max-w-[85%] sm:max-w-[80%]">
-                  {/* Tail */}
-                  <div className="absolute -left-[6px] top-0 w-0 h-0 border-t-[8px] border-t-white border-r-[6px] border-r-transparent"></div>
-                  
+                <div className="relative bg-white rounded-lg shadow-sm px-2 py-1.5 max-w-[85%] sm:max-w-[80%]">
                   <p className="text-[#303030] text-[13.5px] sm:text-[14.2px] leading-[1.4] font-medium">
                     📍 We deliver across Kampala!
                   </p>
