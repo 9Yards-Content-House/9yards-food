@@ -20,20 +20,20 @@ export default function OrderHistory() {
   const { orderHistory, clearOrderHistory, reorderFromHistory, addItem } = useCart();
 
   const handleReorder = (order: OrderHistoryItem) => {
-    // Add each item from the order to cart
+    // Add each item from the order to cart, preserving their original type
     order.items.forEach(item => {
-      addItem({
-        id: `combo-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        type: 'combo',
-        mainDishes: item.mainDishes,
-        sauce: item.sauce,
-        sideDish: item.sideDish,
-        extras: item.extras,
-        quantity: item.quantity,
-        totalPrice: item.totalPrice,
-      });
+      // Create a new item with proper structure based on type
+      const cartItem = {
+        ...item,
+        // Generate new unique ID for combos, or use existing logic for singles
+        id: item.type === 'combo' 
+          ? `combo-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+          : item.id, // Preserve single item ID for proper deduplication
+      };
+      
+      addItem(cartItem);
     });
-    toast.success('Items added to order!');
+    toast.success(`${order.items.length} item(s) added to cart!`);
   };
 
   const formatDate = (dateString: string) => {
