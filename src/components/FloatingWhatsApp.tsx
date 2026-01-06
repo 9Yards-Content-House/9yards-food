@@ -62,14 +62,36 @@ export default function FloatingWhatsApp() {
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const mainContainerRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const proactiveTimerRef = useRef<NodeJS.Timeout | null>(null);
   
-  const { state } = useCart();
+  const { state, cartTotal } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
   
   const cartItemCount = state.items.reduce((sum, item) => sum + item.quantity, 0);
-  const cartTotal = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  
+  // Handle click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isOpen &&
+        mainContainerRef.current &&
+        !mainContainerRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   // Utility functions
   const getGreeting = useCallback(() => {
@@ -84,7 +106,7 @@ export default function FloatingWhatsApp() {
   }, []);
 
   const formatPrice = useCallback((price: number) => {
-    return new Intl.NumberFormat('en-UG').format(price) + ' UGX';
+    return 'UGX ' + new Intl.NumberFormat('en-UG').format(price);
   }, []);
 
   const getRandomItem = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
@@ -571,6 +593,7 @@ export default function FloatingWhatsApp() {
     <>
       {/* Floating Button */}
       <button
+        ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
         className="fixed bottom-24 right-4 z-50 w-14 h-14 sm:w-16 sm:h-16 sm:bottom-32 lg:bottom-8 lg:right-6 bg-[#25D366] hover:bg-[#20ba5a] rounded-full flex items-center justify-center shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
         aria-label="Chat with us"
@@ -594,7 +617,10 @@ export default function FloatingWhatsApp() {
         <>
           <div className="fixed inset-0 bg-black/30 z-40 sm:hidden backdrop-blur-sm" onClick={() => setIsOpen(false)} />
           
-          <div className="fixed z-50 bottom-0 left-0 right-0 sm:bottom-48 sm:left-auto sm:right-4 lg:right-6 lg:bottom-28 w-full sm:w-[380px] lg:w-[400px] bg-[#ECE5DD] sm:rounded-2xl rounded-t-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-5 duration-200 max-h-[85vh] sm:max-h-[600px] flex flex-col">
+          <div 
+            ref={mainContainerRef}
+            className="fixed z-50 bottom-0 left-0 right-0 sm:bottom-48 sm:left-auto sm:right-4 lg:right-6 lg:bottom-28 w-full sm:w-[380px] lg:w-[400px] bg-[#ECE5DD] sm:rounded-2xl rounded-t-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-5 duration-200 max-h-[85vh] sm:max-h-[600px] flex flex-col"
+          >
             
             {/* Header */}
             <div className="bg-[#075E54] px-4 py-2.5 sm:py-3 flex items-center gap-3 shrink-0">
