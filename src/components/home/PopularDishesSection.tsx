@@ -2,15 +2,12 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Flame, Plus, Star } from 'lucide-react';
 import OptimizedImage from '@/components/ui/optimized-image';
-import { menuData } from '@/data/menu';
+import { menuData, FEATURED_SAUCE_IDS, FEATURED_LUSANIYA_IDS } from '@/data/menu';
 import { formatPrice } from '@/lib/utils/order';
 import { useCart } from '@/context/CartContext';
 import ComboBuilder from '@/components/menu/ComboBuilder';
 import { vibrate } from '@/lib/utils/ui';
 
-// IDs of featured items to display - pulled dynamically from menuData
-const FEATURED_SAUCE_IDS = ['chicken-stew', 'fresh-fish', 'beef-stew', 'cowpeas'];
-const FEATURED_LUSANIYA_IDS = ['ordinary-lusaniya', 'beef-pilao-lusaniya'];
 
 // Build featured items dynamically from menuData
 const getFeaturedItems = () => {
