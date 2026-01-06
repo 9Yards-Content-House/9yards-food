@@ -312,7 +312,9 @@ function MenuItemCard({
         {/* Tap indicator on hover for Individual items - desktop only */}
         {item.available && isIndividual && (
           <div className="absolute inset-0 bg-secondary/0 group-hover:bg-secondary/10 transition-colors flex items-center justify-center">
-            <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-secondary text-secondary-foreground text-xs font-semibold px-3 py-1.5 rounded-full hidden md:flex items-center gap-1.5">
+            <span className={`opacity-0 group-hover:opacity-100 transition-opacity text-xs font-semibold px-3 py-1.5 rounded-full hidden md:flex items-center gap-1.5 ${
+              isInCart ? 'bg-green-500 text-white' : 'bg-secondary text-secondary-foreground'
+            }`}>
               {isInCart ? (
                 <>
                   <ShoppingCart className="w-3.5 h-3.5" />
