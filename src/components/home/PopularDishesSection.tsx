@@ -11,6 +11,7 @@ import { vibrate } from '@/lib/utils/ui';
 // IDs of featured items to display - pulled dynamically from menuData
 const FEATURED_SAUCE_IDS = ['chicken-stew', 'fresh-fish', 'beef-stew', 'cowpeas'];
 const FEATURED_LUSANIYA_IDS = ['ordinary-lusaniya', 'beef-pilao-lusaniya'];
+const FEATURED_EXTRA_IDS = ['passion', 'chapati'];
 
 // Build featured items dynamically from menuData
 const getFeaturedItems = () => {
@@ -36,6 +37,9 @@ const getFeaturedItems = () => {
     }
   });
   
+    }
+  });
+  
   // Add lusaniya items
   FEATURED_LUSANIYA_IDS.forEach((id) => {
     const lusaniya = menuData.lusaniya.find(l => l.id === id);
@@ -50,7 +54,45 @@ const getFeaturedItems = () => {
         categoryLabel: 'Special',
         available: lusaniya.available,
         isBestSeller: false,
-        isLusaniya: true,
+        isIndividual: true,
+      });
+    }
+  });
+  
+  // Add featured extras (juices/desserts)
+  FEATURED_EXTRA_IDS.forEach((id) => {
+    // Try finding in juices
+    const juice = menuData.juices.find(j => j.id === id);
+    if (juice) {
+      items.push({
+        id: juice.id,
+        name: juice.name,
+        description: juice.description,
+        image: juice.image,
+        price: juice.price,
+        categoryType: 'juice' as const,
+        categoryLabel: 'Refreshment',
+        available: juice.available,
+        isBestSeller: false,
+        isIndividual: true,
+      });
+      return;
+    }
+    
+    // Try finding in desserts
+    const dessert = menuData.desserts.find(d => d.id === id);
+    if (dessert) {
+      items.push({
+        id: dessert.id,
+        name: dessert.name,
+        description: dessert.description,
+        image: dessert.image,
+        price: dessert.price,
+        categoryType: 'dessert' as const,
+        categoryLabel: 'Sweet Treat',
+        available: dessert.available,
+        isBestSeller: false,
+        isIndividual: true,
       });
     }
   });
@@ -69,7 +111,7 @@ interface FeaturedItem {
   available: boolean;
   isBestSeller?: boolean;
   isIncluded?: boolean;
-  isLusaniya?: boolean;
+  isIndividual?: boolean;
 }
 
 interface DishCardProps {
@@ -96,7 +138,8 @@ function DishCard({
 
   // Determine button text based on item type
   const getActionText = () => {
-    if (item.isLusaniya) {
+    const isIndividual = item.isIndividual || item.categoryType === 'lusaniya' || item.categoryType === 'juice' || item.categoryType === 'dessert';
+    if (isIndividual) {
       return isInCart ? 'In Order' : 'Add to Order';
     }
     return 'Build Your Combo';
@@ -136,7 +179,7 @@ function DishCard({
               Popular
             </span>
           )}
-          {item.isLusaniya && (
+          {item.isIndividual && (
             <span className="bg-yards-blue text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1">
               <Star className="w-3 h-3" />
               Special
@@ -167,7 +210,7 @@ function DishCard({
         {item.available && (
           <div className="absolute inset-0 bg-secondary/0 group-hover:bg-secondary/10 transition-colors flex items-center justify-center">
             <span className={`opacity-0 group-hover:opacity-100 transition-opacity text-secondary-foreground text-xs font-semibold px-3 py-1.5 rounded-full hidden md:flex items-center gap-1.5 ${
-              item.isLusaniya && isInCart ? 'bg-green-500' : 'bg-secondary'
+              (item.isIndividual || item.categoryType === 'lusaniya' || item.categoryType === 'juice' || item.categoryType === 'dessert') && isInCart ? 'bg-green-500' : 'bg-secondary'
             }`}>
               <Plus className="w-3.5 h-3.5" />
               {getActionText()}
@@ -216,22 +259,19 @@ export default function PopularDishesSection() {
   // Get featured items dynamically from menuData
   const featuredItems = getFeaturedItems();
 
-  // Check if a Lusaniya item is in the cart
-  const isLusaniyaInCart = (itemId: string) => {
-    return state.items.some(item => item.id.startsWith(`lusaniya-${itemId}`));
+  // Check if an individual item is in the cart
+  const isIndividualInCart = (itemId: string, category: string) => {
+    return state.items.some(item => item.id.startsWith(`${category}-${itemId}`));
   };
 
-  // Handle adding Lusaniya items to cart
-  const handleAddLusaniyaToCart = (item: FeaturedItem) => {
-    if (isLusaniyaInCart(item.id)) {
+  // Handle adding individual items to cart
+  const handleIndividualAddToCart = (item: FeaturedItem) => {
+    if (isIndividualInCart(item.id, item.categoryType)) {
       return; // Already in cart
     }
     
-    const lusaniyaItem = menuData.lusaniya.find(l => l.id === item.id);
-    if (!lusaniyaItem) return;
-    
     const cartItem = {
-      id: `lusaniya-${item.id}-${Date.now()}`,
+      id: `${item.categoryType}-${item.id}-${Date.now()}`,
       type: 'single' as const,
       mainDishes: [item.name],
       sauce: null,
@@ -239,17 +279,18 @@ export default function PopularDishesSection() {
       extras: [],
       quantity: 1,
       totalPrice: item.price,
-      description: lusaniyaItem.description,
+      description: item.description,
     };
     
     addItem(cartItem);
     vibrate(50);
   };
 
-  // Handle item click - different behavior for Lusaniya vs regular items
+  // Handle item click - different behavior for individual vs regular items
   const handleItemClick = (item: FeaturedItem) => {
-    if (item.isLusaniya) {
-      handleAddLusaniyaToCart(item);
+    const isIndividual = item.isIndividual || item.categoryType === 'lusaniya' || item.categoryType === 'juice' || item.categoryType === 'dessert';
+    if (isIndividual) {
+      handleIndividualAddToCart(item);
     } else {
       setIsComboBuilderOpen(true);
     }
@@ -281,7 +322,7 @@ export default function PopularDishesSection() {
                 onAddToOrder={() => handleItemClick(item)}
                 onToggleFavorite={toggleFavorite}
                 isFavorite={isFavorite(item.id)}
-                isInCart={item.isLusaniya ? isLusaniyaInCart(item.id) : false}
+                isInCart={(item.isIndividual || item.categoryType === 'lusaniya' || item.categoryType === 'juice' || item.categoryType === 'dessert') ? isIndividualInCart(item.id, item.categoryType) : false}
               />
             ))}
           </div>

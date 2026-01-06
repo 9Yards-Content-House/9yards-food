@@ -380,7 +380,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fcf9f8] pb-[280px] lg:pb-0">
+    <div className="min-h-screen bg-[#fcf9f8] pb-20 lg:pb-0">
       <Header />
 
       <main className="pt-16 sm:pt-[4.5rem] md:pt-20">
@@ -545,7 +545,7 @@ export default function CartPage() {
               </Link>
 
               {/* Promo Code - Mobile */}
-              <div className="lg:hidden mt-4">
+              <div className="lg:hidden mt-4 md:max-w-lg md:mx-auto w-full">
                 <h4 className="text-sm font-bold text-[#212282] mb-3">Promo Code</h4>
                 {promoResult?.valid ? (
                   <div className="flex items-center justify-between p-3 bg-green-50 border border-green-100 rounded-lg">
@@ -586,7 +586,7 @@ export default function CartPage() {
               </div>
 
               {/* Payment Summary - Mobile */}
-              <div className="lg:hidden mt-4">
+              <div className="lg:hidden mt-4 md:max-w-lg md:mx-auto w-full">
                 <h4 className="text-sm font-bold text-[#212282] mb-4">Payment Summary</h4>
                 <div className="flex flex-col gap-3">
                   <div className="flex justify-between items-center text-sm">
@@ -620,7 +620,7 @@ export default function CartPage() {
               </div>
 
               {/* Delivery Form Toggle - Mobile */}
-              <div className="lg:hidden mt-6">
+              <div className="lg:hidden mt-6 md:max-w-lg md:mx-auto w-full">
                 <button
                   onClick={() => setShowDeliveryForm(!showDeliveryForm)}
                   className="w-full flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200 shadow-sm"
@@ -719,6 +719,62 @@ export default function CartPage() {
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* Mobile/Tablet Checkout Buttons - Integrated into flow */}
+              <div className="lg:hidden mt-8 p-6 bg-white rounded-2xl border border-gray-100 shadow-sm space-y-6 md:max-w-lg md:mx-auto">
+                <div className="text-center space-y-1">
+                  <h3 className="text-lg font-bold text-[#212282]">Checkout</h3>
+                  <p className="text-xs text-gray-500 uppercase tracking-widest font-black">Choose Payment Method</p>
+                </div>
+
+                <div className="space-y-3">
+                  {/* WhatsApp Button */}
+                  <button
+                    onClick={handleWhatsAppOrder}
+                    disabled={isProcessingPayment}
+                    className="w-full bg-[#25D366] text-white rounded-xl py-4 flex items-center justify-center gap-2 transition-transform active:scale-[0.98] shadow-lg shadow-green-500/10"
+                  >
+                    <WhatsAppIcon className="w-5 h-5" />
+                    <span className="font-bold">Order via WhatsApp</span>
+                  </button>
+
+                  {/* Divider */}
+                  <div className="relative flex items-center py-2">
+                    <div className="flex-grow border-t border-gray-100"></div>
+                    <span className="mx-3 flex-shrink-0 text-[10px] font-black uppercase text-gray-300 tracking-widest">Or pay securely now</span>
+                    <div className="flex-grow border-t border-gray-100"></div>
+                  </div>
+
+                  {/* Pay Now Button */}
+                  <button
+                    onClick={handleOnlinePayment}
+                    disabled={isProcessingPayment}
+                    className="w-full bg-[#212282] text-white rounded-xl py-4 flex items-center justify-center gap-2 transition-transform active:scale-[0.98] shadow-lg shadow-primary/10"
+                  >
+                    {isProcessingPayment ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <CreditCard className="w-5 h-5" />
+                    )}
+                    <span className="font-bold">{isProcessingPayment ? 'Processing...' : 'Pay Now'}</span>
+                  </button>
+                </div>
+
+                {/* Security Footer */}
+                <div className="flex flex-col items-center gap-2 pt-2 border-t border-gray-50 mt-4">
+                  <div className="flex items-center gap-4 text-[9px] font-bold text-gray-300 uppercase tracking-widest">
+                    <span className="flex items-center gap-1">
+                      <Lock className="w-3 h-3" />
+                      Secure
+                    </span>
+                    <div className="w-1 h-1 rounded-full bg-gray-200" />
+                    <span className="flex items-center gap-1">
+                      <Shield className="w-3 h-3" />
+                      Encrypted
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -991,61 +1047,6 @@ export default function CartPage() {
         </div>
       </main>
 
-      {/* Sticky Footer CTA - Mobile/Tablet - positioned above bottom nav */}
-      <div className="lg:hidden fixed bottom-[72px] left-0 right-0 z-40 flex justify-center px-4 md:px-6 safe-area-bottom">
-        <div className="w-full md:max-w-md bg-white border border-gray-100 md:border-gray-200 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] md:shadow-xl px-4 py-3 md:rounded-2xl md:mb-2">
-          <div className="flex flex-col gap-2">
-          {/* WhatsApp Button - Mobile */}
-          <button
-            onClick={handleWhatsAppOrder}
-            disabled={isProcessingPayment}
-            className="w-full bg-[#25D366] text-white rounded-xl py-3 px-4 flex items-center justify-center gap-2 transition-colors hover:bg-[#22c55e] disabled:opacity-50"
-          >
-            <WhatsAppIcon className="w-5 h-5" />
-            <span className="font-bold">Order via WhatsApp</span>
-          </button>
-          
-          {/* Divider - Mobile */}
-          <div className="relative flex items-center py-1">
-            <div className="flex-grow border-t border-gray-200"></div>
-            <span className="mx-3 flex-shrink-0 text-[10px] font-semibold uppercase text-gray-400">Or pay securely now</span>
-            <div className="flex-grow border-t border-gray-200"></div>
-          </div>
-          
-          {/* Pay Now Button - Mobile */}
-          <button
-            onClick={handleOnlinePayment}
-            disabled={isProcessingPayment}
-            className="w-full bg-[#212282] text-white rounded-xl py-3 px-4 flex items-center justify-center gap-2 transition-colors hover:bg-[#1a1a6e] disabled:opacity-50"
-          >
-            {isProcessingPayment ? (
-              <span className="flex items-center gap-2">
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span className="font-bold">Processing...</span>
-              </span>
-            ) : (
-              <>
-                <CreditCard className="w-5 h-5" />
-                <span className="font-bold">Pay Now</span>
-              </>
-            )}
-          </button>
-          
-          {/* Security Footer - Mobile */}
-          <div className="flex items-center justify-center gap-2 text-[10px] text-gray-400 mt-1">
-            <span className="flex items-center gap-1">
-              <Lock className="w-3 h-3" />
-              100% Secure Payments
-            </span>
-            <span>•</span>
-            <span className="flex items-center gap-1">
-              <Shield className="w-3 h-3" />
-              Your Data is Protected
-            </span>
-          </div>
-          </div>
-        </div>
-      </div>
 
       <Footer />
       <MobileNav />

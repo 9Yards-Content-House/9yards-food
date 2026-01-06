@@ -24,7 +24,7 @@ import { formatPrice } from "@/lib/utils/order";
 import { useCart } from "@/context/CartContext";
 import { toast } from "sonner";
 import SEO from "@/components/SEO";
-import { vibrate } from '@/lib/utils/ui'; // Add import
+import { vibrate } from "@/lib/utils/ui"; // Add import
 
 type Category =
   | "all"
@@ -126,7 +126,7 @@ interface MenuItemCardProps {
     available: boolean;
     isFree?: boolean;
     description?: string;
-    isLusaniya?: boolean;
+    isIndividual?: boolean;
   };
   onAddToOrder: () => void;
   onAddToCart?: () => void;
@@ -151,7 +151,11 @@ function MenuItemCard({
 }: MenuItemCardProps) {
   const isBestSeller = bestSellers.includes(item.id);
   const isNew = newItems.includes(item.id);
-  const isLusaniya = item.isLusaniya || item.categoryType === "lusaniya";
+  const isIndividual =
+    item.isIndividual ||
+    item.categoryType === "lusaniya" ||
+    item.categoryType === "juice" ||
+    item.categoryType === "dessert";
 
   // Get description - use item.description for Lusaniya items
   const description =
@@ -222,9 +226,9 @@ function MenuItemCard({
       data-item-id={item.id}
       onClick={() => {
         if (!item.available) return;
-        if (isLusaniya && onAddToCart && !isInCart) {
+        if (isIndividual && onAddToCart && !isInCart) {
           onAddToCart();
-        } else if (!isLusaniya) {
+        } else if (!isIndividual) {
           onAddToOrder();
         }
       }}
@@ -296,7 +300,7 @@ function MenuItemCard({
         </button>
 
         {/* Tap indicator on hover - desktop only */}
-        {item.available && !isLusaniya && (
+        {item.available && !isIndividual && (
           <div className="absolute inset-0 bg-secondary/0 group-hover:bg-secondary/10 transition-colors flex items-center justify-center">
             <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-secondary text-secondary-foreground text-xs font-semibold px-3 py-1.5 rounded-full hidden md:flex items-center gap-1.5">
               <Plus className="w-3.5 h-3.5" />
@@ -305,8 +309,8 @@ function MenuItemCard({
           </div>
         )}
 
-        {/* Tap indicator on hover for Lusaniya items - desktop only */}
-        {item.available && isLusaniya && (
+        {/* Tap indicator on hover for Individual items - desktop only */}
+        {item.available && isIndividual && (
           <div className="absolute inset-0 bg-secondary/0 group-hover:bg-secondary/10 transition-colors flex items-center justify-center">
             <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-secondary text-secondary-foreground text-xs font-semibold px-3 py-1.5 rounded-full hidden md:flex items-center gap-1.5">
               {isInCart ? (
@@ -346,10 +350,12 @@ function MenuItemCard({
         <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/50">
           {getPriceDisplay()}
 
-          {/* Add to Cart button for Lusaniya items */}
-          {item.available && isLusaniya && onAddToCart && (
-            lusaniyaCount > 0 ? (
-               <div className="flex items-center gap-2 bg-secondary/10 rounded-full px-2 py-1">
+          {/* Add to Cart button for Individual items */}
+          {item.available &&
+            isIndividual &&
+            onAddToCart &&
+            (lusaniyaCount > 0 ? (
+              <div className="flex items-center gap-2 bg-secondary/10 rounded-full px-2 py-1">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -359,7 +365,9 @@ function MenuItemCard({
                 >
                   -
                 </button>
-                <span className="text-sm font-bold w-4 text-center">{lusaniyaCount}</span>
+                <span className="text-sm font-bold w-4 text-center">
+                  {lusaniyaCount}
+                </span>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -380,11 +388,10 @@ function MenuItemCard({
               >
                 Add to Order
               </button>
-            )
-          )}
+            ))}
 
-          {/* Visual indicator for tappable - non-Lusaniya items */}
-          {item.available && !isLusaniya && (
+          {/* Visual indicator for tappable - non-Individual items */}
+          {item.available && !isIndividual && (
             <span className="text-muted-foreground text-[10px] md:text-xs flex items-center gap-1 md:hidden">
               Tap to add
             </span>
@@ -401,25 +408,29 @@ export default function MenuPage() {
   const [isComboBuilderOpen, setIsComboBuilderOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [highlightedItem, setHighlightedItem] = useState<string | null>(null);
-  const { toggleFavorite, isFavorite, cartCount, addItem, removeItem, state } = useCart();
+  const { toggleFavorite, isFavorite, cartCount, addItem, removeItem, state } =
+    useCart();
 
-  // Check if a Lusaniya item is in cart
-  const isLusaniyaInCart = (itemId: string) => {
+  // Check if an individual item is in cart
+  const isIndividualInCart = (itemId: string, category: string) => {
     return state.items.some(
       (cartItem) =>
-        cartItem.type === "single" && cartItem.id.includes(`lusaniya-${itemId}`)
+        cartItem.type === "single" &&
+        cartItem.id.includes(`${category}-${itemId}`)
     );
   };
 
-  const getLusaniyaCount = (itemId: string) => {
+  const getIndividualCount = (itemId: string, category: string) => {
     return state.items.filter(
-      (item) => item.type === "single" && item.id.includes(`lusaniya-${itemId}`)
+      (item) =>
+        item.type === "single" && item.id.includes(`${category}-${itemId}`)
     ).length;
   };
 
-  const handleRemoveLusaniya = (itemId: string) => {
+  const handleRemoveIndividual = (itemId: string, category: string) => {
     const matches = state.items.filter(
-      (item) => item.type === "single" && item.id.includes(`lusaniya-${itemId}`)
+      (item) =>
+        item.type === "single" && item.id.includes(`${category}-${itemId}`)
     );
     if (matches.length > 0) {
       const lastMatch = matches[matches.length - 1];
@@ -527,7 +538,7 @@ export default function MenuPage() {
       available: boolean;
       isFree?: boolean;
       description?: string;
-      isLusaniya?: boolean;
+      isIndividual?: boolean;
     }> = [];
 
     // Lusaniya items first (signature dishes)
@@ -542,7 +553,7 @@ export default function MenuPage() {
           categoryType: "lusaniya",
           available: l.available,
           description: l.description,
-          isLusaniya: true,
+          isIndividual: true,
         })
       );
     }
@@ -580,6 +591,7 @@ export default function MenuPage() {
           category: "Juice",
           categoryType: "juice",
           description: j.description || itemDescriptions[j.id],
+          isIndividual: true,
         })
       );
     }
@@ -590,6 +602,7 @@ export default function MenuPage() {
           category: "Dessert",
           categoryType: "dessert",
           description: d.description || itemDescriptions[d.id],
+          isIndividual: true,
         })
       );
     }
@@ -626,23 +639,18 @@ export default function MenuPage() {
     setSearchQuery("");
   };
 
-  // Handle adding Lusaniya items directly to cart
-  const handleAddLusaniyaToCart = (item: {
+  // Handle adding individual items directly to cart
+  const handleIndividualAddToCart = (item: {
     id: string;
     name: string;
     price: number | null;
     description?: string;
+    categoryType: string;
   }) => {
     if (!item.price) return;
 
-    // Check if already in cart
-    if (isLusaniyaInCart(item.id)) {
-      toast.info(`${item.name} is already in your cart`);
-      return;
-    }
-
     const cartItem = {
-      id: `lusaniya-${item.id}-${Date.now()}`,
+      id: `${item.categoryType}-${item.id}-${Date.now()}`,
       type: "single" as const,
       mainDishes: [item.name],
       sauce: null,
@@ -852,24 +860,34 @@ export default function MenuPage() {
                       item={item}
                       onAddToOrder={() => setIsComboBuilderOpen(true)}
                       onAddToCart={
-                        item.isLusaniya
-                          ? () => handleAddLusaniyaToCart(item)
+                        item.isIndividual
+                          ? () => handleIndividualAddToCart(item)
                           : undefined
                       }
                       isInCart={
-                        item.isLusaniya ? isLusaniyaInCart(item.id) : false
+                        item.isIndividual
+                          ? isIndividualInCart(item.id, item.categoryType)
+                          : false
                       }
                       onToggleFavorite={toggleFavorite}
                       isFavorite={isFavorite(item.id)}
                       isHighlighted={highlightedItem === item.id}
-                      lusaniyaCount={item.isLusaniya ? getLusaniyaCount(item.id) : 0}
-                      onRemoveLusaniya={item.isLusaniya ? () => handleRemoveLusaniya(item.id) : undefined}
+                      lusaniyaCount={
+                        item.isIndividual
+                          ? getIndividualCount(item.id, item.categoryType)
+                          : 0
+                      }
+                      onRemoveLusaniya={
+                        item.isIndividual
+                          ? () =>
+                              handleRemoveIndividual(item.id, item.categoryType)
+                          : undefined
+                      }
                     />
                   ))}
                 </div>
 
                 {/* End of list indicator */}
-
               </>
             )}
           </div>
@@ -879,17 +897,15 @@ export default function MenuPage() {
       <Footer />
       <MobileNav />
 
-
-
       {/* Sticky Build Combo Button (Mobile) */}
       <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 lg:hidden w-auto">
-         <button
-            onClick={() => setIsComboBuilderOpen(true)}
-            className="bg-primary text-primary-foreground font-bold px-6 py-3 rounded-full shadow-xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-transform"
-          >
-            <Plus className="w-4 h-4" />
-            <span className="text-sm">Start Order</span>
-          </button>
+        <button
+          onClick={() => setIsComboBuilderOpen(true)}
+          className="bg-primary text-primary-foreground font-bold px-6 py-3 rounded-full shadow-xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-transform"
+        >
+          <Plus className="w-4 h-4" />
+          <span className="text-sm">Start Order</span>
+        </button>
       </div>
 
       <ComboBuilder
