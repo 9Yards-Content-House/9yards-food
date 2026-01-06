@@ -54,7 +54,7 @@ export default function Header() {
       <header
         className={`fixed left-0 right-0 z-50 h-16 sm:h-[4.5rem] md:h-20 transition-[background-color,box-shadow] duration-300 ${
           showStickyStyle
-            ? 'bg-white shadow-soft'
+            ? 'bg-white/[0.98] backdrop-blur-xl shadow-sm border-b border-white/20'
             : 'bg-transparent'
         }`}
         style={{ top: 0 }}
