@@ -1,7 +1,7 @@
-import { X, ShoppingCart, UtensilsCrossed, Truck, Package, MessageCircle, Phone } from 'lucide-react';
-import { useState } from 'react';
+import { X, Send, Smile, ArrowLeft, Phone, MoreVertical, Check } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { WHATSAPP_NUMBER } from '@/lib/constants';
+import { WHATSAPP_NUMBER, PHONE_NUMBER } from '@/lib/constants';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import { useCart } from '@/context/CartContext';
 
@@ -10,6 +10,8 @@ const HIDDEN_PAGES = ['/cart', '/order-confirmation'];
 
 export default function FloatingWhatsApp() {
   const [isOpen, setIsOpen] = useState(false);
+  const [typingMessage, setTypingMessage] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
   const { state } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
@@ -17,6 +19,17 @@ export default function FloatingWhatsApp() {
   const cartItemCount = state.items.reduce((sum, item) => sum + item.quantity, 0);
   const userLocation = state.userPreferences.location || localStorage.getItem('deliveryZone') || '';
   
+  // Simulation of typing when chat opens
+  useEffect(() => {
+    if (isOpen) {
+      setIsTyping(true);
+      const timer = setTimeout(() => {
+        setIsTyping(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
   // Hide widget on certain pages
   if (HIDDEN_PAGES.includes(location.pathname)) {
     return null;
@@ -30,210 +43,272 @@ export default function FloatingWhatsApp() {
     return 'Good evening';
   };
 
-  const handleAction = (action: string) => {
-    let message = '';
+  const getCurrentTime = () => {
+    const now = new Date();
+    return now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  };
 
-    switch (action) {
-      case 'order':
-        if (cartItemCount > 0) {
-          navigate('/cart');
-          setIsOpen(false);
-          return;
-        } else {
-          message = `${getGreeting()}! I'd like to place an order. What's available today?`;
-        }
-        break;
-
-      case 'menu':
-        message = `${getGreeting()}! Can you send me today's menu and prices?`;
-        break;
-
-      case 'delivery':
-        message = userLocation 
-          ? `${getGreeting()}! Do you deliver to ${userLocation}? What's the delivery fee and time?`
-          : `${getGreeting()}! I'd like to know your delivery areas and fees.`;
-        break;
-
-      case 'track':
-        const lastOrderId = localStorage.getItem('lastOrderId');
-        message = lastOrderId 
-          ? `${getGreeting()}! I'd like to track my order #${lastOrderId}. What's the status?`
-          : `${getGreeting()}! I placed an order recently. Can you help me track it?`;
-        break;
-
-      case 'chat':
-        message = `${getGreeting()}! I have a question about 9Yards Food.`;
-        break;
-
-      default:
-        message = `${getGreeting()}! I'd like to know more about 9Yards Food.`;
-    }
-
+  const handleQuickReply = (message: string) => {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
     setIsOpen(false);
   };
 
+  const handleCall = () => {
+    window.location.href = `tel:${PHONE_NUMBER}`;
+  };
+
+  // Quick reply options
+  const quickReplies = [
+    { text: "📋 View Menu", message: `${getGreeting()}! Can you send me today's menu and prices?` },
+    { text: "🛒 Place Order", message: cartItemCount > 0 ? `${getGreeting()}! I have ${cartItemCount} items in my cart. I'd like to complete my order.` : `${getGreeting()}! I'd like to place an order.` },
+    { text: "🚚 Delivery Info", message: userLocation ? `${getGreeting()}! Do you deliver to ${userLocation}?` : `${getGreeting()}! What are your delivery areas?` },
+  ];
+
   return (
     <>
-      {/* Floating Button - Mobile first positioning */}
+      {/* Floating Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-24 right-4 z-50 w-12 h-12 sm:w-14 sm:h-14 sm:bottom-32 lg:bottom-8 lg:right-6 bg-[#25D366] hover:bg-[#22c55e] rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 border-2 border-white/20"
+        className="fixed bottom-24 right-4 z-50 w-14 h-14 sm:w-16 sm:h-16 sm:bottom-32 lg:bottom-8 lg:right-6 bg-[#25D366] hover:bg-[#20ba5a] rounded-full flex items-center justify-center shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
         aria-label="Chat on WhatsApp"
       >
         {isOpen ? (
-          <X className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+          <X className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
         ) : (
-          <WhatsAppIcon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+          <WhatsAppIcon className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
         )}
       </button>
 
-      {/* Chat Widget - Mobile first responsive */}
+      {/* WhatsApp Chat Window */}
       {isOpen && (
         <>
           {/* Backdrop for mobile */}
           <div 
-            className="fixed inset-0 bg-black/20 z-40 sm:hidden"
+            className="fixed inset-0 bg-black/30 z-40 sm:hidden backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
           />
           
-          <div className="fixed z-50 bottom-0 left-0 right-0 sm:bottom-48 sm:left-auto sm:right-4 lg:right-6 lg:bottom-28 w-full sm:w-[340px] lg:w-[360px] bg-white sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden border-0 sm:border border-gray-200 animate-in slide-in-from-bottom-5 duration-200 max-h-[85vh] sm:max-h-[480px]">
-            {/* Header - Compact */}
-            <div className="bg-[#212282] px-4 py-3 text-white">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  {/* White Logo */}
-                  <div className="h-9 w-auto flex items-center">
-                    <img 
-                      src="/images/logo/9Yards-Food-White-Logo.png" 
-                      alt="9Yards Food"
-                      className="h-full w-auto object-contain"
-                    />
-                  </div>
-                  <div className="flex items-center gap-1.5 text-xs text-white/80">
-                    <span className="w-1.5 h-1.5 bg-[#25D366] rounded-full" />
-                    <span>Online</span>
-                  </div>
+          <div className="fixed z-50 bottom-0 left-0 right-0 sm:bottom-48 sm:left-auto sm:right-4 lg:right-6 lg:bottom-28 w-full sm:w-[380px] lg:w-[400px] bg-[#ECE5DD] sm:rounded-2xl rounded-t-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-5 duration-200 max-h-[85vh] sm:max-h-[600px] flex flex-col">
+            
+            {/* WhatsApp Header */}
+            <div className="bg-[#075E54] px-4 py-2.5 sm:py-3 flex items-center gap-3 shrink-0">
+              <button 
+                onClick={() => setIsOpen(false)}
+                className="sm:hidden w-9 h-9 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors -ml-2"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              
+              {/* Profile Picture with Colored Logo */}
+              <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white overflow-hidden shrink-0 ring-2 ring-white/20">
+                <img 
+                  src="/images/logo/9Yards-Food-White-Logo-colored.png" 
+                  alt="9Yards Food"
+                  className="w-full h-full object-contain p-0.5"
+                />
+              </div>
+              
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <h3 className="text-white font-medium text-[15px] sm:text-base leading-tight">9Yards Food</h3>
+                  {/* Verified Badge */}
+                  <img 
+                    src="/images/logo/whatsapp-verified-badge.png"
+                    alt="Verified"
+                    className="w-[14px] h-[14px] sm:w-4 sm:h-4 shrink-0"
+                  />
                 </div>
+                <p className="text-white/90 text-[11px] sm:text-xs leading-tight">
+                  {isTyping ? 'typing...' : 'online'}
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-1 sm:gap-2">
+                <button 
+                  onClick={handleCall}
+                  className="text-white/90 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full"
+                  aria-label="Call us"
+                >
+                  <Phone className="w-5 h-5 sm:w-6 sm:h-6" />
+                </button>
                 <button 
                   onClick={() => setIsOpen(false)}
-                  className="w-7 h-7 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors"
-                  aria-label="Close chat"
+                  className="hidden sm:block text-white/90 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full"
                 >
-                  <X className="w-4 h-4" />
+                  <MoreVertical className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
               </div>
             </div>
 
-            {/* Body - Compact */}
-            <div className="p-3 bg-gray-50 overflow-y-auto max-h-[calc(85vh-120px)] sm:max-h-none">
-              {/* Welcome Message - Compact */}
-              <div className="bg-white rounded-lg p-2.5 shadow-sm mb-3 border border-gray-100">
-                <p className="text-sm text-[#212282] font-medium">
-                  {getGreeting()}! How can we help?
-                </p>
-                <span className="text-[10px] text-gray-400 mt-0.5 block">Just now</span>
+            {/* Chat Background with Image */}
+            <div 
+              className="flex-1 overflow-y-auto px-2 sm:px-3 py-2 space-y-1 custom-scrollbar"
+              style={{
+                backgroundImage: `url('/images/backgrounds/new-real-whatsapp-wallpaper.png')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+              }}
+            >
+              {/* Date Divider */}
+              <div className="flex justify-center py-3">
+                <div className="bg-white/95 backdrop-blur-sm rounded-md px-3 py-1 shadow-sm">
+                  <span className="text-[11px] sm:text-xs text-gray-700 font-medium">TODAY</span>
+                </div>
               </div>
 
-              {/* Quick Actions - Compact with subtitles */}
-              <div className="space-y-1.5">
-                {/* Place Order */}
-                <button
-                  onClick={() => handleAction('order')}
-                  className="w-full flex items-center gap-2.5 p-2.5 bg-white rounded-lg border border-gray-200 hover:border-[#25D366] hover:bg-[#25D366]/5 transition-all text-left group active:scale-[0.98]"
-                >
-                  <div className="w-9 h-9 rounded-lg bg-[#25D366]/10 flex items-center justify-center group-hover:bg-[#25D366]/20 transition-colors flex-shrink-0">
-                    <ShoppingCart className="w-4 h-4 text-[#25D366]" />
+              {/* Welcome Message (Received - White Bubble) */}
+              <div className="flex justify-start mb-1">
+                <div className="relative bg-white rounded-lg rounded-tl-sm shadow-sm px-2 py-1.5 max-w-[85%] sm:max-w-[80%]">
+                  {/* Tail */}
+                  <div className="absolute -left-[6px] top-0 w-0 h-0 border-t-[8px] border-t-white border-r-[6px] border-r-transparent"></div>
+                  
+                  <p className="text-[#303030] text-[13.5px] sm:text-[14.2px] leading-[1.4] whitespace-pre-wrap">
+                    {getGreeting()}! 👋{'\n'}Welcome to 9Yards Food!
+                  </p>
+                  <p className="text-[#303030] text-[13.5px] sm:text-[14.2px] leading-[1.4] mt-1">
+                    How can we serve you today? 😊
+                  </p>
+                  <div className="flex items-center justify-end gap-1 mt-0.5">
+                    <span className="text-[11px] text-[#667781]">{getCurrentTime()}</span>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <span className="text-sm font-semibold text-[#212282] block">Place an Order</span>
-                    <span className="text-[11px] text-gray-500 block truncate">
-                      {cartItemCount > 0 
-                        ? <span className="text-[#E6411C] font-medium">{cartItemCount} item{cartItemCount > 1 ? 's' : ''} in cart</span>
-                        : 'Start a new order'
-                      }
-                    </span>
-                  </div>
-                  {cartItemCount > 0 && (
-                    <span className="w-5 h-5 bg-[#E6411C] text-white rounded-full text-[10px] font-bold flex items-center justify-center flex-shrink-0">
-                      {cartItemCount > 9 ? '9+' : cartItemCount}
-                    </span>
-                  )}
-                </button>
-
-                {/* Check Menu */}
-                <button
-                  onClick={() => handleAction('menu')}
-                  className="w-full flex items-center gap-2.5 p-2.5 bg-white rounded-lg border border-gray-200 hover:border-[#25D366] hover:bg-[#25D366]/5 transition-all text-left group active:scale-[0.98]"
-                >
-                  <div className="w-9 h-9 rounded-lg bg-[#212282]/10 flex items-center justify-center group-hover:bg-[#212282]/20 transition-colors flex-shrink-0">
-                    <UtensilsCrossed className="w-4 h-4 text-[#212282]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <span className="text-sm font-semibold text-[#212282] block">Check Today's Menu</span>
-                    <span className="text-[11px] text-gray-500 block">See all available dishes</span>
-                  </div>
-                </button>
-
-                {/* Delivery Areas */}
-                <button
-                  onClick={() => handleAction('delivery')}
-                  className="w-full flex items-center gap-2.5 p-2.5 bg-white rounded-lg border border-gray-200 hover:border-[#25D366] hover:bg-[#25D366]/5 transition-all text-left group active:scale-[0.98]"
-                >
-                  <div className="w-9 h-9 rounded-lg bg-[#E6411C]/10 flex items-center justify-center group-hover:bg-[#E6411C]/20 transition-colors flex-shrink-0">
-                    <Truck className="w-4 h-4 text-[#E6411C]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <span className="text-sm font-semibold text-[#212282] block">Delivery Areas & Fees</span>
-                    <span className="text-[11px] text-gray-500 block">Check if we deliver to you</span>
-                  </div>
-                </button>
-
-                {/* Track Order */}
-                <button
-                  onClick={() => handleAction('track')}
-                  className="w-full flex items-center gap-2.5 p-2.5 bg-white rounded-lg border border-gray-200 hover:border-[#25D366] hover:bg-[#25D366]/5 transition-all text-left group active:scale-[0.98]"
-                >
-                  <div className="w-9 h-9 rounded-lg bg-purple-100 flex items-center justify-center group-hover:bg-purple-200 transition-colors flex-shrink-0">
-                    <Package className="w-4 h-4 text-purple-600" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <span className="text-sm font-semibold text-[#212282] block">Track My Order</span>
-                    <span className="text-[11px] text-gray-500 block">Where's my food?</span>
-                  </div>
-                </button>
-
-                {/* Chat */}
-                <button
-                  onClick={() => handleAction('chat')}
-                  className="w-full flex items-center gap-2.5 p-2.5 bg-white rounded-lg border border-gray-200 hover:border-[#25D366] hover:bg-[#25D366]/5 transition-all text-left group active:scale-[0.98]"
-                >
-                  <div className="w-9 h-9 rounded-lg bg-[#25D366]/10 flex items-center justify-center group-hover:bg-[#25D366]/20 transition-colors flex-shrink-0">
-                    <MessageCircle className="w-4 h-4 text-[#25D366]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <span className="text-sm font-semibold text-[#212282] block">Chat with Us</span>
-                    <span className="text-[11px] text-gray-500 block">Ask us anything</span>
-                  </div>
-                </button>
+                </div>
               </div>
+
+              {/* Quick Reply Suggestions (Sent - Green Bubbles) */}
+              <div className="flex flex-col gap-1 py-1">
+                {quickReplies.map((reply, index) => (
+                  <div key={index} className="flex justify-end">
+                    <button
+                      onClick={() => handleQuickReply(reply.message)}
+                      className="relative bg-[#d9fdd3] rounded-lg rounded-tr-sm shadow-sm px-2 py-1.5 max-w-[85%] sm:max-w-[80%] text-left hover:bg-[#d1f8ca] active:scale-[0.98] transition-all"
+                    >
+                      {/* Tail */}
+                      <div className="absolute -right-[6px] top-0 w-0 h-0 border-t-[8px] border-t-[#d9fdd3] border-l-[6px] border-l-transparent"></div>
+                      
+                      <p className="text-[#303030] text-[13.5px] sm:text-[14.2px] leading-[1.4]">
+                        {reply.text}
+                      </p>
+                      <div className="flex items-center justify-end gap-1 mt-0.5">
+                        <span className="text-[11px] text-[#667781]">{getCurrentTime()}</span>
+                        {/* Double check mark */}
+                        <div className="flex">
+                          <Check className="w-3.5 h-3.5 text-[#53BDEB] -mr-2" strokeWidth={2.5} />
+                          <Check className="w-3.5 h-3.5 text-[#53BDEB]" strokeWidth={2.5} />
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Cart Info Message (if items in cart) - Received */}
+              {cartItemCount > 0 && (
+                <div className="flex justify-start mb-1 mt-2">
+                  <div className="relative bg-white rounded-lg rounded-tl-sm shadow-sm px-2 py-1.5 max-w-[85%] sm:max-w-[80%]">
+                    {/* Tail */}
+                    <div className="absolute -left-[6px] top-0 w-0 h-0 border-t-[8px] border-t-white border-r-[6px] border-r-transparent"></div>
+                    
+                    <p className="text-[#303030] text-[13.5px] sm:text-[14.2px] leading-[1.4]">
+                      I see you have <span className="font-semibold text-[#25D366]">{cartItemCount} item{cartItemCount > 1 ? 's' : ''}</span> in your cart! 🛒
+                    </p>
+                    <div className="flex items-center justify-end gap-1 mt-0.5">
+                      <span className="text-[11px] text-[#667781]">{getCurrentTime()}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Operating Hours Info - Received */}
+              <div className="flex justify-start mb-1 mt-2">
+                <div className="relative bg-white rounded-lg rounded-tl-sm shadow-sm px-2 py-1.5 max-w-[85%] sm:max-w-[80%]">
+                  {/* Tail */}
+                  <div className="absolute -left-[6px] top-0 w-0 h-0 border-t-[8px] border-t-white border-r-[6px] border-r-transparent"></div>
+                  
+                  <p className="text-[#303030] text-[13.5px] sm:text-[14.2px] leading-[1.4] font-medium">
+                    📍 We deliver across Kampala!
+                  </p>
+                  <div className="bg-[#F7F8FA] rounded-md p-2 mt-1.5 border-l-[3px] border-[#25D366]">
+                    <p className="text-[#303030] text-[12px] font-medium mb-0.5">⏰ Opening Hours</p>
+                    <p className="text-[#667781] text-[11.5px] leading-[1.3]">
+                      Mon-Sat: 10:00 AM - 9:00 PM{'\n'}
+                      Sunday: 11:00 AM - 7:00 PM
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-end gap-1 mt-1">
+                    <span className="text-[11px] text-[#667781]">{getCurrentTime()}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Spacer at bottom */}
+              <div className="h-2"></div>
             </div>
 
-            {/* Footer - Compact with call option */}
-            <div className="px-3 py-2 bg-white border-t border-gray-100 flex items-center justify-between">
-              <p className="text-[10px] text-gray-400 flex items-center gap-1">
-                <WhatsAppIcon className="w-3 h-3" />
-                Powered by WhatsApp
-              </p>
-              <a 
-                href="tel:+256708899597" 
-                className="text-[11px] text-[#E6411C] hover:underline flex items-center gap-1 font-medium"
-              >
-                <Phone className="w-3 h-3" />
-                Call us
-              </a>
+            {/* Message Input (WhatsApp Style) */}
+            <div className="bg-[#F0F0F0] px-2 py-1.5 sm:py-2 flex items-center gap-2 shrink-0">
+              {/* Plus Icon Button */}
+              <button className="text-[#54656f] hover:text-[#3b4a54] transition-colors p-1.5">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+              </button>
+              
+              <div className="flex-1 bg-white rounded-[21px] pl-3 sm:pl-4 pr-1 py-1.5 flex items-center gap-2 h-[40px] sm:h-[42px] shadow-sm">
+                <input
+                  type="text"
+                  value={typingMessage}
+                  onChange={(e) => setTypingMessage(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && typingMessage.trim()) {
+                      handleQuickReply(typingMessage);
+                      setTypingMessage('');
+                    }
+                  }}
+                  placeholder="Type a message"
+                  className="flex-1 bg-transparent outline-none text-[14px] sm:text-[15px] text-[#3B4A54] placeholder:text-[#8696A0]"
+                />
+                
+                {/* Send button - only shows when typing */}
+                {typingMessage.trim() && (
+                  <button 
+                    onClick={() => {
+                      handleQuickReply(typingMessage);
+                      setTypingMessage('');
+                    }}
+                    className="bg-[#1daa61] text-white rounded-full p-2 hover:bg-[#1a9952] active:scale-95 transition-all shrink-0"
+                  >
+                    <svg 
+                      viewBox="0 0 24 24" 
+                      width="20" 
+                      height="20" 
+                      fill="white"
+                      className="rotate-0"
+                    >
+                      <path d="M1.101 21.757L23.8 12.028 1.101 2.3l.011 7.912 13.623 1.816-13.623 1.817-.011 7.912z"/>
+                    </svg>
+                  </button>
+                )}
+              </div>
             </div>
           </div>
+
+          {/* Custom scrollbar styles */}
+          <style>{`
+            .custom-scrollbar::-webkit-scrollbar {
+              width: 5px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-track {
+              background: transparent;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb {
+              background: rgba(0, 0, 0, 0.15);
+              border-radius: 10px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+              background: rgba(0, 0, 0, 0.25);
+            }
+          `}</style>
         </>
       )}
     </>
