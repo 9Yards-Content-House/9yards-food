@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Trash2,
@@ -34,6 +34,7 @@ import {
   getWhatsAppLink,
 } from '@/lib/utils/order';
 import { toast } from 'sonner';
+import { useAddressAutocomplete, PhotonResult } from '@/hooks/useAddressAutocomplete';
 
 // Flutterwave configuration
 const FLUTTERWAVE_PUBLIC_KEY = 'FLWPUBK_TEST-2cbeceb8352891cbcd28a983ce8d57ac-X';
@@ -164,6 +165,44 @@ export default function CartPage() {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [specialInstructions, setSpecialInstructions] = useState('');
   const [showDeliveryForm, setShowDeliveryForm] = useState(false);
+  
+  // Validation State
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Address Autocomplete
+  const { 
+    query: addressQuery, 
+    setQuery: setAddressQuery, 
+    suggestions: addressSuggestions, 
+    isSearching: isSearchingAddress 
+  } = useAddressAutocomplete('');
+
+  const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
+  const [showZoneDropdown, setShowZoneDropdown] = useState(false);
+
+  // Sync address query with user preferences on mount/change
+  useEffect(() => {
+    if (state.userPreferences.address && addressQuery !== state.userPreferences.address) {
+      setAddressQuery(state.userPreferences.address);
+    }
+  }, [state.userPreferences.address]);
+
+  const handleAddressSelect = (result: PhotonResult) => {
+    setAddressQuery(result.displayName);
+    setUserPreferences({ address: result.displayName });
+    setShowAddressSuggestions(false);
+    
+    // Auto-select zone if available
+    if (result.nearestZone) {
+      setSelectedZone(result.nearestZone.name);
+      setShowZoneDropdown(false);
+    } else {
+      // If no zone found, prompt user
+      setShowZoneDropdown(true);
+      toast.info('Please select your delivery zone manually');
+    }
+  };
 
   const selectedZoneData = deliveryZones.find((z) => z.name === selectedZone);
   const baseDeliveryFee = selectedZoneData?.fee || 0;
@@ -209,27 +248,49 @@ export default function CartPage() {
   };
 
   const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+    let isValid = true;
+
     if (!state.userPreferences.name?.trim()) {
-      toast.error('Please enter your name');
-      setShowDeliveryForm(true);
-      return false;
+      newErrors.name = 'Name is required';
+      isValid = false;
     }
+
     if (!state.userPreferences.phone?.trim()) {
-      toast.error('Please enter your phone number');
-      setShowDeliveryForm(true);
-      return false;
+      newErrors.phone = 'Phone number is required';
+      isValid = false;
+    } else if (!/^(\+?256|0)7[0-9]{8}$/.test(state.userPreferences.phone.replace(/\s/g, ''))) {
+      newErrors.phone = 'Please enter a valid Ugandan phone number';
+      isValid = false;
     }
+
     if (!selectedZone) {
-      toast.error('Please select a delivery zone');
-      setShowDeliveryForm(true);
-      return false;
+      newErrors.zone = 'Please select a delivery zone';
+      isValid = false;
     }
+
     if (!state.userPreferences.address?.trim()) {
-      toast.error('Please enter your delivery address');
-      setShowDeliveryForm(true);
-      return false;
+      newErrors.address = 'Delivery address is required';
+      isValid = false;
     }
-    return true;
+
+    setErrors(newErrors);
+    setTouched({
+      name: true,
+      phone: true,
+      zone: true,
+      address: true
+    });
+
+    if (!isValid) {
+      toast.error('Please fix the errors in the delivery form');
+      setShowDeliveryForm(true);
+      // Scroll to form
+      const formElement = document.getElementById('delivery-form');
+      if (formElement) formElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    return isValid;
   };
 
   const createOrderData = (orderId: string, paymentMethod: 'whatsapp' | 'online') => {
@@ -651,24 +712,134 @@ export default function CartPage() {
                 </button>
 
                 {showDeliveryForm && (
-                  <div className="mt-4 p-4 bg-white rounded-xl border border-gray-200 space-y-4">
+                  <div id="delivery-form" className="mt-4 p-4 bg-white rounded-xl border border-gray-200 space-y-4">
+                    {/* Delivery Address - First (Smart Search) */}
                     <div>
                       <label className="text-sm font-medium text-[#212282] mb-2 block">
-                        Delivery Zone *
+                        Delivery Address *
                       </label>
-                      <select
-                        value={selectedZone}
-                        onChange={(e) => setSelectedZone(e.target.value)}
-                        className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]"
-                      >
-                        <option value="">Select your delivery area...</option>
-                        {deliveryZones.map((zone) => (
-                          <option key={zone.name} value={zone.name}>
-                            {zone.name} - {formatPrice(zone.fee)} ({zone.estimatedTime})
-                          </option>
-                        ))}
-                      </select>
+                      <div className="relative">
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                          <input
+                            type="text"
+                            value={addressQuery}
+                            onChange={(e) => {
+                              setAddressQuery(e.target.value);
+                              setUserPreferences({ address: e.target.value });
+                              setShowAddressSuggestions(true);
+                              if (errors.address) setErrors({ ...errors, address: '' });
+                            }}
+                            onFocus={() => setShowAddressSuggestions(true)}
+                            onBlur={() => {
+                              // Delay closing to allow clicking suggestions
+                              setTimeout(() => setShowAddressSuggestions(false), 200);
+                              setTouched({ ...touched, address: true });
+                            }}
+                            placeholder="Search area (e.g. Kololo, Kyengera)"
+                            className={`w-full pl-10 pr-3 py-3 rounded-xl border ${errors.address && touched.address ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]`}
+                          />
+                          {isSearchingAddress && (
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                              <Loader2 className="w-4 h-4 text-[#E6411C] animate-spin" />
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Address Suggestions Dropdown */}
+                        {showAddressSuggestions && addressSuggestions.length > 0 && (
+                          <div className="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden max-h-60 overflow-y-auto">
+                            {addressSuggestions.map((suggestion, index) => (
+                              <button
+                                key={index}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handleAddressSelect(suggestion);
+                                }}
+                                className="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 last:border-none transition-colors"
+                              >
+                                <p className="text-sm font-medium text-[#212282]">{suggestion.name}</p>
+                                <p className="text-xs text-gray-500 truncate">{suggestion.displayName}</p>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                        {errors.address && touched.address && (
+                        <p className="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
+                          <AlertTriangle className="w-3 h-3" /> {errors.address}
+                        </p>
+                      )}
+                      
+                      {/* Manual Zone Toggle */}
+                      {!selectedZone && !showZoneDropdown && (
+                        <button
+                          onClick={() => setShowZoneDropdown(true)}
+                          className="text-xs text-[#E6411C] font-semibold underline mt-2 hover:text-[#d13a18]"
+                        >
+                          Can't find your location? Select zone manually
+                        </button>
+                      )}
                     </div>
+                    {/* Delivery Zone - Mobile (Only show if requested or selected) */}
+                    {(showZoneDropdown || selectedZone) && (
+                      <div>
+                        {/* Only show label/select if it's being manually selected OR if we want to show the specific dropdown. 
+                            Actually, if selectedZone exists, we previously showed a summary card. 
+                            Let's keep the summary card logic for consistency, but hide the SELECT unless requested. 
+                        */}
+                        {!selectedZone ? (
+                           <div>
+                            <label className="text-sm font-medium text-[#212282] mb-2 block">
+                              Delivery Zone *
+                            </label>
+                            <select
+                              value={selectedZone}
+                              onChange={(e) => {
+                                setSelectedZone(e.target.value);
+                                if (errors.zone) setErrors({ ...errors, zone: '' });
+                              }}
+                              onBlur={() => setTouched({ ...touched, zone: true })}
+                              className={`w-full p-3 rounded-xl border ${errors.zone && touched.zone ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]`}
+                            >
+                              <option value="">Select your delivery area...</option>
+                              {deliveryZones.map((zone) => (
+                                <option key={zone.name} value={zone.name}>
+                                  {zone.name} - {formatPrice(zone.fee)} ({zone.estimatedTime})
+                                </option>
+                              ))}
+                            </select>
+                            {errors.zone && touched.zone && (
+                              <p className="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
+                                <AlertTriangle className="w-3 h-3" /> {errors.zone}
+                              </p>
+                            )}
+                          </div>
+                        ) : (
+                          /* Summary Card when Zone is Selected */
+                          <div className="flex items-center justify-between p-3 bg-[#212282]/5 rounded-xl border border-[#212282]/10 mt-2">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 rounded-full bg-[#212282]/10 flex items-center justify-center">
+                                <MapPin className="w-4 h-4 text-[#212282]" />
+                              </div>
+                              <div>
+                                <p className="text-xs text-gray-500 font-medium">Delivery Zone</p>
+                                <p className="text-sm font-bold text-[#212282]">{selectedZone}</p>
+                              </div>
+                            </div>
+                            <button 
+                              onClick={() => {
+                                setSelectedZone('');
+                                setShowZoneDropdown(true);
+                              }}
+                              className="text-xs font-bold text-[#E6411C] px-2 py-1 rounded hover:bg-[#E6411C]/10 transition-colors"
+                            >
+                              Change
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                     <div>
                       <label className="text-sm font-medium text-[#212282] mb-2 block">
@@ -677,10 +848,19 @@ export default function CartPage() {
                       <input
                         type="text"
                         value={state.userPreferences.name}
-                        onChange={(e) => setUserPreferences({ name: e.target.value })}
+                        onChange={(e) => {
+                          setUserPreferences({ name: e.target.value });
+                          if (errors.name) setErrors({ ...errors, name: '' });
+                        }}
+                        onBlur={() => setTouched({ ...touched, name: true })}
                         placeholder="Enter your full name"
-                        className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]"
+                        className={`w-full p-3 rounded-xl border ${errors.name && touched.name ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]`}
                       />
+                      {errors.name && touched.name && (
+                        <p className="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
+                          <AlertTriangle className="w-3 h-3" /> {errors.name}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="text-sm font-medium text-[#212282] mb-2 block">
@@ -693,24 +873,79 @@ export default function CartPage() {
                         <input
                           type="tel"
                           value={state.userPreferences.phone}
-                          onChange={(e) => setUserPreferences({ phone: e.target.value })}
+                          onChange={(e) => {
+                            setUserPreferences({ phone: e.target.value });
+                            if (errors.phone) setErrors({ ...errors, phone: '' });
+                          }}
+                          onBlur={() => setTouched({ ...touched, phone: true })}
                           placeholder="700 123 456"
-                          className="flex-1 p-3 rounded-r-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]"
+                          className={`flex-1 p-3 rounded-r-xl border ${errors.phone && touched.phone ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]`}
                         />
                       </div>
-                      <p className="text-xs text-gray-400 mt-1">We'll call if we need directions.</p>
+                      {errors.phone && touched.phone ? (
+                        <p className="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
+                          <AlertTriangle className="w-3 h-3" /> {errors.phone}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-gray-400 mt-1">We'll call if we need directions.</p>
+                      )}
                     </div>
                     <div>
                       <label className="text-sm font-medium text-[#212282] mb-2 block">
                         Delivery Address *
                       </label>
-                      <input
-                        type="text"
-                        value={state.userPreferences.address}
-                        onChange={(e) => setUserPreferences({ address: e.target.value })}
-                        placeholder="Enter your complete delivery address"
-                        className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]"
-                      />
+                      <div className="relative">
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                          <input
+                            type="text"
+                            value={addressQuery}
+                            onChange={(e) => {
+                              setAddressQuery(e.target.value);
+                              setUserPreferences({ address: e.target.value });
+                              setShowAddressSuggestions(true);
+                              if (errors.address) setErrors({ ...errors, address: '' });
+                            }}
+                            onFocus={() => setShowAddressSuggestions(true)}
+                            onBlur={() => {
+                              // Delay closing to allow clicking suggestions
+                              setTimeout(() => setShowAddressSuggestions(false), 200);
+                              setTouched({ ...touched, address: true });
+                            }}
+                            placeholder="Search area (e.g. Kololo)"
+                            className={`w-full pl-10 pr-3 py-3 rounded-xl border ${errors.address && touched.address ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]`}
+                          />
+                          {isSearchingAddress && (
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                              <Loader2 className="w-4 h-4 text-[#E6411C] animate-spin" />
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Address Suggestions Dropdown */}
+                        {showAddressSuggestions && addressSuggestions.length > 0 && (
+                          <div className="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden max-h-60 overflow-y-auto">
+                            {addressSuggestions.map((suggestion, index) => (
+                              <button
+                                key={index}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handleAddressSelect(suggestion);
+                                }}
+                                className="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 last:border-none transition-colors"
+                              >
+                                <p className="text-sm font-medium text-[#212282]">{suggestion.name}</p>
+                                <p className="text-xs text-gray-500 truncate">{suggestion.displayName}</p>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      {errors.address && touched.address && (
+                        <p className="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
+                          <AlertTriangle className="w-3 h-3" /> {errors.address}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="text-sm font-medium text-[#212282] mb-2 block">
@@ -823,25 +1058,70 @@ export default function CartPage() {
                   </div>
                 )}
 
-                {/* Delivery Zone - Desktop */}
-                <div className="mb-6">
-                  <label className="text-sm font-medium text-[#212282] mb-2 block">
-                    <MapPin className="w-4 h-4 inline mr-1" />
-                    Delivery Zone *
-                  </label>
-                  <select
-                    value={selectedZone}
-                    onChange={(e) => setSelectedZone(e.target.value)}
-                    className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]"
+                {/* Manual Zone Toggle - Desktop */}
+                {!selectedZone && !showZoneDropdown && (
+                  <button
+                    onClick={() => setShowZoneDropdown(true)}
+                    className="text-xs text-[#E6411C] font-semibold underline mt-2 hover:text-[#d13a18]"
                   >
-                    <option value="">Select your delivery area...</option>
-                    {deliveryZones.map((zone) => (
-                      <option key={zone.name} value={zone.name}>
-                        {zone.name} - {formatPrice(zone.fee)} ({zone.estimatedTime})
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                    Can't find your location? Select zone manually
+                  </button>
+                )}
+
+                {/* Delivery Zone - Desktop (Hybrid) */}
+                {(showZoneDropdown || selectedZone) && (
+                  <div className="mb-6">
+                    {!selectedZone ? (
+                      <div>
+                        <label className="text-sm font-medium text-[#212282] mb-2 block">
+                          Delivery Zone *
+                        </label>
+                        <select
+                          value={selectedZone}
+                          onChange={(e) => {
+                            setSelectedZone(e.target.value);
+                            if (errors.zone) setErrors({ ...errors, zone: '' });
+                          }}
+                          onBlur={() => setTouched({ ...touched, zone: true })}
+                          className={`w-full p-3 rounded-xl border ${errors.zone && touched.zone ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]`}
+                        >
+                          <option value="">Select your delivery area...</option>
+                          {deliveryZones.map((zone) => (
+                            <option key={zone.name} value={zone.name}>
+                              {zone.name} - {formatPrice(zone.fee)} ({zone.estimatedTime})
+                            </option>
+                          ))}
+                        </select>
+                        {errors.zone && touched.zone && (
+                          <p className="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
+                            <AlertTriangle className="w-3 h-3" /> {errors.zone}
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between p-3 bg-[#212282]/5 rounded-xl border border-[#212282]/10">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full bg-[#212282]/10 flex items-center justify-center">
+                            <MapPin className="w-4 h-4 text-[#212282]" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500 font-medium">Delivery Zone</p>
+                            <p className="text-sm font-bold text-[#212282]">{selectedZone}</p>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            setSelectedZone('');
+                            setShowZoneDropdown(true);
+                          }}
+                          className="text-xs font-bold text-[#E6411C] px-2 py-1 rounded hover:bg-[#E6411C]/10 transition-colors"
+                        >
+                          Change
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Customer Info - Desktop */}
                 <div className="space-y-4 mb-6">
@@ -852,10 +1132,19 @@ export default function CartPage() {
                     <input
                       type="text"
                       value={state.userPreferences.name}
-                      onChange={(e) => setUserPreferences({ name: e.target.value })}
+                      onChange={(e) => {
+                        setUserPreferences({ name: e.target.value });
+                        if (errors.name) setErrors({ ...errors, name: '' });
+                      }}
+                      onBlur={() => setTouched({ ...touched, name: true })}
                       placeholder="Enter your full name"
-                      className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]"
+                      className={`w-full p-3 rounded-xl border ${errors.name && touched.name ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]`}
                     />
+                    {errors.name && touched.name && (
+                      <p className="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3" /> {errors.name}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="text-sm font-medium text-[#212282] mb-2 block">
@@ -868,24 +1157,81 @@ export default function CartPage() {
                       <input
                         type="tel"
                         value={state.userPreferences.phone}
-                        onChange={(e) => setUserPreferences({ phone: e.target.value })}
+                        onChange={(e) => {
+                          setUserPreferences({ phone: e.target.value });
+                          if (errors.phone) setErrors({ ...errors, phone: '' });
+                        }}
+                        onBlur={() => setTouched({ ...touched, phone: true })}
                         placeholder="700 123 456"
-                        className="flex-1 p-3 rounded-r-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]"
+                        className={`flex-1 p-3 rounded-r-xl border ${errors.phone && touched.phone ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]`}
                       />
                     </div>
-                    <p className="text-xs text-gray-400 mt-1">We'll call if we need directions.</p>
+                    {errors.phone && touched.phone ? (
+                      <p className="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3" /> {errors.phone}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-gray-400 mt-1">We'll call if we need directions.</p>
+                    )}
                   </div>
+                {/* Customer Info - Desktop */}
+                <div className="space-y-4 mb-6">
+                  {/* Delivery Address - First (Smart Search) */}
                   <div>
                     <label className="text-sm font-medium text-[#212282] mb-2 block">
                       Delivery Address *
                     </label>
-                    <textarea
-                      value={state.userPreferences.address}
-                      onChange={(e) => setUserPreferences({ address: e.target.value })}
-                      placeholder="Enter your complete delivery address"
-                      rows={2}
-                      className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C] resize-none"
-                    />
+                    <div className="relative">
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                          type="text"
+                          value={addressQuery}
+                          onChange={(e) => {
+                            setAddressQuery(e.target.value);
+                            setUserPreferences({ address: e.target.value });
+                            setShowAddressSuggestions(true);
+                            if (errors.address) setErrors({ ...errors, address: '' });
+                          }}
+                          onFocus={() => setShowAddressSuggestions(true)}
+                          onBlur={() => {
+                            setTimeout(() => setShowAddressSuggestions(false), 200);
+                            setTouched({ ...touched, address: true });
+                          }}
+                          placeholder="Search area (e.g. Kololo, Kyengera)"
+                          className={`w-full pl-10 pr-3 py-3 rounded-xl border ${errors.address && touched.address ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]`}
+                        />
+                        {isSearchingAddress && (
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <Loader2 className="w-4 h-4 text-[#E6411C] animate-spin" />
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Address Suggestions Dropdown */}
+                      {showAddressSuggestions && addressSuggestions.length > 0 && (
+                        <div className="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden max-h-60 overflow-y-auto">
+                          {addressSuggestions.map((suggestion, index) => (
+                            <button
+                              key={index}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleAddressSelect(suggestion);
+                              }}
+                              className="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 last:border-none transition-colors"
+                            >
+                              <p className="text-sm font-medium text-[#212282]">{suggestion.name}</p>
+                              <p className="text-xs text-gray-500 truncate">{suggestion.displayName}</p>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {errors.address && touched.address && (
+                      <p className="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3" /> {errors.address}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="text-sm font-medium text-[#212282] mb-2 block">
@@ -1052,11 +1398,42 @@ export default function CartPage() {
             </div>
           </div>
         </div>
+      </div>
       </main>
-
 
       <Footer />
       <MobileNav />
+      
+      {/* Sticky Mobile Checkout Bar */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 p-4 safe-area-pb shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+        <div className="flex items-center gap-4">
+          <div className="flex-1">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-0.5">Total</p>
+            <p className="text-xl font-black text-[#212282]">{formatPrice(total)}</p>
+          </div>
+          <button
+            onClick={() => {
+              // If form is not visible, show it first
+              if (!showDeliveryForm) {
+                setShowDeliveryForm(true);
+                toast.info('Please confirm your delivery details');
+                // Scroll to delivery toggle
+                setTimeout(() => {
+                  const element = document.getElementById('delivery-form') || document.querySelector('button[class*="items-center justify-between"]');
+                  element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+              } else {
+                handleWhatsAppOrder();
+              }
+            }}
+            disabled={isProcessingPayment}
+            className="flex-1 bg-[#25D366] text-white h-12 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-green-500/20 active:scale-95 transition-all"
+          >
+            <WhatsAppIcon className="w-5 h-5" />
+            <span>Order Now</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

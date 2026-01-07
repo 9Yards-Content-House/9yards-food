@@ -332,6 +332,18 @@
         "fee": 8000,
         "estimatedTime": "45-55 mins",
         "coordinates": [0.3850, 32.5850]
+      },
+      {
+        "name": "Kyengera",
+        "fee": 10000,
+        "estimatedTime": "50-60 mins",
+        "coordinates": [0.2800, 32.5200]
+      },
+      {
+        "name": "Najjera",
+        "fee": 8000,
+        "estimatedTime": "45-55 mins",
+        "coordinates": [0.3950, 32.6150]
       }
     ]
   },
