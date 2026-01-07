@@ -11,7 +11,6 @@ import {
 import { useState } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import MobileNav from "@/components/layout/MobileNav";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { toast } from "sonner";
 import SEO from "@/components/SEO";
@@ -464,7 +463,6 @@ export default function ContactPage() {
       </main>
 
       <Footer />
-      <MobileNav />
     </div>
   );
 }

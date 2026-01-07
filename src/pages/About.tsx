@@ -7,7 +7,6 @@ import {
 import { useState, useRef, useEffect } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import MobileNav from '@/components/layout/MobileNav';
 import SEO from '@/components/SEO';
 
 // Animated counter hook
@@ -774,7 +773,6 @@ export default function AboutPage() {
       </main>
       
       <Footer />
-      <MobileNav />
 
       {/* Video Modal */}
       {videoModal && (

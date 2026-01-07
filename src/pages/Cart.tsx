@@ -23,7 +23,6 @@ import {
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import MobileNav from '@/components/layout/MobileNav';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import { useCart, OrderHistoryItem } from '@/context/CartContext';
 import { deliveryZones, promoCodes } from '@/data/menu';
@@ -437,7 +436,6 @@ export default function CartPage() {
           </div>
         </main>
         <Footer />
-        <MobileNav />
       </div>
     );
   }
@@ -1402,7 +1400,6 @@ export default function CartPage() {
       </main>
 
       <Footer />
-      <MobileNav />
       
       {/* Sticky Mobile Checkout Bar */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 p-4 safe-area-pb shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">

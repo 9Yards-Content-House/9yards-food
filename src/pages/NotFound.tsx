@@ -3,7 +3,6 @@ import { Home, UtensilsCrossed, ArrowLeft } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import SEO from '@/components/SEO';
 import Footer from '@/components/layout/Footer';
-import MobileNav from '@/components/layout/MobileNav';
 
 export default function NotFound() {
   return (
@@ -67,7 +66,6 @@ export default function NotFound() {
         </section>
       </main>
       <Footer />
-      <MobileNav />
     </div>
   );
 }

@@ -10,6 +10,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import MobileNav from "@/components/layout/MobileNav";
 
 // Lazy load all pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -78,6 +79,7 @@ const App = () => (
               </Suspense>
               <FloatingWhatsApp />
               <PWAInstallPrompt />
+              <MobileNav />
             </ErrorBoundary>
           </BrowserRouter>
         </TooltipProvider>

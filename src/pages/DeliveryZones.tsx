@@ -2,7 +2,6 @@ import { MapPin, Clock, Truck, Phone } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import SEO from '@/components/SEO';
 import Footer from '@/components/layout/Footer';
-import MobileNav from '@/components/layout/MobileNav';
 import { deliveryZones } from '@/data/menu';
 import { formatPrice } from '@/lib/utils/order';
 
@@ -96,7 +95,6 @@ export default function DeliveryZonesPage() {
         </section>
       </main>
       <Footer />
-      <MobileNav />
     </div>
   );
 }

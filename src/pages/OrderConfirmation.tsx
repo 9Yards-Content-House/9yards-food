@@ -14,7 +14,6 @@ import {
 import Header from '@/components/layout/Header';
 import SEO from '@/components/SEO';
 import Footer from '@/components/layout/Footer';
-import MobileNav from '@/components/layout/MobileNav';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import { formatPrice } from '@/lib/utils/order';
 import { WHATSAPP_NUMBER } from '@/lib/constants';
@@ -321,7 +320,6 @@ export default function OrderConfirmation() {
       </main>
 
       <Footer />
-      <MobileNav />
     </div>
   );
 }

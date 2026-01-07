@@ -103,7 +103,7 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground font-sans antialiased pb-[88px] lg:pb-0;
     font-family: "Inter", sans-serif;
     /* Mobile optimization: remove tap highlight */
     -webkit-tap-highlight-color: transparent;

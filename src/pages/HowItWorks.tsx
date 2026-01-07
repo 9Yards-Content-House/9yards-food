@@ -7,7 +7,6 @@ import {
 import { useState, useRef, useEffect } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import MobileNav from '@/components/layout/MobileNav';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import SEO from '@/components/SEO';
 import OptimizedImage from '@/components/ui/optimized-image';
@@ -586,7 +585,6 @@ export default function HowItWorksPage() {
       </main>
 
       <Footer />
-      <MobileNav />
 
       {/* Mobile Sticky CTA */}
       <div className="fixed bottom-20 left-0 right-0 p-4 bg-card/95 backdrop-blur-md border-t border-border lg:hidden z-40 shadow-2xl">

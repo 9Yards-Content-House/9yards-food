@@ -1,7 +1,7 @@
 import Link from '@/components/NavLink';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import MobileNav from '@/components/layout/MobileNav';
+
 import HeroSection from '@/components/home/HeroSection';
 import HowItWorksSection from '@/components/home/HowItWorksSection';
 import PopularDishesSection from '@/components/home/PopularDishesSection';
@@ -106,7 +106,7 @@ export default function Index() {
         <WhyChooseUsSection />
       </main>
       <Footer />
-      <MobileNav />
+
 
     </div>
   );

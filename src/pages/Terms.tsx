@@ -1,7 +1,6 @@
 import Header from '@/components/layout/Header';
 import SEO from '@/components/SEO';
 import Footer from '@/components/layout/Footer';
-import MobileNav from '@/components/layout/MobileNav';
 
 export default function TermsPage() {
   return (
@@ -117,7 +116,6 @@ export default function TermsPage() {
         </section>
       </main>
       <Footer />
-      <MobileNav />
     </div>
   );
 }

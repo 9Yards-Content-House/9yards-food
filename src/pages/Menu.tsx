@@ -17,7 +17,6 @@ import OptimizedImage from "@/components/ui/optimized-image";
 import { Link, useSearchParams } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import MobileNav from "@/components/layout/MobileNav";
 import ComboBuilder from "@/components/menu/ComboBuilder";
 import { menuData } from "@/data/menu";
 import { formatPrice } from "@/lib/utils/order";
@@ -900,7 +899,6 @@ export default function MenuPage() {
       </main>
 
       <Footer />
-      <MobileNav />
 
       {/* Sticky Build Combo Button (Mobile) */}
       <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 lg:hidden w-auto">

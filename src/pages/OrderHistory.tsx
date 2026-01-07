@@ -11,7 +11,6 @@ import {
 import Header from '@/components/layout/Header';
 import SEO from '@/components/SEO';
 import Footer from '@/components/layout/Footer';
-import MobileNav from '@/components/layout/MobileNav';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import { useCart, OrderHistoryItem } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils/order';
@@ -100,7 +99,7 @@ export default function OrderHistory() {
           </div>
         </main>
         <Footer />
-        <MobileNav />
+        <Footer />
       </div>
     );
   }
@@ -215,7 +214,7 @@ export default function OrderHistory() {
       </main>
 
       <Footer />
-      <MobileNav />
+
     </div>
   );
 }

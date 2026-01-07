@@ -1,7 +1,6 @@
 import Header from "@/components/layout/Header";
 import SEO from "@/components/SEO";
 import Footer from "@/components/layout/Footer";
-import MobileNav from "@/components/layout/MobileNav";
 
 export default function PrivacyPage() {
   return (
@@ -111,7 +110,6 @@ export default function PrivacyPage() {
         </section>
       </main>
       <Footer />
-      <MobileNav />
     </div>
   );
 }

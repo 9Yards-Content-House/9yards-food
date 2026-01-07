@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import SEO from '@/components/SEO';
 import Footer from '@/components/layout/Footer';
-import MobileNav from '@/components/layout/MobileNav';
 import { useCart } from '@/context/CartContext';
 import { menuData } from '@/data/menu';
 import { formatPrice } from '@/lib/utils/order';
@@ -50,7 +49,6 @@ export default function FavoritesPage() {
           </div>
         </main>
         <Footer />
-        <MobileNav />
       </div>
     );
   }
@@ -105,7 +103,6 @@ export default function FavoritesPage() {
         </div>
       </main>
       <Footer />
-      <MobileNav />
     </div>
   );
 }
