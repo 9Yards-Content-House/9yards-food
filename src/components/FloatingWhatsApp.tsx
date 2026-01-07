@@ -647,7 +647,6 @@ export default function FloatingWhatsApp() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
                   <h3 className="text-white font-medium text-[15px] sm:text-base leading-tight">9Yards Food</h3>
-                  <img src="/images/logo/whatsapp-verified-badge.png" alt="Verified" className="w-[14px] h-[14px] sm:w-4 sm:h-4 shrink-0" />
                 </div>
                 <p className="text-white/90 text-[11px] sm:text-xs leading-tight">
                   {isTyping ? 'typing...' : 'online'}
