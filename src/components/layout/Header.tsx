@@ -9,6 +9,7 @@ import ComboBuilder from '@/components/menu/ComboBuilder';
 // Simplified navigation - removed Order Guide and Delivery Areas (they remain in footer only)
 const navLinks = [
   { href: '/menu', label: 'Our Menu' },
+  { href: '/deals', label: 'Deals' },
   { href: '/contact', label: 'Contact' },
 ];
 

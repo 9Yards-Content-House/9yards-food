@@ -15,6 +15,7 @@ const Menu = lazy(() => import("./pages/Menu"));
 const Cart = lazy(() => import("./pages/Cart"));
 const Favorites = lazy(() => import("./pages/Favorites"));
 const DeliveryZones = lazy(() => import("./pages/DeliveryZones"));
+const Deals = lazy(() => import("./pages/Deals"));
 const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
 const HowItWorks = lazy(() => import("./pages/HowItWorks"));
@@ -61,6 +62,7 @@ const App = () => (
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/favorites" element={<Favorites />} />
                 <Route path="/delivery-zones" element={<DeliveryZones />} />
+                <Route path="/deals" element={<Deals />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />
