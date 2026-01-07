@@ -219,10 +219,22 @@ export default function FloatingWhatsApp() {
     };
   }, [isOpen, messages, proactiveShown]);
 
-  // Scroll to bottom
+  // Scroll to bottom on updates (smooth)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (isOpen) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [messages, isTyping]);
+
+  // Scroll to bottom on open (instant)
+  useEffect(() => {
+    if (isOpen) {
+      // Small timeout ensures layout is ready before scrolling
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+      }, 0);
+    }
+  }, [isOpen]);
 
   // Hide widget on certain pages
   if (HIDDEN_PAGES.includes(location.pathname)) {
