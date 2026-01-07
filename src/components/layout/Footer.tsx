@@ -170,12 +170,12 @@ export default function Footer() {
             © {new Date().getFullYear()} 9Yards Food. All rights reserved.
           </p>
           <div className="flex gap-6 text-sm">
-            <span className="text-primary-foreground/50">
+            <Link to="/privacy" className="text-primary-foreground/50 hover:text-secondary transition-colors">
               Privacy Policy
-            </span>
-            <span className="text-primary-foreground/50">
+            </Link>
+            <Link to="/terms" className="text-primary-foreground/50 hover:text-secondary transition-colors">
               Terms & Conditions
-            </span>
+            </Link>
           </div>
         </div>
       </div>
