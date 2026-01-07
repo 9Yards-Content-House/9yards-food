@@ -6,14 +6,15 @@ import {
   ShoppingBag,
   RefreshCw,
   Trash2,
-  CheckCircle,
-  XCircle,
+  CreditCard,
+  MessageCircle,
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import MobileNav from '@/components/layout/MobileNav';
 import { useCart, OrderHistoryItem } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils/order';
+import { WHATSAPP_NUMBER } from '@/lib/constants';
 import { toast } from 'sonner';
 
 export default function OrderHistory() {
@@ -47,28 +48,26 @@ export default function OrderHistory() {
     });
   };
 
-  const getStatusColor = (status: OrderHistoryItem['status']) => {
-    switch (status) {
-      case 'completed':
-        return 'text-green-600 bg-green-100';
-      case 'cancelled':
-        return 'text-red-600 bg-red-100';
-      case 'pending':
-      default:
-        return 'text-yellow-600 bg-yellow-100';
+  const getMethodBadge = (method: OrderHistoryItem['paymentMethod']) => {
+    if (method === 'online') {
+      return {
+        label: 'Paid Online',
+        className: 'text-blue-700 bg-blue-50 border border-blue-100',
+        icon: CreditCard
+      };
     }
+    return {
+      label: 'WhatsApp Order',
+      className: 'text-green-700 bg-green-50 border border-green-100',
+      icon: MessageCircle
+    };
   };
 
-  const getStatusIcon = (status: OrderHistoryItem['status']) => {
-    switch (status) {
-      case 'completed':
-        return CheckCircle;
-      case 'cancelled':
-        return XCircle;
-      case 'pending':
-      default:
-        return Clock;
-    }
+  const handleTrackOrder = (orderId: string) => {
+    const message = encodeURIComponent(
+      `Hi! I'd like to track my order.\n\nOrder ID: ${orderId}`
+    );
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, '_blank');
   };
 
   if (orderHistory.length === 0) {
@@ -127,7 +126,8 @@ export default function OrderHistory() {
 
           <div className="space-y-4">
             {orderHistory.map((order) => {
-              const StatusIcon = getStatusIcon(order.status);
+              const badge = getMethodBadge(order.paymentMethod);
+              const BadgeIcon = badge.icon;
               
               return (
                 <div
@@ -137,68 +137,64 @@ export default function OrderHistory() {
                   {/* Header */}
                   <div className="flex flex-wrap items-start justify-between gap-4 mb-4 pb-4 border-b border-border">
                     <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-bold text-foreground font-mono">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="font-bold text-foreground font-mono text-lg">
                           {order.orderId}
                         </span>
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                          <StatusIcon className="w-3 h-3" />
-                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${badge.className}`}>
+                          <BadgeIcon className="w-3.5 h-3.5" />
+                          {badge.label}
                         </span>
                       </div>
-                      <p className="text-sm text-muted-foreground flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
+                      <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5" />
                         {formatDate(order.orderDate)}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-secondary">
+                      <p className="text-xl font-bold text-secondary">
                         {formatPrice(order.total)}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {order.paymentMethod === 'online' ? 'Paid Online' : 'Cash on Delivery'}
                       </p>
                     </div>
                   </div>
 
                   {/* Items Summary */}
-                  <div className="space-y-2 mb-4">
+                  <div className="space-y-2 mb-6">
                     {order.items.map((item, idx) => (
-                      <div key={idx} className="flex justify-between text-sm">
-                        <span className="text-foreground">
-                          {item.quantity}x {item.mainDishes.join(' + ')} + {item.sauce?.name}
-                        </span>
-                        <span className="text-muted-foreground">
-                          {formatPrice(item.totalPrice * item.quantity)}
+                      <div key={idx} className="flex justify-between text-sm py-1">
+                        <span className="text-foreground font-medium">
+                          <span className="text-muted-foreground mr-2">{item.quantity}x</span> 
+                          {item.mainDishes.join(' + ')}
+                          {item.sauce && <span className="text-muted-foreground font-normal"> with {item.sauce.name}</span>}
                         </span>
                       </div>
                     ))}
                   </div>
 
                   {/* Delivery Info */}
-                  <div className="text-sm text-muted-foreground mb-4">
-                    <p>
-                      <strong className="text-foreground">Delivered to:</strong>{' '}
-                      {order.deliveryLocation}
-                    </p>
-                  </div>
+                  <div className="bg-muted/30 -mx-4 -mb-4 md:-mx-6 md:-mb-6 p-4 md:p-6 flex flex-wrap gap-3 items-center justify-between border-t border-border mt-4">
+                    <div className="text-sm">
+                      <p className="text-muted-foreground mb-0.5">Delivered to</p>
+                      <p className="font-bold text-foreground">{order.deliveryLocation}</p>
+                    </div>
 
-                  {/* Actions */}
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => handleReorder(order)}
-                      className="btn-secondary text-sm py-2 px-4 flex items-center gap-2"
-                    >
-                      <RefreshCw className="w-4 h-4" />
-                      Reorder
-                    </button>
-                    <Link
-                      to="/menu"
-                      className="btn-outline text-sm py-2 px-4 flex items-center gap-2"
-                    >
-                      <ShoppingBag className="w-4 h-4" />
-                      View Menu
-                    </Link>
+                    <div className="flex flex-wrap gap-3 w-full sm:w-auto">
+                      <button
+                        onClick={() => handleTrackOrder(order.orderId)}
+                        className="btn-primary bg-[#25D366] hover:bg-[#20bd5a] text-white border-none flex-1 sm:flex-none text-sm py-2 px-4 flex items-center justify-center gap-2"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        Track Order
+                      </button>
+                      
+                      <button
+                        onClick={() => handleReorder(order)}
+                        className="btn-secondary flex-1 sm:flex-none text-sm py-2 px-4 flex items-center justify-center gap-2"
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                        Reorder
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
