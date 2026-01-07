@@ -3,7 +3,6 @@ import { Link, useLocation } from "react-router-dom";
 import { ShoppingCart, Heart, Menu, X, Search, Clock } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import SearchModal from "./SearchModal";
-import MobileSidebar from "./MobileSidebar";
 import ComboBuilder from "@/components/menu/ComboBuilder";
 
 // Simplified navigation - removed Order Guide and Delivery Areas (they remain in footer only)
@@ -17,7 +16,6 @@ const navLinks = [
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isComboBuilderOpen, setIsComboBuilderOpen] = useState(false);
   const location = useLocation();
@@ -39,8 +37,10 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [location.pathname]);
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Dynamic icon color based on scroll state and page
   const iconColorClass = useTransparentStyle
@@ -142,7 +142,7 @@ export default function Header() {
               {/* Cart */}
               <Link
                 to="/cart"
-                className="p-1.5 sm:p-2 rounded-full hover:bg-muted/20 transition-colors relative"
+                className="hidden lg:flex p-1.5 sm:p-2 rounded-full hover:bg-muted/20 transition-colors relative"
                 aria-label={`Cart${
                   cartCount > 0 ? ` (${cartCount} items)` : ""
                 }`}
@@ -164,24 +164,6 @@ export default function Header() {
               >
                 Build Your Combo
               </button>
-
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-1.5 sm:p-2 rounded-full hover:bg-muted/20 transition-colors lg:hidden ml-0.5"
-                aria-expanded={isMobileMenuOpen}
-                aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
-              >
-                {isMobileMenuOpen ? (
-                  <X
-                    className={`w-5 h-5 sm:w-6 sm:h-6 ${iconColorClass} transition-colors`}
-                  />
-                ) : (
-                  <Menu
-                    className={`w-5 h-5 sm:w-6 sm:h-6 ${iconColorClass} transition-colors`}
-                  />
-                )}
-              </button>
             </div>
           </div>
         </div>
@@ -191,12 +173,6 @@ export default function Header() {
       <SearchModal
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
-      />
-
-      {/* Mobile Sidebar */}
-      <MobileSidebar
-        isOpen={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
       />
 
       {/* Combo Builder Modal */}

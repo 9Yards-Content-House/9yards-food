@@ -1,3 +1,4 @@
+import { Link, useLocation } from 'react-router-dom';
 import { 
   Phone, 
   Instagram, 
@@ -24,7 +25,18 @@ interface MoreSheetProps {
 }
 
 export default function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
+  const location = useLocation();
   const defaultWhatsAppUrl = getWhatsAppUrl(WHATSAPP_MESSAGES.default);
+
+  // Navigation links
+  const navLinks = [
+    { href: '/menu', label: 'Menu' },
+    { href: '/deals', label: 'Deals & Offers' },
+    { href: '/delivery-zones', label: 'Delivery Zones' },
+    { href: '/order-history', label: 'Order History' },
+    { href: '/about', label: 'About Us' },
+    { href: '/contact', label: 'Contact' },
+  ];
 
   // Dynamic Kitchen Hours logic
   const getKitchenStatus = () => {
@@ -76,8 +88,31 @@ export default function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
           </div>
         </div>
 
-        {/* Content Container - No Scrolling by default, tightly packed */}
-        <div className="flex-1 px-5 pt-3 pb-6 flex flex-col justify-between overflow-hidden">
+        {/* Content Container - Scrollable */}
+        <div className="flex-1 px-5 pt-3 pb-6 flex flex-col gap-6 overflow-y-auto overscroll-contain">
+
+          {/* Navigation Links */}
+          <div className="space-y-1">
+            {navLinks.map((link) => {
+              const isActive = location.pathname === link.href;
+              
+              return (
+                <Link
+                  key={link.href}
+                  onClick={() => onOpenChange(false)}
+                  to={link.href}
+                  className={`flex items-center justify-between p-3 rounded-xl transition-all duration-200 ${
+                    isActive
+                      ? 'bg-primary/5 text-primary font-bold'
+                      : 'hover:bg-gray-50 text-gray-700 font-medium'
+                  }`}
+                >
+                  <span className="text-base">{link.label}</span>
+                  {isActive && <div className="w-1.5 h-1.5 rounded-full bg-primary" />}
+                </Link>
+              );
+            })}
+          </div>
           
           {/* Contact Methods */}
           <div className="space-y-0.5">
