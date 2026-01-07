@@ -1,12 +1,18 @@
 import { Link } from 'react-router-dom';
 import { Home, UtensilsCrossed, ArrowLeft } from 'lucide-react';
 import Header from '@/components/layout/Header';
+import SEO from '@/components/SEO';
 import Footer from '@/components/layout/Footer';
 import MobileNav from '@/components/layout/MobileNav';
 
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-background pb-20 lg:pb-0">
+      <SEO 
+        title="Page Not Found | 9Yards Food"
+        description="The page you are looking for does not exist."
+        url="/404"
+      />
       <Header />
       <main className="pt-16 md:pt-20">
         <section className="section-padding">

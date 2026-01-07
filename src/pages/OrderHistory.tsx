@@ -9,6 +9,7 @@ import {
   CreditCard,
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
+import SEO from '@/components/SEO';
 import Footer from '@/components/layout/Footer';
 import MobileNav from '@/components/layout/MobileNav';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
@@ -73,6 +74,11 @@ export default function OrderHistory() {
   if (orderHistory.length === 0) {
     return (
       <div className="min-h-screen bg-background pb-20 lg:pb-0">
+        <SEO 
+          title="Order History | 9Yards Food"
+          description="View your past orders and reorder your favorite meals easily."
+          url="/order-history"
+        />
         <Header />
         <main className="pt-16 md:pt-20">
           <div className="container-custom section-padding text-center">
@@ -101,6 +107,11 @@ export default function OrderHistory() {
 
   return (
     <div className="min-h-screen bg-background pb-20 lg:pb-0">
+      <SEO 
+        title="Order History | 9Yards Food"
+        description="View your past orders and reorder your favorite meals easily."
+        url="/order-history"
+      />
       <Header />
 
       <main className="pt-16 md:pt-20">

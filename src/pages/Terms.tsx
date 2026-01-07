@@ -1,10 +1,16 @@
 import Header from '@/components/layout/Header';
+import SEO from '@/components/SEO';
 import Footer from '@/components/layout/Footer';
 import MobileNav from '@/components/layout/MobileNav';
 
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-background pb-20 lg:pb-0">
+      <SEO 
+        title="Terms & Conditions | 9Yards Food"
+        description="Review the terms and conditions for ordering from 9Yards Food, including delivery policies, payments, and order cancellations."
+        url="/terms"
+      />
       <Header />
       <main className="pt-16 md:pt-20">
         {/* Hero */}

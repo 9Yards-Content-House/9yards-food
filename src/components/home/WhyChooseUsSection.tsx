@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Droplets, RefreshCw, Sprout, Soup, ChevronLeft, ChevronRight } from 'lucide-react';
+import OptimizedImage from '@/components/ui/optimized-image';
 
 const features = [
   {
@@ -138,10 +139,11 @@ export default function WhyChooseUsSection() {
                       : 'opacity-0 scale-110'
                   }`}
                 >
-                  <img
+                  <OptimizedImage
                     src={image.src}
                     alt={image.alt}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full"
+                    priority={index === 0} // Prioritize first image
                   />
                   {/* Gradient Overlay for Text Readability if needed, though clean looks good */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />

@@ -12,6 +12,7 @@ import {
   UtensilsCrossed,
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
+import SEO from '@/components/SEO';
 import Footer from '@/components/layout/Footer';
 import MobileNav from '@/components/layout/MobileNav';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
@@ -105,6 +106,11 @@ export default function OrderConfirmation() {
 
   return (
     <div className="min-h-screen bg-[#f8f6f6] pb-20 lg:pb-0">
+      <SEO 
+        title="Order Confirmation | 9Yards Food"
+        description="Your order has been placed successfully."
+        url="/order-confirmation"
+      />
       <Header />
 
       <main className="pt-16 md:pt-20">

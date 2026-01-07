@@ -144,6 +144,8 @@ interface FlutterwaveResponse {
   flw_ref: string;
 }
 
+import SEO from '@/components/SEO';
+
 export default function CartPage() {
   const navigate = useNavigate();
   const {
@@ -381,6 +383,11 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-[#fcf9f8] pb-20 lg:pb-0">
+      <SEO 
+        title="Your Cart | 9Yards Food"
+        description="Review your order of authentic Ugandan cuisine. Secure checkout with Mobile Money or Card. Fast delivery across Kampala."
+        url="/cart"
+      />
       <Header />
 
       <main className="pt-16 sm:pt-[4.5rem] md:pt-20">

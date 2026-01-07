@@ -1,6 +1,7 @@
 import { Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Header from '@/components/layout/Header';
+import SEO from '@/components/SEO';
 import Footer from '@/components/layout/Footer';
 import MobileNav from '@/components/layout/MobileNav';
 import { useCart } from '@/context/CartContext';
@@ -24,6 +25,11 @@ export default function FavoritesPage() {
   if (favoriteItems.length === 0) {
     return (
       <div className="min-h-screen bg-background pb-20 lg:pb-0">
+        <SEO 
+          title="My Favorites | 9Yards Food"
+          description="Your favorite authentic Ugandan dishes saved for quick ordering."
+          url="/favorites"
+        />
         <Header />
         <main className="pt-16 md:pt-20">
           <div className="container-custom section-padding text-center">
@@ -51,6 +57,11 @@ export default function FavoritesPage() {
 
   return (
     <div className="min-h-screen bg-background pb-20 lg:pb-0">
+      <SEO 
+        title="My Favorites | 9Yards Food"
+        description="Your favorite authentic Ugandan dishes saved for quick ordering."
+        url="/favorites"
+      />
       <Header />
       <main className="pt-16 md:pt-20">
         <div className="container-custom section-padding">

@@ -1,10 +1,16 @@
 import Header from "@/components/layout/Header";
+import SEO from "@/components/SEO";
 import Footer from "@/components/layout/Footer";
 import MobileNav from "@/components/layout/MobileNav";
 
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-background pb-20 lg:pb-0">
+      <SEO 
+        title="Privacy Policy | 9Yards Food"
+        description="Read our privacy policy to understand how we collect, use, and protect your personal information when you order from 9Yards Food."
+        url="/privacy"
+      />
       <Header />
       <main className="pt-16 md:pt-20">
         {/* Hero */}

@@ -9,6 +9,8 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import MobileNav from '@/components/layout/MobileNav';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
+import SEO from '@/components/SEO';
+import OptimizedImage from '@/components/ui/optimized-image';
 
 // Animated counter hook
 function useCountUp(end: number, duration: number = 2000) {
@@ -91,6 +93,11 @@ export default function HowItWorksPage() {
 
   return (
     <div className="min-h-screen bg-background pb-24 lg:pb-0">
+      <SEO 
+        title="How to Order | 9Yards Food"
+        description="Learn how to order authentic Ugandan food in 4 simple steps. We deliver fresh, hot meals to your doorstep within 30-45 minutes."
+        url="/how-it-works"
+      />
       <Header />
       <main className="pt-16 md:pt-20">
         {/* Hero Section */}
@@ -189,25 +196,25 @@ export default function HowItWorksPage() {
                 </Link>
               </div>
 
-              {/* Image */}
-              <div
-                className="order-1 md:order-2"
-              >
-                <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                  <img
-                    src={stepImages.choose}
-                    alt="Authentic Ugandan dishes"
-                    className="w-full h-[350px] md:h-[400px] object-cover"
-                    loading="lazy"
-                  />
-                  <div className="absolute top-6 left-6 bg-card/95 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg">
-                    <p className="text-sm font-bold text-foreground flex items-center gap-2">
-                      <UtensilsCrossed className="w-4 h-4 text-secondary" />
-                      7 Main Dishes Available
-                    </p>
-                  </div>
-                </div>
-              </div>
+               {/* Image */}
+               <div
+                 className="order-1 md:order-2"
+               >
+                 <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                   <OptimizedImage
+                     src={stepImages.choose}
+                     alt="Authentic Ugandan dishes"
+                     className="w-full h-[350px] md:h-[400px]"
+                     priority={true}
+                   />
+                   <div className="absolute top-6 left-6 bg-card/95 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg">
+                     <p className="text-sm font-bold text-foreground flex items-center gap-2">
+                       <UtensilsCrossed className="w-4 h-4 text-secondary" />
+                       7 Main Dishes Available
+                     </p>
+                   </div>
+                 </div>
+               </div>
             </div>
           </div>
         </section>
@@ -220,11 +227,10 @@ export default function HowItWorksPage() {
               <div
               >
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                  <img
+                  <OptimizedImage
                     src={stepImages.customize}
                     alt="Customize your combo"
-                    className="w-full h-[350px] md:h-[400px] object-cover"
-                    loading="lazy"
+                    className="w-full h-[350px] md:h-[400px]"
                   />
                   <div className="absolute bottom-6 right-6 bg-card/95 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg">
                     <p className="text-sm font-bold text-foreground flex items-center gap-2">
@@ -350,11 +356,10 @@ export default function HowItWorksPage() {
                 className="order-1 md:order-2"
               >
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                  <img
+                  <OptimizedImage
                     src={stepImages.order}
                     alt="Easy payment options"
-                    className="w-full h-[350px] md:h-[400px] object-cover"
-                    loading="lazy"
+                    className="w-full h-[350px] md:h-[400px]"
                   />
                   <div className="absolute top-6 right-6 flex flex-col gap-2">
                     <div className="bg-green-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5">
@@ -378,11 +383,10 @@ export default function HowItWorksPage() {
               <div
               >
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                  <img
+                  <OptimizedImage
                     src={stepImages.delivery}
                     alt="Fast delivery to your door"
-                    className="w-full h-[350px] md:h-[400px] object-cover"
-                    loading="lazy"
+                    className="w-full h-[350px] md:h-[400px]"
                   />
                   <div
                     className="absolute top-6 left-6 bg-secondary text-secondary-foreground px-4 py-2 rounded-lg shadow-lg"
