@@ -7,11 +7,11 @@ import {
   RefreshCw,
   Trash2,
   CreditCard,
-  MessageCircle,
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import MobileNav from '@/components/layout/MobileNav';
+import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import { useCart, OrderHistoryItem } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils/order';
 import { WHATSAPP_NUMBER } from '@/lib/constants';
@@ -59,7 +59,7 @@ export default function OrderHistory() {
     return {
       label: 'WhatsApp Order',
       className: 'text-green-700 bg-green-50 border border-green-100',
-      icon: MessageCircle
+      icon: WhatsAppIcon
     };
   };
 
@@ -183,7 +183,7 @@ export default function OrderHistory() {
                         onClick={() => handleTrackOrder(order.orderId)}
                         className="btn-primary bg-[#25D366] hover:bg-[#20bd5a] text-white border-none flex-1 sm:flex-none text-sm py-2 px-4 flex items-center justify-center gap-2"
                       >
-                        <MessageCircle className="w-4 h-4" />
+                        <WhatsAppIcon className="w-4 h-4" />
                         Track Order
                       </button>
                       
