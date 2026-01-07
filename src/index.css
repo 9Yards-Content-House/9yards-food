@@ -204,7 +204,8 @@
   }
 
   @keyframes float {
-    0%, 100% {
+    0%,
+    100% {
       transform: translateY(0);
     }
     50% {
@@ -291,5 +292,20 @@
   .skip-link {
     @apply absolute -top-10 left-4 z-[100] bg-primary text-primary-foreground px-4 py-2 rounded-lg transition-all;
     @apply focus:top-4;
+  }
+}
+
+@layer utilities {
+  .animate-progress-shrink {
+    animation: progress-shrink 3s linear forwards;
+  }
+}
+
+@keyframes progress-shrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
   }
 }

@@ -47,13 +47,13 @@ const queryClient = new QueryClient({
 });
 
 const App = () => (
-  <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <CartProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner position="top-center" />
-          <BrowserRouter>
+  <QueryClientProvider client={queryClient}>
+    <CartProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner position="top-center" />
+        <BrowserRouter>
+          <ErrorBoundary>
             <ScrollToTop />
             <Suspense fallback={<PageLoader />}>
               <Routes>
@@ -74,11 +74,11 @@ const App = () => (
               </Routes>
             </Suspense>
             <FloatingWhatsApp />
-          </BrowserRouter>
-        </TooltipProvider>
-      </CartProvider>
-    </QueryClientProvider>
-  </ErrorBoundary>
+          </ErrorBoundary>
+        </BrowserRouter>
+      </TooltipProvider>
+    </CartProvider>
+  </QueryClientProvider>
 );
 
 export default App;

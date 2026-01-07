@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { X, Check, ChevronRight, Plus, Minus, ArrowLeft } from 'lucide-react';
+import { X, Check, ChevronRight, Plus, Minus, ArrowLeft, ShoppingBag, Utensils, RotateCcw, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { menuData, Sauce } from '@/data/menu';
 import { formatPrice } from '@/lib/utils/order';
 import { useCart, CartItem, SauceSelection, ExtraItem } from '@/context/CartContext';
@@ -11,6 +12,9 @@ interface ComboBuilderProps {
   onClose: () => void;
 }
 
+const DRAFT_KEY = '9yards_combo_draft';
+const DRAFT_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
+
 export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
   const [step, setStep] = useState(1);
   const [selectedMainDishes, setSelectedMainDishes] = useState<string[]>([]);
@@ -20,6 +24,11 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
   const [selectedSideDish, setSelectedSideDish] = useState<string>('');
   const [selectedJuices, setSelectedJuices] = useState<{ id: string; quantity: number }[]>([]);
   const [selectedDesserts, setSelectedDesserts] = useState<{ id: string; quantity: number }[]>([]);
+  
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [showDraftBanner, setShowDraftBanner] = useState(false);
+  const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
+  const [isDraftLoaded, setIsDraftLoaded] = useState(false);
 
   const { addItem } = useCart();
 
@@ -32,12 +41,73 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
     setSelectedSideDish('');
     setSelectedJuices([]);
     setSelectedDesserts([]);
+    localStorage.removeItem(DRAFT_KEY);
+    setShowDraftBanner(false);
+  };
+
+  const hasSelections = () => {
+    return selectedMainDishes.length > 0 || 
+           selectedSauce || 
+           selectedSideDish !== '' || 
+           selectedJuices.length > 0 || 
+           selectedDesserts.length > 0;
   };
 
   const handleClose = () => {
-    resetBuilder();
-    onClose();
+    if (hasSelections() && !showSuccessOverlay) {
+      setShowCancelConfirm(true);
+    } else {
+      onClose();
+    }
   };
+
+  // Load Draft
+  useEffect(() => {
+    if (isOpen && !isDraftLoaded) {
+      const draftJson = localStorage.getItem(DRAFT_KEY);
+      if (draftJson) {
+        try {
+          const draft = JSON.parse(draftJson);
+          const isExpired = Date.now() - draft.timestamp > DRAFT_EXPIRY;
+          
+          if (!isExpired) {
+            setStep(draft.step || 1);
+            setSelectedMainDishes(draft.selectedMainDishes || []);
+            setSelectedSauce(draft.selectedSauce || null);
+            setSaucePreparation(draft.saucePreparation || '');
+            setSauceSize(draft.sauceSize || null);
+            setSelectedSideDish(draft.selectedSideDish || '');
+            setSelectedJuices(draft.selectedJuices || []);
+            setSelectedDesserts(draft.selectedDesserts || []);
+            setShowDraftBanner(true);
+          } else {
+            localStorage.removeItem(DRAFT_KEY);
+          }
+        } catch (e) {
+          console.error("Failed to parse combo draft", e);
+        }
+      }
+      setIsDraftLoaded(true);
+    }
+  }, [isOpen, isDraftLoaded]);
+
+  // Save Draft
+  useEffect(() => {
+    if (isOpen && hasSelections() && !showSuccessOverlay) {
+      const draft = {
+        step,
+        selectedMainDishes,
+        selectedSauce,
+        saucePreparation,
+        sauceSize,
+        selectedSideDish,
+        selectedJuices,
+        selectedDesserts,
+        timestamp: Date.now()
+      };
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    }
+  }, [isOpen, step, selectedMainDishes, selectedSauce, saucePreparation, sauceSize, selectedSideDish, selectedJuices, selectedDesserts, showSuccessOverlay]);
 
   // Keyboard navigation - Escape to close
   useEffect(() => {
@@ -156,8 +226,15 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
 
     addItem(cartItem);
     vibrate(50);
-    toast.success('Combo added to order!');
-    handleClose();
+    localStorage.removeItem(DRAFT_KEY);
+    setShowSuccessOverlay(true);
+    
+    // Auto-close after 3 seconds
+    setTimeout(() => {
+      setShowSuccessOverlay(false);
+      resetBuilder();
+      onClose();
+    }, 3000);
   };
 
   const canProceed = () => {
@@ -165,10 +242,11 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
       case 1:
         return selectedMainDishes.length > 0;
       case 2:
-        return selectedSauce && saucePreparation && sauceSize;
+        return !!(selectedSauce && saucePreparation && sauceSize);
       case 3:
         return selectedSideDish !== '';
       case 4:
+      case 5:
         return true;
       default:
         return false;
@@ -214,6 +292,8 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
       case 3:
         return 'Next: Add Extras';
       case 4:
+        return 'Review Your Combo';
+      case 5:
         return 'Add to Order';
       default:
         return 'Next';
@@ -236,7 +316,7 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
 
           {/* Modal Container */}
           <div
-            className="relative w-full max-w-md md:max-w-2xl lg:max-w-3xl h-[95vh] md:h-[90vh] md:max-h-[800px] bg-[#FAFAFA] md:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden flex flex-col"
+            className={`relative w-full max-w-md md:max-w-2xl lg:max-w-3xl h-[95vh] md:h-[90vh] md:max-h-[800px] md:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden flex flex-col transition-colors duration-500 ${step === 1 ? 'bg-white' : 'bg-[#FAFAFA]'}`}
             role="dialog"
             aria-modal="true"
             aria-labelledby="combo-builder-title"
@@ -263,10 +343,10 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                 )}
                 <div className="flex flex-col items-center">
                   <span className="text-xs font-bold uppercase tracking-widest text-[#E6411C]">
-                    Step {step} of 4
+                    Step {step} of 5
                   </span>
                   <div className="mt-1.5 flex gap-1">
-                    {[1, 2, 3, 4].map((s) => (
+                    {[1, 2, 3, 4, 5].map((s) => (
                       <div
                         key={s}
                         className={`h-1 rounded-full transition-all duration-300 ${
@@ -276,17 +356,48 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                     ))}
                   </div>
                 </div>
-                <button
-                  onClick={handleClose}
-                  className="flex h-10 items-center justify-center rounded-full px-2 hover:bg-red-50 transition-colors"
-                >
-                  <span className="text-[#E6411C] text-sm font-bold">Cancel</span>
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => {
+                      if (confirm('Start a fresh combo? Your current draft will be cleared.')) {
+                        resetBuilder();
+                      }
+                    }}
+                    className="flex h-10 items-center justify-center rounded-full px-2 hover:bg-gray-100 transition-colors text-gray-500 mr-1"
+                    title="Start Fresh"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={handleClose}
+                    className="flex h-10 items-center justify-center rounded-full px-2 hover:bg-red-50 transition-colors"
+                  >
+                    <span className="text-[#E6411C] text-sm font-bold">Cancel</span>
+                  </button>
+                </div>
               </div>
             </header>
 
             {/* Scrollable Content */}
-            <main className="flex-1 overflow-y-auto pb-44 md:pb-48">
+            <main className={`flex-1 overflow-y-auto pb-44 md:pb-48 transition-colors duration-500 ${step === 1 ? 'bg-white' : 'bg-[#FAFAFA]'}`}>
+              {/* Draft Banner */}
+              {showDraftBanner && (
+                <div className="bg-[#212282] text-white px-5 py-3 flex items-center justify-between animate-in slide-in-from-top duration-500">
+                  <div className="flex items-center gap-2">
+                    <div className="size-5 rounded-full bg-white/20 flex items-center justify-center">
+                      <Check className="w-3 h-3" />
+                    </div>
+                    <p className="text-xs font-bold">Resuming your saved combo draft...</p>
+                  </div>
+                  <button 
+                    onClick={() => setShowDraftBanner(false)}
+                    className="text-white/60 hover:text-white"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+
               {/* Step 1: Choose Your Food */}
               {step === 1 && (
                 <div className="animate-in fade-in duration-300">
@@ -706,6 +817,121 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                   </section>
                 </div>
               )}
+
+              {/* Step 5: Review Your Combo */}
+              {step === 5 && (
+                <div className="animate-in fade-in zoom-in-95 duration-300">
+                  <div className="px-5 pt-6 pb-2">
+                    <h1 className="text-2xl font-black text-[#212282] tracking-tight mb-1">Review Your Combo</h1>
+                    <p className="text-sm text-gray-500 font-medium">Almost there! Check your selections below.</p>
+                  </div>
+
+                  <div className="p-4 space-y-4">
+                    {/* Main Dishes */}
+                    <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className="size-8 rounded-full bg-[#212282]/10 flex items-center justify-center text-[#212282]">
+                            <Utensils className="w-4 h-4" />
+                          </div>
+                          <h3 className="font-bold text-[#212282]">Main Dishes</h3>
+                        </div>
+                        <button onClick={() => setStep(1)} className="text-[#E6411C] text-xs font-bold hover:underline">Edit</button>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedMainDishes.map(id => {
+                          const dish = menuData.mainDishes.find(d => d.id === id);
+                          return (
+                            <span key={id} className="px-3 py-1.5 bg-gray-50 rounded-lg text-sm font-semibold text-[#212282]">
+                              {dish?.name}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Sauce */}
+                    <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className="size-8 rounded-full bg-[#E6411C]/10 flex items-center justify-center text-[#E6411C]">
+                            <Check className="w-4 h-4" />
+                          </div>
+                          <h3 className="font-bold text-[#212282]">Sauce Selection</h3>
+                        </div>
+                        <button onClick={() => setStep(2)} className="text-[#E6411C] text-xs font-bold hover:underline">Edit</button>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <img src={selectedSauce?.image} alt="" className="size-12 rounded-xl object-cover" />
+                        <div>
+                          <p className="font-bold text-[#212282]">{selectedSauce?.name}</p>
+                          <p className="text-xs text-gray-500">
+                            {saucePreparation !== 'Default' ? `${saucePreparation} • ` : ''}
+                            {sauceSize?.name} ({formatPrice(sauceSize?.price || 0)})
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Side Dish */}
+                    <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className="size-8 rounded-full bg-green-50 flex items-center justify-center text-green-600">
+                            <Check className="w-4 h-4" />
+                          </div>
+                          <h3 className="font-bold text-[#212282]">Free Side Dish</h3>
+                        </div>
+                        <button onClick={() => setStep(3)} className="text-[#E6411C] text-xs font-bold hover:underline">Edit</button>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <img src={menuData.sideDishes.find(s => s.id === selectedSideDish)?.image} alt="" className="size-12 rounded-xl object-cover" />
+                        <div>
+                          <p className="font-bold text-[#212282]">
+                            {menuData.sideDishes.find(s => s.id === selectedSideDish)?.name}
+                          </p>
+                          <p className="text-xs text-green-600 font-bold uppercase tracking-wider">Free & Included</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Extras */}
+                    {(selectedJuices.length > 0 || selectedDesserts.length > 0) && (
+                      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+                        <div className="flex justify-between items-start mb-3">
+                          <div className="flex items-center gap-2">
+                            <div className="size-8 rounded-full bg-orange-50 flex items-center justify-center text-orange-600">
+                              <Plus className="w-4 h-4" />
+                            </div>
+                            <h3 className="font-bold text-[#212282]">Extra Add-ons</h3>
+                          </div>
+                          <button onClick={() => setStep(4)} className="text-[#E6411C] text-xs font-bold hover:underline">Edit</button>
+                        </div>
+                        <div className="space-y-2">
+                          {selectedJuices.map(j => {
+                            const juice = menuData.juices.find(jc => jc.id === j.id);
+                            return (
+                              <div key={j.id} className="flex justify-between items-center text-sm">
+                                <span className="font-medium text-gray-700">{j.quantity}x {juice?.name}</span>
+                                <span className="font-bold text-[#212282]">{formatPrice((juice?.price || 0) * j.quantity)}</span>
+                              </div>
+                            );
+                          })}
+                          {selectedDesserts.map(d => {
+                            const dessert = menuData.desserts.find(ds => ds.id === d.id);
+                            return (
+                              <div key={d.id} className="flex justify-between items-center text-sm">
+                                <span className="font-medium text-gray-700">{d.quantity}x {dessert?.name}</span>
+                                <span className="font-bold text-[#212282]">{formatPrice((dessert?.price || 0) * d.quantity)}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </main>
 
             {/* Sticky Footer */}
@@ -720,9 +946,9 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                       <p className={`text-xs font-medium uppercase tracking-wider mb-1 ${
                         step >= 2 ? 'text-white/60' : 'text-gray-500'
                       }`}>
-                        {step === 4 ? 'Order Summary' : 'Your Combo'}
+                        {step >= 4 ? 'Order Summary' : 'Your Combo'}
                       </p>
-                      {step === 4 ? (
+                      {step >= 4 ? (
                         <div className={`flex items-center gap-1 text-sm font-bold ${
                           step >= 2 ? 'text-white' : 'text-[#212282]'
                         }`}>
@@ -760,16 +986,107 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
 
                   {/* Action Button */}
                   <button
-                    onClick={step < 4 ? () => setStep(step + 1) : handleAddToCart}
+                    onClick={() => {
+                      if (step < 5) {
+                        setStep(step + 1);
+                        vibrate(30);
+                      } else {
+                        handleAddToCart();
+                      }
+                    }}
                     disabled={!canProceed()}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl h-14 text-white text-lg font-bold shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-[#E6411C] hover:bg-[#d13a18]"
+                    className={`w-full flex items-center justify-center gap-2 rounded-xl h-14 text-white text-lg font-bold shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
+                      step === 5 ? 'bg-orange-600 hover:bg-orange-700' : 'bg-[#E6411C] hover:bg-[#d13a18]'
+                    }`}
                   >
                     <span>{getNextButtonText()}</span>
-                    {step < 4 && <ChevronRight className="w-5 h-5" />}
+                    {step < 5 ? <ChevronRight className="w-5 h-5" /> : <ShoppingBag className="w-5 h-5" />}
                   </button>
                 </div>
               </div>
             </footer>
+
+            {/* Cancel Confirmation Modal */}
+            {showCancelConfirm && (
+              <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+                <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-300">
+                  <h3 className="text-xl font-extrabold text-[#212282] mb-2">Close Combo Builder?</h3>
+                  <p className="text-gray-500 text-sm font-medium mb-6">
+                    Don't worry! Your progress will be saved automatically so you can finish your combo later.
+                  </p>
+                  <div className="flex flex-col gap-3">
+                    <button
+                      onClick={() => setShowCancelConfirm(false)}
+                      className="w-full h-12 rounded-xl bg-[#212282] text-white font-bold hover:bg-[#212282]/90 transition-colors"
+                    >
+                      Continue Building
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowCancelConfirm(false);
+                        onClose();
+                      }}
+                      className="w-full h-12 rounded-xl border-2 border-gray-100 text-gray-500 font-bold hover:bg-gray-50 transition-colors"
+                    >
+                      Save & Close
+                    </button>
+                    <button
+                      onClick={() => {
+                        resetBuilder();
+                        setShowCancelConfirm(false);
+                        onClose();
+                      }}
+                      className="w-full py-2 text-xs font-bold text-red-400 hover:text-red-600 transition-colors"
+                    >
+                      Discard Draft
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Success Overlay */}
+            {showSuccessOverlay && (
+              <div className="absolute inset-0 z-[110] flex items-center justify-center p-6 bg-[#212282] text-white animate-in fade-in duration-500">
+                <div className="text-center animate-in zoom-in-90 duration-500 flex flex-col items-center">
+                  <div className="size-24 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-6">
+                    <Check className="size-12 text-white" strokeWidth={4} />
+                  </div>
+                  <h2 className="text-4xl font-black mb-2 tracking-tight">Added to Cart!</h2>
+                  <p className="text-white/60 font-bold uppercase tracking-widest text-sm mb-8">Masterpiece complete</p>
+                  
+                  <div className="flex flex-col gap-3 w-64 mx-auto mb-10">
+                    <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-full bg-[#E6411C] animate-progress-shrink" />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm">
+                    <button 
+                      onClick={() => {
+                        setShowSuccessOverlay(false);
+                        resetBuilder();
+                        onClose();
+                      }}
+                      className="flex-1 h-14 rounded-xl border-2 border-white/20 font-bold hover:bg-white/10 transition-colors"
+                    >
+                      Continue Menu
+                    </button>
+                    <Link 
+                      to="/cart"
+                      onClick={() => {
+                        setShowSuccessOverlay(false);
+                        resetBuilder();
+                        onClose();
+                      }}
+                      className="flex-1 h-14 rounded-xl bg-[#E6411C] flex items-center justify-center font-bold hover:bg-[#d13a18] transition-colors"
+                    >
+                      View Cart & Buy
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
