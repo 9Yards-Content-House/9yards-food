@@ -633,7 +633,7 @@ export default function FloatingWhatsApp() {
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-24 right-4 z-50 w-14 h-14 sm:w-16 sm:h-16 sm:bottom-32 lg:bottom-8 lg:right-6 bg-[#25D366] hover:bg-[#20ba5a] rounded-full flex items-center justify-center shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
+        className="fixed bottom-24 right-4 z-[100] w-14 h-14 sm:w-16 sm:h-16 sm:bottom-32 lg:bottom-8 lg:right-6 bg-[#25D366] hover:bg-[#20ba5a] rounded-full flex items-center justify-center shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
         aria-label="Chat with us"
       >
         {isOpen ? (
@@ -653,11 +653,11 @@ export default function FloatingWhatsApp() {
       {/* Chat Window */}
       {isOpen && (
         <>
-          <div className="fixed inset-0 bg-black/30 z-40 sm:hidden backdrop-blur-sm" onClick={() => setIsOpen(false)} />
+          <div className="fixed inset-0 bg-black/30 z-[90] sm:hidden backdrop-blur-sm" onClick={() => setIsOpen(false)} />
           
           <div 
             ref={mainContainerRef}
-            className="fixed z-50 bottom-0 left-0 right-0 sm:bottom-48 sm:left-auto sm:right-4 lg:right-6 lg:bottom-28 w-full sm:w-[380px] lg:w-[400px] bg-[#ECE5DD] sm:rounded-2xl rounded-t-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-5 duration-200 max-h-[85vh] sm:max-h-[600px] flex flex-col"
+            className="fixed z-[100] bottom-0 left-0 right-0 sm:bottom-48 sm:left-auto sm:right-4 lg:right-6 lg:bottom-28 w-full sm:w-[380px] lg:w-[400px] bg-[#ECE5DD] sm:rounded-2xl rounded-t-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-5 duration-200 max-h-[85vh] sm:max-h-[600px] flex flex-col safe-area-bottom"
           >
             
             {/* Header */}
