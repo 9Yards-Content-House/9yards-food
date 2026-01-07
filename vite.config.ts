@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
+      includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png', 'images/logo/9Yards-Food-Coloured-favicon.jpg'],
       manifest: {
         name: '9Yards Food',
         short_name: '9Yards',
