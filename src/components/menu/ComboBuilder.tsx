@@ -268,13 +268,6 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
     vibrate(50);
     localStorage.removeItem(DRAFT_KEY);
     setShowSuccessOverlay(true);
-    
-    // Auto-close after 3 seconds
-    setTimeout(() => {
-      setShowSuccessOverlay(false);
-      resetBuilder();
-      onClose();
-    }, 3000);
   };
 
   const canProceed = useMemo(() => {
@@ -1054,30 +1047,47 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
 
             {/* Success Overlay */}
             {showSuccessOverlay && (
-              <div className="absolute inset-0 z-[110] flex items-center justify-center p-6 bg-[#212282] text-white animate-in fade-in duration-200">
-                <div className="text-center animate-in zoom-in-90 duration-500 flex flex-col items-center">
+              <div 
+                className="absolute inset-0 z-[110] flex items-center justify-center p-6 bg-[#212282] text-white animate-in fade-in duration-200"
+                onClick={() => {
+                  setShowSuccessOverlay(false);
+                  resetBuilder();
+                  onClose();
+                }}
+              >
+                {/* Close Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowSuccessOverlay(false);
+                    resetBuilder();
+                    onClose();
+                  }}
+                  className="absolute top-6 right-6 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                >
+                  <X className="w-6 h-6 text-white" />
+                </button>
+
+                <div 
+                  className="text-center animate-in zoom-in-90 duration-500 flex flex-col items-center max-w-lg w-full"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <div className="size-24 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-6">
                     <Check className="size-12 text-white" strokeWidth={4} />
                   </div>
                   <h2 className="text-4xl font-black mb-2 tracking-tight">Added to Cart!</h2>
-                  <p className="text-white/60 font-bold uppercase tracking-widest text-sm mb-8">Great Selection</p>
-                  
-                  <div className="flex flex-col gap-3 w-64 mx-auto mb-10">
-                    <div className="h-1 bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-[#E6411C] animate-progress-shrink" />
-                    </div>
-                  </div>
+                  <p className="text-white/60 font-bold uppercase tracking-widest text-sm mb-12">Great Selection</p>
 
-                  <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm">
+                  <div className="flex flex-col sm:flex-row gap-4 w-full">
                     <button 
                       onClick={() => {
                         setShowSuccessOverlay(false);
                         resetBuilder();
                         onClose();
                       }}
-                      className="flex-1 h-14 rounded-xl border-2 border-white/20 font-bold hover:bg-white/10 transition-colors"
+                      className="flex-1 h-16 rounded-2xl border-2 border-white/20 font-bold text-lg hover:bg-white/10 transition-colors flex items-center justify-center px-8 whitespace-nowrap"
                     >
-                      Continue Menu
+                      Order More Items
                     </button>
                     <Link 
                       to="/cart"
@@ -1086,9 +1096,9 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                         resetBuilder();
                         onClose();
                       }}
-                      className="flex-1 h-14 rounded-xl bg-[#E6411C] flex items-center justify-center font-bold hover:bg-[#d13a18] transition-colors"
+                      className="flex-1 h-16 rounded-2xl bg-[#E6411C] flex items-center justify-center font-bold text-lg hover:bg-[#d13a18] transition-colors shadow-lg px-8 whitespace-nowrap"
                     >
-                      View Cart & Buy
+                      Proceed to Checkout
                     </Link>
                   </div>
                 </div>
