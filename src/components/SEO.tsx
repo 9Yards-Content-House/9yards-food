@@ -7,6 +7,7 @@ interface SEOProps {
   image?: string;
   url?: string;
   type?: string;
+  jsonLd?: Record<string, any>;
 }
 
 const SEO = ({
@@ -16,6 +17,7 @@ const SEO = ({
   image = "/og-image.png",
   url = "https://food.9yards.co.ug",
   type = "website",
+  jsonLd
 }: SEOProps) => {
   const siteTitle = "9Yards Food";
   const fullTitle = title === siteTitle ? title : `${title} | ${siteTitle}`;
@@ -26,25 +28,26 @@ const SEO = ({
     ? image
     : `https://food.9yards.co.ug${image}`;
 
-  // Schema.org Structured Data for Food Delivery Service
-  const structuredData = {
+  // Default Schema.org Structured Data
+  const defaultStructuredData = {
     "@context": "https://schema.org",
     "@type": "FoodDelivery",
     name: "9Yards Food",
     image: [fullImage],
     description: description,
     url: "https://food.9yards.co.ug",
-    telephone: "+256700000000", // Replace with actual number
+    telephone: "+256708453744", 
     servesCuisine: "Ugandan",
     areaServed: "Kampala",
-    priceRange: "$$",
+    priceRange: "UGX",
     address: {
       "@type": "PostalAddress",
       addressLocality: "Kampala",
       addressCountry: "UG",
     },
-    // Add more specific details here if available like opening hours
   };
+
+  const finalStructuredData = jsonLd ? { ...defaultStructuredData, ...jsonLd } : defaultStructuredData;
 
   return (
     <Helmet>
@@ -71,7 +74,7 @@ const SEO = ({
 
       {/* Structured Data */}
       <script type="application/ld+json">
-        {JSON.stringify(structuredData)}
+        {JSON.stringify(finalStructuredData)}
       </script>
     </Helmet>
   );

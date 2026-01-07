@@ -105,6 +105,18 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: "Inter", sans-serif;
+    /* Mobile optimization: remove tap highlight */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Improve touch target areas and remove delays */
+  a,
+  button,
+  input,
+  textarea,
+  select,
+  [role="button"] {
+    touch-action: manipulation;
   }
 
   /* Accessibility: Focus visible styles */

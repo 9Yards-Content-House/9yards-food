@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { WHATSAPP_NUMBER, PHONE_NUMBER } from '@/lib/constants';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import { useCart } from '@/context/CartContext';
+import { useGuest } from '@/context/GuestContext';
 import { deliveryZones } from '@/data/menu';
 
 // Constants
@@ -66,7 +67,9 @@ export default function FloatingWhatsApp() {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const proactiveTimerRef = useRef<NodeJS.Timeout | null>(null);
   
+  
   const { state, cartTotal } = useCart();
+  const { userName, setUserName } = useGuest();
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -244,13 +247,13 @@ export default function FloatingWhatsApp() {
   // Start new conversation
   const startNewConversation = () => {
     setIsTyping(true);
-    const delay = userPrefs.name ? 800 : 1200;
+    const delay = userName ? 800 : 1200;
     
     setTimeout(() => {
       setIsTyping(false);
       
-      const personalGreeting = userPrefs.name 
-        ? `${getGreeting()}, ${userPrefs.name}! 👋`
+      const personalGreeting = userName 
+        ? `${getGreeting()}, ${userName}! 👋`
         : `${getGreeting()}! ${getRandomItem(greetingVariations.map(g => g.replace('👋', '')))}`;
       
       const helpText = getRandomItem(helpPhrases);
@@ -261,20 +264,31 @@ export default function FloatingWhatsApp() {
         options: getMainMenuOptions()
       });
       
-      // If first time, ask for name
-      if (!userPrefs.name && userPrefs.visitCount <= 1) {
-        setTimeout(() => {
-          setIsTyping(true);
+      // Check if we should ask for name (Monthly logic)
+      if (!userName) {
+        const LAST_PROMPT_KEY = '9yards_last_name_prompt';
+        const lastPrompt = parseInt(localStorage.getItem(LAST_PROMPT_KEY) || '0');
+        const now = Date.now();
+        const oneMonth = 30 * 24 * 60 * 60 * 1000;
+        
+        // Ask if never asked (0) OR if month passed
+        if (lastPrompt === 0 || (now - lastPrompt > oneMonth)) {
           setTimeout(() => {
-            setIsTyping(false);
-            addBotMessage({
-              type: 'received',
-              content: `By the way, what's your name? 😊\n\n(Just type your name, or skip to continue)`,
-              options: [{ key: 'skip', label: 'Skip for now', action: 'start' }]
-            });
-            setCurrentFlow('getName');
-          }, 1000);
-        }, 2000);
+            setIsTyping(true);
+            setTimeout(() => {
+              setIsTyping(false);
+              addBotMessage({
+                type: 'received',
+                content: `By the way, what's your name? 😊\n\n(Just type your name, or skip to continue)`,
+                options: [{ key: 'skip', label: 'Skip for now', action: 'start' }]
+              });
+              setCurrentFlow('getName');
+              
+              // Record that we prompted
+              localStorage.setItem(LAST_PROMPT_KEY, now.toString());
+            }, 1000);
+          }, 2000);
+        }
       }
     }, delay);
   };
@@ -539,9 +553,21 @@ export default function FloatingWhatsApp() {
     
     // Check if setting name
     if (currentFlow === 'getName' && trimmed.length > 0 && trimmed.length < 30) {
+      if (trimmed.toLowerCase() === 'skip') {
+        addUserMessage(input);
+        setCurrentFlow('start');
+        addBotMessage({
+           type: 'received',
+           content: `No problem! How can I help you today?`,
+           options: getMainMenuOptions()
+        });
+        return;
+      }
+      
       addUserMessage(trimmed);
       const firstName = trimmed.split(' ')[0];
-      saveUserPrefs({ name: firstName });
+      setUserName(firstName); // Sync with context
+      saveUserPrefs({ name: firstName }); // Keep syncing with local prefs just in case
       
       addBotMessage({
         type: 'received',
