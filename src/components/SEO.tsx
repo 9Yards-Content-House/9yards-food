@@ -14,7 +14,7 @@ const SEO = ({
   title,
   description,
   keywords = "Ugandan food delivery, Kampala food delivery, Matooke, Posho, local food, African cuisine, 9Yards Food",
-  image = "/og-image.png",
+  image = "/images/logo/9Yards-Food-Coloured-favicon.jpg",
   url = "https://food.9yards.co.ug",
   type = "website",
   jsonLd
