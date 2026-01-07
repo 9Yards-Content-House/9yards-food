@@ -81,18 +81,6 @@
         ]
       },
       {
-        "id": "fresh-fish",
-        "name": "Fresh Fish",
-        "description": "Whole tilapia, seasoned and prepared fresh daily",
-        "basePrice": 20000,
-        "image": "/images/menu/sauces/9Yards-Fresh-Fish-Menu.jpg",
-        "available": true,
-        "preparations": [],
-        "sizes": [
-          { "name": "Regular", "price": 20000 }
-        ]
-      },
-      {
         "id": "fish",
         "name": "Fish",
         "description": "Fresh tilapia, golden-fried or expertly smoked to perfection",

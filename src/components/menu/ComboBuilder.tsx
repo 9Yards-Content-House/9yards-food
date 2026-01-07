@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { X, Check, ChevronRight, Plus, Minus, ArrowLeft, ShoppingBag, Utensils, RotateCcw, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { menuData, Sauce } from '@/data/menu';
@@ -91,6 +91,16 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
     }
   }, [isOpen, isDraftLoaded]);
 
+  // Auto-close draft banner
+  useEffect(() => {
+    if (showDraftBanner) {
+      const timer = setTimeout(() => {
+        setShowDraftBanner(false);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [showDraftBanner]);
+
   // Save Draft
   useEffect(() => {
     if (isOpen && hasSelections() && !showSuccessOverlay) {
@@ -168,7 +178,7 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
     });
   };
 
-  const calculateTotal = () => {
+  const totalPrice = useMemo(() => {
     let total = sauceSize?.price || 0;
 
     selectedJuices.forEach((j) => {
@@ -182,7 +192,37 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
     });
 
     return total;
-  };
+  }, [sauceSize, selectedJuices, selectedDesserts]);
+
+  // Get summary text for footer
+  const summaryText = useMemo(() => {
+    const mainNames = selectedMainDishes
+      .map((id) => menuData.mainDishes.find((d) => d.id === id)?.name)
+      .filter(Boolean);
+    
+    if (step === 1) {
+      return mainNames.length > 0 ? mainNames.join(', ') : 'Select your food';
+    }
+    
+    if (step === 2 && selectedSauce && sauceSize) {
+      // Don't show preparation in summary if it's 'Default' (sauce has no prep options)
+      const prepText = saucePreparation && saucePreparation !== 'Default' ? `${saucePreparation}, ` : '';
+      // Don't show size in summary if sauce only has one size option
+      const sizeText = selectedSauce.sizes.length > 1 ? sauceSize.name : '';
+      const optionsText = prepText || sizeText ? ` (${prepText}${sizeText})` : '';
+      return `${mainNames.join(' + ')} + ${selectedSauce.name}${optionsText}`;
+    }
+    
+    if (step >= 3) {
+      const sideName = menuData.sideDishes.find((s) => s.id === selectedSideDish)?.name;
+      const parts = [...mainNames];
+      if (selectedSauce) parts.push(selectedSauce.name);
+      if (sideName) parts.push(sideName);
+      return parts.join(' + ');
+    }
+    
+    return mainNames.join(', ');
+  }, [step, selectedMainDishes, selectedSauce, sauceSize, saucePreparation, selectedSideDish]);
 
   const handleAddToCart = () => {
     const mainDishNames = selectedMainDishes
@@ -221,7 +261,7 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
       sideDish: sideDishName,
       extras,
       quantity: 1,
-      totalPrice: calculateTotal(),
+      totalPrice: totalPrice,
     };
 
     addItem(cartItem);
@@ -237,7 +277,7 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
     }, 3000);
   };
 
-  const canProceed = () => {
+  const canProceed = useMemo(() => {
     switch (step) {
       case 1:
         return selectedMainDishes.length > 0;
@@ -251,37 +291,7 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
       default:
         return false;
     }
-  };
-
-  // Get summary text for footer
-  const getSummaryText = () => {
-    const mainNames = selectedMainDishes
-      .map((id) => menuData.mainDishes.find((d) => d.id === id)?.name)
-      .filter(Boolean);
-    
-    if (step === 1) {
-      return mainNames.length > 0 ? mainNames.join(', ') : 'Select your food';
-    }
-    
-    if (step === 2 && selectedSauce && sauceSize) {
-      // Don't show preparation in summary if it's 'Default' (sauce has no prep options)
-      const prepText = saucePreparation && saucePreparation !== 'Default' ? `${saucePreparation}, ` : '';
-      // Don't show size in summary if sauce only has one size option
-      const sizeText = selectedSauce.sizes.length > 1 ? sauceSize.name : '';
-      const optionsText = prepText || sizeText ? ` (${prepText}${sizeText})` : '';
-      return `${mainNames.join(' + ')} + ${selectedSauce.name}${optionsText}`;
-    }
-    
-    if (step >= 3) {
-      const sideName = menuData.sideDishes.find((s) => s.id === selectedSideDish)?.name;
-      const parts = [...mainNames];
-      if (selectedSauce) parts.push(selectedSauce.name);
-      if (sideName) parts.push(sideName);
-      return parts.join(' + ');
-    }
-    
-    return mainNames.join(', ');
-  };
+  }, [step, selectedMainDishes, selectedSauce, saucePreparation, sauceSize, selectedSideDish]);
 
   const getNextButtonText = () => {
     switch (step) {
@@ -301,8 +311,10 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
   };
 
   // Calculate extras count
-  const extrasCount = selectedJuices.reduce((acc, j) => acc + j.quantity, 0) + 
-                      selectedDesserts.reduce((acc, d) => acc + d.quantity, 0);
+  const extrasCount = useMemo(() => 
+    selectedJuices.reduce((acc, j) => acc + j.quantity, 0) + 
+    selectedDesserts.reduce((acc, d) => acc + d.quantity, 0),
+  [selectedJuices, selectedDesserts]);
 
   return (
     <>
@@ -527,72 +539,67 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                           </label>
 
                           {/* Expanded Sub-options */}
-                          {isSelected && (
+                          {isSelected && (sauce.preparations.length > 0 || sauce.sizes.length > 1) && (
                             <div className="px-4 pb-4 pt-0 animate-in fade-in slide-in-from-top-2 duration-300">
-                              {/* Only show divider and options if there are preparations or multiple sizes */}
-                              {(sauce.preparations.length > 0 || sauce.sizes.length > 1) && (
-                                <>
-                                  <div className="h-px w-full bg-[#E6411C]/10 mb-4" />
+                              <div className="h-px w-full bg-[#E6411C]/10 mb-4" />
                                   
-                                  {/* Preparation Style - only show if there are preparations */}
-                                  {sauce.preparations.length > 0 && (
-                                    <div className="mb-4">
-                                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 block">
-                                        Preparation Style
-                                      </label>
-                                      <div className="flex flex-wrap gap-2">
-                                        {sauce.preparations.map((prep) => (
-                                          <button
-                                            key={prep}
-                                            onClick={() => setSaucePreparation(prep)}
-                                            className={`px-4 py-2.5 rounded-xl border-2 transition-all text-sm font-semibold ${
-                                              saucePreparation === prep
-                                                ? 'border-[#E6411C] bg-[#E6411C] text-white'
-                                                : 'border-gray-200 bg-white text-gray-600 hover:border-[#E6411C]/50'
-                                            }`}
-                                          >
-                                            {prep}
-                                          </button>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  )}
+                              {/* Preparation Style - only show if there are preparations */}
+                              {sauce.preparations.length > 0 && (
+                                <div className="mb-4">
+                                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 block">
+                                    Preparation Style
+                                  </label>
+                                  <div className="flex flex-wrap gap-2">
+                                    {sauce.preparations.map((prep) => (
+                                      <button
+                                        key={prep}
+                                        onClick={() => setSaucePreparation(prep)}
+                                        className={`px-4 py-2.5 rounded-xl border-2 transition-all text-sm font-semibold ${
+                                          saucePreparation === prep
+                                            ? 'border-[#E6411C] bg-[#E6411C] text-white'
+                                            : 'border-gray-200 bg-white text-gray-600 hover:border-[#E6411C]/50'
+                                        }`}
+                                      >
+                                        {prep}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
 
-                                  {/* Portion Size - only show if there are multiple sizes */}
-                                  {sauce.sizes.length > 1 && (
-                                    <div>
-                                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 block">
-                                        Portion Size
+                              {/* Portion Size - only show if there are multiple sizes */}
+                              {sauce.sizes.length > 1 && (
+                                <div>
+                                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 block">
+                                    Portion Size
+                                  </label>
+                                  <div className="flex flex-col gap-2">
+                                    {sauce.sizes.map((size) => (
+                                      <label
+                                        key={size.name}
+                                        className={`flex items-center justify-between p-3 rounded-xl border bg-white cursor-pointer transition-all ${
+                                          sauceSize?.name === size.name
+                                            ? 'border-[#E6411C] bg-[#E6411C]/5'
+                                            : 'border-gray-200 hover:border-gray-300'
+                                        }`}
+                                      >
+                                        <div className="flex flex-col">
+                                          <span className="text-sm font-medium text-gray-700">{size.name}</span>
+                                          <span className="text-xs text-[#E6411C] font-semibold">
+                                            {formatPrice(size.price)}
+                                          </span>
+                                        </div>
+                                        <input
+                                          type="radio"
+                                          name="size"
+                                          checked={sauceSize?.name === size.name}
+                                          onChange={() => setSauceSize(size)}
+                                          className="w-5 h-5 text-[#E6411C] border-gray-300 focus:ring-[#E6411C]"
+                                        />
                                       </label>
-                                      <div className="flex flex-col gap-2">
-                                        {sauce.sizes.map((size) => (
-                                          <label
-                                            key={size.name}
-                                            className={`flex items-center justify-between p-3 rounded-xl border bg-white cursor-pointer transition-all ${
-                                              sauceSize?.name === size.name
-                                                ? 'border-[#E6411C] bg-[#E6411C]/5'
-                                                : 'border-gray-200 hover:border-gray-300'
-                                            }`}
-                                          >
-                                            <div className="flex flex-col">
-                                              <span className="text-sm font-medium text-gray-700">{size.name}</span>
-                                              <span className="text-xs text-[#E6411C] font-semibold">
-                                                {formatPrice(size.price)}
-                                              </span>
-                                            </div>
-                                            <input
-                                              type="radio"
-                                              name="size"
-                                              checked={sauceSize?.name === size.name}
-                                              onChange={() => setSauceSize(size)}
-                                              className="w-5 h-5 text-[#E6411C] border-gray-300 focus:ring-[#E6411C]"
-                                            />
-                                          </label>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  )}
-                                </>
+                                    ))}
+                                  </div>
+                                </div>
                               )}
                             </div>
                           )}
@@ -831,8 +838,8 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                     <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex items-center gap-2">
-                          <div className="size-8 rounded-full bg-[#212282]/10 flex items-center justify-center text-[#212282]">
-                            <Utensils className="w-4 h-4" />
+                          <div className="size-8 rounded-full bg-green-50 flex items-center justify-center text-green-600">
+                            <Check className="w-4 h-4" />
                           </div>
                           <h3 className="font-bold text-[#212282]">Main Dishes</h3>
                         </div>
@@ -854,7 +861,7 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                     <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex items-center gap-2">
-                          <div className="size-8 rounded-full bg-[#E6411C]/10 flex items-center justify-center text-[#E6411C]">
+                          <div className="size-8 rounded-full bg-green-50 flex items-center justify-center text-green-600">
                             <Check className="w-4 h-4" />
                           </div>
                           <h3 className="font-bold text-[#212282]">Sauce Selection</h3>
@@ -900,8 +907,8 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                       <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
                         <div className="flex justify-between items-start mb-3">
                           <div className="flex items-center gap-2">
-                            <div className="size-8 rounded-full bg-orange-50 flex items-center justify-center text-orange-600">
-                              <Plus className="w-4 h-4" />
+                            <div className="size-8 rounded-full bg-green-50 flex items-center justify-center text-green-600">
+                              <Check className="w-4 h-4" />
                             </div>
                             <h3 className="font-bold text-[#212282]">Extra Add-ons</h3>
                           </div>
@@ -966,7 +973,7 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                         <p className={`text-sm font-medium leading-relaxed truncate ${
                           step >= 2 ? 'text-white/80' : 'text-[#212282]'
                         }`}>
-                          {getSummaryText()}
+                          {summaryText}
                         </p>
                       )}
                     </div>
@@ -979,7 +986,7 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                       <p className={`text-xl font-extrabold tracking-tight ${
                         step >= 2 ? 'text-white' : 'text-[#212282]'
                       }`}>
-                        {formatPrice(calculateTotal())}
+                        {formatPrice(totalPrice)}
                       </p>
                     </div>
                   </div>
@@ -994,13 +1001,13 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                         handleAddToCart();
                       }
                     }}
-                    disabled={!canProceed()}
+                    disabled={!canProceed}
                     className={`w-full flex items-center justify-center gap-2 rounded-xl h-14 text-white text-lg font-bold shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
-                      step === 5 ? 'bg-orange-600 hover:bg-orange-700' : 'bg-[#E6411C] hover:bg-[#d13a18]'
+                      step === 5 ? 'bg-[#E6411C] hover:bg-[#d13a18]' : 'bg-[#E6411C] hover:bg-[#d13a18]'
                     }`}
                   >
                     <span>{getNextButtonText()}</span>
-                    {step < 5 ? <ChevronRight className="w-5 h-5" /> : <ShoppingBag className="w-5 h-5" />}
+                    {step < 5 && <ChevronRight className="w-5 h-5" />}
                   </button>
                 </div>
               </div>
@@ -1008,8 +1015,8 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
 
             {/* Cancel Confirmation Modal */}
             {showCancelConfirm && (
-              <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-                <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-300">
+              <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm animate-in fade-in duration-100">
+                <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-100">
                   <h3 className="text-xl font-extrabold text-[#212282] mb-2">Close Combo Builder?</h3>
                   <p className="text-gray-500 text-sm font-medium mb-6">
                     Don't worry! Your progress will be saved automatically so you can finish your combo later.
@@ -1017,7 +1024,7 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                   <div className="flex flex-col gap-3">
                     <button
                       onClick={() => setShowCancelConfirm(false)}
-                      className="w-full h-12 rounded-xl bg-[#212282] text-white font-bold hover:bg-[#212282]/90 transition-colors"
+                      className="w-full h-12 rounded-xl bg-[#E6411C] text-white font-bold hover:bg-[#d13a18] transition-colors shadow-sm"
                     >
                       Continue Building
                     </button>
@@ -1047,13 +1054,13 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
 
             {/* Success Overlay */}
             {showSuccessOverlay && (
-              <div className="absolute inset-0 z-[110] flex items-center justify-center p-6 bg-[#212282] text-white animate-in fade-in duration-500">
+              <div className="absolute inset-0 z-[110] flex items-center justify-center p-6 bg-[#212282] text-white animate-in fade-in duration-200">
                 <div className="text-center animate-in zoom-in-90 duration-500 flex flex-col items-center">
                   <div className="size-24 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-6">
                     <Check className="size-12 text-white" strokeWidth={4} />
                   </div>
                   <h2 className="text-4xl font-black mb-2 tracking-tight">Added to Cart!</h2>
-                  <p className="text-white/60 font-bold uppercase tracking-widest text-sm mb-8">Masterpiece complete</p>
+                  <p className="text-white/60 font-bold uppercase tracking-widest text-sm mb-8">Great Selection</p>
                   
                   <div className="flex flex-col gap-3 w-64 mx-auto mb-10">
                     <div className="h-1 bg-white/10 rounded-full overflow-hidden">
