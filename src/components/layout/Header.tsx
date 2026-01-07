@@ -10,6 +10,8 @@ import ComboBuilder from '@/components/menu/ComboBuilder';
 const navLinks = [
   { href: '/menu', label: 'Our Menu' },
   { href: '/deals', label: 'Deals' },
+  { href: '/delivery-zones', label: 'Delivery' },
+  { href: '/about', label: 'About Us' },
   { href: '/contact', label: 'Contact' },
 ];
 
