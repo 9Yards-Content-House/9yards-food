@@ -27,6 +27,7 @@ const navLinks = [
   { href: '/menu', label: 'Menu' },
   { href: '/deals', label: 'Deals & Offers' },
   { href: '/delivery-zones', label: 'Delivery Zones' },
+  { href: '/order-history', label: 'Order History' },
   { href: '/about', label: 'About Us' },
   { href: '/contact', label: 'Contact' },
 ];

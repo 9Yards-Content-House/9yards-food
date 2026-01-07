@@ -1,18 +1,18 @@
-import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, Heart, Menu, X, Search } from 'lucide-react';
-import { useCart } from '@/context/CartContext';
-import SearchModal from './SearchModal';
-import MobileSidebar from './MobileSidebar';
-import ComboBuilder from '@/components/menu/ComboBuilder';
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { ShoppingCart, Heart, Menu, X, Search, Clock } from "lucide-react";
+import { useCart } from "@/context/CartContext";
+import SearchModal from "./SearchModal";
+import MobileSidebar from "./MobileSidebar";
+import ComboBuilder from "@/components/menu/ComboBuilder";
 
 // Simplified navigation - removed Order Guide and Delivery Areas (they remain in footer only)
 const navLinks = [
-  { href: '/menu', label: 'Our Menu' },
-  { href: '/deals', label: 'Deals' },
-  { href: '/delivery-zones', label: 'Delivery' },
-  { href: '/about', label: 'About Us' },
-  { href: '/contact', label: 'Contact' },
+  { href: "/menu", label: "Our Menu" },
+  { href: "/deals", label: "Deals" },
+  { href: "/delivery-zones", label: "Delivery" },
+  { href: "/about", label: "About Us" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export default function Header() {
@@ -24,18 +24,18 @@ export default function Header() {
   const { cartCount, state } = useCart();
 
   // Check if we're on the home page
-  const isHomePage = location.pathname === '/';
-  
+  const isHomePage = location.pathname === "/";
+
   // Determine if we should use transparent/white styling (only on home page before scroll)
   const useTransparentStyle = isHomePage && !isScrolled;
-  
+
   // On non-home pages, always show as "scrolled" style (white background with colored logo)
   const showStickyStyle = isScrolled || !isHomePage;
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
@@ -43,12 +43,16 @@ export default function Header() {
   }, [location.pathname]);
 
   // Dynamic icon color based on scroll state and page
-  const iconColorClass = useTransparentStyle ? 'text-white' : 'text-foreground/70';
-  
+  const iconColorClass = useTransparentStyle
+    ? "text-white"
+    : "text-foreground/70";
+
   // Dynamic nav link color based on scroll state and page
   const getNavLinkClass = (isActive: boolean) => {
-    if (isActive) return 'text-secondary';
-    return useTransparentStyle ? 'text-white hover:text-secondary' : 'text-foreground/80 hover:text-secondary';
+    if (isActive) return "text-secondary";
+    return useTransparentStyle
+      ? "text-white hover:text-secondary"
+      : "text-foreground/80 hover:text-secondary";
   };
 
   return (
@@ -56,8 +60,8 @@ export default function Header() {
       <header
         className={`fixed left-0 right-0 z-50 h-16 sm:h-[4.5rem] md:h-20 transition-[background-color,box-shadow] duration-300 ${
           showStickyStyle
-            ? 'bg-white/[0.98] backdrop-blur-xl shadow-sm border-b border-white/20'
-            : 'bg-transparent'
+            ? "bg-white/[0.98] backdrop-blur-xl shadow-sm border-b border-white/20"
+            : "bg-transparent"
         }`}
         style={{ top: 0 }}
       >
@@ -65,10 +69,11 @@ export default function Header() {
           <div className="flex items-center justify-between h-full px-4">
             {/* Logo */}
             <Link to="/" className="flex items-center">
-              <img 
-                src={useTransparentStyle 
-                  ? "/images/logo/9Yards-Food-White-Logo.png" 
-                  : "/images/logo/9Yards-Food-White-Logo-colored.png"
+              <img
+                src={
+                  useTransparentStyle
+                    ? "/images/logo/9Yards-Food-White-Logo.png"
+                    : "/images/logo/9Yards-Food-White-Logo-colored.png"
                 }
                 alt="9Yards Food"
                 fetchPriority="high"
@@ -82,7 +87,9 @@ export default function Header() {
                 <Link
                   key={link.href}
                   to={link.href}
-                  className={`text-sm font-medium transition-colors ${getNavLinkClass(location.pathname === link.href)}`}
+                  className={`text-sm font-medium transition-colors ${getNavLinkClass(
+                    location.pathname === link.href
+                  )}`}
                 >
                   {link.label}
                 </Link>
@@ -92,21 +99,29 @@ export default function Header() {
             {/* Right Actions */}
             <div className="flex items-center gap-0.5 sm:gap-1 md:gap-2">
               {/* Search Button */}
-              <button 
+              <button
                 onClick={() => setIsSearchOpen(true)}
                 className="p-1.5 sm:p-2 rounded-full hover:bg-muted/20 transition-colors"
                 aria-label="Search menu"
               >
-                <Search className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColorClass} transition-colors`} />
+                <Search
+                  className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColorClass} transition-colors`}
+                />
               </button>
 
               {/* Favorites */}
               <Link
                 to="/favorites"
                 className="p-1.5 sm:p-2 rounded-full hover:bg-muted/20 transition-colors relative"
-                aria-label={`Favorites${state.favorites.length > 0 ? ` (${state.favorites.length} items)` : ''}`}
+                aria-label={`Favorites${
+                  state.favorites.length > 0
+                    ? ` (${state.favorites.length} items)`
+                    : ""
+                }`}
               >
-                <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColorClass} transition-colors`} />
+                <Heart
+                  className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColorClass} transition-colors`}
+                />
                 {state.favorites.length > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-4 h-4 sm:w-5 sm:h-5 bg-secondary text-secondary-foreground text-[10px] sm:text-xs font-bold rounded-full flex items-center justify-center">
                     {state.favorites.length}
@@ -114,17 +129,29 @@ export default function Header() {
                 )}
               </Link>
 
+              {/* Order History */}
+              <Link
+                to="/order-history"
+                className="p-1.5 sm:p-2 rounded-full hover:bg-muted/20 transition-colors hidden sm:flex"
+                aria-label="Order History"
+                title="Recent Orders"
+              >
+                <Clock className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColorClass} transition-colors`} />
+              </Link>
+
               {/* Cart */}
               <Link
                 to="/cart"
                 className="p-1.5 sm:p-2 rounded-full hover:bg-muted/20 transition-colors relative"
-                aria-label={`Cart${cartCount > 0 ? ` (${cartCount} items)` : ''}`}
+                aria-label={`Cart${
+                  cartCount > 0 ? ` (${cartCount} items)` : ""
+                }`}
               >
-                <ShoppingCart className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColorClass} transition-colors`} />
+                <ShoppingCart
+                  className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColorClass} transition-colors`}
+                />
                 {cartCount > 0 && (
-                  <span
-                    className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-4 h-4 sm:w-5 sm:h-5 bg-secondary text-secondary-foreground text-[10px] sm:text-xs font-bold rounded-full flex items-center justify-center"
-                  >
+                  <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-4 h-4 sm:w-5 sm:h-5 bg-secondary text-secondary-foreground text-[10px] sm:text-xs font-bold rounded-full flex items-center justify-center">
                     {cartCount}
                   </span>
                 )}
@@ -143,12 +170,16 @@ export default function Header() {
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="p-1.5 sm:p-2 rounded-full hover:bg-muted/20 transition-colors lg:hidden ml-0.5"
                 aria-expanded={isMobileMenuOpen}
-                aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+                aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
               >
                 {isMobileMenuOpen ? (
-                  <X className={`w-5 h-5 sm:w-6 sm:h-6 ${iconColorClass} transition-colors`} />
+                  <X
+                    className={`w-5 h-5 sm:w-6 sm:h-6 ${iconColorClass} transition-colors`}
+                  />
                 ) : (
-                  <Menu className={`w-5 h-5 sm:w-6 sm:h-6 ${iconColorClass} transition-colors`} />
+                  <Menu
+                    className={`w-5 h-5 sm:w-6 sm:h-6 ${iconColorClass} transition-colors`}
+                  />
                 )}
               </button>
             </div>
@@ -157,10 +188,16 @@ export default function Header() {
       </header>
 
       {/* Search Modal */}
-      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      <SearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
 
       {/* Mobile Sidebar */}
-      <MobileSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+      <MobileSidebar
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+      />
 
       {/* Combo Builder Modal */}
       <ComboBuilder
