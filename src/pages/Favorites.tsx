@@ -81,7 +81,7 @@ export default function FavoritesPage() {
                   />
                   <button
                     onClick={() => toggleFavorite(item.id)}
-                    className="absolute top-3 right-3 w-9 h-9 bg-card/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-destructive/10 transition-colors"
+                    className="absolute top-3 right-3 w-9 h-9 bg-card/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-border/50 hover:bg-destructive/10 transition-colors"
                   >
                     <Heart className="w-4 h-4 text-secondary fill-secondary" />
                   </button>

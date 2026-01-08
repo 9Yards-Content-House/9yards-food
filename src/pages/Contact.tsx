@@ -115,7 +115,7 @@ export default function ContactPage() {
               {/* Call Card */}
               <a
                 href="tel:+256708899597"
-                className="bg-card border-2 border-border rounded-2xl p-6 text-center cursor-pointer transition-all hover:border-secondary hover:shadow-xl"
+                className="bg-card border-2 border-border rounded-2xl p-6 text-center cursor-pointer transition-all hover:border-secondary hover:bg-secondary/5"
               >
                 <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Phone className="w-8 h-8 text-blue-500" />
@@ -134,7 +134,7 @@ export default function ContactPage() {
                 href="https://wa.me/256708899597?text=Hi%209Yards%20Food!%20I%20have%20a%20question%20about..."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-card border-2 border-green-500 rounded-2xl p-6 text-center cursor-pointer transition-all relative overflow-hidden hover:shadow-xl"
+                className="bg-card border-2 border-green-500 rounded-2xl p-6 text-center cursor-pointer transition-all relative overflow-hidden hover:bg-green-50"
               >
                 <div className="absolute top-3 right-3 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                   Fastest
@@ -156,7 +156,7 @@ export default function ContactPage() {
               {/* Email Card */}
               <a
                 href="mailto:deliveries@9yards.co.ug?subject=Inquiry%20from%20Website"
-                className="bg-card border-2 border-border rounded-2xl p-6 text-center cursor-pointer transition-all hover:border-secondary hover:shadow-xl"
+                className="bg-card border-2 border-border rounded-2xl p-6 text-center cursor-pointer transition-all hover:border-secondary hover:bg-secondary/5"
               >
                 <div className="w-16 h-16 bg-secondary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Mail className="w-8 h-8 text-secondary" />

@@ -528,7 +528,7 @@ export default function CartPage() {
                   <div key={item.id}>
                     <div className="flex gap-4 items-start">
                       <div className="shrink-0">
-                        <div className="h-[88px] w-[88px] rounded-2xl bg-gray-100 shadow-sm flex items-center justify-center">
+                        <div className="h-[88px] w-[88px] rounded-2xl bg-gray-100 flex items-center justify-center">
                           <UtensilsCrossed className="w-10 h-10 text-[#212282]" />
                         </div>
                       </div>
@@ -575,10 +575,10 @@ export default function CartPage() {
                             {formatPrice(item.totalPrice * item.quantity)}
                           </p>
                           
-                          <div className="flex items-center bg-gray-100 rounded-full p-1 h-8 shadow-sm">
+                          <div className="flex items-center bg-gray-100 rounded-full p-1 h-8">
                             <button
                               onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                              className="w-7 h-7 flex items-center justify-center rounded-full bg-white text-[#212282] shadow-sm transition-colors hover:bg-gray-50"
+                              className="w-7 h-7 flex items-center justify-center rounded-full bg-white text-[#212282] border border-gray-200 transition-colors hover:bg-gray-50"
                               aria-label="Decrease quantity"
                             >
                               <Minus className="w-4 h-4" />
@@ -588,7 +588,7 @@ export default function CartPage() {
                             </span>
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="w-7 h-7 flex items-center justify-center rounded-full bg-[#E6411C] text-white shadow-md transition-colors hover:bg-[#d13a18]"
+                              className="w-7 h-7 flex items-center justify-center rounded-full bg-[#E6411C] text-white transition-colors hover:bg-[#d13a18]"
                               aria-label="Increase quantity"
                             >
                               <Plus className="w-4 h-4" />
@@ -634,7 +634,7 @@ export default function CartPage() {
                     </button>
                   </div>
                 ) : (
-                  <div className="flex w-full items-center rounded-xl bg-gray-50 border border-gray-100 p-1 pl-3 shadow-sm focus-within:ring-2 focus-within:ring-[#E6411C]/20 transition-all overflow-hidden">
+                  <div className="flex w-full items-center rounded-xl bg-gray-50 border border-gray-100 p-1 pl-3 focus-within:ring-2 focus-within:ring-[#E6411C]/20 transition-all overflow-hidden">
                     <Tag className="w-5 h-5 text-gray-400 flex-shrink-0" />
                     <input
                       type="text"
@@ -748,7 +748,7 @@ export default function CartPage() {
                         
                         {/* Address Suggestions Dropdown */}
                         {showAddressSuggestions && addressSuggestions.length > 0 && (
-                          <div className="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden max-h-60 overflow-y-auto">
+                          <div className="absolute z-50 w-full mt-1 bg-white rounded-xl border border-gray-100 overflow-hidden max-h-60 overflow-y-auto">
                             {addressSuggestions.map((suggestion, index) => (
                               <button
                                 key={index}
@@ -924,7 +924,7 @@ export default function CartPage() {
                         
                         {/* Address Suggestions Dropdown */}
                         {showAddressSuggestions && addressSuggestions.length > 0 && (
-                          <div className="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden max-h-60 overflow-y-auto">
+                          <div className="absolute z-50 w-full mt-1 bg-white rounded-xl border border-gray-100 overflow-hidden max-h-60 overflow-y-auto">
                             {addressSuggestions.map((suggestion, index) => (
                               <button
                                 key={index}
@@ -964,7 +964,7 @@ export default function CartPage() {
               </div>
 
               {/* Mobile/Tablet Checkout Buttons - Integrated into flow */}
-              <div className="lg:hidden mt-8 p-6 bg-white rounded-2xl border border-gray-100 shadow-sm space-y-6 md:max-w-lg md:mx-auto">
+              <div className="lg:hidden mt-8 p-6 bg-white rounded-2xl border border-gray-100 space-y-6 md:max-w-lg md:mx-auto">
                 <div className="text-center space-y-1">
                   <h3 className="text-lg font-bold text-[#212282]">Checkout</h3>
                   <p className="text-xs text-gray-500 uppercase tracking-widest font-black">Choose Payment Method</p>
@@ -975,7 +975,7 @@ export default function CartPage() {
                   <button
                     onClick={handleWhatsAppOrder}
                     disabled={isProcessingPayment}
-                    className="w-full bg-[#25D366] text-white rounded-xl py-4 flex items-center justify-center gap-2 transition-transform active:scale-[0.98] shadow-lg shadow-green-500/10"
+                    className="w-full bg-[#25D366] text-white rounded-xl py-4 flex items-center justify-center gap-2 transition-transform active:scale-[0.98]"
                   >
                     <WhatsAppIcon className="w-5 h-5" />
                     <span className="font-bold">Order via WhatsApp</span>
@@ -992,7 +992,7 @@ export default function CartPage() {
                   <button
                     onClick={handleOnlinePayment}
                     disabled={isProcessingPayment}
-                    className="w-full bg-[#212282] text-white rounded-xl py-4 flex items-center justify-center gap-2 transition-transform active:scale-[0.98] shadow-lg shadow-primary/10"
+                    className="w-full bg-[#212282] text-white rounded-xl py-4 flex items-center justify-center gap-2 transition-transform active:scale-[0.98]"
                   >
                     {isProcessingPayment ? (
                       <Loader2 className="w-5 h-5 animate-spin" />

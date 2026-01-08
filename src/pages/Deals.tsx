@@ -172,7 +172,7 @@ export default function Deals() {
               {activeDeals.map((deal) => (
                 <div 
                   key={deal.id}
-                  className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 border border-border flex flex-col h-full group relative overflow-hidden"
+                  className="bg-white rounded-2xl p-6 border border-border hover:border-secondary/50 transition-all duration-300 flex flex-col h-full group relative overflow-hidden"
                 >
                   {/* Badge */}
                   <div className="absolute top-4 right-4">
@@ -296,7 +296,7 @@ export default function Deals() {
                   </p>
                   
                   {/* Visual Progress Bar Mockup */}
-                  <div className="bg-white p-4 rounded-xl shadow-sm border border-green-100 max-w-md mb-6">
+                  <div className="bg-white p-4 rounded-xl border border-green-100 max-w-md mb-6">
                      <div className="flex justify-between text-xs font-bold text-gray-500 mb-2">
                         <span>UGX 0</span>
                         <span>UGX 50,000 GOAL</span>
@@ -317,7 +317,7 @@ export default function Deals() {
                <div className="w-full md:w-1/3 flex justify-center">
                   <div className="relative">
                      <div className="absolute inset-0 bg-green-200/50 blur-3xl rounded-full" />
-                     <MapPin className="w-32 h-32 text-green-600 relative z-10 drop-shadow-lg" />
+                     <MapPin className="w-32 h-32 text-green-600 relative z-10" />
                   </div>
                </div>
             </div>
@@ -330,7 +330,7 @@ export default function Deals() {
              <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">Popular Combo Deals</h2>
              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {combos.map((combo) => (
-                   <div key={combo.id} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-border flex flex-col">
+                   <div key={combo.id} className="bg-white rounded-2xl overflow-hidden border border-border hover:border-secondary/50 transition-all flex flex-col">
                       <div className={`p-6 flex items-center justify-between ${combo.color}`}>
                          <div>
                             <h3 className="font-bold text-lg">{combo.title}</h3>
@@ -419,7 +419,7 @@ export default function Deals() {
         {/* SECTION 8: NEWSLETTER (Keep existing style) */}
         <section className="pb-12 md:pb-20 px-4">
           <div className="container-custom">
-            <div className="bg-gray-900 rounded-3xl p-8 md:p-12 text-center text-white relative overflow-hidden shadow-2xl">
+            <div className="bg-gray-900 rounded-3xl p-8 md:p-12 text-center text-white relative overflow-hidden border border-gray-800">
                <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-950" />
                <div className="absolute -top-[50%] -left-[10%] w-[100%] h-[200%] bg-secondary/10 rotate-12 blur-3xl rounded-[100%] pointer-events-none" />
               
@@ -435,7 +435,7 @@ export default function Deals() {
                   href="https://wa.me/256708899597?text=Hi%2C%20I'd%20like%20to%20subscribe%20to%209Yards%20Food%20deals!"
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white px-8 py-3.5 rounded-full font-bold transition-all hover:scale-105 shadow-lg shadow-green-900/20"
+                  className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white px-8 py-3.5 rounded-full font-bold transition-all hover:scale-105"
                 >
                   <Smartphone className="w-5 h-5" />
                   Subscribe on WhatsApp

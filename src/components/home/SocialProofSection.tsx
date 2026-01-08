@@ -117,7 +117,7 @@ export default function SocialProofSection() {
           {testimonials.map((testimonial) => (
             <div
               key={testimonial.id}
-              className="card-premium p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+              className="card-premium p-6 transition-all duration-300 hover:border-secondary/30 hover:bg-secondary/5"
             >
               {/* Avatar */}
               <div className="flex items-center gap-3 mb-4">
@@ -231,7 +231,7 @@ function StatCard({ stat, index }: { stat: typeof stats[0]; index: number }) {
   return (
     <div
       ref={ref}
-      className="text-center bg-card rounded-2xl p-6 shadow-soft"
+      className="text-center bg-card rounded-2xl p-6 border border-border/50 hover:border-primary/20 transition-colors"
     >
       <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-3">
         <Icon className="w-6 h-6 text-primary" />

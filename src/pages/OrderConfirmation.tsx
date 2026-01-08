@@ -166,13 +166,13 @@ export default function OrderConfirmation() {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-4 mb-8">
-              <div className="flex flex-col gap-1 p-5 bg-white rounded-2xl shadow-sm border border-gray-100">
+              <div className="flex flex-col gap-1 p-5 bg-white rounded-2xl border border-gray-100">
                 <p className="text-gray-500 text-xs font-bold uppercase tracking-wider">Est. Delivery</p>
                 <p className="text-[#212282] text-xl font-bold leading-tight">
                   {deliveryTime} <span className="text-sm font-medium text-gray-400">min</span>
                 </p>
               </div>
-              <div className="flex flex-col gap-1 p-5 bg-white rounded-2xl shadow-sm border border-gray-100">
+              <div className="flex flex-col gap-1 p-5 bg-white rounded-2xl border border-gray-100">
                 <p className="text-gray-500 text-xs font-bold uppercase tracking-wider">Order No.</p>
                 <button 
                   onClick={handleCopyOrderId}
@@ -189,7 +189,7 @@ export default function OrderConfirmation() {
             {/* Timeline: What's Next */}
             <div className="mb-8">
               <h3 className="text-[#212282] text-lg font-bold mb-4 px-1">What's Next</h3>
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+              <div className="bg-white rounded-2xl p-6 border border-gray-100">
                 {/* Step 1: Done */}
                 <div className="flex gap-4">
                   <div className="flex flex-col items-center">
@@ -225,7 +225,7 @@ export default function OrderConfirmation() {
                 <h3 className="text-[#212282] text-lg font-bold">Order Summary</h3>
                 <button className="text-[#E6411C] text-sm font-semibold hover:underline">View Receipt</button>
               </div>
-              <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+              <div className="bg-white rounded-2xl overflow-hidden border border-gray-100">
                 {/* Items */}
                 {orderData.items.map((item, index) => (
                   <div key={index} className="flex items-start gap-4 p-4 border-b border-gray-100 last:border-b-0">
@@ -251,7 +251,7 @@ export default function OrderConfirmation() {
                 {/* Address & Total */}
                 <div className="p-4 bg-gray-50">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 text-[#E6411C] shadow-sm">
+                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 text-[#E6411C] border border-gray-100">
                       <MapPin className="w-4 h-4" />
                     </div>
                     <div className="flex-1">
@@ -282,11 +282,11 @@ export default function OrderConfirmation() {
           </div>
 
           {/* Sticky Bottom Actions - Mobile */}
-          <div className="lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 p-4 pb-6 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40">
+          <div className="lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 p-4 pb-6 z-40">
             <div className="flex flex-col gap-3 max-w-md mx-auto">
               <button
                 onClick={handleTrackViaWhatsApp}
-                className="w-full bg-[#25D366] hover:bg-[#22c55e] text-white rounded-xl py-3.5 px-4 font-bold text-base shadow-lg flex items-center justify-center gap-2 transition-colors"
+                className="w-full bg-[#25D366] hover:bg-[#22c55e] text-white rounded-xl py-3.5 px-4 font-bold text-base flex items-center justify-center gap-2 transition-colors"
               >
                 <WhatsAppIcon className="w-5 h-5" />
                 Track Order on WhatsApp
@@ -304,7 +304,7 @@ export default function OrderConfirmation() {
           <div className="hidden lg:flex justify-center gap-4 py-8">
             <button
               onClick={handleTrackViaWhatsApp}
-              className="bg-[#25D366] hover:bg-[#22c55e] text-white rounded-xl py-3.5 px-8 font-bold text-base shadow-lg flex items-center justify-center gap-2 transition-colors"
+              className="bg-[#25D366] hover:bg-[#22c55e] text-white rounded-xl py-3.5 px-8 font-bold text-base flex items-center justify-center gap-2 transition-colors"
             >
               <WhatsAppIcon className="w-5 h-5" />
               Track Order on WhatsApp

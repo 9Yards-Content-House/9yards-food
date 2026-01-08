@@ -154,7 +154,7 @@ export default function HowItWorksPage() {
                 className="order-2 md:order-1"
               >
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center text-secondary-foreground text-2xl font-bold shadow-lg">
+                  <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center text-secondary-foreground text-2xl font-bold">
                     1
                   </div>
                   <span className="text-secondary font-bold text-lg uppercase tracking-wide">Step 1</span>
@@ -199,7 +199,7 @@ export default function HowItWorksPage() {
                <div
                  className="order-1 md:order-2"
                >
-                 <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                 <div className="relative rounded-2xl overflow-hidden border border-border/50">
                    <OptimizedImage
                      src={stepImages.choose}
                      alt="Authentic Ugandan dishes"
@@ -311,7 +311,7 @@ export default function HowItWorksPage() {
                 <div className="grid sm:grid-cols-2 gap-4 mb-8">
                   {/* WhatsApp Option */}
                   <div
-                    className="border-2 border-green-500 rounded-xl p-6 bg-card transition-all cursor-pointer hover:-translate-y-1 hover:shadow-xl"
+                    className="border-2 border-green-500 rounded-xl p-6 bg-card transition-all cursor-pointer hover:bg-green-50"
                   >
                     <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center mb-4">
                       <WhatsAppIcon className="w-6 h-6 text-green-600" />
@@ -327,7 +327,7 @@ export default function HowItWorksPage() {
 
                   {/* Online Payment Option */}
                   <div
-                    className="border-2 border-secondary rounded-xl p-6 bg-card transition-all cursor-pointer hover:-translate-y-1 hover:shadow-xl"
+                    className="border-2 border-secondary rounded-xl p-6 bg-card transition-all cursor-pointer hover:bg-secondary/5"
                   >
                     <div className="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center mb-4">
                       <CreditCard className="w-6 h-6 text-secondary" />
@@ -450,7 +450,7 @@ export default function HowItWorksPage() {
         <section className="py-16 md:py-20">
           <div className="container-custom px-4">
             <div
-              className="max-w-3xl mx-auto bg-card border-2 border-secondary/20 rounded-2xl p-8 shadow-xl text-center"
+              className="max-w-3xl mx-auto bg-card border-2 border-secondary/20 rounded-2xl p-8 text-center"
             >
               <div className="flex justify-center mb-4">
                 {[...Array(5)].map((_, i) => (
@@ -494,7 +494,7 @@ export default function HowItWorksPage() {
                   <div
                     key={index}
                     className={`border-2 rounded-xl overflow-hidden transition-all ${
-                      openFaq === index ? 'border-secondary bg-card shadow-lg' : 'border-border bg-card hover:border-secondary/50'
+                      openFaq === index ? 'border-secondary bg-card' : 'border-border bg-card hover:border-secondary/50'
                     }`}
                   >
                     <button
@@ -587,7 +587,7 @@ export default function HowItWorksPage() {
       <Footer />
 
       {/* Mobile Sticky CTA */}
-      <div className="fixed bottom-20 left-0 right-0 p-4 bg-card/95 backdrop-blur-md border-t border-border lg:hidden z-40 shadow-2xl">
+      <div className="fixed bottom-20 left-0 right-0 p-4 bg-card/95 backdrop-blur-md border-t border-border lg:hidden z-40">
         <Link
           to="/menu"
           className="w-full btn-secondary text-lg py-4 flex items-center justify-center gap-2"

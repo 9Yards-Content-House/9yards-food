@@ -103,7 +103,7 @@ export default function WhyChooseUsSection() {
               {features.map((feature, index) => (
                 <div
                   key={index}
-                  className="bg-card/50 hover:bg-card border border-border/50 hover:border-secondary/20 p-5 rounded-xl transition-all duration-300 group"
+                  className="bg-card/50 hover:bg-secondary/5 border border-border/50 hover:border-secondary/50 p-5 rounded-xl transition-all duration-300 group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-secondary group-hover:text-white transition-colors">
