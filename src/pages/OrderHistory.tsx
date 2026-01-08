@@ -7,18 +7,22 @@ import {
   RefreshCw,
   Trash2,
   CreditCard,
+  MapPin,
+  UtensilsCrossed
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import SEO from '@/components/SEO';
 import Footer from '@/components/layout/Footer';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
+import PageHeader from '@/components/layout/PageHeader';
+import OptimizedImage from '@/components/ui/optimized-image';
 import { useCart, OrderHistoryItem } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils/order';
 import { WHATSAPP_NUMBER } from '@/lib/constants';
 import { toast } from 'sonner';
 
 export default function OrderHistory() {
-  const { orderHistory, clearOrderHistory, reorderFromHistory, addItem } = useCart();
+  const { orderHistory, clearOrderHistory, addItem } = useCart();
 
   const handleReorder = (order: OrderHistoryItem) => {
     // Add each item from the order to cart, preserving their original type
@@ -52,13 +56,13 @@ export default function OrderHistory() {
     if (method === 'online') {
       return {
         label: 'Paid Online',
-        className: 'text-blue-700 bg-blue-50 border border-blue-100',
+        className: 'text-blue-700 bg-blue-50 border-blue-100',
         icon: CreditCard
       };
     }
     return {
       label: 'WhatsApp Order',
-      className: 'text-green-700 bg-green-50 border border-green-100',
+      className: 'text-green-700 bg-green-50 border-green-100',
       icon: WhatsAppIcon
     };
   };
@@ -68,6 +72,14 @@ export default function OrderHistory() {
       `Hi! I'd like to track my order.\n\nOrder ID: ${orderId}`
     );
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, '_blank');
+  };
+
+  // Helper to get the main image for an order (first item's sauce or main image)
+  const getOrderImage = (order: OrderHistoryItem) => {
+    const firstItem = order.items[0];
+    if (firstItem?.sauce?.image) return firstItem.sauce.image;
+    if (firstItem?.image) return firstItem.image; // Single items might have image
+    return null; // Fallback
   };
 
   if (orderHistory.length === 0) {
@@ -81,24 +93,23 @@ export default function OrderHistory() {
         <Header />
         <main className="pt-16 md:pt-20">
           <div className="container-custom section-padding text-center">
-            <div className="max-w-md mx-auto">
-              <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
-                <Package className="w-12 h-12 text-muted-foreground" />
+            <div className="max-w-md mx-auto py-12">
+              <div className="w-32 h-32 bg-secondary/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-secondary/10">
+                <UtensilsCrossed className="w-12 h-12 text-secondary/50" />
               </div>
-              <h1 className="text-2xl font-bold text-foreground mb-2">
+              <h1 className="text-3xl font-bold text-foreground mb-3">
                 No Orders Yet
               </h1>
-              <p className="text-muted-foreground mb-8">
-                Your order history will appear here after you place your first order.
+              <p className="text-muted-foreground mb-8 text-lg">
+                Looks like you haven't indulged in our authentic cuisine yet. Time to change that?
               </p>
-              <Link to="/menu" className="btn-secondary inline-flex items-center gap-2">
-                Browse Menu
+              <Link to="/menu" className="btn-secondary inline-flex items-center gap-2 px-8 py-3 text-lg">
+                Explore Menu
                 <ChevronRight className="w-5 h-5" />
               </Link>
             </div>
           </div>
         </main>
-        <Footer />
         <Footer />
       </div>
     );
@@ -114,11 +125,17 @@ export default function OrderHistory() {
       <Header />
 
       <main className="pt-16 md:pt-20">
-        <div className="container-custom section-padding">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-              Order History
-            </h1>
+        <PageHeader 
+          title="Order History"
+          description="Track your current orders or reorder your past favorites in seconds."
+        />
+
+        <div className="container-custom py-8 md:py-12">
+          <div className="flex items-center justify-between mb-6 md:mb-8">
+            <h2 className="text-xl md:text-2xl font-bold text-foreground flex items-center gap-2">
+              <Clock className="w-5 h-5 md:w-6 md:h-6 text-secondary" />
+              Past Orders ({orderHistory.length})
+            </h2>
 
             <button
               onClick={() => {
@@ -127,83 +144,99 @@ export default function OrderHistory() {
                   toast.success('Order history cleared');
                 }
               }}
-              className="text-sm text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
+              className="text-xs md:text-sm text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-destructive/5 border border-transparent hover:border-destructive/20"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
               Clear History
             </button>
           </div>
 
-          <div className="space-y-4">
+          <div className="grid gap-4 md:gap-6 max-w-4xl mx-auto">
             {orderHistory.map((order) => {
               const badge = getMethodBadge(order.paymentMethod);
               const BadgeIcon = badge.icon;
+              const orderImage = getOrderImage(order);
               
               return (
                 <div
                   key={order.orderId}
-                  className="card-premium p-4 md:p-6"
+                  className="card-premium group overflow-hidden border border-border/60 hover:border-secondary/30 transition-all duration-300"
                 >
-                  {/* Header */}
-                  <div className="flex flex-wrap items-start justify-between gap-4 mb-4 pb-4 border-b border-border">
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="font-bold text-foreground font-mono text-lg">
-                          {order.orderId}
-                        </span>
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${badge.className}`}>
-                          <BadgeIcon className="w-3.5 h-3.5" />
-                          {badge.label}
-                        </span>
+                  <div className="flex flex-row md:flex-row h-full">
+                    {/* Visual Side (Left) - Fixed square layout for mobile/desktop consistent */}
+                    <div className="w-24 sm:w-32 md:w-48 bg-secondary/5 shrink-0 relative border-r border-border/50">
+                      {orderImage ? (
+                        <OptimizedImage 
+                          src={orderImage} 
+                          alt="Order Preview"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-secondary/20">
+                           <ShoppingBag className="w-8 h-8 md:w-12 md:h-12" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Content Side (Right) */}
+                    <div className="flex-1 p-3 md:p-6 flex flex-col justify-between min-w-0">
+                      {/* Detailed Header Row */}
+                      <div className="mb-2 md:mb-4">
+                         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-[10px] md:text-sm font-bold text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                                #{order.orderId.slice(-6).toUpperCase()}
+                              </span>
+                              <span className="text-[10px] md:text-xs text-muted-foreground hidden sm:flex items-center gap-1">
+                                 {formatDate(order.orderDate)}
+                              </span>
+                            </div>
+                            <span className="block text-base md:text-xl font-bold text-secondary">
+                              {formatPrice(order.total)}
+                            </span>
+                         </div>
+                         
+                         {/* Mobile-only date line */}
+                         <p className="text-[10px] text-muted-foreground sm:hidden mb-1.5">
+                            {formatDate(order.orderDate)}
+                         </p>
+
+                         {/* Items List (Wrapped) */}
+                         <div className="text-xs md:text-sm text-foreground/80 line-clamp-2 leading-relaxed">
+                            {order.items.map((item, idx) => (
+                               <span key={idx} className="mr-2 inline-block">
+                                  <span className="font-bold text-foreground">
+                                    {item.quantity}x
+                                  </span> {item.mainDishes?.join(' + ') || item.name}
+                               </span>
+                            ))}
+                         </div>
                       </div>
-                      <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5" />
-                        {formatDate(order.orderDate)}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xl font-bold text-secondary">
-                        {formatPrice(order.total)}
-                      </p>
-                    </div>
-                  </div>
 
-                  {/* Items Summary */}
-                  <div className="space-y-2 mb-6">
-                    {order.items.map((item, idx) => (
-                      <div key={idx} className="flex justify-between text-sm py-1">
-                        <span className="text-foreground font-medium">
-                          <span className="text-muted-foreground mr-2">{item.quantity}x</span> 
-                          {item.mainDishes.join(' + ')}
-                          {item.sauce && <span className="text-muted-foreground font-normal"> with {item.sauce.name}</span>}
-                        </span>
+                      {/* Actions Footer */}
+                      <div className="flex items-center gap-2 mt-2 pt-2 md:pt-4 border-t border-border/50">
+                        <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground mr-auto">
+                            <MapPin className="w-4 h-4 text-secondary/70" />
+                            <span className="line-clamp-1 max-w-[200px]">{order.deliveryLocation}</span>
+                        </div>
+
+                        <div className="flex items-center gap-2 w-full md:w-auto">
+                           <button
+                             onClick={() => handleTrackOrder(order.orderId)}
+                             className="flex-1 md:flex-none h-8 md:h-10 text-xs md:text-sm font-medium text-foreground hover:text-green-600 border border-border rounded-lg hover:bg-green-50 transition-colors flex items-center justify-center gap-1.5 px-3"
+                           >
+                             <WhatsAppIcon className="w-3.5 h-3.5" />
+                             Track
+                           </button>
+                           <button
+                             onClick={() => handleReorder(order)}
+                             className="flex-1 md:flex-none h-8 md:h-10 text-xs md:text-sm btn-secondary px-4 flex items-center justify-center gap-1.5"
+                           >
+                             <RefreshCw className="w-3.5 h-3.5" />
+                             Reorder
+                           </button>
+                        </div>
                       </div>
-                    ))}
-                  </div>
-
-                  {/* Delivery Info */}
-                  <div className="bg-muted/30 -mx-4 -mb-4 md:-mx-6 md:-mb-6 p-4 md:p-6 flex flex-wrap gap-3 items-center justify-between border-t border-border mt-4">
-                    <div className="text-sm">
-                      <p className="text-muted-foreground mb-0.5">Delivered to</p>
-                      <p className="font-bold text-foreground">{order.deliveryLocation}</p>
-                    </div>
-
-                    <div className="flex flex-wrap gap-3 w-full sm:w-auto">
-                      <button
-                        onClick={() => handleTrackOrder(order.orderId)}
-                        className="btn-primary bg-[#25D366] hover:bg-[#20bd5a] text-white border-none flex-1 sm:flex-none text-sm py-2 px-4 flex items-center justify-center gap-2"
-                      >
-                        <WhatsAppIcon className="w-4 h-4" />
-                        Track Order
-                      </button>
-                      
-                      <button
-                        onClick={() => handleReorder(order)}
-                        className="btn-secondary flex-1 sm:flex-none text-sm py-2 px-4 flex items-center justify-center gap-2"
-                      >
-                        <RefreshCw className="w-4 h-4" />
-                        Reorder
-                      </button>
                     </div>
                   </div>
                 </div>
