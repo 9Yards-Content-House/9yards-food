@@ -377,7 +377,7 @@
   "featuredItems": {
     "_comment": "Items to display on the home page 'Popular Dishes' section",
     "_note": "Use IDs that exist in the menu above. Order matters - first is shown first.",
-    "sauceIds": ["chicken-stew", "fresh-fish", "beef-stew", "cowpeas"],
+    "sauceIds": ["chicken-stew", "fish", "beef-stew", "cowpeas"],
     "lusaniyaIds": ["ordinary-lusaniya", "beef-pilao-lusaniya"]
   },
 

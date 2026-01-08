@@ -590,7 +590,13 @@ export default function CartPage() {
                               {/* Quantity Controls */}
                               <div className="flex items-center gap-3 bg-muted rounded-full p-0.5 border border-border/50">
                                 <button 
-                                  onClick={() => item.quantity > 1 ? updateQuantity(item.id, item.quantity - 1) : removeItem(item.id)}
+                                  onClick={() => {
+                                    if (item.quantity > 1) {
+                                      updateQuantity(item.id, item.quantity - 1);
+                                    } else {
+                                      removeItem(item.id);
+                                    }
+                                  }}
                                   className="w-7 h-7 flex items-center justify-center rounded-full bg-background text-foreground hover:bg-white shadow-sm transition-all"
                                 >
                                   <Minus className="w-3.5 h-3.5" />
@@ -617,7 +623,6 @@ export default function CartPage() {
                             </div>
                           </div>
                         </div>
-                      </div>
                       </div>
                       {index < state.items.length - 1 && (
                         <div className="h-px bg-border/40 w-full mt-6" />

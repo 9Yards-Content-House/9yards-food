@@ -20,6 +20,7 @@ import { useCart, OrderHistoryItem } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils/order';
 import { WHATSAPP_NUMBER } from '@/lib/constants';
 import { toast } from 'sonner';
+import { menuData } from '@/data/menu';
 
 export default function OrderHistory() {
   const { orderHistory, clearOrderHistory, addItem } = useCart();
@@ -74,12 +75,45 @@ export default function OrderHistory() {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, '_blank');
   };
 
-  // Helper to get the main image for an order (first item's sauce or main image)
-  const getOrderImage = (order: OrderHistoryItem) => {
-    const firstItem = order.items[0];
-    if (firstItem?.sauce?.image) return firstItem.sauce.image;
-    if (firstItem?.image) return firstItem.image; // Single items might have image
-    return null; // Fallback
+// Helper to get up to 4 images for the collage
+  const getOrderImages = (order: OrderHistoryItem) => {
+    const images: string[] = [];
+    const seen = new Set<string>();
+
+    const addImage = (src?: string) => {
+      if (src && !seen.has(src)) {
+        seen.add(src);
+        images.push(src);
+      }
+    };
+
+    // Iterate through items to collect images
+    for (const item of order.items) {
+      if (images.length >= 4) break;
+
+      // 1. Main Sauce Image (Combo) or Item Image (Single)
+      if (item.sauce?.image) addImage(item.sauce.image);
+      if (item.image) addImage(item.image);
+
+      // 2. Side Dish Image (Look up from menuData)
+      if (item.sideDish) {
+        const side = menuData.sideDishes.find(s => s.name === item.sideDish || s.id === item.sideDish);
+        if (side?.image) addImage(side.image);
+      }
+
+      // 3. Extras
+      if (item.extras) {
+        for (const extra of item.extras) {
+          const juice = menuData.juices.find(j => j.id === extra.id);
+          if (juice?.image) addImage(juice.image);
+          
+          const dessert = menuData.desserts.find(d => d.id === extra.id);
+          if (dessert?.image) addImage(dessert.image);
+        }
+      }
+    }
+
+    return images.slice(0, 4);
   };
 
   if (orderHistory.length === 0) {
@@ -155,7 +189,7 @@ export default function OrderHistory() {
             {orderHistory.map((order) => {
               const badge = getMethodBadge(order.paymentMethod);
               const BadgeIcon = badge.icon;
-              const orderImage = getOrderImage(order);
+              const orderImages = getOrderImages(order);
               
               return (
                 <div
@@ -165,12 +199,39 @@ export default function OrderHistory() {
                   <div className="flex flex-row md:flex-row h-full">
                     {/* Visual Side (Left) - Fixed square layout for mobile/desktop consistent */}
                     <div className="w-24 sm:w-32 md:w-48 bg-secondary/5 shrink-0 relative border-r border-border/50">
-                      {orderImage ? (
-                        <OptimizedImage 
-                          src={orderImage} 
-                          alt="Order Preview"
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        />
+                      {orderImages.length > 0 ? (
+                        orderImages.length === 1 ? (
+                          <OptimizedImage 
+                            src={orderImages[0]} 
+                            alt="Order Preview"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
+                        ) : (
+                          <div className="grid grid-cols-2 grid-rows-2 w-full h-full">
+                            {orderImages.map((img, i) => (
+                              <div key={i} className="relative overflow-hidden border-[0.5px] border-white/20">
+                                <OptimizedImage 
+                                  src={img} 
+                                  alt={`Item ${i+1}`}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ))}
+                            {/* Fill remaining slots with placeholder pattern if < 4, only if we want specific 2x2. 
+                                Actually, sticking to just rendering available images in grid might look weird if 3.
+                                Let's ensure we fill 4 slots for 2x2 if we have > 1, repeating if needed? 
+                                User asked for "collage", 3 items in 2x2 leaves one blank. 
+                                Let's attempt to fill up to 4 using modulo if we have at least 2.
+                             */}
+                             {Array.from({ length: 4 - orderImages.length }).map((_, i) => (
+                                orderImages.length > 1 && (
+                                   <div key={`fill-${i}`} className="bg-secondary/10 flex items-center justify-center">
+                                      <div className="w-full h-full bg-secondary/5" />
+                                   </div>
+                                )
+                             ))}
+                          </div>
+                        )
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-secondary/20">
                            <ShoppingBag className="w-8 h-8 md:w-12 md:h-12" />
