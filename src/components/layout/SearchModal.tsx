@@ -295,7 +295,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                             <button
                               key={item.id}
                               onClick={() => handleItemClick(item)}
-                              className="group relative flex flex-col overflow-hidden rounded-xl border border-border/50 bg-card/50 hover:bg-card transition-all text-left shadow-sm hover:shadow-md"
+                              className="group relative flex flex-col overflow-hidden rounded-xl border border-border/50 bg-card/50 hover:bg-secondary/5 hover:border-secondary/50 transition-all text-left"
                             >
                               <div className="aspect-video sm:aspect-[4/3] w-full overflow-hidden">
                                 <img 

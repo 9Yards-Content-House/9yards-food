@@ -100,7 +100,7 @@ const newItems: string[] = ["beef-pilao-lusaniya"]; // Add item IDs here when yo
 // Skeleton loader for menu cards
 function MenuCardSkeleton() {
   return (
-    <div className="bg-card rounded-2xl overflow-hidden shadow-sm border border-border animate-pulse">
+    <div className="bg-card rounded-2xl overflow-hidden border border-border animate-pulse">
       <div className="aspect-[4/3] bg-muted" />
       <div className="p-4">
         <div className="h-5 bg-muted rounded w-3/4 mb-2" />
@@ -232,7 +232,7 @@ function MenuItemCard({
           onAddToOrder();
         }
       }}
-      className={`group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md 
+      className={`group relative bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-secondary/50 hover:bg-secondary/5 active:scale-[0.98]
         transition-all duration-200 flex flex-col
         ${item.available ? "cursor-pointer" : "cursor-not-allowed"}
         ${

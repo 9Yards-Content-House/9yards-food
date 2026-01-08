@@ -487,7 +487,7 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                       return (
                         <div
                           key={sauce.id}
-                          className={`group relative flex flex-col rounded-xl border-2 bg-white transition-all duration-300 shadow-sm overflow-hidden ${
+                          className={`group relative flex flex-col rounded-xl border-2 bg-white transition-all duration-300 overflow-hidden ${
                             isSelected ? 'border-[#E6411C] bg-[#E6411C]/[0.03]' : 'border-gray-100 hover:border-[#E6411C]/50'
                           } ${!sauce.available && 'opacity-50 pointer-events-none'}`}
                         >
@@ -634,8 +634,8 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                             className="sr-only"
                             disabled={!side.available}
                           />
-                          <div className={`flex items-center gap-4 bg-white p-3 rounded-2xl shadow-sm border-2 transition-all duration-200 hover:shadow-md ${
-                            isSelected ? 'border-[#E6411C] bg-[#FFF8F6]' : 'border-transparent'
+                          <div className={`flex items-center gap-4 bg-white p-3 rounded-2xl border-2 transition-all duration-200 ${
+                            isSelected ? 'border-[#E6411C] bg-[#FFF8F6]' : 'border-transparent hover:border-gray-200'
                           }`}>
                             <div className="relative flex-shrink-0">
                               <img
@@ -643,7 +643,7 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                                 alt={side.name}
                                 className="w-20 h-20 rounded-xl object-cover shadow-inner"
                               />
-                              <span className="absolute -top-2 -left-2 bg-[#E6411C] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm uppercase tracking-wide border border-white">
+                              <span className="absolute -top-2 -left-2 bg-[#E6411C] text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide border border-white">
                                 Free
                               </span>
                             </div>
@@ -698,11 +698,11 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                         return (
                           <div
                             key={juice.id}
-                            className={`group relative flex flex-col bg-white rounded-xl overflow-hidden shadow-sm border-2 transition-all ${
+                            className={`group relative flex flex-col bg-white rounded-xl overflow-hidden border-2 transition-all ${
                               isSelected ? 'border-[#E6411C]' : 'border-gray-100 hover:border-gray-200'
                             } ${!juice.available && 'opacity-50 pointer-events-none'}`}
                           >
-                            <div className="absolute top-2 left-2 z-10 bg-[#212282] text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md uppercase tracking-wider">
+                            <div className="absolute top-2 left-2 z-10 bg-[#212282] text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">
                               100% Natural
                             </div>
                             <div className="aspect-square w-full bg-gray-100 relative overflow-hidden">
@@ -768,7 +768,7 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
                         return (
                           <div
                             key={dessert.id}
-                            className={`group relative flex flex-col bg-white rounded-xl overflow-hidden shadow-sm border-2 transition-all ${
+                            className={`group relative flex flex-col bg-white rounded-xl overflow-hidden border-2 transition-all ${
                               isSelected ? 'border-[#E6411C]' : 'border-gray-100 hover:border-gray-200'
                             } ${!dessert.available && 'opacity-50 pointer-events-none'}`}
                           >

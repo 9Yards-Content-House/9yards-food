@@ -103,7 +103,7 @@ function DishCard({
   return (
     <div
       onClick={() => item.available && onAddToOrder()}
-      className={`group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md 
+      className={`group relative bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-secondary/50 hover:bg-secondary/5 active:scale-[0.98]
         transition-all duration-200 flex flex-col
         ${item.available ? 'cursor-pointer' : 'cursor-not-allowed'}
         ${!item.available ? 'opacity-60' : ''}`}

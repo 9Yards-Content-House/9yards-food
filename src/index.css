@@ -201,10 +201,13 @@
 
   /* Food card hover effect */
   .food-card-hover {
-    @apply transition-all duration-300 ease-out;
+    @apply border border-transparent transition-all duration-300 ease-out;
   }
   .food-card-hover:hover {
-    @apply shadow-elevated -translate-y-1;
+    @apply border-secondary/30 bg-secondary/5;
+  }
+  .food-card-hover:active {
+    @apply scale-[0.98];
   }
 
   /* CTA pulse animation - REMOVED */
@@ -273,8 +276,8 @@
 
   /* Card styles */
   .card-premium {
-    @apply bg-card rounded-2xl shadow-card overflow-hidden transition-all duration-300;
-    @apply hover:shadow-elevated;
+    @apply bg-card rounded-2xl border border-border/40 overflow-hidden transition-all duration-300;
+    @apply hover:border-primary/20 hover:bg-muted/30 active:scale-[0.99];
   }
 
   /* Badge styles */
