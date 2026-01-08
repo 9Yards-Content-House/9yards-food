@@ -5,7 +5,7 @@ import { WHATSAPP_NUMBER, PHONE_NUMBER } from '@/lib/constants';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import { useCart } from '@/context/CartContext';
 import { useGuest } from '@/context/GuestContext';
-import { deliveryZones } from '@/data/menu';
+import { deliveryZones, menuData } from '@/data/menu';
 
 // Constants
 const HIDDEN_PAGES = ['/order-confirmation'];
@@ -91,7 +91,7 @@ export default function FloatingWhatsApp({
   const proactiveTimerRef = useRef<NodeJS.Timeout | null>(null);
   
   
-  const { state, cartTotal } = useCart();
+  const { state, cartTotal, orderHistory, reorderFromHistory } = useCart();
   const { userName, setUserName } = useGuest();
   const navigate = useNavigate();
   const location = useLocation();
@@ -245,6 +245,40 @@ export default function FloatingWhatsApp({
     };
   }, [isOpen, messages, proactiveShown]);
 
+  // Context-Aware Idle Help (Time-Based)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let deepHelpTimer: NodeJS.Timeout;
+
+    // 1. Cart Abandonment Help (45s idle on cart)
+    if (location.pathname === '/cart' && cartItemCount > 0) {
+      deepHelpTimer = setTimeout(() => {
+        addBotMessage({
+          type: 'received',
+          content: `Stuck at checkout? 🤔\n\nComplete your order in the next 10 minutes and use code **QUICK5** for 5% off!`,
+          options: [
+            { key: '1', label: 'Applied! Checkout ✅', action: 'navigate', data: '/cart' }
+          ]
+        });
+      }, 45000);
+    } 
+    // 2. Menu indecision (60s idle on menu)
+    else if (location.pathname === '/menu') {
+      deepHelpTimer = setTimeout(() => {
+        addBotMessage({
+          type: 'received',
+          content: `Can't decide what to eat? 🎲\n\nTry our "Surprise Me" feature to find a random delicious meal!`,
+          options: [
+            { key: '1', label: '🎲 Surprise Me!', action: 'rate', data: 'surprise' } // Re-using 'rate' action slot for custom logic handling is hacky but we'll intercept it
+          ]
+        });
+      }, 60000);
+    }
+
+    return () => clearTimeout(deepHelpTimer);
+  }, [isOpen, location.pathname, cartItemCount]);
+
   // Scroll to bottom on updates (smooth)
   useEffect(() => {
     if (isOpen) {
@@ -291,6 +325,20 @@ export default function FloatingWhatsApp({
           ]
         });
         return; // Skip normal welcome flow
+      }
+
+      // Quick Reorder for returning users
+      if (orderHistory.length > 0) {
+        const lastOrder = orderHistory[0];
+        addBotMessage({
+          type: 'received',
+          content: `${personalGreeting}\n\nWelcome back! 👋\n\nHungry for your usual **${lastOrder.items[0]?.mainDishes[0] || 'Meal'}** + ${lastOrder.items.length - 1} others?`,
+          options: [
+            { key: '1', label: '🔄 Reorder Now', action: 'rate', data: 'reorder' }, // Intercept 'rate' for reorder
+            { key: '2', label: 'No, see menu', action: 'start' }
+          ]
+        });
+        return;
       }
 
       const helpText = getRandomItem(helpPhrases);
@@ -358,7 +406,8 @@ export default function FloatingWhatsApp({
     { key: '2', label: '2️⃣ Delivery Info & Fees', action: 'deliveryInfo' },
     { key: '3', label: '3️⃣ Track My Order', action: 'trackOrder' },
     { key: '4', label: '4️⃣ FAQs', action: 'faqs' },
-    { key: '5', label: '5️⃣ Speak to Support', action: 'whatsapp' },
+    { key: '5', label: '🎲 Surprise Me!', action: 'rate', data: 'surprise' }, // Using 'rate' as generic handler hook
+    { key: '6', label: '📞 Speak to Support', action: 'whatsapp' },
   ];
 
   // Show proactive message based on context
@@ -540,6 +589,41 @@ export default function FloatingWhatsApp({
         window.location.href = `tel:${PHONE_NUMBER}`;
         break;
       case 'rate':
+        // HACK: Intercepting 'rate' action to handle custom flows like 'surprise' and 'reorder' to avoid refactoring types completely right now
+        if (option.data === 'surprise') {
+          // Surprise Me Logic
+          const allItems = [...menuData.mainDishes, ...menuData.lusaniya];
+          const randomItem = getRandomItem(allItems);
+          
+          addBotMessage({
+             type: 'received',
+             content: `🎲 **Surprise!** We recommend:\n\n**${randomItem.name}**\n${randomItem.description}\n\nDoes that sound good?`,
+             options: [
+               { key: '1', label: '😋 Order This', action: 'navigate', data: '/menu' },
+               { key: '2', label: '🎲 Spin Again', action: 'rate', data: 'surprise' },
+               { key: '0', label: 'Back to Menu', action: 'start' }
+             ]
+          }, 600);
+          return;
+        }
+
+        if (option.data === 'reorder') {
+          // Reorder Logic
+          if (orderHistory.length > 0) {
+            reorderFromHistory(orderHistory[0]);
+            addBotMessage({
+              type: 'received',
+              content: `Done! 🎉\n\nI've added your previous order to the cart.`,
+              options: [
+                { key: '1', label: 'Checkout Now 🛒', action: 'navigate', data: '/cart' },
+                { key: '2', label: 'Add More Items', action: 'navigate', data: '/menu' }
+              ]
+            });
+            setTimeout(() => navigate('/cart'), 1500);
+          }
+          return;
+        }
+
         const rating = parseInt(option.data || '5');
         saveUserPrefs({ lastRating: rating });
         addBotMessage({
@@ -653,6 +737,44 @@ export default function FloatingWhatsApp({
     }
     
     // Default: escalate with empathy
+    // NEW: Smart Search & Delivery Estimator Logic
+    
+    // 1. Delivery Estimator
+    const deliveryZoneMatch = deliveryZones.find(z => input.toLowerCase().includes(z.name.toLowerCase()));
+    if (deliveryZoneMatch) {
+       addUserMessage(input);
+       addBotMessage({
+         type: 'received',
+         content: `📍 **Delivery Check**\n\nYes, we deliver to **${deliveryZoneMatch.name}**!\n\n💰 Fee: ${formatPrice(deliveryZoneMatch.fee)}\n⏱️ Time: ${deliveryZoneMatch.estimatedTime}\n\nWant to start your order?`,
+         options: [
+           { key: '1', label: 'Start Order 🍗', action: 'navigate', data: '/menu' },
+           { key: '0', label: 'Check another area', action: 'deliveryInfo' }
+         ]
+       });
+       return;
+    }
+
+    // 2. Smart Menu Search
+    const searchResult = [...menuData.mainDishes, ...menuData.sauces, ...menuData.lusaniya]
+      .filter(item => item.name.toLowerCase().includes(lower));
+    
+    if (searchResult.length > 0) {
+      addUserMessage(input);
+      const topResult = searchResult[0];
+      const count = searchResult.length;
+      
+      addBotMessage({
+        type: 'received',
+        content: `🔍 **I found ${count} match${count > 1 ? 'es' : ''}!**\n\nTop match: **${topResult.name}**\n${topResult.description}\n\nWant to see it?`,
+        options: [
+           { key: '1', label: `View ${topResult.name}`, action: 'navigate', data: '/menu' },
+           { key: '2', label: 'Show Full Menu', action: 'navigate', data: '/menu' }
+        ]
+      });
+      return;
+    }
+
+    // Default fallback
     addUserMessage(input);
     addBotMessage({
       type: 'received',
