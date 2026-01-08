@@ -1,25 +1,96 @@
+import { useState } from 'react';
 import { Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import SEO from '@/components/SEO';
 import Footer from '@/components/layout/Footer';
-import { useCart } from '@/context/CartContext';
+import { useCart, CartItem } from '@/context/CartContext';
 import { menuData } from '@/data/menu';
 import { formatPrice } from '@/lib/utils/order';
+import { MenuItemCard, Category } from '@/components/menu/MenuItemCard';
+import ComboBuilder from '@/components/menu/ComboBuilder';
+import { toast } from 'sonner';
+import { vibrate } from '@/lib/utils/ui';
 
 export default function FavoritesPage() {
-  const { state, toggleFavorite } = useCart();
+  const { state, toggleFavorite, isFavorite, addItem, removeItem, updateQuantity, cartCount } = useCart();
+  const [isComboBuilderOpen, setIsComboBuilderOpen] = useState(false);
+  const [initialComboSelection, setInitialComboSelection] = useState<{ type: 'main' | 'sauce' | 'side'; id: string } | undefined>(undefined);
+
 
   // Get all items with their details
   const allItems = [
-    ...menuData.mainDishes.map((d) => ({ ...d, price: null, category: 'Main Dish' })),
-    ...menuData.sauces.map((s) => ({ id: s.id, name: s.name, image: s.image, price: s.basePrice, category: 'Sauce', available: s.available })),
-    ...menuData.juices.map((j) => ({ ...j, category: 'Juice' })),
-    ...menuData.desserts.map((d) => ({ ...d, category: 'Dessert' })),
-    ...menuData.sideDishes.map((s) => ({ ...s, price: null, category: 'Side Dish' })),
+    ...menuData.mainDishes.map((d) => ({ ...d, price: null, category: 'Main Dish', categoryType: 'main' as Category, available: d.available })),
+    ...menuData.sauces.map((s) => ({ id: s.id, name: s.name, image: s.image, price: s.basePrice, category: 'Sauce', categoryType: 'sauce' as Category, available: s.available })),
+    ...menuData.juices.map((j) => ({ ...j, categoryType: 'juice' as Category, category: 'Juice' })),
+    ...menuData.desserts.map((d) => ({ ...d, categoryType: 'dessert' as Category, category: 'Dessert' })),
+    ...menuData.lusaniya.map((l) => ({ ...l, categoryType: 'lusaniya' as Category, category: 'Lusaniya', available: l.available })),
+    ...menuData.sideDishes.map((s) => ({ ...s, price: null, categoryType: 'side' as Category, category: 'Side Dish' })),
   ];
 
   const favoriteItems = allItems.filter((item) => state.favorites.includes(item.id));
+
+  // Handle Add to Cart Logic (shared with Menu)
+  const isIndividualInCart = (itemId: string, category: string) => {
+    return state.items.some(
+      (cartItem) =>
+        cartItem.type === "single" &&
+        cartItem.id.includes(`${category}-${itemId}`)
+    );
+  };
+
+  const getIndividualCount = (itemId: string, category: string) => {
+    const item = state.items.find(
+      (cartItem) =>
+        cartItem.type === "single" && cartItem.id === `${category}-${itemId}`
+    );
+    return item ? item.quantity : 0;
+  };
+
+  const handleRemoveIndividual = (itemId: string, category: string) => {
+    const existingItem = state.items.find(
+      (item) => item.type === "single" && item.id === `${category}-${itemId}`
+    );
+    if (existingItem) {
+      if (existingItem.quantity > 1) {
+        updateQuantity(existingItem.id, existingItem.quantity - 1);
+      } else {
+        removeItem(existingItem.id);
+      }
+      vibrate(50);
+    }
+  };
+
+  const handleIndividualAddToCart = (item: any) => {
+    // Generate ID for single item
+    const itemId = `${item.category}-${item.id}`;
+    
+    // Check if already in cart
+    const existingItem = state.items.find(
+      (cartItem) => cartItem.type === "single" && cartItem.id === itemId
+    );
+
+    if (existingItem) {
+      updateQuantity(existingItem.id, existingItem.quantity + 1);
+      toast.success(`Added another ${item.name}`);
+      vibrate(50);
+    } else {
+      const cartItem: CartItem = {
+        id: itemId,
+        name: item.name,
+        type: "single",
+        price: item.price || 0,
+        totalPrice: item.price || 0,
+        quantity: 1,
+        image: item.image, // Pass image for cart
+        description: item.description, // Pass description
+        extras: [],
+      };
+      addItem(cartItem);
+      toast.success(`${item.name} added to order`);
+      vibrate(100);
+    }
+  };
 
   if (favoriteItems.length === 0) {
     return (
@@ -54,7 +125,7 @@ export default function FavoritesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20 lg:pb-0">
+    <div className="min-h-screen bg-gray-50 pb-20 lg:pb-0">
       <SEO 
         title="My Favorites | 9Yards Food"
         description="Your favorite authentic Ugandan dishes saved for quick ordering."
@@ -67,41 +138,51 @@ export default function FavoritesPage() {
             My Favorites ({favoriteItems.length})
           </h1>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             {favoriteItems.map((item) => (
-              <div
+              <MenuItemCard
                 key={item.id}
-                className="card-premium food-card-hover group"
-              >
-                <div className="relative aspect-square overflow-hidden">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <button
-                    onClick={() => toggleFavorite(item.id)}
-                    className="absolute top-3 right-3 w-9 h-9 bg-card/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-border/50 hover:bg-destructive/10 transition-colors"
-                  >
-                    <Heart className="w-4 h-4 text-secondary fill-secondary" />
-                  </button>
-                  <span className="absolute top-3 left-3 bg-primary/90 text-primary-foreground text-xs font-semibold px-2.5 py-1 rounded-full">
-                    {item.category}
-                  </span>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-bold text-foreground mb-1">{item.name}</h3>
-                  {item.price && (
-                    <span className="text-secondary font-bold">
-                      {formatPrice(item.price)}
-                    </span>
-                  )}
-                </div>
-              </div>
+                item={{
+                    ...item,
+                    categoryType: item.categoryType as Category, // Ensure type safety
+                    // Only Lusaniya, Juice, and Dessert are truly individual. 
+                    // Sauces (Proteins) should trigger combo builder.
+                    isIndividual: ['lusaniya', 'juice', 'dessert'].includes(item.categoryType)
+                }}
+                onAddToOrder={() => {
+                    let type: 'main' | 'sauce' | 'side' | undefined;
+                    if (item.categoryType === 'main') type = 'main';
+                    else if (item.categoryType === 'sauce') type = 'sauce';
+                    else if (item.categoryType === 'side') type = 'side';
+                    
+                    if (type) {
+                        setInitialComboSelection({ type, id: item.id });
+                    }
+                    setIsComboBuilderOpen(true);
+                }}
+                onAddToCart={() => handleIndividualAddToCart(item)}
+                isInCart={isIndividualInCart(item.id, item.category)}
+                onToggleFavorite={toggleFavorite}
+                isFavorite={isFavorite(item.id)}
+                isHighlighted={false}
+                lusaniyaCount={getIndividualCount(item.id, item.category)} 
+                onRemoveLusaniya={() => handleRemoveIndividual(item.id, item.category)}
+              />
             ))}
           </div>
         </div>
       </main>
+
+      {/* Combo Builder Modal */}
+      <ComboBuilder
+        isOpen={isComboBuilderOpen}
+        onClose={() => {
+            setIsComboBuilderOpen(false);
+            setInitialComboSelection(undefined);
+        }}
+        initialSelection={initialComboSelection}
+      />
+      
       <Footer />
     </div>
   );

@@ -191,15 +191,31 @@ export default function OrderHistory() {
                                  {formatDate(order.orderDate)}
                               </span>
                             </div>
-                            <span className="block text-base md:text-xl font-bold text-secondary">
-                              {formatPrice(order.total)}
-                            </span>
+                            
+                            <div className="flex items-center gap-2">
+                                {/* Desktop Badge Position (Next to Price) */}
+                                <span className={`hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${badge.className}`}>
+                                    <BadgeIcon className="w-3 h-3" />
+                                    {badge.label}
+                                </span>
+                                <span className="block text-base md:text-xl font-bold text-secondary">
+                                  {formatPrice(order.total)}
+                                </span>
+                            </div>
                          </div>
                          
                          {/* Mobile-only date line */}
-                         <p className="text-[10px] text-muted-foreground sm:hidden mb-1.5">
-                            {formatDate(order.orderDate)}
-                         </p>
+                         <div className="flex items-center gap-2 mb-1.5 sm:hidden">
+                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border ${badge.className}`}>
+                                <BadgeIcon className="w-2.5 h-2.5" />
+                                {badge.label}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground">
+                               {formatDate(order.orderDate)}
+                            </span>
+                         </div>
+
+
 
                          {/* Items List (Wrapped) */}
                          <div className="text-xs md:text-sm text-foreground/80 line-clamp-2 leading-relaxed">

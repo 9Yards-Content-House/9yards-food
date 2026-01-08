@@ -10,12 +10,17 @@ import { vibrate } from '@/lib/utils/ui';
 interface ComboBuilderProps {
   isOpen: boolean;
   onClose: () => void;
+  initialData?: CartItem;
+  initialSelection?: {
+    type: 'main' | 'sauce' | 'side';
+    id: string;
+  };
 }
 
 const DRAFT_KEY = '9yards_combo_draft';
 const DRAFT_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
 
-export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
+export default function ComboBuilder({ isOpen, onClose, initialData, initialSelection }: ComboBuilderProps) {
   const [step, setStep] = useState(1);
   const [selectedMainDishes, setSelectedMainDishes] = useState<string[]>([]);
   const [selectedSauce, setSelectedSauce] = useState<Sauce | null>(null);
@@ -29,8 +34,75 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
   const [showDraftBanner, setShowDraftBanner] = useState(false);
   const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
   const [isDraftLoaded, setIsDraftLoaded] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
-  const { addItem } = useCart();
+  const { addItem, updateItem } = useCart();
+
+  // Initialize from initialData (Edit Mode)
+  useEffect(() => {
+    if (isOpen && initialData) {
+      setIsEditMode(true);
+      // Map main dishes
+      const mainIds = initialData.mainDishes.map(name => menuData.mainDishes.find(d => d.name === name)?.id).filter(Boolean) as string[];
+      setSelectedMainDishes(mainIds);
+
+      // Map Sauce
+      if (initialData.sauce) {
+        const sauce = menuData.sauces.find(s => s.id === initialData.sauce!.id);
+        if (sauce) {
+          setSelectedSauce(sauce);
+          setSaucePreparation(initialData.sauce.preparation || (sauce.preparations.length === 1 ? sauce.preparations[0] : ''));
+          setSauceSize(sauce.sizes.find(s => s.name === initialData.sauce!.size) || (sauce.sizes.length === 1 ? sauce.sizes[0] : null));
+        }
+      }
+
+      // Map Side
+      const side = menuData.sideDishes.find(s => s.name === initialData.sideDish);
+      if (side) setSelectedSideDish(side.id);
+
+      // Map Extras
+      const juices = initialData.extras
+        .filter(e => menuData.juices.some(j => j.id === e.id))
+        .map(e => ({ id: e.id, quantity: e.quantity }));
+      setSelectedJuices(juices);
+
+      const desserts = initialData.extras
+        .filter(e => menuData.desserts.some(d => d.id === e.id))
+        .map(e => ({ id: e.id, quantity: e.quantity }));
+      setSelectedDesserts(desserts);
+      
+      // Jump to review step if editing
+      setStep(4);
+    }
+  }, [isOpen, initialData]);
+
+  // Handle Initial Selection (Contextual Start)
+  useEffect(() => {
+    if (isOpen && !initialData && initialSelection) {
+        // Reset first to be safe
+        resetBuilder();
+        
+        // Always start at Step 1 to ensure required "Base" is selected
+        setStep(1); 
+
+        if (initialSelection.type === 'main') {
+            setSelectedMainDishes([initialSelection.id]);
+        } else if (initialSelection.type === 'sauce') {
+            const sauce = menuData.sauces.find(s => s.id === initialSelection.id);
+            if (sauce) {
+                setSelectedSauce(sauce);
+                // Pre-select defaults
+                setSaucePreparation(sauce.preparations.length === 1 ? sauce.preparations[0] : '');
+                setSauceSize(sauce.sizes.length === 1 ? sauce.sizes[0] : null);
+            }
+        } else if (initialSelection.type === 'side') {
+             const side = menuData.sideDishes.find(s => s.id === initialSelection.id);
+             if (side) {
+                 setSelectedSideDish(side.id);
+             }
+        }
+    }
+  }, [isOpen, initialSelection]);
 
   const resetBuilder = () => {
     setStep(1);
@@ -257,17 +329,23 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
     ];
 
     const cartItem: CartItem = {
-      id: `combo-${Date.now()}`,
+      id: isEditMode && initialData ? initialData.id : `combo-${Date.now()}`,
       type: 'combo',
       mainDishes: mainDishNames,
       sauce: sauceSelection,
       sideDish: sideDishName,
       extras,
-      quantity: 1,
+      quantity: isEditMode && initialData ? initialData.quantity : 1,
       totalPrice: totalPrice,
     };
 
-    addItem(cartItem);
+    if (isEditMode) {
+      updateItem(cartItem);
+      toast.success('Combo updated!');
+    } else {
+      addItem(cartItem);
+    }
+    
     vibrate(50);
     localStorage.removeItem(DRAFT_KEY);
     setShowSuccessOverlay(true);

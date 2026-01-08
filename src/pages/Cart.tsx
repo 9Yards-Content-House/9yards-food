@@ -8,22 +8,25 @@ import {
   MapPin,
   Truck,
   ChevronRight,
-  Clock,
+  ChevronDown,
+  ChevronUp,
+  Shield,
+  Lock,
+  UtensilsCrossed,
   AlertTriangle,
   CheckCircle,
   X,
   Loader2,
   Tag,
   ArrowLeft,
-  ChevronDown,
-  ChevronUp,
-  Shield,
-  Lock,
-  UtensilsCrossed,
+  ShoppingBag,
+  Pencil
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
+import PageHeader from '@/components/layout/PageHeader';
+import OptimizedImage from '@/components/ui/optimized-image';
 import { useCart, OrderHistoryItem } from '@/context/CartContext';
 import { deliveryZones, promoCodes } from '@/data/menu';
 import {
@@ -35,6 +38,7 @@ import {
 import { useGuest } from '@/context/GuestContext';
 import { toast } from 'sonner';
 import { useAddressAutocomplete, PhotonResult } from '@/hooks/useAddressAutocomplete';
+import SEO from '@/components/SEO';
 
 // Flutterwave configuration
 const FLUTTERWAVE_PUBLIC_KEY = 'FLWPUBK_TEST-2cbeceb8352891cbcd28a983ce8d57ac-X';
@@ -144,8 +148,6 @@ interface FlutterwaveResponse {
   tx_ref: string;
   flw_ref: string;
 }
-
-import SEO from '@/components/SEO';
 
 export default function CartPage() {
   const navigate = useNavigate();
@@ -409,32 +411,41 @@ export default function CartPage() {
     window.FlutterwaveCheckout(config);
   };
 
+  // Helper to get item image
+  const getItemImage = (item: any) => {
+    // Priority: Item Image -> Sauce Image -> Fallback
+    if (item.image) return item.image;
+    if (item.sauce?.image) return item.sauce.image;
+    return null;
+  };
+
   // Empty Cart State
   if (state.items.length === 0) {
     return (
-      <div className="min-h-screen bg-[#fcf9f8] pb-24 lg:pb-0">
+      <div className="min-h-screen bg-background pb-20 lg:pb-0">
         <Header />
         <main className="pt-16 md:pt-20">
           <div className="container-custom section-padding text-center">
-            <div className="max-w-md mx-auto">
-              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Truck className="w-12 h-12 text-gray-400" />
-              </div>
-              <h1 className="text-2xl font-bold text-[#212282] mb-2">
-                Your Cart is Empty
-              </h1>
-              <p className="text-gray-500 mb-8">
-                Looks like you haven't added any items yet. Explore our menu and
-                build your perfect meal!
-              </p>
-              <Link 
-                to="/menu" 
-                className="inline-flex items-center gap-2 bg-[#E6411C] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#d13a18] transition-colors"
-              >
-                Browse Menu
-                <ChevronRight className="w-5 h-5" />
-              </Link>
-            </div>
+             <div className="max-w-md mx-auto py-12">
+               {/* Visual Circle */}
+               <div className="w-32 h-32 bg-secondary/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-secondary/10 relative">
+                 <ShoppingBag className="w-12 h-12 text-secondary/40" />
+                 <div className="absolute top-2 right-2 bg-background rounded-full p-2 border border-border shadow-sm">
+                    <span className="text-xl">🤔</span>
+                 </div>
+               </div>
+               
+               <h1 className="text-3xl font-bold text-foreground mb-3">
+                 Your Cart is Empty
+               </h1>
+               <p className="text-muted-foreground mb-8 text-lg">
+                 Looks like you haven't decided yet. Check out our menu for some delicious inspiration!
+               </p>
+               <Link to="/menu" className="btn-secondary inline-flex items-center gap-2 px-8 py-3 text-lg">
+                 Browse Menu
+                 <ChevronRight className="w-5 h-5" />
+               </Link>
+             </div>
           </div>
         </main>
         <Footer />
@@ -443,7 +454,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fcf9f8] pb-20 lg:pb-0">
+    <div className="min-h-screen bg-background pb-20 lg:pb-0">
       <SEO 
         title="Your Cart | 9Yards Food"
         description="Review your order of authentic Ugandan cuisine. Secure checkout with Mobile Money or Card. Fast delivery across Kampala."
@@ -451,35 +462,14 @@ export default function CartPage() {
       />
       <Header />
 
-      <main className="pt-16 sm:pt-[4.5rem] md:pt-20">
-        {/* Mobile Header - matches main Header height behavior */}
-        <div className="lg:hidden sticky top-16 sm:top-[4.5rem] md:top-20 z-30 h-14 sm:h-16 bg-[#fcf9f8]/95 backdrop-blur-md px-4 border-b border-gray-100">
-          <div className="flex items-center justify-between h-full">
-            <button 
-              onClick={() => navigate(-1)}
-              className="flex items-center justify-center p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-[#212282]" />
-            </button>
-            <h2 className="text-lg sm:text-xl font-bold text-[#212282]">My Cart</h2>
-            <button 
-              onClick={() => {
-                clearCart();
-                toast.success('Cart cleared');
-              }}
-              className="text-[#E6411C] text-sm font-bold hover:text-[#E6411C]/80 transition-colors"
-            >
-              Clear All
-            </button>
-          </div>
-        </div>
+      <main className="pt-16 md:pt-20">
+        <PageHeader 
+          title="Your Cart"
+          description={`Review your items (${state.items.length}) and checkout.`}
+          variant="compact"
+        />
 
-        <div className="container-custom section-padding">
-          {/* Desktop Title */}
-          <h1 className="hidden lg:block text-2xl md:text-3xl font-bold text-[#212282] mb-8">
-            Your Cart ({state.items.length} {state.items.length === 1 ? 'item' : 'items'})
-          </h1>
-
+        <div className="container-custom py-8 md:py-12">
           {/* Peak Hours Alert */}
           {peakHours && (
             <div className="mb-6 p-4 bg-orange-50 border border-orange-100 rounded-xl flex items-start gap-3">
@@ -490,9 +480,6 @@ export default function CartPage() {
                   Deliveries may take 15-20 mins longer than usual due to peak hours.
                 </p>
               </div>
-              <button className="text-gray-400 hover:text-gray-600">
-                <X className="w-5 h-5" />
-              </button>
             </div>
           )}
 
@@ -523,184 +510,215 @@ export default function CartPage() {
               )}
 
               {/* Cart Items */}
-              <div className="flex flex-col gap-4">
-                {state.items.map((item, index) => (
-                  <div key={item.id}>
-                    <div className="flex gap-4 items-start">
-                      <div className="shrink-0">
-                        <div className="h-[88px] w-[88px] rounded-2xl bg-gray-100 flex items-center justify-center">
-                          <UtensilsCrossed className="w-10 h-10 text-[#212282]" />
-                        </div>
-                      </div>
+              <div className="flex flex-col gap-6">
+                <div className="flex items-center justify-between pb-2 border-b border-border">
+                   <h3 className="font-bold text-foreground">Order Items</h3>
+                   <button 
+                      onClick={() => {
+                        clearCart();
+                        toast.success('Cart cleared');
+                      }}
+                      className="text-muted-foreground hover:text-destructive text-sm flex items-center gap-1 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Clear All
+                    </button>
+                </div>
 
-                      <div className="flex flex-1 flex-col justify-between min-h-[88px]">
-                        <div>
-                          <div className="flex justify-between items-start">
-                            <h3 className="text-[#212282] text-base font-bold leading-tight mb-1">
-                              {item.mainDishes.join(' + ')}{item.type !== 'single' ? ' Combo' : ''}
-                            </h3>
-                            <button 
-                              onClick={() => removeItem(item.id)}
-                              className="text-gray-400 hover:text-red-500 transition-colors -mt-1 -mr-2 p-2"
-                              aria-label="Remove item"
-                            >
-                              <Trash2 className="w-5 h-5" />
-                            </button>
-                          </div>
-                          <p className="text-gray-500 text-xs font-medium leading-normal line-clamp-1">
-                            {item.type === 'single' && item.description ? (
-                              item.description
-                            ) : (
-                              <>
-                                {item.sauce?.name}
-                                {(item.sauce?.preparation && item.sauce.preparation !== 'Default') || (item.sauce?.size && item.sauce.size !== 'Regular') ? (
-                                  <> ({[
-                                    item.sauce?.preparation !== 'Default' ? item.sauce?.preparation : null,
-                                    item.sauce?.size !== 'Regular' ? item.sauce?.size : null
-                                  ].filter(Boolean).join(', ')})</>
-                                ) : null}
-                                {item.sideDish ? ` + ${item.sideDish}` : ''}
-                              </>
-                            )}
-                          </p>
-                          {item.extras.length > 0 && (
-                            <p className="text-gray-500 text-xs italic mt-0.5">
-                              + {item.extras.map((e) => `${e.name} (${e.quantity})`).join(', ')}
-                            </p>
+                {state.items.map((item, index) => {
+                  const itemImage = getItemImage(item);
+                  return (
+                    <div key={item.id} className="group">
+                      <div className="flex gap-4 items-start">
+                        {/* Visual */}
+                        <div className="shrink-0 w-24 h-24 rounded-2xl bg-muted overflow-hidden border border-border relative">
+                          {itemImage ? (
+                            <OptimizedImage
+                              src={itemImage}
+                              alt={item.mainDishes.join(', ')}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                             <div className="w-full h-full flex items-center justify-center text-muted-foreground/30">
+                               <UtensilsCrossed className="w-8 h-8" />
+                             </div>
                           )}
                         </div>
+  
+                        <div className="flex flex-1 flex-col justify-between min-h-[96px]">
+                          <div>
+                            <div className="flex justify-between items-start mb-1">
+                              <h3 className="text-[#212282] text-base font-bold leading-tight line-clamp-2">
+                                {item.mainDishes.join(' + ')}{item.type !== 'single' ? ' Combo' : ''}
+                              </h3>
+                              <button 
+                                onClick={() => removeItem(item.id)}
+                                className="text-muted-foreground/50 hover:text-red-500 transition-colors p-1"
+                                aria-label="Remove item"
+                              >
+                                <X className="w-5 h-5" />
+                              </button>
+                            </div>
+                            
+                            {/* Descriptions */}
+                            <div className="text-sm text-muted-foreground space-y-1">
+                                {!item.description && item.sauce && (
+                                   <div className="flex items-center gap-2">
+                                      <span className="font-medium text-foreground">{item.sauce.name}</span>
+                                      {item.sauce.preparation && item.sauce.preparation !== 'Default' && (
+                                        <span className="text-xs bg-muted px-1.5 py-0.5 rounded">{item.sauce.preparation}</span>
+                                      )}
+                                   </div>
+                                )}
+                                {item.sideDish && (
+                                    <p className="text-xs">+ {item.sideDish}</p>
+                                )}
+                                {item.extras.length > 0 && (
+                                  <p className="text-xs italic text-[#E6411C]">
+                                    + {item.extras.map((e) => `${e.name} (${e.quantity})`).join(', ')}
+                                  </p>
+                                )}
+                            </div>
+                          </div>
+  
+                          <div className="flex items-center justify-between mt-3">
+                            <p className="text-[#E6411C] font-bold text-lg">
+                              {formatPrice(item.totalPrice * item.quantity)}
+                            </p>
+                            
+                            <div className="flex items-center gap-3">
+                              {/* Quantity Controls */}
+                              <div className="flex items-center gap-3 bg-muted rounded-full p-0.5 border border-border/50">
+                                <button 
+                                  onClick={() => item.quantity > 1 ? updateQuantity(item.id, item.quantity - 1) : removeItem(item.id)}
+                                  className="w-7 h-7 flex items-center justify-center rounded-full bg-background text-foreground hover:bg-white shadow-sm transition-all"
+                                >
+                                  <Minus className="w-3.5 h-3.5" />
+                                </button>
+                                <span className="w-6 text-center text-sm font-bold text-foreground">{item.quantity}</span>
+                                <button 
+                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                  className="w-7 h-7 flex items-center justify-center rounded-full bg-[#E6411C] text-white hover:bg-[#d13a18] shadow-sm transition-all"
+                                >
+                                  <Plus className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
 
-                        <div className="flex items-center justify-between mt-2">
-                          <p className="text-[#E6411C] font-bold text-base">
-                            {formatPrice(item.totalPrice * item.quantity)}
-                          </p>
-                          
-                          <div className="flex items-center bg-gray-100 rounded-full p-1 h-8">
-                            <button
-                              onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                              className="w-7 h-7 flex items-center justify-center rounded-full bg-white text-[#212282] border border-gray-200 transition-colors hover:bg-gray-50"
-                              aria-label="Decrease quantity"
-                            >
-                              <Minus className="w-4 h-4" />
-                            </button>
-                            <span className="w-8 text-center text-sm font-bold text-[#212282]">
-                              {item.quantity}
-                            </span>
-                            <button
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="w-7 h-7 flex items-center justify-center rounded-full bg-[#E6411C] text-white transition-colors hover:bg-[#d13a18]"
-                              aria-label="Increase quantity"
-                            >
-                              <Plus className="w-4 h-4" />
-                            </button>
+                              {/* Edit Button (Combos only) */}
+                              {item.type === 'combo' && (
+                                  <button
+                                      onClick={() => navigate('/menu', { state: { editItem: item } })}
+                                      className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors border border-blue-100"
+                                      title="Edit Combo"
+                                  >
+                                      <Pencil className="w-4 h-4" />
+                                  </button>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
+                      </div>
+                      {index < state.items.length - 1 && (
+                        <div className="h-px bg-border/40 w-full mt-6" />
+                      )}
                     </div>
-                    {index < state.items.length - 1 && (
-                      <div className="h-px bg-gray-100 w-full mt-4" />
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <Link
                 to="/menu"
-                className="inline-flex items-center gap-2 text-[#212282] font-medium hover:text-[#E6411C] transition-colors"
+                className="inline-flex items-center gap-2 text-[#212282] font-medium hover:text-[#E6411C] transition-colors py-2"
               >
                 <Plus className="w-4 h-4" />
                 Add More Items
               </Link>
-
-              {/* Promo Code - Mobile */}
-              <div className="lg:hidden mt-4 md:max-w-lg md:mx-auto w-full">
-                <h4 className="text-sm font-bold text-[#212282] mb-3">Promo Code</h4>
-                {promoResult?.valid ? (
-                  <div className="flex items-center justify-between p-3 bg-green-50 border border-green-100 rounded-lg">
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <div className="bg-green-100 p-1.5 rounded-full flex-shrink-0">
-                        <CheckCircle className="w-4 h-4 text-green-700" />
+              
+               {/* Mobile: Promo & Summary */}
+               <div className="lg:hidden space-y-6 pt-6 border-t border-border">
+                  {/* Promo Code - Mobile */}
+                  <div className="md:max-w-lg md:mx-auto w-full">
+                    <h4 className="text-sm font-bold text-[#212282] mb-3">Promo Code</h4>
+                    {promoResult?.valid ? (
+                      <div className="flex items-center justify-between p-3 bg-green-50 border border-green-100 rounded-lg">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <CheckCircle className="w-4 h-4 text-green-700 shrink-0" />
+                          <span className="text-sm font-semibold text-green-800 truncate">
+                            {promoResult.code} ({promoResult.message})
+                          </span>
+                        </div>
+                        <button onClick={handleRemovePromo} className="text-green-600 p-1"><X className="w-4 h-4"/></button>
                       </div>
-                      <span className="text-sm font-semibold text-green-800 truncate">
-                        {promoResult.code} ({promoResult.message})
-                      </span>
-                    </div>
-                    <button
-                      onClick={handleRemovePromo}
-                      className="text-green-600 hover:text-green-800 flex-shrink-0 ml-2"
-                      aria-label="Remove promo code"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+                    ) : (
+                      <div className="flex w-full items-center rounded-xl bg-gray-50 border border-gray-100 p-1 pl-3 transition-all">
+                        <Tag className="w-4 h-4 text-gray-400 shrink-0" />
+                        <input
+                          type="text"
+                          value={promoCode}
+                          onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                          placeholder="Discount code"
+                          className="flex-1 min-w-0 bg-transparent border-none text-foreground text-sm focus:ring-0 p-2"
+                        />
+                        <button
+                          onClick={handleApplyPromo}
+                          className="px-4 py-2 bg-[#212282] text-white rounded-lg text-sm font-bold hover:bg-[#1a1a6e]"
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="flex w-full items-center rounded-xl bg-gray-50 border border-gray-100 p-1 pl-3 focus-within:ring-2 focus-within:ring-[#E6411C]/20 transition-all overflow-hidden">
-                    <Tag className="w-5 h-5 text-gray-400 flex-shrink-0" />
-                    <input
-                      type="text"
-                      value={promoCode}
-                      onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                      placeholder="Enter discount code"
-                      className="flex-1 min-w-0 bg-transparent border-none text-[#212282] placeholder:text-gray-400 text-sm font-medium focus:ring-0 p-2"
-                    />
-                    <button
-                      onClick={handleApplyPromo}
-                      className="flex-shrink-0 px-3 py-2 bg-[#212282] text-white rounded-xl text-sm font-bold hover:bg-[#212282]/90 transition-colors"
-                    >
-                      Apply
-                    </button>
-                  </div>
-                )}
-              </div>
 
-              {/* Payment Summary - Mobile */}
-              <div className="lg:hidden mt-4 md:max-w-lg md:mx-auto w-full">
-                <h4 className="text-sm font-bold text-[#212282] mb-4">Payment Summary</h4>
-                <div className="flex flex-col gap-3">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-500 font-medium">Subtotal</span>
-                    <span className="text-[#212282] font-bold">{formatPrice(cartTotal)}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-500 font-medium">Delivery Fee</span>
-                    <span className="text-[#212282] font-bold">
-                      {qualifiesForFreeDelivery || (promoResult?.valid && promoResult.discountType === 'free_delivery') ? (
-                        <span className="text-green-600">FREE</span>
-                      ) : selectedZone ? (
-                        formatPrice(baseDeliveryFee)
-                      ) : (
-                        'Select zone'
+                  {/* Payment Summary - Mobile */}
+                  <div className="bg-muted/10 p-5 rounded-xl border border-border/50 md:max-w-lg md:mx-auto">
+                    <h4 className="text-sm font-bold text-[#212282] mb-4">Payment Summary</h4>
+                    <div className="space-y-3">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Subtotal</span>
+                        <span className="text-foreground font-bold">{formatPrice(cartTotal)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Delivery Fee</span>
+                        <span className="text-foreground font-bold">
+                          {qualifiesForFreeDelivery || (promoResult?.valid && promoResult.discountType === 'free_delivery') ? (
+                            <span className="text-green-600">FREE</span>
+                          ) : selectedZone ? (
+                            formatPrice(baseDeliveryFee)
+                          ) : (
+                            <span className="text-xs text-orange-500">Select zone below</span>
+                          )}
+                        </span>
+                      </div>
+                      {promoResult?.valid && promoResult.discountType !== 'free_delivery' && (
+                        <div className="flex justify-between text-sm text-green-600">
+                          <span>Discount</span>
+                          <span className="font-bold">-{formatPrice(discount)}</span>
+                        </div>
                       )}
-                    </span>
-                  </div>
-                  {promoResult?.valid && promoResult.discountType !== 'free_delivery' && (
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-green-600 font-medium">Discount</span>
-                      <span className="text-green-600 font-bold">-{formatPrice(discount)}</span>
+                      
+                      <div className="border-t border-dashed border-border pt-3 mt-3 flex justify-between items-end">
+                        <span className="text-foreground font-bold">Total</span>
+                        <span className="text-[#212282] font-black text-2xl">{formatPrice(total)}</span>
+                      </div>
                     </div>
-                  )}
-                  <div className="my-2 border-t border-dashed border-gray-300" />
-                  <div className="flex justify-between items-end">
-                    <span className="text-[#212282] font-bold text-base">Total</span>
-                    <span className="text-[#212282] font-extrabold text-2xl">{formatPrice(total)}</span>
                   </div>
-                </div>
-              </div>
+               </div>
 
               {/* Delivery Form Toggle - Mobile */}
-              <div className="lg:hidden mt-6 md:max-w-lg md:mx-auto w-full">
+              <div className="lg:hidden mt-2 md:max-w-lg md:mx-auto w-full">
                 <button
                   onClick={() => setShowDeliveryForm(!showDeliveryForm)}
-                  className="w-full flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200 shadow-sm"
+                  className="w-full flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200 shadow-sm transition-all"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#212282]/10 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-[#212282]/5 flex items-center justify-center">
                       <MapPin className="w-5 h-5 text-[#212282]" />
                     </div>
                     <div className="text-left">
                       <p className="text-sm font-bold text-[#212282]">Delivery Details</p>
                       <p className="text-xs text-gray-500">
-                        {selectedZone ? `${selectedZone} • ${estimatedDelivery}` : 'Add your delivery info'}
+                        {selectedZone ? `${selectedZone} • ${state.userPreferences.name || 'Details added'}` : 'Required to checkout'}
                       </p>
                     </div>
                   </div>
@@ -712,138 +730,12 @@ export default function CartPage() {
                 </button>
 
                 {showDeliveryForm && (
-                  <div id="delivery-form" className="mt-4 p-4 bg-white rounded-xl border border-gray-200 space-y-4">
-                    {/* Delivery Address - First (Smart Search) */}
-                    <div>
-                      <label className="text-sm font-medium text-[#212282] mb-2 block">
-                        Delivery Address *
-                      </label>
-                      <div className="relative">
-                        <div className="relative">
-                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                          <input
-                            type="text"
-                            value={addressQuery}
-                            onChange={(e) => {
-                              setAddressQuery(e.target.value);
-                              setUserPreferences({ address: e.target.value });
-                              setShowAddressSuggestions(true);
-                              if (errors.address) setErrors({ ...errors, address: '' });
-                            }}
-                            onFocus={() => setShowAddressSuggestions(true)}
-                            onBlur={() => {
-                              // Delay closing to allow clicking suggestions
-                              setTimeout(() => setShowAddressSuggestions(false), 200);
-                              setTouched({ ...touched, address: true });
-                            }}
-                            placeholder="Search area (e.g. Kololo, Kyengera)"
-                            className={`w-full pl-10 pr-3 py-3 rounded-xl border ${errors.address && touched.address ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]`}
-                          />
-                          {isSearchingAddress && (
-                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                              <Loader2 className="w-4 h-4 text-[#E6411C] animate-spin" />
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Address Suggestions Dropdown */}
-                        {showAddressSuggestions && addressSuggestions.length > 0 && (
-                          <div className="absolute z-50 w-full mt-1 bg-white rounded-xl border border-gray-100 overflow-hidden max-h-60 overflow-y-auto">
-                            {addressSuggestions.map((suggestion, index) => (
-                              <button
-                                key={index}
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  handleAddressSelect(suggestion);
-                                }}
-                                className="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 last:border-none transition-colors"
-                              >
-                                <p className="text-sm font-medium text-[#212282]">{suggestion.name}</p>
-                                <p className="text-xs text-gray-500 truncate">{suggestion.displayName}</p>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                        {errors.address && touched.address && (
-                        <p className="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
-                          <AlertTriangle className="w-3 h-3" /> {errors.address}
-                        </p>
-                      )}
-                      
-                      {/* Manual Zone Toggle */}
-                      {!selectedZone && !showZoneDropdown && (
-                        <button
-                          onClick={() => setShowZoneDropdown(true)}
-                          className="text-xs text-[#E6411C] font-semibold underline mt-2 hover:text-[#d13a18]"
-                        >
-                          Can't find your location? Select zone manually
-                        </button>
-                      )}
-                    </div>
-                    {/* Delivery Zone - Mobile (Only show if requested or selected) */}
-                    {(showZoneDropdown || selectedZone) && (
-                      <div>
-                        {/* Only show label/select if it's being manually selected OR if we want to show the specific dropdown. 
-                            Actually, if selectedZone exists, we previously showed a summary card. 
-                            Let's keep the summary card logic for consistency, but hide the SELECT unless requested. 
-                        */}
-                        {!selectedZone ? (
-                           <div>
-                            <label className="text-sm font-medium text-[#212282] mb-2 block">
-                              Delivery Zone *
-                            </label>
-                            <select
-                              value={selectedZone}
-                              onChange={(e) => {
-                                setSelectedZone(e.target.value);
-                                if (errors.zone) setErrors({ ...errors, zone: '' });
-                              }}
-                              onBlur={() => setTouched({ ...touched, zone: true })}
-                              className={`w-full p-3 rounded-xl border ${errors.zone && touched.zone ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]`}
-                            >
-                              <option value="">Select your delivery area...</option>
-                              {deliveryZones.map((zone) => (
-                                <option key={zone.name} value={zone.name}>
-                                  {zone.name} - {formatPrice(zone.fee)} ({zone.estimatedTime})
-                                </option>
-                              ))}
-                            </select>
-                            {errors.zone && touched.zone && (
-                              <p className="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
-                                <AlertTriangle className="w-3 h-3" /> {errors.zone}
-                              </p>
-                            )}
-                          </div>
-                        ) : (
-                          /* Summary Card when Zone is Selected */
-                          <div className="flex items-center justify-between p-3 bg-[#212282]/5 rounded-xl border border-[#212282]/10 mt-2">
-                            <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 rounded-full bg-[#212282]/10 flex items-center justify-center">
-                                <MapPin className="w-4 h-4 text-[#212282]" />
-                              </div>
-                              <div>
-                                <p className="text-xs text-gray-500 font-medium">Delivery Zone</p>
-                                <p className="text-sm font-bold text-[#212282]">{selectedZone}</p>
-                              </div>
-                            </div>
-                            <button 
-                              onClick={() => {
-                                setSelectedZone('');
-                                setShowZoneDropdown(true);
-                              }}
-                              className="text-xs font-bold text-[#E6411C] px-2 py-1 rounded hover:bg-[#E6411C]/10 transition-colors"
-                            >
-                              Change
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    <div>
-                      <label className="text-sm font-medium text-[#212282] mb-2 block">
-                        Your Name *
+                  <div id="delivery-form" className="mt-4 p-4 bg-white rounded-xl border border-gray-200 space-y-4 shadow-sm animate-in slide-in-from-top-2">
+                    {/* Re-using the same inputs as desktop but in a mobile container */}
+                     {/* 1. Name */}
+                     <div>
+                      <label className="text-xs font-bold text-gray-500 mb-1.5 block uppercase tracking-wide">
+                        Your Name
                       </label>
                       <input
                         type="text"
@@ -852,22 +744,18 @@ export default function CartPage() {
                           setUserPreferences({ name: e.target.value });
                           if (errors.name) setErrors({ ...errors, name: '' });
                         }}
-                        onBlur={() => setTouched({ ...touched, name: true })}
-                        placeholder="Enter your full name"
-                        className={`w-full p-3 rounded-xl border ${errors.name && touched.name ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]`}
+                        placeholder="e.g. John Doe"
+                        className={`w-full p-3 rounded-lg border ${errors.name ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-sm focus:ring-[#212282]`}
                       />
-                      {errors.name && touched.name && (
-                        <p className="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
-                          <AlertTriangle className="w-3 h-3" /> {errors.name}
-                        </p>
-                      )}
                     </div>
-                    <div>
-                      <label className="text-sm font-medium text-[#212282] mb-2 block">
-                        Phone Number *
+
+                    {/* 2. Phone */}
+                     <div>
+                      <label className="text-xs font-bold text-gray-500 mb-1.5 block uppercase tracking-wide">
+                        Phone Number
                       </label>
                       <div className="flex">
-                        <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-200 bg-gray-100 text-gray-500 text-sm font-medium">
+                        <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-200 bg-gray-100 text-gray-500 text-sm font-medium">
                           🇺🇬 +256
                         </span>
                         <input
@@ -877,160 +765,86 @@ export default function CartPage() {
                             setUserPreferences({ phone: e.target.value });
                             if (errors.phone) setErrors({ ...errors, phone: '' });
                           }}
-                          onBlur={() => setTouched({ ...touched, phone: true })}
                           placeholder="700 123 456"
-                          className={`flex-1 p-3 rounded-r-xl border ${errors.phone && touched.phone ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]`}
+                          className={`flex-1 p-3 rounded-r-lg border ${errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-sm focus:ring-[#212282]`}
                         />
                       </div>
-                      {errors.phone && touched.phone ? (
-                        <p className="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
-                          <AlertTriangle className="w-3 h-3" /> {errors.phone}
-                        </p>
-                      ) : (
-                        <p className="text-xs text-gray-400 mt-1">We'll call if we need directions.</p>
-                      )}
                     </div>
-                    <div>
-                      <label className="text-sm font-medium text-[#212282] mb-2 block">
-                        Delivery Address *
+
+                    {/* 3. Address Search */}
+                     <div className="relative">
+                      <label className="text-xs font-bold text-gray-500 mb-1.5 block uppercase tracking-wide">
+                        Delivery Address
                       </label>
                       <div className="relative">
-                        <div className="relative">
-                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                         <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
                           <input
                             type="text"
                             value={addressQuery}
                             onChange={(e) => {
-                              setAddressQuery(e.target.value);
-                              setUserPreferences({ address: e.target.value });
-                              setShowAddressSuggestions(true);
-                              if (errors.address) setErrors({ ...errors, address: '' });
+                                setAddressQuery(e.target.value);
+                                setUserPreferences({ address: e.target.value });
+                                setShowAddressSuggestions(true);
+                                if(errors.address) setErrors({...errors, address: ''});
                             }}
                             onFocus={() => setShowAddressSuggestions(true)}
-                            onBlur={() => {
-                              // Delay closing to allow clicking suggestions
-                              setTimeout(() => setShowAddressSuggestions(false), 200);
-                              setTouched({ ...touched, address: true });
-                            }}
+                            onBlur={() => setTimeout(() => setShowAddressSuggestions(false), 200)}
                             placeholder="Search area (e.g. Kololo)"
-                            className={`w-full pl-10 pr-3 py-3 rounded-xl border ${errors.address && touched.address ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]`}
+                            className={`w-full pl-9 p-3 rounded-lg border ${errors.address ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-sm`}
                           />
-                          {isSearchingAddress && (
-                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                              <Loader2 className="w-4 h-4 text-[#E6411C] animate-spin" />
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Address Suggestions Dropdown */}
-                        {showAddressSuggestions && addressSuggestions.length > 0 && (
-                          <div className="absolute z-50 w-full mt-1 bg-white rounded-xl border border-gray-100 overflow-hidden max-h-60 overflow-y-auto">
-                            {addressSuggestions.map((suggestion, index) => (
+                          {isSearchingAddress && <Loader2 className="absolute right-3 top-3 w-4 h-4 animate-spin text-primary" />}
+                      </div>
+                      {/* Suggestions (Mobile) */}
+                       {showAddressSuggestions && addressSuggestions.length > 0 && (
+                          <div className="absolute z-20 w-full mt-1 bg-white rounded-xl shadow-lg border border-gray-100 max-h-48 overflow-y-auto">
+                            {addressSuggestions.map((suggestion, idx) => (
                               <button
-                                key={index}
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  handleAddressSelect(suggestion);
-                                }}
-                                className="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 last:border-none transition-colors"
+                                key={idx}
+                                onClick={(e) => { e.preventDefault(); handleAddressSelect(suggestion); }}
+                                className="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 last:border-none"
                               >
-                                <p className="text-sm font-medium text-[#212282]">{suggestion.name}</p>
+                                <p className="text-sm font-medium">{suggestion.name}</p>
                                 <p className="text-xs text-gray-500 truncate">{suggestion.displayName}</p>
                               </button>
                             ))}
                           </div>
-                        )}
-                      </div>
-                      {errors.address && touched.address && (
-                        <p className="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
-                          <AlertTriangle className="w-3 h-3" /> {errors.address}
-                        </p>
-                      )}
+                       )}
                     </div>
-                    <div>
-                      <label className="text-sm font-medium text-[#212282] mb-2 block">
-                        Special Instructions (Optional)
-                      </label>
-                      <textarea
-                        value={specialInstructions}
-                        onChange={(e) => setSpecialInstructions(e.target.value)}
-                        placeholder="Gate code, landmark, special requests..."
-                        rows={2}
-                        className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C] resize-none"
-                      />
-                    </div>
+
+                    {/* 4. Zone Select (Only if needed) */}
+                    {(showZoneDropdown || !selectedZone) && (
+                         <div>
+                            <label className="text-xs font-bold text-gray-500 mb-1.5 block uppercase tracking-wide">
+                              Confirm Zone
+                            </label>
+                            <select
+                              value={selectedZone}
+                              onChange={(e) => { setSelectedZone(e.target.value); if(errors.zone) setErrors({...errors, zone:''}); }}
+                              className={`w-full p-3 rounded-lg border ${errors.zone ? 'border-red-500' : 'border-gray-200'} text-sm`}
+                            >
+                              <option value="">Select Zone...</option>
+                              {deliveryZones.map(z => <option key={z.name} value={z.name}>{z.name} ({formatPrice(z.fee)})</option>)}
+                            </select>
+                         </div>
+                    )}
                   </div>
                 )}
               </div>
-
-              {/* Mobile/Tablet Checkout Buttons - Integrated into flow */}
-              <div className="lg:hidden mt-8 p-6 bg-white rounded-2xl border border-gray-100 space-y-6 md:max-w-lg md:mx-auto">
-                <div className="text-center space-y-1">
-                  <h3 className="text-lg font-bold text-[#212282]">Checkout</h3>
-                  <p className="text-xs text-gray-500 uppercase tracking-widest font-black">Choose Payment Method</p>
-                </div>
-
-                <div className="space-y-3">
-                  {/* WhatsApp Button */}
-                  <button
-                    onClick={handleWhatsAppOrder}
-                    disabled={isProcessingPayment}
-                    className="w-full bg-[#25D366] text-white rounded-xl py-4 flex items-center justify-center gap-2 transition-transform active:scale-[0.98]"
-                  >
-                    <WhatsAppIcon className="w-5 h-5" />
-                    <span className="font-bold">Order via WhatsApp</span>
-                  </button>
-
-                  {/* Divider */}
-                  <div className="relative flex items-center py-2">
-                    <div className="flex-grow border-t border-gray-100"></div>
-                    <span className="mx-3 flex-shrink-0 text-[10px] font-black uppercase text-gray-300 tracking-widest">Or pay securely now</span>
-                    <div className="flex-grow border-t border-gray-100"></div>
-                  </div>
-
-                  {/* Pay Now Button */}
-                  <button
-                    onClick={handleOnlinePayment}
-                    disabled={isProcessingPayment}
-                    className="w-full bg-[#212282] text-white rounded-xl py-4 flex items-center justify-center gap-2 transition-transform active:scale-[0.98]"
-                  >
-                    {isProcessingPayment ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <CreditCard className="w-5 h-5" />
-                    )}
-                    <span className="font-bold">{isProcessingPayment ? 'Processing...' : 'Pay Now'}</span>
-                  </button>
-                </div>
-
-                {/* Security Footer */}
-                <div className="flex flex-col items-center gap-2 pt-2 border-t border-gray-50 mt-4">
-                  <div className="flex items-center gap-4 text-[9px] font-bold text-gray-300 uppercase tracking-widest">
-                    <span className="flex items-center gap-1">
-                      <Lock className="w-3 h-3" />
-                      Secure
-                    </span>
-                    <div className="w-1 h-1 rounded-full bg-gray-200" />
-                    <span className="flex items-center gap-1">
-                      <Shield className="w-3 h-3" />
-                      Encrypted
-                    </span>
-                  </div>
-                </div>
-              </div>
             </div>
 
-            {/* Order Summary - Desktop Sidebar */}
+            {/* Desktop Sidebar */}
             <div className="hidden lg:block lg:col-span-1">
-              <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm sticky top-28">
+              <div className="bg-white p-6 rounded-2xl border border-border shadow-sm sticky top-28">
                 <h2 className="text-lg font-bold text-[#212282] mb-6">
                   Order Summary
                 </h2>
 
-                {/* Free Delivery Progress - Desktop */}
                 {!qualifiesForFreeDelivery && (
-                  <div className="mb-6 p-4 bg-[#212282] rounded-xl overflow-hidden">
-                    <div className="flex justify-between items-start mb-3">
+                  <div className="mb-6 p-4 bg-[#212282] rounded-xl overflow-hidden relative">
+                    {/* Pattern Overlay */}
+                    <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -mr-10 -mt-10" />
+                    
+                    <div className="flex justify-between items-start mb-3 relative z-10">
                       <div>
                         <div className="flex items-center gap-2 mb-1">
                           <Truck className="w-4 h-4 text-[#E6411C]" />
@@ -1044,7 +858,7 @@ export default function CartPage() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2 relative z-10">
                       <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
                         <div 
                           className="h-full bg-[#E6411C] rounded-full transition-all"
@@ -1058,353 +872,159 @@ export default function CartPage() {
                   </div>
                 )}
 
-                {/* Manual Zone Toggle - Desktop */}
-                {!selectedZone && !showZoneDropdown && (
-                  <button
-                    onClick={() => setShowZoneDropdown(true)}
-                    className="text-xs text-[#E6411C] font-semibold underline mt-2 hover:text-[#d13a18]"
-                  >
-                    Can't find your location? Select zone manually
-                  </button>
-                )}
-
-                {/* Delivery Zone - Desktop (Hybrid) */}
-                {(showZoneDropdown || selectedZone) && (
-                  <div className="mb-6">
-                    {!selectedZone ? (
-                      <div>
-                        <label className="text-sm font-medium text-[#212282] mb-2 block">
-                          Delivery Zone *
-                        </label>
-                        <select
-                          value={selectedZone}
-                          onChange={(e) => {
-                            setSelectedZone(e.target.value);
-                            if (errors.zone) setErrors({ ...errors, zone: '' });
-                          }}
-                          onBlur={() => setTouched({ ...touched, zone: true })}
-                          className={`w-full p-3 rounded-xl border ${errors.zone && touched.zone ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]`}
-                        >
-                          <option value="">Select your delivery area...</option>
-                          {deliveryZones.map((zone) => (
-                            <option key={zone.name} value={zone.name}>
-                              {zone.name} - {formatPrice(zone.fee)} ({zone.estimatedTime})
-                            </option>
-                          ))}
-                        </select>
-                        {errors.zone && touched.zone && (
-                          <p className="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
-                            <AlertTriangle className="w-3 h-3" /> {errors.zone}
-                          </p>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-between p-3 bg-[#212282]/5 rounded-xl border border-[#212282]/10">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-[#212282]/10 flex items-center justify-center">
-                            <MapPin className="w-4 h-4 text-[#212282]" />
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500 font-medium">Delivery Zone</p>
-                            <p className="text-sm font-bold text-[#212282]">{selectedZone}</p>
-                          </div>
-                        </div>
-                        <button 
-                          onClick={() => {
-                            setSelectedZone('');
-                            setShowZoneDropdown(true);
-                          }}
-                          className="text-xs font-bold text-[#E6411C] px-2 py-1 rounded hover:bg-[#E6411C]/10 transition-colors"
-                        >
-                          Change
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Customer Info - Desktop */}
+                {/* Desktop Inputs */}
                 <div className="space-y-4 mb-6">
-                  <div>
-                    <label className="text-sm font-medium text-[#212282] mb-2 block">
-                      Your Name *
-                    </label>
-                    <input
-                      type="text"
-                      value={state.userPreferences.name}
-                      onChange={(e) => {
-                        setUserPreferences({ name: e.target.value });
-                        if (errors.name) setErrors({ ...errors, name: '' });
-                      }}
-                      onBlur={() => setTouched({ ...touched, name: true })}
-                      placeholder="Enter your full name"
-                      className={`w-full p-3 rounded-xl border ${errors.name && touched.name ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]`}
-                    />
-                    {errors.name && touched.name && (
-                      <p className="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
-                        <AlertTriangle className="w-3 h-3" /> {errors.name}
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-[#212282] mb-2 block">
-                      Phone Number *
-                    </label>
-                    <div className="flex">
-                      <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-200 bg-gray-100 text-gray-500 text-sm font-medium">
-                        🇺🇬 +256
-                      </span>
+                   <div>
+                      <label className="text-sm font-medium text-[#212282] mb-2 block">Your Name *</label>
                       <input
-                        type="tel"
-                        value={state.userPreferences.phone}
-                        onChange={(e) => {
-                          setUserPreferences({ phone: e.target.value });
-                          if (errors.phone) setErrors({ ...errors, phone: '' });
-                        }}
-                        onBlur={() => setTouched({ ...touched, phone: true })}
-                        placeholder="700 123 456"
-                        className={`flex-1 p-3 rounded-r-xl border ${errors.phone && touched.phone ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]`}
+                        type="text"
+                        value={state.userPreferences.name}
+                        onChange={(e) => { setUserPreferences({name: e.target.value}); if(errors.name) setErrors({...errors, name:''});}}
+                        onBlur={() => setTouched({...touched, name:true})}
+                        className={`w-full p-3 rounded-xl border ${errors.name && touched.name ? 'border-red-500 bg-red-50' : 'border-border bg-gray-50'} focus:ring-[#E6411C]`}
                       />
-                    </div>
-                    {errors.phone && touched.phone ? (
-                      <p className="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
-                        <AlertTriangle className="w-3 h-3" /> {errors.phone}
-                      </p>
-                    ) : (
-                      <p className="text-xs text-gray-400 mt-1">We'll call if we need directions.</p>
-                    )}
-                  </div>
-                {/* Customer Info - Desktop */}
-                <div className="space-y-4 mb-6">
-                  {/* Delivery Address - First (Smart Search) */}
-                  <div>
-                    <label className="text-sm font-medium text-[#212282] mb-2 block">
-                      Delivery Address *
-                    </label>
+                   </div>
+                   <div>
+                      <label className="text-sm font-medium text-[#212282] mb-2 block">Phone Number *</label>
+                      <div className="flex">
+                        <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-border bg-gray-100 text-gray-500 text-sm">🇺🇬 +256</span>
+                        <input
+                          type="tel"
+                          value={state.userPreferences.phone}
+                          onChange={(e) => { setUserPreferences({phone: e.target.value}); if(errors.phone) setErrors({...errors, phone:''});}}
+                          onBlur={() => setTouched({...touched, phone:true})}
+                          className={`flex-1 p-3 rounded-r-xl border ${errors.phone && touched.phone ? 'border-red-500 bg-red-50' : 'border-border bg-gray-50'}`}
+                        />
+                      </div>
+                   </div>
+                   
+                   {/* Address Desktop */}
                     <div className="relative">
-                      <div className="relative">
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <input
-                          type="text"
-                          value={addressQuery}
-                          onChange={(e) => {
-                            setAddressQuery(e.target.value);
-                            setUserPreferences({ address: e.target.value });
-                            setShowAddressSuggestions(true);
-                            if (errors.address) setErrors({ ...errors, address: '' });
-                          }}
-                          onFocus={() => setShowAddressSuggestions(true)}
-                          onBlur={() => {
-                            setTimeout(() => setShowAddressSuggestions(false), 200);
-                            setTouched({ ...touched, address: true });
-                          }}
-                          placeholder="Search area (e.g. Kololo, Kyengera)"
-                          className={`w-full pl-10 pr-3 py-3 rounded-xl border ${errors.address && touched.address ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C]`}
-                        />
-                        {isSearchingAddress && (
-                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                            <Loader2 className="w-4 h-4 text-[#E6411C] animate-spin" />
+                       <label className="text-sm font-medium text-[#212282] mb-2 block">Delivery Address *</label>
+                       <div className="relative">
+                          <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+                          <input
+                            value={addressQuery}
+                            onChange={(e) => {
+                                setAddressQuery(e.target.value);
+                                setUserPreferences({ address: e.target.value });
+                                setShowAddressSuggestions(true);
+                                if(errors.address) setErrors({...errors, address:''});
+                            }}
+                            onFocus={() => setShowAddressSuggestions(true)}
+                            onBlur={() => setTimeout(() => setShowAddressSuggestions(false), 200)}
+                            className={`w-full pl-9 p-3 rounded-xl border ${errors.address && touched.address ? 'border-red-500' : 'border-border bg-gray-50'}`}
+                            placeholder="Search location"
+                          />
+                          {/* Desktop Suggestions */}
+                          {showAddressSuggestions && addressSuggestions.length > 0 && (
+                            <div className="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-xl border border-gray-100 max-h-60 overflow-y-auto">
+                              {addressSuggestions.map((s, i) => (
+                                <button key={i} onClick={(e) => {e.preventDefault(); handleAddressSelect(s);}} className="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100">
+                                   <p className="text-sm font-medium">{s.name}</p>
+                                   <p className="text-xs text-gray-500 truncate">{s.displayName}</p>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                       </div>
+                    </div>
+
+                    {/* Zone Desktop */}
+                    <div>
+                       {!selectedZone ? (
+                          <div className="mt-2">
+                             <select 
+                                value={selectedZone}
+                                onChange={(e) => setSelectedZone(e.target.value)}
+                                className="w-full p-3 rounded-xl border border-border bg-gray-50 text-sm"
+                             >
+                               <option value="">Select Delivery Zone...</option>
+                               {deliveryZones.map(z => <option key={z.name} value={z.name}>{z.name} - {formatPrice(z.fee)}</option>)}
+                             </select>
                           </div>
-                        )}
-                      </div>
-                      
-                      {/* Address Suggestions Dropdown */}
-                      {showAddressSuggestions && addressSuggestions.length > 0 && (
-                        <div className="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden max-h-60 overflow-y-auto">
-                          {addressSuggestions.map((suggestion, index) => (
-                            <button
-                              key={index}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                handleAddressSelect(suggestion);
-                              }}
-                              className="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 last:border-none transition-colors"
-                            >
-                              <p className="text-sm font-medium text-[#212282]">{suggestion.name}</p>
-                              <p className="text-xs text-gray-500 truncate">{suggestion.displayName}</p>
-                            </button>
-                          ))}
-                        </div>
-                      )}
+                       ) : (
+                          <div className="flex items-center justify-between p-3 bg-[#212282]/5 rounded-xl border border-[#212282]/10 mt-2">
+                             <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-full bg-[#212282]/10 flex items-center justify-center">
+                                  <MapPin className="w-4 h-4 text-[#212282]" />
+                                </div>
+                                <div>
+                                  <p className="text-xs text-gray-500 font-medium">Delivery Zone</p>
+                                  <p className="text-sm font-bold text-[#212282]">{selectedZone}</p>
+                                </div>
+                             </div>
+                             <button onClick={() => setSelectedZone('')} className="text-xs font-bold text-[#E6411C]">Change</button>
+                          </div>
+                       )}
                     </div>
-                    {errors.address && touched.address && (
-                      <p className="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
-                        <AlertTriangle className="w-3 h-3" /> {errors.address}
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-[#212282] mb-2 block">
-                      Special Instructions (Optional)
-                    </label>
-                    <textarea
-                      value={specialInstructions}
-                      onChange={(e) => setSpecialInstructions(e.target.value)}
-                      placeholder="Gate code, landmark, special requests..."
-                      rows={2}
-                      className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-[#212282] focus:outline-none focus:ring-2 focus:ring-[#E6411C]/20 focus:border-[#E6411C] resize-none"
-                    />
-                  </div>
                 </div>
-
-                {/* Promo Code - Desktop */}
+                
+                {/* Desktop Promo */}
                 <div className="mb-6">
-                  <label className="text-sm font-medium text-[#212282] mb-2 block">
-                    Promo Code
-                  </label>
-                  {promoResult?.valid ? (
-                    <div className="flex items-center justify-between p-3 bg-green-50 border border-green-100 rounded-xl">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <div className="bg-green-100 p-1.5 rounded-full flex-shrink-0">
-                          <CheckCircle className="w-4 h-4 text-green-700" />
-                        </div>
-                        <span className="text-sm font-semibold text-green-800 truncate">
-                          {promoResult.code}
-                        </span>
+                   <label className="text-sm font-medium text-[#212282] mb-2 block">Promo Code</label>
+                   {promoResult?.valid ? (
+                      <div className="flex items-center justify-between p-3 bg-green-50 border border-green-100 rounded-xl">
+                        <span className="text-sm font-bold text-green-700">{promoResult.code} Applied</span>
+                        <button onClick={handleRemovePromo}><X className="w-4 h-4 text-green-600"/></button>
                       </div>
-                      <span className="text-green-700 text-sm font-bold flex-shrink-0 ml-2">-{formatPrice(discount)}</span>
-                    </div>
-                  ) : (
-                    <div className="flex gap-2 w-full">
-                      <div className="flex-1 min-w-0 flex items-center rounded-xl bg-gray-50 border border-gray-200 pl-3 overflow-hidden">
-                        <Tag className="w-5 h-5 text-gray-400 flex-shrink-0" />
-                        <input
-                          type="text"
-                          value={promoCode}
-                          onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                          placeholder="Enter discount code"
-                          className="flex-1 min-w-0 p-3 bg-transparent border-none text-[#212282] focus:ring-0 placeholder:text-gray-400 text-sm"
-                        />
+                   ) : (
+                      <div className="flex gap-2">
+                         <input 
+                            value={promoCode}
+                            onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                            placeholder="Code"
+                            className="flex-1 p-2 rounded-xl border border-border bg-gray-50"
+                         />
+                         <button onClick={handleApplyPromo} className="px-4 bg-[#212282] text-white rounded-xl font-bold">Apply</button>
                       </div>
-                      <button
-                        onClick={handleApplyPromo}
-                        className="flex-shrink-0 px-4 py-2 bg-[#212282] text-white rounded-xl font-bold hover:bg-[#212282]/90 transition-colors"
-                      >
-                        Apply
-                      </button>
-                    </div>
-                  )}
+                   )}
                 </div>
 
-                {/* Price Breakdown - Desktop */}
-                <div className="space-y-3 mb-6 pt-4 border-t border-gray-200">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Subtotal</span>
-                    <span className="text-[#212282] font-semibold">{formatPrice(cartTotal)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Delivery Fee</span>
-                    <span className="text-[#212282] font-semibold">
-                      {qualifiesForFreeDelivery || (promoResult?.valid && promoResult.discountType === 'free_delivery') ? (
-                        <span className="text-green-600 font-bold">FREE</span>
-                      ) : selectedZone ? (
-                        formatPrice(baseDeliveryFee)
-                      ) : (
-                        'Select zone'
-                      )}
-                    </span>
-                  </div>
-                  {promoResult?.valid && promoResult.discountType !== 'free_delivery' && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-green-600">Discount</span>
-                      <span className="text-green-600 font-bold">
-                        -{formatPrice(discount)}
+                {/* Desktop Totals */}
+                <div className="space-y-3 mb-6 pt-4 border-t border-border">
+                   <div className="flex justify-between text-sm text-gray-500"><span>Subtotal</span><span>{formatPrice(cartTotal)}</span></div>
+                   <div className="flex justify-between text-sm text-gray-500">
+                      <span>Delivery</span>
+                      <span className="text-foreground font-semibold">
+                         {qualifiesForFreeDelivery ? <span className="text-green-600">FREE</span> : (selectedZone ? formatPrice(baseDeliveryFee) : '-')}
                       </span>
-                    </div>
-                  )}
-                  <div className="flex justify-between pt-3 border-t border-dashed border-gray-300">
-                    <span className="font-bold text-[#212282]">Total</span>
-                    <span className="font-extrabold text-xl text-[#E6411C]">
-                      {formatPrice(total)}
-                    </span>
-                  </div>
+                   </div>
+                   {discount > 0 && (
+                      <div className="flex justify-between text-sm text-green-600"><span>Discount</span><span>-{formatPrice(discount)}</span></div>
+                   )}
+                   <div className="flex justify-between pt-3 border-t border-dashed border-gray-300">
+                      <span className="font-bold text-[#212282] text-lg">Total</span>
+                      <span className="font-extrabold text-2xl text-[#E6411C]">{formatPrice(total)}</span>
+                   </div>
                 </div>
 
-                {/* Checkout Buttons - Desktop */}
-                <div className="space-y-4">
-                  {/* Section Header */}
-                  <div className="text-center space-y-1">
-                    <h3 className="text-lg font-bold text-[#212282]">Choose Your Payment Method</h3>
-                    <p className="text-sm text-gray-500">Select the option that works best for you.</p>
-                  </div>
-
-                  {/* WhatsApp Button */}
-                  <div className="space-y-2">
-                    <button
-                      onClick={handleWhatsAppOrder}
-                      disabled={isProcessingPayment}
-                      className="w-full bg-[#25D366] text-white rounded-xl py-3.5 px-4 flex items-center justify-center gap-2 transition-colors hover:bg-[#22c55e] disabled:opacity-50"
-                    >
-                      <WhatsAppIcon className="w-5 h-5" />
-                      <span className="font-bold">Order via WhatsApp</span>
-                    </button>
-                    <p className="text-xs text-gray-500 text-center leading-relaxed">
-                      Quick & easy. Opens WhatsApp with your order ready to send. Pay when you receive your food.
-                    </p>
-                  </div>
-
-                  {/* Divider */}
-                  <div className="relative flex items-center py-2">
-                    <div className="flex-grow border-t border-gray-200"></div>
-                    <span className="mx-4 flex-shrink-0 text-xs font-semibold uppercase text-gray-400">Or pay securely now</span>
-                    <div className="flex-grow border-t border-gray-200"></div>
-                  </div>
-
-                  {/* Pay Now Button */}
-                  <div className="space-y-2">
-                    <button
-                      onClick={handleOnlinePayment}
-                      disabled={isProcessingPayment}
-                      className="w-full bg-[#212282] text-white rounded-xl py-3.5 px-4 flex items-center justify-center gap-2 transition-colors hover:bg-[#1a1a6e] disabled:opacity-50"
-                    >
-                      {isProcessingPayment ? (
-                        <>
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                          <span className="font-bold">Processing...</span>
-                        </>
-                      ) : (
-                        <>
-                          <CreditCard className="w-5 h-5" />
-                          <span className="font-bold">Pay Now</span>
-                        </>
-                      )}
-                    </button>
-                    <p className="text-xs text-gray-500 text-center leading-relaxed">
-                      Pay securely via MTN/Airtel Mobile Money or Card.
-                    </p>
-                    {/* Trust Badge */}
-                    <div className="flex justify-center mt-2">
-                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wide border border-gray-200 rounded px-2 py-1">
-                        <Shield className="w-3 h-3" />
-                        Secured by Flutterwave
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Security Footer */}
+                {/* Desktop Actions */}
+                <button
+                  onClick={handleWhatsAppOrder}
+                  className="w-full bg-[#25D366] text-white rounded-xl py-3.5 mb-3 flex items-center justify-center gap-2 hover:bg-[#22c55e] transition-colors font-bold shadow-lg shadow-green-500/20"
+                >
+                  <WhatsAppIcon className="w-5 h-5" /> Order via WhatsApp
+                </button>
+                <button
+                  onClick={handleOnlinePayment}
+                  className="w-full bg-[#212282] text-white rounded-xl py-3.5 flex items-center justify-center gap-2 hover:bg-[#1a1a6e] transition-colors font-bold"
+                >
+                  <CreditCard className="w-5 h-5" /> Pay Now
+                </button>
                 <div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-gray-400">
-                  <span className="flex items-center gap-1">
-                    <Lock className="w-3 h-3" />
-                    100% Secure Payments
-                  </span>
-                  <span>•</span>
-                  <span className="flex items-center gap-1">
-                    <Shield className="w-3 h-3" />
-                    Your Data is Protected
-                  </span>
+                   <Shield className="w-3 h-3" /> Secure Checkout
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
       </main>
 
       <Footer />
       
       {/* Sticky Mobile Checkout Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 p-4 safe-area-pb shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-100 p-4 safe-area-pb shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
         <div className="flex items-center gap-4">
           <div className="flex-1">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-0.5">Total</p>
@@ -1412,14 +1032,11 @@ export default function CartPage() {
           </div>
           <button
             onClick={() => {
-              // If form is not visible, show it first
               if (!showDeliveryForm) {
                 setShowDeliveryForm(true);
                 toast.info('Please confirm your delivery details');
-                // Scroll to delivery toggle
                 setTimeout(() => {
-                  const element = document.getElementById('delivery-form') || document.querySelector('button[class*="items-center justify-between"]');
-                  element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  document.getElementById('delivery-form')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }, 100);
               } else {
                 handleWhatsAppOrder();
