@@ -1,7 +1,7 @@
 import { X, ArrowLeft, Phone, MoreVertical, Check } from 'lucide-react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { WHATSAPP_NUMBER, PHONE_NUMBER } from '@/lib/constants';
+import { WHATSAPP_NUMBER, PHONE_NUMBER, BUSINESS_HOURS } from '@/lib/constants';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import { useCart } from '@/context/CartContext';
 import { useGuest } from '@/context/GuestContext';
@@ -739,7 +739,84 @@ export default function FloatingWhatsApp({
     // Default: escalate with empathy
     // NEW: Smart Search & Delivery Estimator Logic
     
-    // 1. Delivery Estimator
+    // 0. Operating Hours Check (Genius Mode)
+    const currentHour = new Date().getHours();
+    const isClosed = currentHour < 10 || currentHour >= 22; // 10 AM to 10 PM
+    if (isClosed) {
+       addBotMessage({
+         type: 'received',
+         content: `We're currently closed 🌙\n\nOur hours are ${BUSINESS_HOURS.open} - ${BUSINESS_HOURS.close}.\nYou can still browse the menu for tomorrow!`,
+         options: [
+           { key: '1', label: 'Browse Menu 🌙', action: 'navigate', data: '/menu' },
+           { key: '2', label: 'Leave a Message', action: 'whatsapp', data: `${getGreeting()}! I know you're closed, but...` }
+         ]
+       }, 500);
+       // Don't return, let them continue if they really want, or maybe we should return? 
+       // Better to let them browse, but we warned them.
+       // Actually, let's just return to not trigger other logic that implies immediate service
+       // But we still want to allow simple navigation commands.
+       // For now, let's return to prevent "ordering" confusion.
+       return;
+    }
+
+    // 1. Sentiment Recovery (Genius Mode)
+    const negativeKeywords = ['angry', 'late', 'bad', 'waiting', 'slow', 'wrong', 'cold'];
+    if (negativeKeywords.some(k => lower.includes(k))) {
+       addUserMessage(input);
+       addBotMessage({
+         type: 'received',
+         content: `I'm so sorry to hear that 😟\n\nThis doesn't sound like the 9Yards standard. Let me connect you to our Manager IMMEDIATELY.`,
+         options: [
+           { key: '1', label: '🚨 Priority Support', action: 'whatsapp', data: `URGENT: I am unhappy about: ${input}` },
+           { key: '2', label: '📞 Call Manager', action: 'call' }
+         ]
+       }, 400);
+       return;
+    }
+
+    // 2. Dietary Smart Filter (Genius Mode)
+    if (lower.includes('vegan') || lower.includes('vegetarian')) {
+       addUserMessage(input);
+       addBotMessage({
+         type: 'received',
+         content: `🌱 **Plant-Based Options**\n\nI recommend our fresh **Garden Salad** or **Vegetable Stir Fry**! Also, our fruit juices are 100% natural. 🍊`,
+         options: [
+           { key: '1', label: 'View Salads', action: 'navigate', data: '/menu' },
+           { key: '2', label: 'View Juices', action: 'navigate', data: '/menu' }
+         ]
+       });
+       return;
+    }
+    if (lower.includes('pork')) {
+       addUserMessage(input);
+       addBotMessage({
+         type: 'received',
+         content: `🍖 **Pork Options**\n\nYes! We have delicious **BBQ Pork Ribs** available on weekends and special request.`,
+         options: [
+           { key: '1', label: 'Ask about Ribs', action: 'whatsapp', data: 'Is the BBQ Pork available today?' },
+           { key: '0', label: 'Back to Menu', action: 'start' }
+         ]
+       });
+       return;
+    }
+
+    // 3. Combo Builder (Genius Mode)
+    if (lower.includes(' and ') && lower.length < 30) {
+      // E.g. "Chicken and Rice"
+      addUserMessage(input);
+      // Simple heuristic: recommend a combo
+      addBotMessage({
+         type: 'received',
+         content: `💡 **Smart Tip!**\n\nInstead of ordering separately, check out our **Combos**! They include main + side + drink for a better price. 💰`,
+         options: [
+           { key: '1', label: 'View Combos', action: 'navigate', data: '/menu' },
+           { key: '0', label: 'No, just browsing', action: 'start' }
+         ]
+      });
+      return;
+    }
+
+    // 4. Delivery Estimator
     const deliveryZoneMatch = deliveryZones.find(z => input.toLowerCase().includes(z.name.toLowerCase()));
     if (deliveryZoneMatch) {
        addUserMessage(input);
