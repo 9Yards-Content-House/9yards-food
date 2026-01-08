@@ -901,7 +901,7 @@ export default function MenuPage() {
       <Footer />
 
       {/* Sticky Build Combo Button (Mobile) */}
-      <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 lg:hidden w-auto">
+      <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 lg:hidden w-auto sm:bottom-32">
         <button
           onClick={() => setIsComboBuilderOpen(true)}
           className="bg-primary text-primary-foreground font-bold px-6 py-3 rounded-full shadow-xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-transform"
