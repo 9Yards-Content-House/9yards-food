@@ -279,6 +279,20 @@ export default function FloatingWhatsApp({
         ? `${getGreeting()}, ${userName}! 👋`
         : `${getGreeting()}! ${getRandomItem(greetingVariations.map(g => g.replace('👋', '')))}`;
       
+      // If items in cart, show simplified cart flow immediately
+      if (cartItemCount > 0) {
+        addBotMessage({
+          type: 'received',
+          content: `${personalGreeting}\n\nYou have ${cartItemCount} item${cartItemCount > 1 ? 's' : ''} waiting in your cart. Ready to complete your order?`,
+          options: [
+            { key: '1', label: 'View Cart 🛒', action: 'navigate', data: '/cart' },
+            { key: '2', label: 'Add More Items', action: 'navigate', data: '/menu' },
+            { key: '3', label: 'Main Menu', action: 'start' }
+          ]
+        });
+        return; // Skip normal welcome flow
+      }
+
       const helpText = getRandomItem(helpPhrases);
       
       addBotMessage({
@@ -684,20 +698,20 @@ export default function FloatingWhatsApp({
           >
             
             {/* Header */}
-            <div className="bg-[#075E54] px-4 py-2.5 sm:py-3 flex items-center gap-3 shrink-0">
+            <div className="bg-[#008069] px-4 py-3 flex items-center gap-3 shrink-0 shadow-sm">
               <button onClick={() => setIsOpen(false)} className="sm:hidden w-9 h-9 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors -ml-2">
-                <ArrowLeft className="w-5 h-5 text-white" />
+                <ArrowLeft className="w-6 h-6 text-white" />
               </button>
               
-              <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white overflow-hidden shrink-0 ring-2 ring-white/20">
+              <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white overflow-hidden shrink-0 ring-2 ring-white/20">
                 <img src="/images/logo/9Yards-Food-White-Logo-colored.png" alt="9Yards Food" className="w-full h-full object-contain p-0.5" />
               </div>
               
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <h3 className="text-white font-medium text-[15px] sm:text-base leading-tight">9Yards Food</h3>
+                  <h3 className="text-white font-bold text-[17px] leading-tight">9Yards Food</h3>
                 </div>
-                <p className="text-white/90 text-[11px] sm:text-xs leading-tight">
+                <p className="text-white/90 text-[13px] leading-tight font-medium">
                   {isTyping ? 'typing...' : 'online'}
                 </p>
               </div>
@@ -707,7 +721,7 @@ export default function FloatingWhatsApp({
                   <Phone className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
                 <button onClick={() => setIsOpen(false)} className="hidden sm:block text-white/90 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full">
-                  <MoreVertical className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <X className="w-6 h-6" />
                 </button>
               </div>
             </div>
@@ -726,23 +740,23 @@ export default function FloatingWhatsApp({
 
               {messages.map((message) => (
                 <div key={message.id} className={`flex ${message.type === 'sent' ? 'justify-end' : 'justify-start'} mb-1`}>
-                  <div className={`relative rounded-lg shadow-sm px-2.5 py-2 max-w-[88%] sm:max-w-[82%] ${message.type === 'sent' ? 'bg-[#d9fdd3]' : 'bg-white'}`}>
-                    <p className="text-[#303030] text-[13.5px] sm:text-[14.2px] leading-[1.45] whitespace-pre-wrap">{message.content}</p>
+                  <div className={`relative rounded-xl shadow-sm px-3 py-2.5 max-w-[88%] sm:max-w-[85%] ${message.type === 'sent' ? 'bg-[#d9fdd3]' : 'bg-white'}`}>
+                    <p className="text-[#111b21] text-[15px] leading-[1.5] whitespace-pre-wrap">{message.content}</p>
                     
                     {message.options && message.options.length > 0 && (
-                      <div className="flex flex-col gap-1.5 mt-2.5">
+                      <div className="flex flex-wrap gap-2 mt-2.5">
                         {message.options.map((option, idx) => (
                           <button
                             key={idx}
                             onClick={() => handleOptionSelect(option)}
-                            className="text-left px-2.5 py-2 bg-[#f0f2f5] hover:bg-[#e4e6eb] rounded-lg text-[12.5px] sm:text-[13px] text-[#075E54] font-medium transition-colors active:scale-[0.98]"
+                            className="text-center px-4 py-2 bg-white hover:bg-gray-50 border border-gray-200 hover:border-[#008069]/40 rounded-full text-[13.5px] font-medium text-[#008069] transition-all active:scale-[0.98]"
                           >
                             {option.label}
                           </button>
                         ))}
                       </div>
                     )}
-                    
+
                     <div className="flex items-center justify-end gap-1 mt-1">
                       <span className="text-[10.5px] text-[#667781]">{message.time}</span>
                       {message.type === 'sent' && (
