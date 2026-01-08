@@ -56,11 +56,12 @@ export default {
         "yards-cyan": "hsl(190, 70%, 45%)",
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-        "2xl": "1rem",
-        "3xl": "1.5rem",
+        lg: "var(--radius)",                  // 16px
+        md: "calc(var(--radius) - 4px)",      // 12px
+        sm: "calc(var(--radius) - 8px)",      // 8px
+        xl: "calc(var(--radius) + 4px)",      // 20px
+        "2xl": "calc(var(--radius) + 8px)",   // 24px
+        "3xl": "calc(var(--radius) + 16px)",  // 32px
       },
       keyframes: {
         "accordion-down": {
