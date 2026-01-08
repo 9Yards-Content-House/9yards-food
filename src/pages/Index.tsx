@@ -3,6 +3,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 
 import HeroSection from '@/components/home/HeroSection';
+import RecommendedSection from '@/components/home/RecommendedSection';
 import HowItWorksSection from '@/components/home/HowItWorksSection';
 import PopularDishesSection from '@/components/home/PopularDishesSection';
 import WhyChooseUsSection from '@/components/home/WhyChooseUsSection';
@@ -98,9 +99,6 @@ export default function Index() {
       <Header />
       <main>
         <HeroSection />
-        
-
-
         <HowItWorksSection />
         <PopularDishesSection />
         <WhyChooseUsSection />

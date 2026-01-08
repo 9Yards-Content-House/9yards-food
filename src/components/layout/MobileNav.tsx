@@ -12,16 +12,24 @@ const navItems = [
   { href: '/cart', icon: ShoppingCart, label: 'Cart', showBadge: true },
 ];
 
-export default function MobileNav() {
+export interface MobileNavProps {
+  onChatClick?: () => void;
+}
+
+export default function MobileNav({ onChatClick }: MobileNavProps) {
   const location = useLocation();
   const { cartCount } = useCart();
   const [moreSheetOpen, setMoreSheetOpen] = useState(false);
 
   const handleWhatsAppClick = () => {
-    const hour = new Date().getHours();
-    const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-    const message = `${greeting}! I'd like to place an order from 9Yards Food.`;
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
+    if (onChatClick) {
+      onChatClick();
+    } else {
+      const hour = new Date().getHours();
+      const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+      const message = `${greeting}! I'd like to place an order from 9Yards Food.`;
+      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
+    }
   };
 
   return (

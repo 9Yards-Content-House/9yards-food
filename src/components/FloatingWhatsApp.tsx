@@ -51,8 +51,31 @@ const helpPhrases = [
   "What would you like to do?"
 ];
 
-export default function FloatingWhatsApp() {
-  const [isOpen, setIsOpen] = useState(false);
+export interface FloatingWhatsAppProps {
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export default function FloatingWhatsApp({ 
+  isOpen: controlledIsOpen, 
+  onOpenChange 
+}: FloatingWhatsAppProps = {}) {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  
+  // Use controlled state if provided, otherwise internal state
+  const isControlled = controlledIsOpen !== undefined;
+  const isOpen = isControlled ? controlledIsOpen : internalIsOpen;
+  
+  // Helper to handle state updates
+  const setIsOpen = useCallback((value: boolean | ((prev: boolean) => boolean)) => {
+    if (isControlled && onOpenChange) {
+      const newValue = typeof value === 'function' ? value(isOpen!) : value;
+      onOpenChange(newValue);
+    } else {
+      setInternalIsOpen(value);
+    }
+  }, [isControlled, onOpenChange, isOpen]);
+
   const [typingMessage, setTypingMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -633,7 +656,7 @@ export default function FloatingWhatsApp() {
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-24 right-4 z-[100] w-14 h-14 sm:w-16 sm:h-16 sm:bottom-32 lg:bottom-8 lg:right-6 bg-[#25D366] hover:bg-[#20ba5a] rounded-full flex items-center justify-center shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
+        className="hidden lg:flex fixed bottom-24 right-4 z-[100] w-14 h-14 sm:w-16 sm:h-16 sm:bottom-32 lg:bottom-8 lg:right-6 bg-[#25D366] hover:bg-[#20ba5a] rounded-full items-center justify-center shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
         aria-label="Chat with us"
       >
         {isOpen ? (

@@ -41,6 +41,7 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
     setSelectedSideDish('');
     setSelectedJuices([]);
     setSelectedDesserts([]);
+    
     localStorage.removeItem(DRAFT_KEY);
     setShowDraftBanner(false);
   };
@@ -90,6 +91,8 @@ export default function ComboBuilder({ isOpen, onClose }: ComboBuilderProps) {
       setIsDraftLoaded(true);
     }
   }, [isOpen, isDraftLoaded]);
+
+
 
   // Auto-close draft banner
   useEffect(() => {

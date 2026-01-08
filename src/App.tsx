@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -49,7 +49,10 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = () => (
+const App = () => {
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
+  return (
   <QueryClientProvider client={queryClient}>
     <CartProvider>
       <GuestProvider>
@@ -77,16 +80,17 @@ const App = () => (
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
-              <FloatingWhatsApp />
+              <FloatingWhatsApp isOpen={isChatOpen} onOpenChange={setIsChatOpen} />
               <PWAInstallPrompt />
-              <MobileNav />
+              <MobileNav onChatClick={() => setIsChatOpen(prev => !prev)} />
             </ErrorBoundary>
           </BrowserRouter>
         </TooltipProvider>
       </GuestProvider>
     </CartProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
 

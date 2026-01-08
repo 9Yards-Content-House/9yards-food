@@ -57,8 +57,9 @@ const categoryConfig: Record<
 // Item descriptions for better context
 const itemDescriptions: Record<string, string> = {
   // Lusaniya items
-  "whole-chicken-lusaniya": "Full chicken mixed with Pilao and Kachumbari",
-  "beef-lusaniya": "Cow beef with pilao and Kachumbari",
+  "whole-chicken-pilao-lusaniya": "Full chicken mixed with Pilao and Kachumbari",
+  "beef-pilao-lusaniya": "Cow beef with pilao and Kachumbari",
+  "ordinary-lusaniya": "Signature combo with chicken, pilao and kachumbari",
   // Main dishes
   matooke: "Traditional steamed green bananas",
   posho: "Smooth cornmeal, Ugandan staple",
@@ -69,10 +70,10 @@ const itemDescriptions: Record<string, string> = {
   rice: "Fluffy white rice",
   // Sauces
   meat: "Tender beef, your choice of style",
-  chicken: "Juicy chicken, perfectly seasoned",
+  "chicken-stew": "Juicy chicken, perfectly seasoned",
   fish: "Fresh Nile perch, fried or steamed",
   gnuts: "Rich groundnut sauce, authentic recipe",
-  "cow-peas": "Traditional peas in savory sauce",
+  cowpeas: "Traditional peas in savory sauce",
   liver: "Tender liver, rich in flavor",
   // Juices
   mango: "100% natural, no preservatives",
@@ -93,8 +94,8 @@ const itemDescriptions: Record<string, string> = {
 };
 
 // Best sellers - only top items (be selective)
-const bestSellers = ["fish", "chicken", "matooke", "whole-chicken-lusaniya"];
-const newItems: string[] = ["beef-lusaniya"]; // Add item IDs here when you have new items
+const bestSellers = ["fish", "chicken-stew", "matooke", "whole-chicken-pilao-lusaniya"];
+const newItems: string[] = ["beef-pilao-lusaniya"]; // Add item IDs here when you have new items
 
 // Skeleton loader for menu cards
 function MenuCardSkeleton() {

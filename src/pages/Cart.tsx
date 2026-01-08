@@ -32,6 +32,7 @@ import {
   generateWhatsAppMessage,
   getWhatsAppLink,
 } from '@/lib/utils/order';
+import { useGuest } from '@/context/GuestContext';
 import { toast } from 'sonner';
 import { useAddressAutocomplete, PhotonResult } from '@/hooks/useAddressAutocomplete';
 
@@ -157,6 +158,7 @@ export default function CartPage() {
     setUserPreferences,
     addOrderToHistory,
   } = useCart();
+  const { userName } = useGuest();
   
   const [selectedZone, setSelectedZone] = useState<string>('');
   const [promoCode, setPromoCode] = useState('');
