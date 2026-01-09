@@ -986,8 +986,8 @@ export default function FloatingWhatsApp({
           <>
             <WhatsAppIcon className="w-7 h-7 text-white" />
             {cartItemCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
-                {cartItemCount > 9 ? '9+' : cartItemCount}
+              <span className="absolute -top-1 -right-1 min-w-[20px] h-[20px] px-1 bg-secondary text-white text-[11px] font-bold rounded-full flex items-center justify-center">
+                {cartItemCount > 99 ? '99+' : cartItemCount}
               </span>
             )}
           </>

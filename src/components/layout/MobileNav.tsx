@@ -55,9 +55,9 @@ export default function MobileNav({ onChatClick }: MobileNavProps) {
                   <Icon className="w-6 h-6" strokeWidth={isActive ? 2.5 : 2} />
                   {badgeCount > 0 && (
                     <span 
-                      className="absolute -top-1.5 -right-2 w-4 h-4 bg-secondary text-secondary-foreground text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm"
+                      className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 bg-secondary text-white text-[10px] font-bold rounded-full flex items-center justify-center"
                     >
-                      {badgeCount > 9 ? '9+' : badgeCount}
+                      {badgeCount > 99 ? '99+' : badgeCount}
                     </span>
                   )}
                 </div>

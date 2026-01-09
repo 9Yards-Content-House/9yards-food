@@ -121,19 +121,13 @@ export default function Header() {
               <Link
                 to="/favorites"
                 className="p-2 sm:p-2.5 rounded-full hover:bg-muted/20 transition-colors relative"
-                aria-label={`Favorites${
-                  state.favorites.length > 0
-                    ? ` (${state.favorites.length} items)`
-                    : ""
-                }`}
+                aria-label={`Favorites${state.favorites.length > 0 ? ` (${state.favorites.length} items)` : ""}`}
                 title={`Favorites${state.favorites.length > 0 ? ` (${state.favorites.length})` : ""}`}
               >
-                <Heart
-                  className={`w-5 h-5 ${iconColorClass} transition-colors`}
-                />
+                <Heart className={`w-5 h-5 ${iconColorClass} transition-colors`} />
                 {state.favorites.length > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-secondary text-secondary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
-                    {state.favorites.length}
+                  <span className="absolute -top-0.5 -right-1 min-w-[18px] h-[18px] px-1 bg-secondary text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {state.favorites.length > 99 ? '99+' : state.favorites.length}
                   </span>
                 )}
               </Link>
@@ -152,17 +146,13 @@ export default function Header() {
               <Link
                 to="/cart"
                 className="hidden lg:flex p-2 sm:p-2.5 rounded-full hover:bg-muted/20 transition-colors relative"
-                aria-label={`Cart${
-                  cartCount > 0 ? ` (${cartCount} items)` : ""
-                }`}
+                aria-label={`Cart${cartCount > 0 ? ` (${cartCount} items)` : ""}`}
                 title={`Shopping Cart${cartCount > 0 ? ` (${cartCount} items)` : ""}`}
               >
-                <ShoppingCart
-                  className={`w-5 h-5 ${iconColorClass} transition-colors`}
-                />
+                <ShoppingCart className={`w-5 h-5 ${iconColorClass} transition-colors`} />
                 {cartCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-secondary text-secondary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
-                    {cartCount}
+                  <span className="absolute -top-0.5 -right-1 min-w-[18px] h-[18px] px-1 bg-secondary text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {cartCount > 99 ? '99+' : cartCount}
                   </span>
                 )}
               </Link>
