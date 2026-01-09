@@ -147,9 +147,9 @@ export default function FavoritesPage() {
             </h1>
             <button
               onClick={() => setIsClearConfirmOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-destructive bg-destructive/10 hover:bg-destructive/20 rounded-full transition-colors"
+              className="text-xs md:text-sm text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-destructive/5 border border-transparent hover:border-destructive/20"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
               <span>Clear All</span>
             </button>
           </div>
