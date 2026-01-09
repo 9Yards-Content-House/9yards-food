@@ -88,26 +88,40 @@ export default function OrderHistory() {
       }
     };
 
+    // Helper to extract the raw item ID from prefixed cart IDs like "lusaniya-ordinary-lusaniya" -> "ordinary-lusaniya"
+    const getRawItemId = (cartItemId: string) => {
+      // Check for known category prefixes and strip them
+      const prefixes = ['lusaniya-', 'juice-', 'dessert-', 'side-', 'main-'];
+      for (const prefix of prefixes) {
+        if (cartItemId.startsWith(prefix)) {
+          return cartItemId.substring(prefix.length);
+        }
+      }
+      return cartItemId;
+    };
+
     // Iterate through items to collect images
     for (const item of order.items) {
-      // 0. Explicit Lookup by ID (Handles all Single Items: Lusaniya, Juices, Desserts, Sides)
-      // We do this unconditionally because combo IDs (generated) won't match these static IDs anyway.
-      // This catches case where type might be missing or logic was ambiguous.
+      // Get the raw ID for lookups (strip category prefix if present)
+      const rawId = getRawItemId(item.id);
       
-      const lusaniya = menuData.lusaniya.find(l => l.id === item.id);
+      // 0. Explicit Lookup by ID (Handles all Single Items: Lusaniya, Juices, Desserts, Sides)
+      // We try both the raw ID and the full ID just to be safe
+      
+      const lusaniya = menuData.lusaniya.find(l => l.id === rawId || l.id === item.id);
       if (lusaniya?.image) { addImage(lusaniya.image); }
 
-      const juice = menuData.juices.find(j => j.id === item.id);
+      const juice = menuData.juices.find(j => j.id === rawId || j.id === item.id);
       if (juice?.image) { addImage(juice.image); }
 
-      const dessert = menuData.desserts.find(d => d.id === item.id);
+      const dessert = menuData.desserts.find(d => d.id === rawId || d.id === item.id);
       if (dessert?.image) { addImage(dessert.image); }
       
-      const side = menuData.sideDishes.find(s => s.id === item.id);
+      const side = menuData.sideDishes.find(s => s.id === rawId || s.id === item.id);
       if (side?.image) { addImage(side.image); }
       
       // Also check main dishes just in case it was a bare main dish added as single (unlikely but safe)
-      const main = menuData.mainDishes.find(m => m.id === item.id);
+      const main = menuData.mainDishes.find(m => m.id === rawId || m.id === item.id);
       if (main?.image) { addImage(main.image); }
 
       // 1. Main Dishes (Combos)
@@ -235,13 +249,50 @@ export default function OrderHistory() {
                             alt="Order Preview"
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                           />
-                        ) : (
-                          <div className="grid grid-cols-2 grid-rows-2 w-full h-full">
-                            {/* Fill 4 slots, repeating images if necessary to create a full collage */}
-                            {Array.from({ length: 4 }).map((_, i) => (
+                        ) : orderImages.length === 2 ? (
+                          /* 2 images: Side by side layout */
+                          <div className="grid grid-cols-2 w-full h-full">
+                            {orderImages.map((img, i) => (
                               <div key={i} className="relative overflow-hidden border-[0.5px] border-white/20">
                                 <OptimizedImage 
-                                  src={orderImages[i % orderImages.length]} 
+                                  src={img} 
+                                  alt={`Item ${i+1}`}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        ) : orderImages.length === 3 ? (
+                          /* 3 images: 1 large on left, 2 stacked on right */
+                          <div className="grid grid-cols-2 w-full h-full">
+                            {/* Large image on left */}
+                            <div className="relative overflow-hidden border-[0.5px] border-white/20">
+                              <OptimizedImage 
+                                src={orderImages[0]} 
+                                alt="Item 1"
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            {/* 2 stacked images on right */}
+                            <div className="grid grid-rows-2 h-full">
+                              {orderImages.slice(1, 3).map((img, i) => (
+                                <div key={i} className="relative overflow-hidden border-[0.5px] border-white/20">
+                                  <OptimizedImage 
+                                    src={img} 
+                                    alt={`Item ${i+2}`}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          /* 4+ images: 2x2 grid */
+                          <div className="grid grid-cols-2 grid-rows-2 w-full h-full">
+                            {orderImages.slice(0, 4).map((img, i) => (
+                              <div key={i} className="relative overflow-hidden border-[0.5px] border-white/20">
+                                <OptimizedImage 
+                                  src={img} 
                                   alt={`Item ${i+1}`}
                                   className="w-full h-full object-cover"
                                 />
