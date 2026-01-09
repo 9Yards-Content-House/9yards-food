@@ -498,7 +498,7 @@ export default function OrderHistory() {
                                     <BadgeIcon className="w-3 h-3 md:w-3.5 md:h-3.5" />
                                     {badge.label}
                                 </span>
-                                <span className="block text-xl sm:text-lg md:text-2xl font-bold text-secondary">
+                                <span className="block text-lg sm:text-lg md:text-xl font-bold text-secondary">
                                   {formatPrice(order.total)}
                                 </span>
                             </div>
