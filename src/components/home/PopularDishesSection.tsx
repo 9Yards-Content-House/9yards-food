@@ -151,6 +151,7 @@ function DishCard({
           className="absolute top-2 right-2 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full 
             flex items-center justify-center hover:bg-white transition-colors z-10"
           aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          title={isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
         >
           <Heart
             className={`w-4 h-4 transition-colors ${

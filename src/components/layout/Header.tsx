@@ -110,6 +110,7 @@ export default function Header() {
                 onClick={() => setIsSearchOpen(true)}
                 className="p-1.5 sm:p-2 rounded-full hover:bg-muted/20 transition-colors"
                 aria-label="Search menu"
+                title="Search Menu (Ctrl+K)"
               >
                 <Search
                   className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColorClass} transition-colors`}
@@ -125,6 +126,7 @@ export default function Header() {
                     ? ` (${state.favorites.length} items)`
                     : ""
                 }`}
+                title={`Favorites${state.favorites.length > 0 ? ` (${state.favorites.length})` : ""}`}
               >
                 <Heart
                   className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColorClass} transition-colors`}
@@ -141,7 +143,7 @@ export default function Header() {
                 to="/order-history"
                 className="p-1.5 sm:p-2 rounded-full hover:bg-muted/20 transition-colors hidden sm:flex"
                 aria-label="Order History"
-                title="Recent Orders"
+                title="Order History"
               >
                 <Clock className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColorClass} transition-colors`} />
               </Link>
@@ -153,6 +155,7 @@ export default function Header() {
                 aria-label={`Cart${
                   cartCount > 0 ? ` (${cartCount} items)` : ""
                 }`}
+                title={`Shopping Cart${cartCount > 0 ? ` (${cartCount} items)` : ""}`}
               >
                 <ShoppingCart
                   className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColorClass} transition-colors`}
@@ -168,6 +171,7 @@ export default function Header() {
               <button
                 onClick={() => setIsComboBuilderOpen(true)}
                 className="hidden md:flex btn-secondary text-sm py-2.5 px-5 lg:ml-6"
+                title="Create your perfect meal combo"
               >
                 Build Your Combo
               </button>

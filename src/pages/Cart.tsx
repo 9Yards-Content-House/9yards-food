@@ -563,6 +563,7 @@ export default function CartPage() {
                         toast.success('Cart cleared');
                       }}
                       className="text-muted-foreground hover:text-destructive text-sm flex items-center gap-1 transition-colors"
+                      title="Remove all items from cart"
                     >
                       <Trash2 className="w-4 h-4" />
                       Clear All
@@ -599,6 +600,7 @@ export default function CartPage() {
                                 onClick={() => removeItem(item.id)}
                                 className="text-muted-foreground/50 hover:text-red-500 transition-colors p-1"
                                 aria-label="Remove item"
+                                title="Remove from Cart"
                               >
                                 <X className="w-5 h-5" />
                               </button>
@@ -642,6 +644,7 @@ export default function CartPage() {
                                     }
                                   }}
                                   className="w-7 h-7 flex items-center justify-center rounded-full bg-background text-foreground hover:bg-white shadow-sm transition-all"
+                                  title={item.quantity > 1 ? "Decrease quantity" : "Remove item"}
                                 >
                                   <Minus className="w-3.5 h-3.5" />
                                 </button>
@@ -649,6 +652,7 @@ export default function CartPage() {
                                 <button 
                                   onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                   className="w-7 h-7 flex items-center justify-center rounded-full bg-[#E6411C] text-white hover:bg-[#d13a18] shadow-sm transition-all"
+                                  title="Increase quantity"
                                 >
                                   <Plus className="w-3.5 h-3.5" />
                                 </button>

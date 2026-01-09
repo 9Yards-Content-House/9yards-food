@@ -871,6 +871,7 @@ export default function FloatingWhatsApp({
         onClick={() => setIsOpen(!isOpen)}
         className="hidden lg:flex fixed bottom-24 right-4 z-[100] w-14 h-14 sm:w-16 sm:h-16 sm:bottom-32 lg:bottom-8 lg:right-6 bg-[#25D366] hover:bg-[#20ba5a] rounded-full items-center justify-center shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
         aria-label="Chat with us"
+        title={isOpen ? "Close chat" : "Chat with us on WhatsApp"}
       >
         {isOpen ? (
           <X className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
@@ -916,10 +917,10 @@ export default function FloatingWhatsApp({
               </div>
               
               <div className="flex items-center gap-1">
-                <button onClick={handleCall} className="text-white/90 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full" aria-label="Call us">
+                <button onClick={handleCall} className="text-white/90 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full" aria-label="Call us" title="Call Us">
                   <Phone className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
-                <button onClick={() => setIsOpen(false)} className="hidden sm:block text-white/90 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full">
+                <button onClick={() => setIsOpen(false)} className="hidden sm:block text-white/90 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full" title="Close Chat">
                   <X className="w-6 h-6" />
                 </button>
               </div>
