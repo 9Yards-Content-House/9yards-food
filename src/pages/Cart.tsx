@@ -172,6 +172,7 @@ export default function CartPage() {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [specialInstructions, setSpecialInstructions] = useState('');
   const [showDeliveryForm, setShowDeliveryForm] = useState(false);
+  const [showZoneOverride, setShowZoneOverride] = useState(false);
   
   // Validation State
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -198,7 +199,14 @@ export default function CartPage() {
     if (state.userPreferences.address && addressQuery !== state.userPreferences.address) {
       setAddressQuery(state.userPreferences.address);
     }
-  }, [state.userPreferences.address]);
+    // Pre-populate zone from context (set on home page)
+    if (state.userPreferences.location && !selectedZone) {
+      const zoneFromContext = deliveryZones.find(z => z.name === state.userPreferences.location);
+      if (zoneFromContext) {
+        setSelectedZone(zoneFromContext.name);
+      }
+    }
+  }, [state.userPreferences.address, state.userPreferences.location]);
 
   const handleAddressSelect = (result: PhotonResult) => {
     setAddressQuery(result.displayName);
@@ -237,7 +245,12 @@ export default function CartPage() {
     // Auto-select zone if available
     if (result.nearestZone) {
       setSelectedZone(result.nearestZone.name);
-      toast.success(`Delivery zone set to ${result.nearestZone.name}`);
+      setShowZoneOverride(false);
+      // Persist to context
+      setUserPreferences({ location: result.nearestZone.name });
+      toast.success(`Delivery zone: ${result.nearestZone.name}`, {
+        description: `${formatPrice(result.nearestZone.fee)} • ${result.nearestZone.estimatedTime}`
+      });
     }
   };
 
@@ -1083,45 +1096,78 @@ export default function CartPage() {
                         </div>
                       )}
 
-                      {/* Zone Display/Selection - Shown below address */}
+                      {/* Zone Display - Smart Auto-Detection */}
                       {!coverageWarning.show && selectedZone ? (
-                        <div className="flex items-center justify-between p-2.5 bg-green-50 rounded-lg border border-green-100">
-                           <div className="flex items-center gap-2">
-                              <div className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center">
-                                <CheckCircle className="w-4 h-4 text-green-600" />
+                        <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-100">
+                           <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center">
+                                <CheckCircle className="w-5 h-5 text-green-600" />
                               </div>
                               <div>
-                                <p className="text-xs text-green-700 font-medium">{selectedZone}</p>
-                                <p className="text-[11px] text-green-600">Delivery: {formatPrice(selectedZoneData?.fee || 0)}</p>
+                                <p className="text-sm text-green-800 font-bold">{selectedZone}</p>
+                                <p className="text-xs text-green-600">
+                                  {formatPrice(selectedZoneData?.fee || 0)} • {selectedZoneData?.estimatedTime}
+                                </p>
                               </div>
                            </div>
                            <button 
-                             onClick={() => setSelectedZone('')} 
-                             className="text-xs font-medium text-green-700 hover:text-green-800 px-2 py-1 hover:bg-green-100 rounded transition-colors"
+                             onClick={() => setShowZoneOverride(!showZoneOverride)} 
+                             className="text-xs font-medium text-green-700 hover:text-green-800 px-2.5 py-1.5 bg-green-100 hover:bg-green-200 rounded-lg transition-colors"
                            >
                              Change
                            </button>
                         </div>
-                      ) : !coverageWarning.show ? (
-                        <div className="p-3 bg-amber-50 rounded-lg border border-amber-100">
-                           <p className="text-xs text-amber-800 font-medium mb-2 flex items-center gap-1.5">
-                             <AlertTriangle className="w-3.5 h-3.5" />
-                             Select your delivery zone
+                      ) : !coverageWarning.show && !selectedZone && addressQuery.length > 3 ? (
+                        // Address entered but no zone detected - show manual selector
+                        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                           <p className="text-xs text-gray-600 mb-2">
+                             Couldn't auto-detect zone. Please select manually:
                            </p>
                            <select 
                               value={selectedZone}
-                              onChange={(e) => { setSelectedZone(e.target.value); if(errors.zone) setErrors({...errors, zone:''}); }}
-                              className={`w-full p-2.5 rounded-lg border ${errors.zone ? 'border-red-500' : 'border-amber-200'} bg-white text-sm`}
+                              onChange={(e) => { 
+                                setSelectedZone(e.target.value); 
+                                setUserPreferences({ location: e.target.value });
+                                if(errors.zone) setErrors({...errors, zone:''}); 
+                              }}
+                              className={`w-full p-2.5 rounded-lg border ${errors.zone ? 'border-red-500' : 'border-gray-300'} bg-white text-sm`}
                            >
                              <option value="">Choose zone...</option>
                              {deliveryZones.map(z => (
                                <option key={z.name} value={z.name}>
-                                 {z.name} — {formatPrice(z.fee)}
+                                 {z.name} — {formatPrice(z.fee)} ({z.estimatedTime})
                                </option>
                              ))}
                            </select>
                         </div>
+                      ) : !coverageWarning.show && !addressQuery ? (
+                        // No address entered yet - prompt to enter
+                        <p className="text-xs text-gray-500 italic">
+                          Enter your address above to auto-detect delivery zone
+                        </p>
                       ) : null}
+                      
+                      {/* Zone Override Dropdown (only shown when Change is clicked) */}
+                      {showZoneOverride && selectedZone && (
+                        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 animate-in slide-in-from-top-2">
+                           <p className="text-xs text-gray-600 mb-2">Select a different zone:</p>
+                           <select 
+                              value={selectedZone}
+                              onChange={(e) => { 
+                                setSelectedZone(e.target.value); 
+                                setUserPreferences({ location: e.target.value });
+                                setShowZoneOverride(false);
+                              }}
+                              className="w-full p-2.5 rounded-lg border border-gray-300 bg-white text-sm"
+                           >
+                             {deliveryZones.map(z => (
+                               <option key={z.name} value={z.name}>
+                                 {z.name} — {formatPrice(z.fee)} ({z.estimatedTime})
+                               </option>
+                             ))}
+                           </select>
+                        </div>
+                      )}
                     </div>
                     
                     {/* Special Instructions - Mobile */}
@@ -1420,7 +1466,7 @@ export default function CartPage() {
                           </div>
                        )}
 
-                       {/* Zone Display/Selection - Shown below address */}
+                       {/* Zone Display - Smart Auto-Detection */}
                        {!coverageWarning.show && selectedZone ? (
                           <div className="flex items-center justify-between p-2.5 bg-green-50 rounded-lg border border-green-100">
                              <div className="flex items-center gap-2">
@@ -1433,18 +1479,15 @@ export default function CartPage() {
                                 </div>
                              </div>
                              <button 
-                               onClick={() => setSelectedZone('')} 
+                               onClick={() => setShowZoneOverride(true)} 
                                className="text-xs font-medium text-green-700 hover:text-green-800 px-2 py-1 hover:bg-green-100 rounded transition-colors"
                              >
                                Change
                              </button>
                           </div>
-                       ) : !coverageWarning.show ? (
-                          <div className="p-3 bg-amber-50 rounded-lg border border-amber-100">
-                             <p className="text-xs text-amber-800 font-medium mb-2 flex items-center gap-1.5">
-                               <AlertTriangle className="w-3.5 h-3.5" />
-                               Select your delivery zone
-                             </p>
+                       ) : !coverageWarning.show && !selectedZone && addressQuery.length > 3 ? (
+                          <div className="p-3 bg-amber-50/50 rounded-lg border border-amber-100">
+                             <p className="text-xs text-amber-700 mb-2">Zone not auto-detected. Please select:</p>
                              <select 
                                 value={selectedZone}
                                 onChange={(e) => { setSelectedZone(e.target.value); if(errors.zone) setErrors({...errors, zone:''}); }}
@@ -1458,7 +1501,31 @@ export default function CartPage() {
                                ))}
                              </select>
                           </div>
+                       ) : !coverageWarning.show && !addressQuery ? (
+                          <p className="text-xs text-muted-foreground text-center py-2">Enter your address above to auto-detect delivery zone</p>
                        ) : null}
+                       
+                       {/* Zone Override Dropdown */}
+                       {showZoneOverride && selectedZone && (
+                          <div className="p-3 bg-gray-50 rounded-lg border border-border mt-2">
+                             <p className="text-xs text-muted-foreground mb-2">Select a different zone:</p>
+                             <select 
+                                value={selectedZone}
+                                onChange={(e) => { 
+                                  setSelectedZone(e.target.value); 
+                                  setShowZoneOverride(false);
+                                  if(errors.zone) setErrors({...errors, zone:''}); 
+                                }}
+                                className="w-full p-2.5 rounded-lg border border-border bg-white text-sm focus:ring-[#E6411C] focus:border-[#E6411C]"
+                             >
+                               {deliveryZones.map(z => (
+                                 <option key={z.name} value={z.name}>
+                                   {z.name} — {formatPrice(z.fee)} ({z.estimatedTime})
+                                 </option>
+                               ))}
+                             </select>
+                          </div>
+                       )}
                     </div>
                 </div>
                 
