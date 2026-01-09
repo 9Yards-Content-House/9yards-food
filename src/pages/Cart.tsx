@@ -1081,6 +1081,28 @@ export default function CartPage() {
                         </div>
                       ) : null}
                     </div>
+                    
+                    {/* Special Instructions - Mobile */}
+                    <div>
+                      <label className="text-xs font-bold text-gray-500 mb-1.5 block uppercase tracking-wide">
+                        Special Instructions
+                      </label>
+                      <textarea
+                        value={state.userPreferences.specialInstructions || ''}
+                        onChange={(e) => setUserPreferences({ specialInstructions: e.target.value })}
+                        placeholder="E.g., Extra sauce, no onions, call on arrival..."
+                        rows={2}
+                        className="w-full p-3 rounded-lg border border-gray-200 bg-gray-50 text-sm resize-none focus:ring-[#212282]"
+                      />
+                    </div>
+                    
+                    {/* Mobile Estimated Delivery */}
+                    {selectedZone && (
+                      <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg py-2.5 mt-2">
+                        <Truck className="w-4 h-4 text-secondary" />
+                        <span>Est. delivery: <span className="font-medium text-foreground">{getEstimatedDeliveryTime(selectedZone)}</span></span>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -1089,9 +1111,14 @@ export default function CartPage() {
             {/* Desktop Sidebar */}
             <div className="hidden lg:block lg:col-span-1">
               <div className="bg-white p-6 rounded-2xl border border-border shadow-sm sticky top-28">
-                <h2 className="text-lg font-bold text-[#212282] mb-6">
-                  Order Summary
-                </h2>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-lg font-bold text-[#212282]">
+                    Order Summary
+                  </h2>
+                  <span className="text-sm text-muted-foreground bg-muted px-2.5 py-1 rounded-full">
+                    {state.items.length} item{state.items.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
 
                 {!qualifiesForFreeDelivery && (
                   <div className="mb-6 p-4 bg-[#212282] rounded-xl overflow-hidden relative">
@@ -1304,7 +1331,7 @@ export default function CartPage() {
                 </div>
                 
                 {/* Desktop Promo */}
-                <div className="mb-6">
+                <div className="mb-4">
                    <label className="text-sm font-medium text-[#212282] mb-2 block">Promo Code</label>
                    {promoResult?.valid ? (
                       <div className="flex items-center justify-between p-3 bg-green-50 border border-green-100 rounded-xl">
@@ -1316,30 +1343,71 @@ export default function CartPage() {
                          <input 
                             value={promoCode}
                             onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                            placeholder="Code"
-                            className="flex-1 p-2 rounded-xl border border-border bg-gray-50"
+                            placeholder="Enter code"
+                            className="flex-1 p-2.5 rounded-xl border border-border bg-gray-50 text-sm"
                          />
-                         <button onClick={handleApplyPromo} className="px-4 bg-[#212282] text-white rounded-xl font-bold">Apply</button>
+                         <button onClick={handleApplyPromo} className="px-4 bg-[#212282] text-white rounded-xl font-bold text-sm hover:bg-[#1a1a6e] transition-colors">Apply</button>
                       </div>
                    )}
+                </div>
+                
+                {/* Special Instructions */}
+                <div className="mb-6">
+                   <label className="text-sm font-medium text-[#212282] mb-2 block">Special Instructions</label>
+                   <textarea
+                     value={state.userPreferences.specialInstructions || ''}
+                     onChange={(e) => setUserPreferences({ specialInstructions: e.target.value })}
+                     placeholder="E.g., Extra sauce, no onions, call on arrival..."
+                     rows={2}
+                     className="w-full p-3 rounded-xl border border-border bg-gray-50 text-sm resize-none focus:ring-[#E6411C] focus:border-[#E6411C]"
+                   />
                 </div>
 
                 {/* Desktop Totals */}
                 <div className="space-y-3 mb-6 pt-4 border-t border-border">
-                   <div className="flex justify-between text-sm text-gray-500"><span>Subtotal</span><span>{formatPrice(cartTotal)}</span></div>
+                   <div className="flex justify-between text-sm text-gray-500">
+                     <span>Subtotal ({state.items.reduce((sum, item) => sum + item.quantity, 0)} items)</span>
+                     <span>{formatPrice(cartTotal)}</span>
+                   </div>
                    <div className="flex justify-between text-sm text-gray-500">
                       <span>Delivery</span>
                       <span className="text-foreground font-semibold">
-                         {qualifiesForFreeDelivery ? <span className="text-green-600">FREE</span> : (selectedZone ? formatPrice(baseDeliveryFee) : '-')}
+                         {qualifiesForFreeDelivery ? (
+                           <span className="flex items-center gap-1">
+                             <span className="line-through text-gray-400 text-xs">{formatPrice(baseDeliveryFee)}</span>
+                             <span className="text-green-600">FREE</span>
+                           </span>
+                         ) : (selectedZone ? formatPrice(baseDeliveryFee) : '-')}
                       </span>
                    </div>
                    {discount > 0 && (
                       <div className="flex justify-between text-sm text-green-600"><span>Discount</span><span>-{formatPrice(discount)}</span></div>
                    )}
+                   
+                   {/* Savings Highlight */}
+                   {(qualifiesForFreeDelivery || discount > 0) && (
+                     <div className="bg-green-50 border border-green-100 rounded-lg p-2.5 flex items-center gap-2">
+                       <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                         <Tag className="w-3.5 h-3.5 text-green-600" />
+                       </div>
+                       <p className="text-xs text-green-700 font-medium">
+                         You're saving {formatPrice((qualifiesForFreeDelivery ? baseDeliveryFee : 0) + discount)} on this order!
+                       </p>
+                     </div>
+                   )}
+                   
                    <div className="flex justify-between pt-3 border-t border-dashed border-gray-300">
                       <span className="font-bold text-[#212282] text-lg">Total</span>
                       <span className="font-extrabold text-2xl text-[#E6411C]">{formatPrice(total)}</span>
                    </div>
+                   
+                   {/* Estimated Delivery Time */}
+                   {selectedZone && (
+                     <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg py-2">
+                       <Truck className="w-4 h-4 text-secondary" />
+                       <span>Est. delivery: <span className="font-medium text-foreground">{getEstimatedDeliveryTime(selectedZone)}</span></span>
+                     </div>
+                   )}
                 </div>
 
                 {/* Desktop Actions */}
