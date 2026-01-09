@@ -1,5 +1,7 @@
-import { useState, useMemo, useEffect } from 'react';
-import { MapPin, Clock, Truck, Phone, Search, X, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, Navigation, Zap } from 'lucide-react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { MapPin, Clock, Truck, Phone, Search, X, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, Navigation, Zap, Crosshair, Loader2, ArrowRight, ShoppingBag } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useCart } from '@/context/CartContext';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -115,6 +117,99 @@ export default function DeliveryZonesPage() {
   const [expandedTier, setExpandedTier] = useState<ZoneTier | null>('express');
   const [showMap, setShowMap] = useState(true);
   const peakHours = isPeakHours();
+  
+  // Location detection state
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [nearestZone, setNearestZone] = useState<DeliveryZone | null>(null);
+  
+  const { state, setUserPreferences } = useCart();
+  const navigate = useNavigate();
+
+  // Calculate distance between two coordinates (Haversine formula)
+  const calculateDistance = useCallback((lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }, []);
+
+  // Find nearest zone to user location
+  const findNearestZone = useCallback((userLat: number, userLon: number): DeliveryZone | null => {
+    let nearest: DeliveryZone | null = null;
+    let minDistance = Infinity;
+    
+    deliveryZones.forEach(zone => {
+      if (zone.coordinates) {
+        const distance = calculateDistance(userLat, userLon, zone.coordinates[0], zone.coordinates[1]);
+        if (distance < minDistance) {
+          minDistance = distance;
+          nearest = zone;
+        }
+      }
+    });
+    
+    return nearest;
+  }, [calculateDistance]);
+
+  // Detect user location
+  const detectLocation = useCallback(() => {
+    if (!navigator.geolocation) {
+      setLocationError('Geolocation is not supported by your browser');
+      return;
+    }
+    
+    setIsLocating(true);
+    setLocationError(null);
+    haptics.light();
+    
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setUserLocation([latitude, longitude]);
+        
+        const nearest = findNearestZone(latitude, longitude);
+        if (nearest) {
+          setNearestZone(nearest);
+          setSelectedZone(nearest);
+          
+          // Expand the tier containing the nearest zone
+          const tier = getZoneTier(nearest.fee);
+          setExpandedTier(tier);
+          
+          haptics.success();
+        }
+        setIsLocating(false);
+      },
+      (error) => {
+        setIsLocating(false);
+        haptics.warning();
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            setLocationError('Location access denied. Please enable location permissions.');
+            break;
+          case error.POSITION_UNAVAILABLE:
+            setLocationError('Location unavailable. Please try again.');
+            break;
+          case error.TIMEOUT:
+            setLocationError('Location request timed out. Please try again.');
+            break;
+          default:
+            setLocationError('Unable to detect your location.');
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60000,
+      }
+    );
+  }, [findNearestZone]);
 
   // Group zones by tier
   const groupedZones = useMemo(() => {
@@ -163,9 +258,22 @@ export default function DeliveryZonesPage() {
   const handleZoneSelect = (zone: DeliveryZone) => {
     haptics.light();
     setSelectedZone(zone);
+    
+    // Save to cart context
+    setUserPreferences({ location: zone.name });
+    
     // On mobile, scroll to map
     if (window.innerWidth < 1024) {
       document.getElementById('delivery-map')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
+  // Handle "Order Now" with selected zone
+  const handleOrderNow = () => {
+    if (selectedZone) {
+      haptics.medium();
+      setUserPreferences({ location: selectedZone.name });
+      navigate('/menu');
     }
   };
 
@@ -242,24 +350,74 @@ export default function DeliveryZonesPage() {
 
           {/* Search Bar */}
           <div className="mb-6">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for your area..."
-                className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-border bg-background focus:ring-2 focus:ring-[#212282]/20 focus:border-[#212282] transition-all text-sm"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full transition-colors"
-                >
-                  <X className="w-4 h-4 text-muted-foreground" />
-                </button>
-              )}
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search for your area..."
+                  className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-border bg-background focus:ring-2 focus:ring-[#212282]/20 focus:border-[#212282] transition-all text-sm"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full transition-colors"
+                  >
+                    <X className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                )}
+              </div>
+              
+              {/* Location Detection Button */}
+              <button
+                onClick={detectLocation}
+                disabled={isLocating}
+                className="flex items-center gap-2 px-4 py-3.5 rounded-xl bg-[#212282] text-white font-medium hover:bg-[#1a1a6e] active:scale-[0.98] transition-all disabled:opacity-70 whitespace-nowrap"
+              >
+                {isLocating ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Crosshair className="w-5 h-5" />
+                )}
+                <span className="hidden sm:inline">{isLocating ? 'Detecting...' : 'Use My Location'}</span>
+              </button>
             </div>
+            
+            {/* Location Error */}
+            {locationError && (
+              <div className="mt-2 p-3 bg-red-50 border border-red-100 rounded-lg flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-700">{locationError}</p>
+              </div>
+            )}
+            
+            {/* Nearest Zone Found */}
+            {nearestZone && !locationError && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-3 p-3 bg-green-50 border border-green-100 rounded-xl flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-green-800">Nearest zone: {nearestZone.name}</p>
+                    <p className="text-xs text-green-600">{formatPrice(nearestZone.fee)} • {nearestZone.estimatedTime}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleZoneSelect(nearestZone)}
+                  className="text-xs font-bold text-green-700 hover:underline"
+                >
+                  View on map
+                </button>
+              </motion.div>
+            )}
+            
             {searchQuery && (
               <p className="mt-2 text-sm text-muted-foreground">
                 {totalFilteredZones} area{totalFilteredZones !== 1 ? 's' : ''} found
@@ -500,11 +658,32 @@ export default function DeliveryZonesPage() {
                               <p className="text-xs text-muted-foreground">delivery fee</p>
                             </div>
                           </div>
+                          
                           <div className="mt-3 flex items-center gap-2">
                             <CheckCircle className="w-4 h-4 text-green-600" />
                             <span className="text-sm text-green-700 font-medium">
                               We deliver to this area!
                             </span>
+                          </div>
+                          
+                          {/* Order Now CTA */}
+                          <div className="mt-4 flex gap-2">
+                            <button
+                              onClick={handleOrderNow}
+                              className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-[#E6411C] text-white rounded-xl font-bold hover:bg-[#d13a18] active:scale-[0.98] transition-all shadow-lg shadow-[#E6411C]/20"
+                            >
+                              <ShoppingBag className="w-5 h-5" />
+                              Order Now
+                              <ArrowRight className="w-4 h-4" />
+                            </button>
+                            {state.items.length > 0 && (
+                              <Link
+                                to="/cart"
+                                className="flex items-center justify-center gap-2 py-3 px-4 bg-[#212282] text-white rounded-xl font-bold hover:bg-[#1a1a6e] active:scale-[0.98] transition-all"
+                              >
+                                Go to Cart
+                              </Link>
+                            )}
                           </div>
                         </div>
                       )}
