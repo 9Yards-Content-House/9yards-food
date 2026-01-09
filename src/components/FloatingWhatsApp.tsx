@@ -1159,7 +1159,7 @@ export default function FloatingWhatsApp({
                 />
               </div>
               
-              {/* Send button - always visible with better contrast */}
+              {/* Send button - always visible */}
               <button 
                 onClick={() => { 
                   if (typingMessage.trim()) {
@@ -1168,10 +1168,10 @@ export default function FloatingWhatsApp({
                   }
                 }}
                 disabled={!typingMessage.trim()}
-                className={`rounded-full w-11 h-11 flex items-center justify-center transition-all shrink-0 shadow-md ${
+                className={`rounded-full w-11 h-11 flex items-center justify-center transition-all shrink-0 shadow-md bg-[#008069] ${
                   typingMessage.trim() 
-                    ? 'bg-[#25D366] hover:bg-[#20bd5a] active:scale-95' 
-                    : 'bg-[#25D366]/70'
+                    ? 'hover:bg-[#006e5a] active:scale-95' 
+                    : ''
                 }`}
               >
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="white">
