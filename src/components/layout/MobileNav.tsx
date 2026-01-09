@@ -27,7 +27,7 @@ export default function MobileNav({ onChatClick }: MobileNavProps) {
     } else {
       const hour = new Date().getHours();
       const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-      const message = `${greeting}! I'd like to place an order from 9Yards Food.`;
+      const message = `${greeting}, I would like to place an order.`;
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
     }
   };

@@ -708,7 +708,7 @@ export default function HeroSection() {
   };
 
   const handleWhatsAppContact = () => {
-    const message = `Hi! I'd like to order food. My location: ${searchQuery}`;
+    const message = `Hello, I would like to place an order. My delivery location is ${searchQuery}.`;
     window.open(
       `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
       "_blank"

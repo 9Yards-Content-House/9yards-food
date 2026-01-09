@@ -76,7 +76,7 @@ export default function OrderConfirmation() {
 
   const handleTrackViaWhatsApp = () => {
     const message = encodeURIComponent(
-      `Hi! I'd like to track my order.\n\nOrder ID: ${orderData.orderId}\nName: ${orderData.customerInfo.name}`
+      `Hello, I would like to check on my order.\n\nOrder ID: ${orderData.orderId}\nName: ${orderData.customerInfo.name}`
     );
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, '_blank');
   };

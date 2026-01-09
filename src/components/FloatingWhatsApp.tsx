@@ -565,7 +565,7 @@ export default function FloatingWhatsApp({
         }
         break;
       case 'whatsapp':
-        const message = option.data || `${getGreeting()}! I need assistance.`;
+        const message = option.data || `${getGreeting()}, I need assistance.`;
         setTimeout(() => {
           window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
         }, 300);

@@ -85,7 +85,7 @@ export default function OrderHistory() {
 
   const handleTrackOrder = (orderId: string) => {
     const message = encodeURIComponent(
-      `Hi! I'd like to track my order.\n\nOrder ID: ${orderId}`
+      `Hello, I would like to check on my order.\n\nOrder ID: ${orderId}`
     );
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, '_blank');
   };

@@ -436,7 +436,7 @@ export default function Deals() {
                 </p>
                 
                 <a 
-                  href="https://wa.me/256708899597?text=Hi%2C%20I'd%20like%20to%20subscribe%20to%209Yards%20Food%20deals!"
+                  href="https://wa.me/256708899597?text=Hello%2C%20I%20would%20like%20to%20receive%20updates%20about%20deals%20and%20promotions."
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white px-8 py-3.5 rounded-full font-bold transition-all hover:scale-105"

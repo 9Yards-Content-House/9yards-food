@@ -135,7 +135,7 @@ export default function ContactPage() {
 
               {/* WhatsApp Card */}
               <a
-                href="https://wa.me/256708899597?text=Hi%209Yards%20Food!%20I%20have%20a%20question%20about..."
+                href="https://wa.me/256708899597?text=Hello%2C%20I%20have%20a%20question%20about"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-card border-2 border-green-500 rounded-2xl p-6 text-center cursor-pointer transition-all relative overflow-hidden hover:bg-green-50"
