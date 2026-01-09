@@ -42,7 +42,8 @@ import { toast } from 'sonner';
 import { useAddressAutocomplete, PhotonResult } from '@/hooks/useAddressAutocomplete';
 import SEO from '@/components/SEO';
 import { pageMetadata } from '@/data/seo';
-import { haptics, isMobileDevice } from '@/lib/utils/ui';
+import { haptics, isMobileDevice, vibrate } from '@/lib/utils/ui';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 // Flutterwave configuration
 const FLUTTERWAVE_PUBLIC_KEY = 'FLWPUBK_TEST-2cbeceb8352891cbcd28a983ce8d57ac-X';
@@ -173,6 +174,7 @@ export default function CartPage() {
   const [specialInstructions, setSpecialInstructions] = useState('');
   const [showDeliveryForm, setShowDeliveryForm] = useState(false);
   const [showZoneOverride, setShowZoneOverride] = useState(false);
+  const [isClearCartConfirmOpen, setIsClearCartConfirmOpen] = useState(false);
   
   // Validation State
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -654,15 +656,12 @@ export default function CartPage() {
                 <div className="flex items-center justify-between pb-2 border-b border-border">
                    <h3 className="font-bold text-foreground">Order Items</h3>
                    <button 
-                      onClick={() => {
-                        clearCart();
-                        toast.success('Cart cleared');
-                      }}
-                      className="text-muted-foreground hover:text-destructive text-sm flex items-center gap-1 transition-colors"
+                      onClick={() => setIsClearCartConfirmOpen(true)}
+                      className="text-xs md:text-sm text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-destructive/5 border border-transparent hover:border-destructive/20"
                       title="Remove all items from cart"
                     >
-                      <Trash2 className="w-4 h-4" />
-                      Clear All
+                      <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                      <span>Clear All</span>
                     </button>
                 </div>
 
@@ -1630,6 +1629,21 @@ export default function CartPage() {
           </div>
         </div>
       </main>
+
+      <ConfirmModal
+        isOpen={isClearCartConfirmOpen}
+        onClose={() => setIsClearCartConfirmOpen(false)}
+        onConfirm={() => {
+          clearCart();
+          toast.success('Cart cleared');
+          vibrate(50);
+        }}
+        title="Clear Your Cart?"
+        description="This will remove all items from your cart. You'll need to add them again if you change your mind."
+        confirmText="Yes, Clear Cart"
+        cancelText="Cancel & Keep Items"
+        variant="danger"
+      />
 
       <Footer />
     </div>
