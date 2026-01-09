@@ -109,20 +109,20 @@ export default function OrderHistory() {
     for (const item of order.items) {
       // Get the raw ID for lookups (strip category prefix if present)
       const rawId = getRawItemId(item.id);
+      const itemName = item.mainDishes?.[0] || '';
       
-      // 0. Explicit Lookup by ID (Handles all Single Items: Lusaniya, Juices, Desserts, Sides)
-      // We try both the raw ID and the full ID just to be safe
+      // 0. Explicit Lookup by ID or Name (Handles all Single Items: Lusaniya, Juices, Desserts, Sides)
       
-      const lusaniya = menuData.lusaniya.find(l => l.id === rawId || l.id === item.id);
+      const lusaniya = menuData.lusaniya.find(l => l.id === rawId || l.id === item.id || l.name === itemName);
       if (lusaniya?.image) { addImage(lusaniya.image); }
 
-      const juice = menuData.juices.find(j => j.id === rawId || j.id === item.id);
+      const juice = menuData.juices.find(j => j.id === rawId || j.id === item.id || j.name === itemName);
       if (juice?.image) { addImage(juice.image); }
 
-      const dessert = menuData.desserts.find(d => d.id === rawId || d.id === item.id);
+      const dessert = menuData.desserts.find(d => d.id === rawId || d.id === item.id || d.name === itemName);
       if (dessert?.image) { addImage(dessert.image); }
       
-      const side = menuData.sideDishes.find(s => s.id === rawId || s.id === item.id);
+      const side = menuData.sideDishes.find(s => s.id === rawId || s.id === item.id || s.name === itemName);
       if (side?.image) { addImage(side.image); }
       
       // Also check main dishes just in case it was a bare main dish added as single (unlikely but safe)
@@ -229,27 +229,49 @@ export default function OrderHistory() {
         };
       } else {
         // Single items - look up in menu data
-        const lusaniya = menuData.lusaniya.find(l => l.id === rawId || l.id === item.id);
+        // Try by ID first, then by name from mainDishes
+        const itemName = item.mainDishes?.[0] || '';
+        
+        const lusaniya = menuData.lusaniya.find(l => 
+          l.id === rawId || l.id === item.id || l.name === itemName
+        );
         if (lusaniya) {
           image = lusaniya.image;
           name = lusaniya.name;
+          description = lusaniya.description;
         }
 
-        const juice = menuData.juices.find(j => j.id === rawId || j.id === item.id);
+        const juice = menuData.juices.find(j => 
+          j.id === rawId || j.id === item.id || j.name === itemName
+        );
         if (juice) {
           image = juice.image;
           name = juice.name;
+          description = juice.description;
         }
 
-        const dessert = menuData.desserts.find(d => d.id === rawId || d.id === item.id);
+        const dessert = menuData.desserts.find(d => 
+          d.id === rawId || d.id === item.id || d.name === itemName
+        );
         if (dessert) {
           image = dessert.image;
           name = dessert.name;
+          description = dessert.description;
+        }
+        
+        const side = menuData.sideDishes.find(s => 
+          s.id === rawId || s.id === item.id || s.name === itemName
+        );
+        if (side) {
+          image = side.image;
+          name = side.name;
+          description = side.description;
         }
 
         // Fallback to item properties
         if (!image && item.image) image = item.image;
-        if (item.description) description = item.description;
+        if (!name || name === 'Item') name = itemName || 'Item';
+        if (!description && item.description) description = item.description;
       }
 
       details.push({
@@ -505,12 +527,12 @@ export default function OrderHistory() {
                            {isExpanded ? (
                              <>
                                <ChevronUp className="w-3.5 h-3.5" />
-                               Hide items
+                               Hide details
                              </>
                            ) : (
                              <>
                                <ChevronDown className="w-3.5 h-3.5" />
-                               View {order.items.length} item{order.items.length > 1 ? 's' : ''}
+                               {order.items.length === 1 ? 'View details' : `View ${order.items.length} items`}
                              </>
                            )}
                          </button>
