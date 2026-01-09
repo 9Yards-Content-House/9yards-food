@@ -9,6 +9,7 @@ import {
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SEO from "@/components/SEO";
+import { pageMetadata } from "@/data/seo";
 import { toast } from "sonner";
 
 export default function Deals() {
@@ -133,9 +134,12 @@ export default function Deals() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <SEO
-        title="Deals & Promos | 9Yards Food"
-        description="Exclusive deals, promo codes, and combo offers. Save on authentic Ugandan cuisine with free delivery and special discounts."
-        url="/deals"
+        title={pageMetadata.deals.title}
+        description={pageMetadata.deals.description}
+        keywords={pageMetadata.deals.keywords}
+        image={pageMetadata.deals.ogImage}
+        url={pageMetadata.deals.canonicalUrl}
+        jsonLd={pageMetadata.deals.schema}
       />
       <Header />
 

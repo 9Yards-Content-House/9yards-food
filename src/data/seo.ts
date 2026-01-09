@@ -1,0 +1,272 @@
+export const pageMetadata = {
+  // HOME PAGE (/)
+  home: {
+    title: "9Yards Food | Authentic Ugandan Cuisine Delivery in Kampala | Order Now",
+    description: "Order authentic Ugandan food delivery in Kampala. Fresh matooke, posho, fish, chicken & more. 100% natural ingredients, 30-45 min delivery. Celebrity approved. Order via WhatsApp or pay online.",
+    keywords: "Ugandan food delivery, Kampala food delivery, authentic Ugandan cuisine, matooke delivery, posho, fish combo, chicken delivery, food delivery Kampala, 9Yards Food, natural juice Uganda",
+    ogTitle: "9Yards Food - Authentic Ugandan Cuisine Delivered Fresh to Your Door",
+    ogDescription: "From our kitchen to your table in 30-45 minutes. 100% natural ingredients, no preservatives. Trusted by Spice Diana & top influencers.",
+    ogImage: "/images/og-home.jpg", // Hero image with food
+    canonicalUrl: "https://food.9yards.co.ug/",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "Restaurant",
+      "name": "9Yards Food",
+      "image": "https://food.9yards.co.ug/images/logo.png",
+      "servesCuisine": "Ugandan",
+      "priceRange": "UGX 15,000 - 50,000",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Kampala",
+        "addressCountry": "UG"
+      },
+      "telephone": "+256708453744", // Updated to match existing SEO.tsx telephone
+      "url": "https://food.9yards.co.ug"
+    }
+  },
+
+  // MENU PAGE (/menu)
+  menu: {
+    title: "Our Menu | Authentic Ugandan Food Combos, Juices & Desserts | 9Yards Food",
+    description: "Browse our complete menu of authentic Ugandan food combos. Choose from matooke, rice, posho + fish, chicken, meat, g-nuts sauce. Add 100% natural juices. Build your perfect combo from UGX 15,000.",
+    keywords: "Ugandan food menu, matooke combo, fish and posho, chicken and rice, g-nuts sauce, natural juice Uganda, food menu Kampala, authentic Ugandan dishes, boiled or fried options",
+    ogTitle: "9Yards Food Menu - Build Your Perfect Ugandan Combo",
+    ogDescription: "Fresh matooke, posho, rice, cassava + your choice of fish, chicken, or meat. Every combo includes a free side dish. 100% natural ingredients.",
+    ogImage: "/images/og-menu.jpg", // Multiple dishes layout
+    canonicalUrl: "https://food.9yards.co.ug/menu",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "Menu",
+      "name": "9Yards Food Menu",
+      "hasMenuSection": [
+        {
+          "@type": "MenuSection",
+          "name": "Combo Meals",
+          "description": "Build your own combo with main dishes and sauces"
+        }
+      ]
+    }
+  },
+
+  // CART PAGE (/cart)
+  cart: {
+    title: "Your Cart | Review Your Order | 9Yards Food",
+    description: "Review your order, apply promo codes, and proceed to checkout. Free delivery on orders above UGX 50,000. Order via WhatsApp or pay online with Mobile Money.",
+    keywords: "food cart, order review, promo code Uganda, free delivery Kampala, checkout, WhatsApp order, mobile money payment",
+    ogTitle: "Complete Your Order - 9Yards Food",
+    ogDescription: "Review your authentic Ugandan meal. Apply promo codes and enjoy free delivery on orders above UGX 50,000.",
+    noIndex: true // Cart pages shouldn't be indexed
+  },
+
+  // FAVORITES PAGE (/favorites)
+  favorites: {
+    title: "My Favorites | Saved Items | 9Yards Food",
+    description: "Quick access to your favorite Ugandan food combos and dishes. Save time by reordering your go-to meals with one click.",
+    keywords: "saved orders, favorite meals, quick reorder, repeat order, favorite Ugandan food",
+    ogTitle: "Your Favorite Meals - 9Yards Food",
+    noIndex: true // Personal pages shouldn't be indexed
+  },
+
+  // DELIVERY ZONES PAGE (/delivery-zones)
+  deliveryZones: {
+    title: "Delivery Zones & Fees | Where We Deliver in Kampala | 9Yards Food",
+    description: "Check if we deliver to your area in Kampala. View delivery zones, fees (UGX 5,000-10,000), and estimated delivery times (30-60 mins). Covers Kampala Central, Nakawa, Kololo, Muyenga & more.",
+    keywords: "Kampala delivery zones, food delivery areas Kampala, delivery fee Uganda, Kampala Central delivery, Nakawa food delivery, Kololo delivery, where does 9Yards deliver",
+    ogTitle: "9Yards Food Delivery Zones - We Deliver Across Kampala",
+    ogDescription: "Fast delivery to Kampala Central, Nakawa, Kololo, Muyenga and more. Check your area and see delivery fees. Free delivery on orders above UGX 50,000.",
+    ogImage: "/images/og-delivery-map.jpg",
+    canonicalUrl: "https://food.9yards.co.ug/delivery-zones",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "9Yards Food Delivery",
+      "areaServed": [
+        "Kampala Central",
+        "Nakawa",
+        "Kololo",
+        "Muyenga"
+      ]
+    }
+  },
+
+  // DEALS PAGE (/deals)
+  deals: {
+    title: "Deals & Promo Codes | Special Offers on Ugandan Food | 9Yards Food",
+    description: "Save on authentic Ugandan food with exclusive promo codes. Get 10% off first orders (FIRST10), weekend specials (WEEKEND15), free delivery on UGX 50,000+. Limited time offers!",
+    keywords: "food promo codes Uganda, Kampala food deals, discount codes, weekend special, first order discount, free delivery offer, food promotions Kampala, FIRST10, WEEKEND15",
+    ogTitle: "Exclusive Deals & Promo Codes - 9Yards Food",
+    ogDescription: "Serving you more for less. Get 10% off your first order, weekend specials, and free delivery on orders above UGX 50,000. Grab the latest promo codes!",
+    ogImage: "/images/og-deals.jpg",
+    canonicalUrl: "https://food.9yards.co.ug/deals",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "Offer",
+      "name": "9Yards Food Promotions",
+      "description": "Exclusive deals and promo codes for authentic Ugandan food delivery"
+    }
+  },
+
+  // ABOUT PAGE (/about)
+  about: {
+    title: "About Us | Our Story & Mission | 9Yards Food - Authentic Ugandan Cuisine",
+    description: "Discover 9Yards Food's story. We're Ugandans cooking authentic Ugandan food for Ugandans. 100% natural ingredients, no preservatives, fresh daily. Trusted by Spice Diana and top Kampala influencers.",
+    keywords: "about 9Yards Food, authentic Ugandan restaurant, who cooks 9Yards food, natural ingredients Uganda, celebrity food delivery, Spice Diana food, Ugandan food culture",
+    ogTitle: "About 9Yards Food - Bringing Authentic Ugandan Cuisine to Your Doorstep",
+    ogDescription: "We're not just a delivery service. We're Ugandans, cooking authentic Ugandan food with 100% natural ingredients. From our kitchen to your table.",
+    ogImage: "/images/og-about.jpg", // Kitchen/team photo
+    canonicalUrl: "https://food.9yards.co.ug/about",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      "name": "About 9Yards Food",
+      "description": "Learn about 9Yards Food's mission to deliver authentic Ugandan cuisine"
+    }
+  },
+
+  // CONTACT PAGE (/contact)
+  contact: {
+    title: "Contact Us | Order Support & Inquiries | 9Yards Food Kampala",
+    description: "Get in touch with 9Yards Food. Call +256708453744, WhatsApp us, or email info@9yards.co.ug. Order support, bulk orders, catering inquiries. Available daily 10am-10pm.",
+    keywords: "contact 9Yards Food, food delivery support Kampala, WhatsApp order Uganda, bulk food orders Kampala, catering services Uganda, 9Yards phone number, customer service",
+    ogTitle: "Contact 9Yards Food - We're Here to Help",
+    ogDescription: "Have questions? Need support? Call +256708453744, WhatsApp, or email us. We're available daily 10am-10pm for orders and inquiries.",
+    canonicalUrl: "https://food.9yards.co.ug/contact",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "ContactPage",
+      "name": "Contact 9Yards Food"
+    }
+  },
+
+  // HOW IT WORKS PAGE (/how-it-works)
+  howItWorks: {
+    title: "How It Works | Easy 3-Step Food Ordering | 9Yards Food Delivery",
+    description: "Order authentic Ugandan food in 3 easy steps: Choose your combo, customize your meal, order via WhatsApp or pay online. 30-45 minute delivery to your doorstep in Kampala.",
+    keywords: "how to order food online Uganda, WhatsApp food order, mobile money payment Uganda, food delivery process, order Ugandan food, easy food ordering Kampala",
+    ogTitle: "How 9Yards Food Delivery Works - Simple 3-Step Process",
+    ogDescription: "Choose your food → Customize your combo → Order via WhatsApp or pay online. Fresh authentic Ugandan cuisine delivered in 30-45 minutes.",
+    ogImage: "/images/og-how-it-works.jpg",
+    canonicalUrl: "https://food.9yards.co.ug/how-it-works",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "How to Order from 9Yards Food",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "name": "Choose Your Food",
+          "text": "Select your main dishes and sauce from our authentic Ugandan menu"
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Customize Your Meal",
+          "text": "Pick your preparation style, add juices and desserts"
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Complete Your Order",
+          "text": "Order via WhatsApp or pay online with Mobile Money"
+        }
+      ]
+    }
+  },
+
+  // PRIVACY POLICY PAGE (/privacy)
+  privacy: {
+    title: "Privacy Policy | How We Protect Your Data | 9Yards Food",
+    description: "Read 9Yards Food's privacy policy. Learn how we collect, use, and protect your personal information when you order food online. Updated December 2024.",
+    keywords: "privacy policy Uganda, data protection, customer information security, online ordering privacy",
+    ogTitle: "9Yards Food Privacy Policy",
+    noIndex: false, // Keep indexed for trust/transparency
+    canonicalUrl: "https://food.9yards.co.ug/privacy"
+  },
+
+  // TERMS OF SERVICE PAGE (/terms)
+  terms: {
+    title: "Terms & Conditions | Service Agreement | 9Yards Food",
+    description: "9Yards Food terms of service. Review our ordering policies, delivery terms, payment conditions, and refund policy. Updated December 2024.",
+    keywords: "terms and conditions Uganda, service terms, ordering policy, delivery terms, refund policy food delivery",
+    ogTitle: "9Yards Food Terms & Conditions",
+    noIndex: false,
+    canonicalUrl: "https://food.9yards.co.ug/terms"
+  },
+
+  // ORDER CONFIRMATION PAGE (/order-confirmation)
+  orderConfirmation: {
+    title: "Order Confirmed! | Thank You | 9Yards Food",
+    description: "Your order has been confirmed. Track your delivery and get updates via WhatsApp. Estimated delivery: 30-45 minutes.",
+    keywords: "order confirmation, food delivery tracking, order status Uganda",
+    noIndex: true // Confirmation pages shouldn't be indexed
+  },
+
+  // ORDER HISTORY PAGE (/order-history)
+  orderHistory: {
+    title: "Order History | My Past Orders | 9Yards Food",
+    description: "View your past orders from 9Yards Food. Quickly reorder your favorite Ugandan meal combos with one click.",
+    keywords: "order history, past orders, reorder food, order tracking Uganda",
+    noIndex: true // Personal pages shouldn't be indexed
+  },
+
+  // 404 NOT FOUND PAGE (*)
+  notFound: {
+    title: "Page Not Found | 9Yards Food",
+    description: "The page you're looking for doesn't exist. Return to our menu to order authentic Ugandan food delivery in Kampala.",
+    noIndex: true // 404 pages shouldn't be indexed
+  }
+};
+
+// GLOBAL METADATA (Applied to all pages)
+export const globalMetadata = {
+  siteName: "9Yards Food",
+  twitterCard: "summary_large_image",
+  twitterSite: "@9yardsfood", // Update with actual handle
+  themeColor: "#212282", // 9Yards blue
+  viewport: "width=device-width, initial-scale=1, maximum-scale=5",
+  locale: "en_UG",
+  alternateName: "9Yards Food Delivery Uganda",
+  
+  // Structured Data - Organization
+  organizationSchema: {
+    "@context": "https://schema.org",
+    "@type": "FoodEstablishment",
+    "name": "9Yards Food",
+    "url": "https://food.9yards.co.ug",
+    "logo": "https://food.9yards.co.ug/images/logo.png",
+    "image": "https://food.9yards.co.ug/images/og-home.jpg",
+    "description": "Authentic Ugandan cuisine delivery service in Kampala",
+    "servesCuisine": "Ugandan",
+    "priceRange": "UGX 15,000 - 50,000",
+    "telephone": "+256708453744", // Updated
+    "email": "info@9yards.co.ug",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Kampala",
+      "addressRegion": "Central Region",
+      "addressCountry": "UG"
+    },
+    "sameAs": [
+      "https://www.instagram.com/9yardsfood",
+      "https://www.tiktok.com/@9yardsfood",
+      "https://9yards.co.ug"
+    ],
+    "openingHours": "Mo-Su 10:00-22:00",
+    "acceptsReservations": "False",
+    "hasMenu": "https://food.9yards.co.ug/menu"
+  },
+
+  // Additional tags for AI crawlers
+  aiMetadata: {
+    "robots": "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+    "googlebot": "index, follow",
+    "bingbot": "index, follow",
+    "author": "9Yards Food",
+    "generator": "React",
+    // Open Graph for AI training
+    "og:site_name": "9Yards Food",
+    "og:type": "website",
+    "og:locale": "en_UG",
+    // Additional for ChatGPT, Claude, Grok
+    "citation_publisher": "9Yards Food",
+    "citation_online_date": "2024/12/15"
+  }
+};

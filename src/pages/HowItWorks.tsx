@@ -9,6 +9,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import SEO from '@/components/SEO';
+import { pageMetadata } from '@/data/seo';
 import OptimizedImage from '@/components/ui/optimized-image';
 
 // Animated counter hook
@@ -93,9 +94,12 @@ export default function HowItWorksPage() {
   return (
     <div className="min-h-screen bg-background pb-24 lg:pb-0">
       <SEO 
-        title="How to Order | 9Yards Food"
-        description="Learn how to order authentic Ugandan food in 4 simple steps. We deliver fresh, hot meals to your doorstep within 30-45 minutes."
-        url="/how-it-works"
+        title={pageMetadata.howItWorks.title}
+        description={pageMetadata.howItWorks.description}
+        keywords={pageMetadata.howItWorks.keywords}
+        image={pageMetadata.howItWorks.ogImage}
+        url={pageMetadata.howItWorks.canonicalUrl}
+        jsonLd={pageMetadata.howItWorks.schema}
       />
       <Header />
       <main className="pt-16 md:pt-20">

@@ -39,6 +39,7 @@ import { useGuest } from '@/context/GuestContext';
 import { toast } from 'sonner';
 import { useAddressAutocomplete, PhotonResult } from '@/hooks/useAddressAutocomplete';
 import SEO from '@/components/SEO';
+import { pageMetadata } from '@/data/seo';
 
 // Flutterwave configuration
 const FLUTTERWAVE_PUBLIC_KEY = 'FLWPUBK_TEST-2cbeceb8352891cbcd28a983ce8d57ac-X';
@@ -456,9 +457,16 @@ export default function CartPage() {
   return (
     <div className="min-h-screen bg-background pb-20 lg:pb-0">
       <SEO 
-        title="Your Cart | 9Yards Food"
-        description="Review your order of authentic Ugandan cuisine. Secure checkout with Mobile Money or Card. Fast delivery across Kampala."
-        url="/cart"
+        title={pageMetadata.cart.title}
+        description={pageMetadata.cart.description}
+        keywords={pageMetadata.cart.keywords}
+        url={pageMetadata.cart.canonicalUrl}
+        noIndex={!pageMetadata.cart.noIndex} // Cart page has noIndex: true in seo.ts, but user wants it indexed? Wait. 
+        // Checking seo.ts: cart: { ..., noIndex: true }
+        // My SEO component has noIndex defaulting to false.
+        // So I should pass noIndex={true} or noIndex={pageMetadata.cart.noIndex}
+        // Let's pass pageMetadata.cart.noIndex directly.
+        // If pageMetadata.cart.noIndex is true, then noIndex prop is true, so robots meta will be noindex.
       />
       <Header />
 

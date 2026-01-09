@@ -1,14 +1,20 @@
 import Header from "@/components/layout/Header";
 import SEO from "@/components/SEO";
+import { pageMetadata } from '@/data/seo';
 import Footer from "@/components/layout/Footer";
 
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-background pb-20 lg:pb-0">
       <SEO 
-        title="Privacy Policy | 9Yards Food"
-        description="Read our privacy policy to understand how we collect, use, and protect your personal information when you order from 9Yards Food."
-        url="/privacy"
+        title={pageMetadata.privacy.title}
+        description={pageMetadata.privacy.description}
+        keywords={pageMetadata.privacy.keywords}
+        url={pageMetadata.privacy.canonicalUrl}
+        noIndex={!pageMetadata.privacy.noIndex} // Note: The user config says noIndex: false. My component expects noIndex: boolean.
+        // Wait, current Privacy config in src/data/seo.ts says noIndex: false (keep indexed).
+        // My SEO component defaults noIndex to false.
+        // So I don't strictly need to pass noIndex if it is false, but passing it is clearer.
       />
       <Header />
       <main className="pt-16 md:pt-20">

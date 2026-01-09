@@ -1,6 +1,7 @@
 import { MapPin, Clock, Truck, Phone } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import SEO from '@/components/SEO';
+import { pageMetadata } from '@/data/seo';
 import Footer from '@/components/layout/Footer';
 import { deliveryZones } from '@/data/menu';
 import { formatPrice } from '@/lib/utils/order';
@@ -9,9 +10,12 @@ export default function DeliveryZonesPage() {
   return (
     <div className="min-h-screen bg-background pb-20 lg:pb-0">
       <SEO 
-        title="Delivery Zones & Fees | 9Yards Food"
-        description="Check our delivery areas and fees in Kampala. We deliver to Central, Nakawa, Kololo, and more. Free delivery for orders over 50,000 UGX."
-        url="/delivery-zones"
+        title={pageMetadata.deliveryZones.title}
+        description={pageMetadata.deliveryZones.description}
+        keywords={pageMetadata.deliveryZones.keywords}
+        image={pageMetadata.deliveryZones.ogImage}
+        url={pageMetadata.deliveryZones.canonicalUrl}
+        jsonLd={pageMetadata.deliveryZones.schema}
       />
       <Header />
       <main className="pt-16 md:pt-20">

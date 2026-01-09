@@ -14,6 +14,7 @@ import Footer from "@/components/layout/Footer";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { toast } from "sonner";
 import SEO from "@/components/SEO";
+import { pageMetadata } from "@/data/seo";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -83,9 +84,12 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-background pb-24 lg:pb-0">
       <SEO 
-        title="Contact Us | Support & Inquiries"
-        description="Get in touch with 9Yards Food. Call us, WhatsApp us, or send an email for support, questions, or bulk orders."
-        url="/contact"
+        title={pageMetadata.contact.title}
+        description={pageMetadata.contact.description}
+        keywords={pageMetadata.contact.keywords}
+        image={pageMetadata.contact.ogImage}
+        url={pageMetadata.contact.canonicalUrl}
+        jsonLd={pageMetadata.contact.schema}
       />
       <Header />
       <main className="pt-16 md:pt-20">

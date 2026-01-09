@@ -8,6 +8,7 @@ import { useState, useRef, useEffect } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import SEO from '@/components/SEO';
+import { pageMetadata } from '@/data/seo';
 
 // Animated counter hook
 function useCountUp(end: number, duration: number = 2000) {
@@ -249,9 +250,12 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-background pb-24 lg:pb-0">
       <SEO 
-        title="Our Story | Authentic Ugandan Cuisine"
-        description="Learn about 9Yards Food, our mission to bring authentic Ugandan cuisine to your doorstep, and the team behind your meals."
-        url="/about"
+        title={pageMetadata.about.title}
+        description={pageMetadata.about.description}
+        keywords={pageMetadata.about.keywords}
+        image={pageMetadata.about.ogImage}
+        url={pageMetadata.about.canonicalUrl}
+        jsonLd={pageMetadata.about.schema}
       />
       <Header />
       <main className="pt-16 md:pt-20">

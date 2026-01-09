@@ -2,15 +2,17 @@ import { Link } from 'react-router-dom';
 import { Home, UtensilsCrossed, ArrowLeft } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import SEO from '@/components/SEO';
+import { pageMetadata } from '@/data/seo';
 import Footer from '@/components/layout/Footer';
 
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-background pb-20 lg:pb-0">
       <SEO 
-        title="Page Not Found | 9Yards Food"
-        description="The page you are looking for does not exist."
-        url="/404"
+        title={pageMetadata.notFound.title}
+        description={pageMetadata.notFound.description}
+        url={pageMetadata.notFound.canonicalUrl}
+        noIndex={pageMetadata.notFound.noIndex}
       />
       <Header />
       <main className="pt-16 md:pt-20">

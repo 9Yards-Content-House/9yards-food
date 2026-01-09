@@ -23,6 +23,7 @@ import { formatPrice } from "@/lib/utils/order";
 import { useCart, CartItem } from "@/context/CartContext";
 import { toast } from "sonner";
 import SEO from "@/components/SEO";
+import { pageMetadata } from "@/data/seo";
 import { vibrate } from "@/lib/utils/ui"; // Add import
 
 type Category =
@@ -369,9 +370,12 @@ export default function MenuPage() {
   return (
     <div className="min-h-screen bg-gray-50 pb-20 lg:pb-0">
       <SEO
-        title="Our Menu | Authentic Ugandan Dishes & Combos"
-        description="Explore our diverse menu of authentic Ugandan food. Build your own combo with Matooke, Rice, Beef, Chicken, Fish and more."
-        url="/menu"
+        title={pageMetadata.menu.title}
+        description={pageMetadata.menu.description}
+        keywords={pageMetadata.menu.keywords}
+        image={pageMetadata.menu.ogImage}
+        url={pageMetadata.menu.canonicalUrl}
+        jsonLd={pageMetadata.menu.schema}
       />
       <Header />
 

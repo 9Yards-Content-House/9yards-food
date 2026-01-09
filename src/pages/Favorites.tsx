@@ -3,6 +3,7 @@ import { Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import SEO from '@/components/SEO';
+import { pageMetadata } from '@/data/seo';
 import Footer from '@/components/layout/Footer';
 import { useCart, CartItem } from '@/context/CartContext';
 import { menuData } from '@/data/menu';
@@ -96,9 +97,11 @@ export default function FavoritesPage() {
     return (
       <div className="min-h-screen bg-background pb-20 lg:pb-0">
         <SEO 
-          title="My Favorites | 9Yards Food"
-          description="Your favorite authentic Ugandan dishes saved for quick ordering."
-          url="/favorites"
+          title={pageMetadata.favorites.title}
+          description={pageMetadata.favorites.description}
+          keywords={pageMetadata.favorites.keywords}
+          url={pageMetadata.favorites.canonicalUrl}
+          noIndex={pageMetadata.favorites.noIndex}
         />
         <Header />
         <main className="pt-16 md:pt-20">
@@ -127,9 +130,11 @@ export default function FavoritesPage() {
   return (
     <div className="min-h-screen bg-gray-50 pb-20 lg:pb-0">
       <SEO 
-        title="My Favorites | 9Yards Food"
-        description="Your favorite authentic Ugandan dishes saved for quick ordering."
-        url="/favorites"
+        title={pageMetadata.favorites.title}
+        description={pageMetadata.favorites.description}
+        keywords={pageMetadata.favorites.keywords}
+        url={pageMetadata.favorites.canonicalUrl}
+        noIndex={pageMetadata.favorites.noIndex}
       />
       <Header />
       <main className="pt-16 md:pt-20">

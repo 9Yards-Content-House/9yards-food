@@ -1,14 +1,16 @@
 import Header from '@/components/layout/Header';
 import SEO from '@/components/SEO';
+import { pageMetadata } from '@/data/seo';
 import Footer from '@/components/layout/Footer';
 
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-background pb-20 lg:pb-0">
       <SEO 
-        title="Terms & Conditions | 9Yards Food"
-        description="Review the terms and conditions for ordering from 9Yards Food, including delivery policies, payments, and order cancellations."
-        url="/terms"
+        title={pageMetadata.terms.title}
+        description={pageMetadata.terms.description}
+        keywords={pageMetadata.terms.keywords}
+        url={pageMetadata.terms.canonicalUrl}
       />
       <Header />
       <main className="pt-16 md:pt-20">

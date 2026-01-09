@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import SEO from '@/components/SEO';
+import { pageMetadata } from '@/data/seo';
 import Footer from '@/components/layout/Footer';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import { formatPrice } from '@/lib/utils/order';
@@ -106,9 +107,10 @@ export default function OrderConfirmation() {
   return (
     <div className="min-h-screen bg-[#f8f6f6] pb-20 lg:pb-0">
       <SEO 
-        title="Order Confirmation | 9Yards Food"
-        description="Your order has been placed successfully."
-        url="/order-confirmation"
+        title={pageMetadata.orderConfirmation.title}
+        description={pageMetadata.orderConfirmation.description}
+        url={pageMetadata.orderConfirmation.canonicalUrl}
+        noIndex={pageMetadata.orderConfirmation.noIndex}
       />
       <Header />
 

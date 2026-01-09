@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet-async";
+import { globalMetadata } from "@/data/seo";
 
 interface SEOProps {
   title: string;
@@ -8,19 +9,22 @@ interface SEOProps {
   url?: string;
   type?: string;
   jsonLd?: Record<string, any>;
+  noIndex?: boolean;
 }
 
 const SEO = ({
   title,
   description,
-  keywords = "Ugandan food delivery, Kampala food delivery, Matooke, Posho, local food, African cuisine, 9Yards Food",
-  image = "/images/logo/9Yards-Food-Coloured-favicon.jpg",
-  url = "https://food.9yards.co.ug",
+  keywords = globalMetadata.organizationSchema.description, // Fallback if needed, though keywords usually specific
+  image = globalMetadata.organizationSchema.image,
+  url = globalMetadata.organizationSchema.url,
   type = "website",
-  jsonLd
+  jsonLd,
+  noIndex = false,
 }: SEOProps) => {
-  const siteTitle = "9Yards Food";
-  const fullTitle = title === siteTitle ? title : `${title} | ${siteTitle}`;
+  const siteTitle = globalMetadata.siteName;
+  // If the title already contains the site name or is the site name, use it as is, otherwise append
+  const fullTitle = title === siteTitle || title.includes(siteTitle) ? title : `${title} | ${siteTitle}`;
   const fullUrl = url.startsWith("http")
     ? url
     : `https://food.9yards.co.ug${url}`;
@@ -29,25 +33,17 @@ const SEO = ({
     : `https://food.9yards.co.ug${image}`;
 
   // Default Schema.org Structured Data
+  // We use the global organization schema as a base for defaults or generic pages
   const defaultStructuredData = {
-    "@context": "https://schema.org",
-    "@type": "FoodDelivery",
-    name: "9Yards Food",
+    ...globalMetadata.organizationSchema,
     image: [fullImage],
     description: description,
-    url: "https://food.9yards.co.ug",
-    telephone: "+256708453744", 
-    servesCuisine: "Ugandan",
-    areaServed: "Kampala",
-    priceRange: "UGX",
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Kampala",
-      addressCountry: "UG",
-    },
+    url: fullUrl,
   };
 
   const finalStructuredData = jsonLd ? { ...defaultStructuredData, ...jsonLd } : defaultStructuredData;
+
+  const aiMeta = globalMetadata.aiMetadata;
 
   return (
     <Helmet>
@@ -55,6 +51,21 @@ const SEO = ({
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
       <meta name="keywords" content={keywords} />
+      {noIndex ? (
+        <meta name="robots" content="noindex, nofollow" />
+      ) : (
+        <meta name="robots" content={aiMeta.robots} />
+      )}
+      <meta name="messages" content="AI-crawler-friendly" />
+      
+      {/* AI & Crawler Specific */}
+      <meta name="googlebot" content={aiMeta.googlebot} />
+      <meta name="bingbot" content={aiMeta.bingbot} />
+      <meta name="author" content={aiMeta.author} />
+      <meta name="generator" content={aiMeta.generator} />
+      <meta name="citation_publisher" content={aiMeta.citation_publisher} />
+      <meta name="citation_online_date" content={aiMeta.citation_online_date} />
+
       <link rel="canonical" href={fullUrl} />
       <link rel="icon" type="image/jpeg" href="/images/logo/9Yards-Food-Coloured-favicon.jpg" />
       <link rel="shortcut icon" type="image/jpeg" href="/images/logo/9Yards-Food-Coloured-favicon.jpg" />
@@ -66,9 +77,11 @@ const SEO = ({
       <meta property="og:description" content={description} />
       <meta property="og:image" content={fullImage} />
       <meta property="og:site_name" content={siteTitle} />
+      <meta property="og:locale" content={globalMetadata.locale} />
 
       {/* Twitter */}
-      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:card" content={globalMetadata.twitterCard} />
+      <meta name="twitter:site" content={globalMetadata.twitterSite} />
       <meta name="twitter:url" content={fullUrl} />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
