@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Heart, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Header from '@/components/layout/Header';
+import MobilePageHeader, { MobilePageTitle } from '@/components/layout/MobilePageHeader';
 import SEO from '@/components/SEO';
 import { pageMetadata } from '@/data/seo';
 import Footer from '@/components/layout/Footer';
@@ -11,7 +12,7 @@ import { formatPrice } from '@/lib/utils/order';
 import { MenuItemCard, Category } from '@/components/menu/MenuItemCard';
 import ComboBuilder from '@/components/menu/ComboBuilder';
 import { toast } from 'sonner';
-import { vibrate } from '@/lib/utils/ui';
+import { vibrate, haptics } from '@/lib/utils/ui';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 
 export default function FavoritesPage() {
@@ -140,8 +141,24 @@ export default function FavoritesPage() {
       />
       <Header />
       <main className="pt-16 md:pt-20">
+        {/* Mobile App-Style Header */}
+        <MobilePageHeader 
+          title="My Favorites"
+          subtitle={`${favoriteItems.length} item${favoriteItems.length !== 1 ? 's' : ''}`}
+          rightAction={
+            <button
+              onClick={() => setIsClearConfirmOpen(true)}
+              className="p-2 -mr-2 rounded-full hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
+              title="Clear all favorites"
+            >
+              <Trash2 className="w-5 h-5" />
+            </button>
+          }
+        />
+        
         <div className="container-custom section-padding">
-          <div className="flex items-center justify-between mb-8">
+          {/* Desktop Header */}
+          <div className="hidden lg:flex items-center justify-between mb-8">
             <h1 className="text-2xl md:text-3xl font-bold text-foreground">
               My Favorites ({favoriteItems.length})
             </h1>

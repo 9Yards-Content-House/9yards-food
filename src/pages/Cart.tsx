@@ -26,7 +26,9 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import PageHeader from '@/components/layout/PageHeader';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import OptimizedImage from '@/components/ui/optimized-image';
+import SwipeableItem, { SwipeHint } from '@/components/ui/SwipeableItem';
 import { useCart, OrderHistoryItem } from '@/context/CartContext';
 import { deliveryZones, promoCodes, menuData } from '@/data/menu';
 import {
@@ -40,6 +42,7 @@ import { toast } from 'sonner';
 import { useAddressAutocomplete, PhotonResult } from '@/hooks/useAddressAutocomplete';
 import SEO from '@/components/SEO';
 import { pageMetadata } from '@/data/seo';
+import { haptics, isMobileDevice } from '@/lib/utils/ui';
 
 // Flutterwave configuration
 const FLUTTERWAVE_PUBLIC_KEY = 'FLWPUBK_TEST-2cbeceb8352891cbcd28a983ce8d57ac-X';
@@ -578,11 +581,20 @@ export default function CartPage() {
       <Header />
 
       <main className="pt-16 md:pt-20">
-        <PageHeader 
+        {/* Mobile App-Style Header */}
+        <MobilePageHeader 
           title="Your Cart"
-          description={`Review your items (${state.items.length}) and checkout.`}
-          variant="compact"
+          subtitle={`${state.items.length} item${state.items.length !== 1 ? 's' : ''}`}
         />
+        
+        {/* Desktop Header */}
+        <div className="hidden lg:block">
+          <PageHeader 
+            title="Your Cart"
+            description={`Review your items (${state.items.length}) and checkout.`}
+            variant="compact"
+          />
+        </div>
 
         <div className="container-custom px-5 sm:px-6 md:px-8 py-8 md:py-12">
           {/* Peak Hours Alert */}
@@ -641,141 +653,171 @@ export default function CartPage() {
                     </button>
                 </div>
 
+                {/* Mobile swipe hint */}
+                {state.items.length > 0 && isMobileDevice() && (
+                  <SwipeHint className="lg:hidden" />
+                )}
+
                 {state.items.map((item, index) => {
                   const itemImage = getItemImage(item);
                   const itemDescription = getItemDescription(item);
                   const totalItemPrice = item.totalPrice * item.quantity;
                   
-                  return (
-                    <div key={item.id} className="group">
-                      <div className="flex gap-4 items-start">
-                        {/* Visual */}
-                        <div className="shrink-0 w-24 h-24 rounded-2xl bg-muted overflow-hidden border border-border relative">
-                          {itemImage ? (
-                            <OptimizedImage
-                              src={itemImage}
-                              alt={item.mainDishes.join(', ')}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                             <div className="w-full h-full flex items-center justify-center text-muted-foreground/30">
-                               <UtensilsCrossed className="w-8 h-8" />
-                             </div>
-                          )}
-                          {/* Type badge */}
-                          <span className={`absolute bottom-1 left-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase ${
-                            item.type === 'combo' 
-                              ? 'bg-purple-100 text-purple-700' 
-                              : 'bg-blue-100 text-blue-700'
-                          }`}>
-                            {item.type === 'combo' ? 'Combo' : 'Single'}
-                          </span>
-                        </div>
-  
-                        <div className="flex flex-1 flex-col justify-between min-h-[96px]">
-                          <div>
-                            <div className="flex justify-between items-start mb-1">
-                              <h3 className="text-[#212282] text-base font-bold leading-tight line-clamp-2">
-                                {item.mainDishes.join(' + ')}{item.type === 'combo' ? ' Combo' : ''}
-                              </h3>
-                              <button 
-                                onClick={() => removeItem(item.id)}
-                                className="text-muted-foreground/50 hover:text-red-500 transition-colors p-1"
-                                aria-label="Remove item"
-                                title="Remove from Cart"
-                              >
-                                <X className="w-5 h-5" />
-                              </button>
-                            </div>
-                            
-                            {/* Descriptions */}
-                            <div className="text-sm text-muted-foreground space-y-1">
-                                {/* Single item description from menu */}
-                                {item.type === 'single' && itemDescription && (
-                                  <p className="text-xs text-muted-foreground line-clamp-2">
-                                    {itemDescription}
-                                  </p>
-                                )}
-                                
-                                {/* Combo: Sauce with preparation and size */}
-                                {item.type === 'combo' && item.sauce && (
-                                   <div className="flex flex-wrap items-center gap-1.5">
-                                      <span className="font-medium text-foreground text-sm">{item.sauce.name}</span>
-                                      {item.sauce.preparation && item.sauce.preparation !== 'Default' && (
-                                        <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-medium">{item.sauce.preparation}</span>
-                                      )}
-                                      {item.sauce.size && (
-                                        <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded font-medium">{item.sauce.size}</span>
-                                      )}
-                                   </div>
-                                )}
-                                
-                                {/* Side dish */}
-                                {item.sideDish && (
-                                    <p className="text-xs">+ {item.sideDish}</p>
-                                )}
-                                
-                                {/* Extras */}
-                                {item.extras.length > 0 && (
-                                  <p className="text-xs text-[#E6411C]">
-                                    + {item.extras.map((e) => e.quantity > 1 ? `${e.name} ×${e.quantity}` : e.name).join(', ')}
-                                  </p>
-                                )}
-                            </div>
+                  const itemContent = (
+                    <div className="flex gap-4 items-start py-2">
+                      {/* Visual */}
+                      <div className="shrink-0 w-24 h-24 rounded-2xl bg-muted overflow-hidden border border-border relative">
+                        {itemImage ? (
+                          <OptimizedImage
+                            src={itemImage}
+                            alt={item.mainDishes.join(', ')}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                           <div className="w-full h-full flex items-center justify-center text-muted-foreground/30">
+                             <UtensilsCrossed className="w-8 h-8" />
+                           </div>
+                        )}
+                        {/* Type badge */}
+                        <span className={`absolute bottom-1 left-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase ${
+                          item.type === 'combo' 
+                            ? 'bg-purple-100 text-purple-700' 
+                            : 'bg-blue-100 text-blue-700'
+                        }`}>
+                          {item.type === 'combo' ? 'Combo' : 'Single'}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-1 flex-col justify-between min-h-[96px]">
+                        <div>
+                          <div className="flex justify-between items-start mb-1">
+                            <h3 className="text-[#212282] text-base font-bold leading-tight line-clamp-2">
+                              {item.mainDishes.join(' + ')}{item.type === 'combo' ? ' Combo' : ''}
+                            </h3>
+                            {/* Hide X button on mobile (swipe instead) */}
+                            <button 
+                              onClick={() => {
+                                haptics.light();
+                                removeItem(item.id);
+                              }}
+                              className="hidden lg:flex text-muted-foreground/50 hover:text-red-500 transition-colors p-1"
+                              aria-label="Remove item"
+                              title="Remove from Cart"
+                            >
+                              <X className="w-5 h-5" />
+                            </button>
                           </div>
-  
-                          <div className="flex items-center justify-between mt-3">
-                            {/* Price with breakdown for quantity > 1 */}
-                            <div>
-                              <p className="text-[#E6411C] font-bold text-lg">
-                                {formatPrice(totalItemPrice)}
-                              </p>
-                              {item.quantity > 1 && (
-                                <p className="text-[10px] text-muted-foreground">
-                                  {formatPrice(item.totalPrice)} each
+                          
+                          {/* Descriptions */}
+                          <div className="text-sm text-muted-foreground space-y-1">
+                              {/* Single item description from menu */}
+                              {item.type === 'single' && itemDescription && (
+                                <p className="text-xs text-muted-foreground line-clamp-2">
+                                  {itemDescription}
                                 </p>
                               )}
-                            </div>
-                            
-                            <div className="flex items-center gap-3">
-                              {/* Quantity Controls */}
-                              <div className="flex items-center gap-3 bg-muted rounded-full p-0.5 border border-border/50">
-                                <button 
-                                  onClick={() => {
-                                    if (item.quantity > 1) {
-                                      updateQuantity(item.id, item.quantity - 1);
-                                    } else {
-                                      removeItem(item.id);
-                                    }
-                                  }}
-                                  className="w-7 h-7 flex items-center justify-center rounded-full bg-background text-foreground hover:bg-white shadow-sm transition-all"
-                                  title={item.quantity > 1 ? "Decrease quantity" : "Remove item"}
-                                >
-                                  <Minus className="w-3.5 h-3.5" />
-                                </button>
-                                <span className="w-6 text-center text-sm font-bold text-foreground">{item.quantity}</span>
-                                <button 
-                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                  className="w-7 h-7 flex items-center justify-center rounded-full bg-[#E6411C] text-white hover:bg-[#d13a18] shadow-sm transition-all"
-                                  title="Increase quantity"
-                                >
-                                  <Plus className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-
-                              {/* Edit Button (Combos only) */}
-                              {item.type === 'combo' && (
-                                  <button
-                                      onClick={() => navigate('/menu', { state: { editItem: item } })}
-                                      className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors border border-blue-100"
-                                      title="Edit Combo"
-                                  >
-                                      <Pencil className="w-4 h-4" />
-                                  </button>
+                              
+                              {/* Combo: Sauce with preparation and size */}
+                              {item.type === 'combo' && item.sauce && (
+                                 <div className="flex flex-wrap items-center gap-1.5">
+                                    <span className="font-medium text-foreground text-sm">{item.sauce.name}</span>
+                                    {item.sauce.preparation && item.sauce.preparation !== 'Default' && (
+                                      <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-medium">{item.sauce.preparation}</span>
+                                    )}
+                                    {item.sauce.size && (
+                                      <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded font-medium">{item.sauce.size}</span>
+                                    )}
+                                 </div>
                               )}
-                            </div>
+                              
+                              {/* Side dish */}
+                              {item.sideDish && (
+                                  <p className="text-xs">+ {item.sideDish}</p>
+                              )}
+                              
+                              {/* Extras */}
+                              {item.extras.length > 0 && (
+                                <p className="text-xs text-[#E6411C]">
+                                  + {item.extras.map((e) => e.quantity > 1 ? `${e.name} ×${e.quantity}` : e.name).join(', ')}
+                                </p>
+                              )}
                           </div>
                         </div>
+
+                        <div className="flex items-center justify-between mt-3">
+                          {/* Price with breakdown for quantity > 1 */}
+                          <div>
+                            <p className="text-[#E6411C] font-bold text-lg">
+                              {formatPrice(totalItemPrice)}
+                            </p>
+                            {item.quantity > 1 && (
+                              <p className="text-[10px] text-muted-foreground">
+                                {formatPrice(item.totalPrice)} each
+                              </p>
+                            )}
+                          </div>
+                          
+                          <div className="flex items-center gap-3">
+                            {/* Quantity Controls */}
+                            <div className="flex items-center gap-3 bg-muted rounded-full p-0.5 border border-border/50">
+                              <button 
+                                onClick={() => {
+                                  haptics.light();
+                                  if (item.quantity > 1) {
+                                    updateQuantity(item.id, item.quantity - 1);
+                                  } else {
+                                    removeItem(item.id);
+                                  }
+                                }}
+                                className="w-7 h-7 flex items-center justify-center rounded-full bg-background text-foreground hover:bg-white shadow-sm transition-all active:scale-95"
+                                title={item.quantity > 1 ? "Decrease quantity" : "Remove item"}
+                              >
+                                <Minus className="w-3.5 h-3.5" />
+                              </button>
+                              <span className="w-6 text-center text-sm font-bold text-foreground">{item.quantity}</span>
+                              <button 
+                                onClick={() => {
+                                  haptics.light();
+                                  updateQuantity(item.id, item.quantity + 1);
+                                }}
+                                className="w-7 h-7 flex items-center justify-center rounded-full bg-[#E6411C] text-white hover:bg-[#d13a18] shadow-sm transition-all active:scale-95"
+                                title="Increase quantity"
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+
+                            {/* Edit Button (Combos only) */}
+                            {item.type === 'combo' && (
+                                <button
+                                    onClick={() => navigate('/menu', { state: { editItem: item } })}
+                                    className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors border border-blue-100 active:scale-95"
+                                    title="Edit Combo"
+                                >
+                                    <Pencil className="w-4 h-4" />
+                                </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                  
+                  return (
+                    <div key={item.id} className="group">
+                      {/* Mobile: Swipeable | Desktop: Regular */}
+                      <div className="lg:hidden">
+                        <SwipeableItem 
+                          onDelete={() => {
+                            removeItem(item.id);
+                            toast.success('Item removed');
+                          }}
+                        >
+                          {itemContent}
+                        </SwipeableItem>
+                      </div>
+                      <div className="hidden lg:block">
+                        {itemContent}
                       </div>
                       {index < state.items.length - 1 && (
                         <div className="h-px bg-border/40 w-full mt-6" />
@@ -1170,7 +1212,7 @@ export default function CartPage() {
                         <button
                           onClick={handleWhatsAppOrder}
                           disabled={isProcessingPayment}
-                          className="w-full bg-[#25D366] text-white h-14 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-green-500/20 active:scale-[0.98] transition-all"
+                          className="w-full bg-[#25D366] text-white h-14 rounded-xl font-bold flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition-all"
                         >
                           <WhatsAppIcon className="w-5 h-5" />
                           <span>Order via WhatsApp</span>
@@ -1503,7 +1545,7 @@ export default function CartPage() {
                 {/* Desktop Actions */}
                 <button
                   onClick={handleWhatsAppOrder}
-                  className="w-full bg-[#25D366] text-white rounded-xl py-3.5 mb-3 flex items-center justify-center gap-2 hover:bg-[#22c55e] transition-colors font-bold shadow-lg shadow-green-500/20"
+                  className="w-full bg-[#25D366] text-white rounded-xl py-3.5 mb-3 flex items-center justify-center gap-2 hover:bg-[#22c55e] transition-colors font-bold shadow-sm"
                 >
                   <WhatsAppIcon className="w-5 h-5" /> Order via WhatsApp
                 </button>

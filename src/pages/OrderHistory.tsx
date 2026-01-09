@@ -20,12 +20,14 @@ import { pageMetadata } from '@/data/seo';
 import Footer from '@/components/layout/Footer';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import PageHeader from '@/components/layout/PageHeader';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import OptimizedImage from '@/components/ui/optimized-image';
 import { useCart, OrderHistoryItem, CartItem } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils/order';
 import { WHATSAPP_NUMBER } from '@/lib/constants';
 import { toast } from 'sonner';
 import { menuData } from '@/data/menu';
+import { haptics } from '@/lib/utils/ui';
 
 const INITIAL_ORDERS_SHOWN = 5; // Show 5 orders initially
 
@@ -347,10 +349,36 @@ export default function OrderHistory() {
       <Header />
 
       <main className="pt-16 md:pt-20">
-        <PageHeader 
+        {/* Mobile App-Style Header */}
+        <MobilePageHeader 
           title="Order History"
-          description="Track your current orders or reorder your past favorites in seconds."
+          subtitle={`${orderHistory.length} order${orderHistory.length !== 1 ? 's' : ''}`}
+          rightAction={
+            orderHistory.length > 0 ? (
+              <button
+                onClick={() => {
+                  if (confirm('Are you sure you want to clear all order history?')) {
+                    haptics.medium();
+                    clearOrderHistory();
+                    toast.success('Order history cleared');
+                  }
+                }}
+                className="p-2 -mr-2 rounded-full hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
+                title="Clear history"
+              >
+                <Trash2 className="w-5 h-5" />
+              </button>
+            ) : undefined
+          }
         />
+        
+        {/* Desktop Header */}
+        <div className="hidden lg:block">
+          <PageHeader 
+            title="Order History"
+            description="Track your current orders or reorder your past favorites in seconds."
+          />
+        </div>
 
         <div className="container-custom px-4 sm:px-6 lg:px-8 py-8 md:py-12">
           <div className="flex items-center justify-between mb-6 md:mb-8">
@@ -565,7 +593,7 @@ export default function OrderHistory() {
                            </button>
                            <button
                              onClick={() => handleReorder(order)}
-                             className="flex-1 sm:flex-none h-9 sm:h-10 md:h-11 text-xs md:text-sm font-bold bg-[#E6411C] hover:bg-[#d13a17] text-white rounded-xl flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 shadow-sm shadow-orange-500/20 transition-all active:scale-[0.98]"
+                             className="flex-1 sm:flex-none h-9 sm:h-10 md:h-11 text-xs md:text-sm font-bold bg-[#E6411C] hover:bg-[#d13a17] text-white rounded-xl flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 shadow-sm transition-all active:scale-[0.98]"
                            >
                              <RefreshCw className="w-4 h-4" />
                              Reorder
