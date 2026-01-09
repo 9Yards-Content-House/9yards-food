@@ -28,7 +28,7 @@ import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import PageHeader from '@/components/layout/PageHeader';
 import OptimizedImage from '@/components/ui/optimized-image';
 import { useCart, OrderHistoryItem } from '@/context/CartContext';
-import { deliveryZones, promoCodes } from '@/data/menu';
+import { deliveryZones, promoCodes, menuData } from '@/data/menu';
 import {
   formatPrice,
   generateOrderId,
@@ -450,9 +450,46 @@ export default function CartPage() {
 
   // Helper to get item image
   const getItemImage = (item: any) => {
-    // Priority: Item Image -> Sauce Image -> Fallback
+    // Priority: Item Image -> Sauce Image -> Menu Data Lookup -> Fallback
     if (item.image) return item.image;
     if (item.sauce?.image) return item.sauce.image;
+    
+    // For single items, look up from menu data
+    if (item.type === 'single') {
+      // Extract raw ID (strip category prefix like 'lusaniya-', 'juice-', etc.)
+      const getRawId = (id: string) => {
+        const prefixes = ['lusaniya-', 'juice-', 'dessert-', 'side-', 'main-'];
+        for (const prefix of prefixes) {
+          if (id.startsWith(prefix)) {
+            return id.substring(prefix.length);
+          }
+        }
+        return id;
+      };
+      
+      const rawId = getRawId(item.id);
+      const itemName = item.mainDishes?.[0] || '';
+      
+      // Search in all menu categories
+      const lusaniya = menuData.lusaniya.find(l => l.id === rawId || l.id === item.id || l.name === itemName);
+      if (lusaniya?.image) return lusaniya.image;
+      
+      const juice = menuData.juices.find(j => j.id === rawId || j.id === item.id || j.name === itemName);
+      if (juice?.image) return juice.image;
+      
+      const dessert = menuData.desserts.find(d => d.id === rawId || d.id === item.id || d.name === itemName);
+      if (dessert?.image) return dessert.image;
+      
+      const side = menuData.sideDishes.find(s => s.id === rawId || s.id === item.id || s.name === itemName);
+      if (side?.image) return side.image;
+    }
+    
+    // For combos, try to get image from first main dish
+    if (item.type === 'combo' && item.mainDishes?.[0]) {
+      const mainDish = menuData.mainDishes.find(d => d.name === item.mainDishes[0]);
+      if (mainDish?.image) return mainDish.image;
+    }
+    
     return null;
   };
 
