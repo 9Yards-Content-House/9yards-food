@@ -14,11 +14,16 @@ import {
   Globe,
   Check,
   AlertTriangle,
+  X,
+  Star,
+  Gift,
 } from "lucide-react";
 import { deliveryZones } from "@/data/menu";
 import { formatPrice } from "@/lib/utils/order";
 import { WHATSAPP_NUMBER } from "@/lib/constants";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
+import { useCart } from "@/context/CartContext";
+import { haptics } from "@/lib/utils/ui";
 
 // Local storage key for recent searches
 const RECENT_SEARCHES_KEY = "9yards_recent_locations";
@@ -73,6 +78,9 @@ const locationAliases: Record<string, string[]> = {
 
 // Popular/suggested areas to show when input is empty
 const popularAreas = ["Kololo", "Ntinda", "Kabalagala", "Bugolobi"];
+
+// Free delivery threshold
+const FREE_DELIVERY_THRESHOLD = 50000;
 
 // Helper to calculate distance between two coordinates (Haversine formula)
 function getDistanceFromLatLonInKm(
@@ -281,6 +289,7 @@ async function fetchPhotonSuggestions(
 
 export default function HeroSection() {
   const navigate = useNavigate();
+  const { setUserPreferences } = useCart();
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedZone, setSelectedZone] = useState<
@@ -449,10 +458,14 @@ export default function HeroSection() {
       };
     }
 
-    // Return empty - don't show dropdown if no recent searches
+    // Show popular areas when no recent searches
+    const popularZones = popularAreas
+      .map((name) => deliveryZones.find((z) => z.name === name))
+      .filter(Boolean) as typeof deliveryZones;
+
     return {
-      type: "empty" as const,
-      zones: [],
+      type: "popular" as const,
+      zones: popularZones,
       apiResults: [],
       hasApiResults: false,
       hasLocalResults: false,
@@ -513,8 +526,17 @@ export default function HeroSection() {
       setApiResults([]);
       saveRecentSearch(zone.name);
       setRecentSearches(getRecentSearches());
+      
+      // Persist to CartContext for use in Cart page
+      setUserPreferences({ 
+        location: zone.name,
+        address: location?.name || zone.name 
+      });
+      
+      // Haptic feedback on success
+      haptics.success();
     },
-    []
+    [setUserPreferences]
   );
 
   // Handle selecting an API result (location outside delivery zones)
@@ -540,6 +562,9 @@ export default function HeroSection() {
         setShowSuggestions(false);
         setHighlightedIndex(-1);
         setApiResults([]);
+        
+        // Haptic feedback for not found
+        haptics.warning();
       }
     },
     [handleSelectZone]
@@ -774,7 +799,7 @@ export default function HeroSection() {
                       }}
                       onFocus={() => setShowSuggestions(true)}
                       onKeyDown={handleKeyDown}
-                      className="w-full pl-10 pr-10 py-2.5 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-transparent text-sm transition-all duration-200"
+                      className="w-full pl-10 pr-16 py-2.5 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-transparent text-sm transition-all duration-200"
                       aria-label="Enter your delivery address"
                       aria-expanded={
                         showSuggestions && displaySuggestions.zones.length > 0
@@ -789,6 +814,25 @@ export default function HeroSection() {
                       role="combobox"
                       autoComplete="off"
                     />
+                    {/* Clear Button - shows when there's text */}
+                    {searchQuery && (
+                      <button
+                        onClick={() => {
+                          setSearchQuery("");
+                          setDebouncedQuery("");
+                          setSelectedZone(null);
+                          setShowNotFound(false);
+                          setLocationError(null);
+                          setApiResults([]);
+                          inputRef.current?.focus();
+                        }}
+                        className="absolute right-9 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-full transition-colors"
+                        aria-label="Clear search"
+                        title="Clear"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                     {/* Geolocation Button */}
                     <button
                       onClick={handleGetLocation}
@@ -854,6 +898,16 @@ export default function HeroSection() {
                             <XCircle className="w-3 h-3" />
                             Clear
                           </button>
+                        </div>
+                      )}
+
+                      {/* Section Header for popular areas */}
+                      {displaySuggestions.type === "popular" && !isSearching && (
+                        <div className="px-4 py-2 bg-secondary/5 border-b border-secondary/10">
+                          <span className="text-xs font-medium text-secondary uppercase tracking-wide flex items-center gap-1.5">
+                            <Star className="w-3 h-3" />
+                            Popular Areas
+                          </span>
                         </div>
                       )}
 
@@ -1071,6 +1125,13 @@ export default function HeroSection() {
                             : formatPrice(selectedZone.fee)}
                         </span>
                       </div>
+                      {/* Free delivery threshold hint */}
+                      {selectedZone.fee > 0 && (
+                        <p className="mt-2 text-xs text-green-600 flex items-center gap-1.5 bg-green-100/50 px-2 py-1 rounded-md">
+                          <Gift className="w-3 h-3" />
+                          Order {formatPrice(FREE_DELIVERY_THRESHOLD)}+ for free delivery!
+                        </p>
+                      )}
                       <button
                         onClick={handleOrderNow}
                         className="mt-2.5 btn-secondary text-xs px-4 py-2 transition-colors"
