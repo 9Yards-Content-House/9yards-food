@@ -30,11 +30,19 @@ const OrderHistory = lazy(() => import("./pages/OrderHistory"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Loading fallback component
+// Loading fallback component
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
-    <div className="flex flex-col items-center gap-4">
-      <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      <p className="text-muted-foreground text-sm">Loading...</p>
+    <div className="flex flex-col items-center gap-6 animate-pulse">
+      <div className="relative">
+        <div className="w-24 h-24 rounded-full border-4 border-primary/30 border-t-primary animate-spin absolute inset-0" />
+        <img 
+          src="/images/logo/9Yards-Food-Coloured-favicon.jpg" 
+          alt="9Yards Food" 
+          className="w-20 h-20 rounded-full object-cover m-2"
+        />
+      </div>
+      <p className="text-primary font-medium text-lg tracking-wide">Preparing deliciousness...</p>
     </div>
   </div>
 );
@@ -80,11 +88,13 @@ const App = () => {
                   <Route path="/order-confirmation" element={<OrderConfirmation />} />
                   <Route path="/order-history" element={<OrderHistory />} />
                   <Route path="*" element={<NotFound />} />
+                  <Route path="*" element={<NotFound />} />
                 </Routes>
+                <FloatingWhatsApp isOpen={isChatOpen} onOpenChange={setIsChatOpen} />
+                <PWAInstallPrompt />
+                <MobileNav onChatClick={() => setIsChatOpen(prev => !prev)} />
               </Suspense>
-              <FloatingWhatsApp isOpen={isChatOpen} onOpenChange={setIsChatOpen} />
-              <PWAInstallPrompt />
-              <MobileNav onChatClick={() => setIsChatOpen(prev => !prev)} />
+
             </ErrorBoundary>
           </BrowserRouter>
         </TooltipProvider>
