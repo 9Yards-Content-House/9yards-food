@@ -56,6 +56,8 @@ const SEO = ({
       <meta name="description" content={description} />
       <meta name="keywords" content={keywords} />
       <link rel="canonical" href={fullUrl} />
+      <link rel="icon" type="image/jpeg" href="/images/logo/9Yards-Food-Coloured-favicon.jpg" />
+      <link rel="shortcut icon" type="image/jpeg" href="/images/logo/9Yards-Food-Coloured-favicon.jpg" />
 
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={type} />
