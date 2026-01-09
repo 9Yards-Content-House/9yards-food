@@ -183,7 +183,6 @@ export default function CartPage() {
   } = useAddressAutocomplete('');
 
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
-  const [showZoneDropdown, setShowZoneDropdown] = useState(false);
 
   // Sync address query with user preferences on mount/change
   useEffect(() => {
@@ -200,11 +199,7 @@ export default function CartPage() {
     // Auto-select zone if available
     if (result.nearestZone) {
       setSelectedZone(result.nearestZone.name);
-      setShowZoneDropdown(false);
-    } else {
-      // If no zone found, prompt user
-      setShowZoneDropdown(true);
-      toast.info('Please select your delivery zone manually');
+      toast.success(`Delivery zone set to ${result.nearestZone.name}`);
     }
   };
 
@@ -784,11 +779,13 @@ export default function CartPage() {
                       </div>
                     </div>
 
-                    {/* 3. Address Search */}
-                     <div className="relative">
+                    {/* 3. Delivery Location - Combined Address & Zone */}
+                    <div className="space-y-3">
                       <label className="text-xs font-bold text-gray-500 mb-1.5 block uppercase tracking-wide">
-                        Delivery Address
+                        Delivery Location
                       </label>
+                      
+                      {/* Address Search */}
                       <div className="relative">
                          <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
                           <input
@@ -802,44 +799,79 @@ export default function CartPage() {
                             }}
                             onFocus={() => setShowAddressSuggestions(true)}
                             onBlur={() => setTimeout(() => setShowAddressSuggestions(false), 200)}
-                            placeholder="Search area (e.g. Kololo)"
+                            placeholder="Type your address or area..."
                             className={`w-full pl-9 p-3 rounded-lg border ${errors.address ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-sm`}
                           />
                           {isSearchingAddress && <Loader2 className="absolute right-3 top-3 w-4 h-4 animate-spin text-primary" />}
+                          
+                          {/* Suggestions (Mobile) */}
+                          {showAddressSuggestions && addressSuggestions.length > 0 && (
+                            <div className="absolute z-20 w-full mt-1 bg-white rounded-xl shadow-lg border border-gray-100 max-h-48 overflow-y-auto">
+                              {addressSuggestions.map((suggestion, idx) => (
+                                <button
+                                  key={idx}
+                                  onClick={(e) => { e.preventDefault(); handleAddressSelect(suggestion); }}
+                                  className="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 last:border-none"
+                                >
+                                  <div className="flex items-start gap-2">
+                                    <MapPin className="w-4 h-4 text-[#E6411C] mt-0.5 shrink-0" />
+                                    <div className="min-w-0">
+                                      <p className="text-sm font-medium text-gray-900">{suggestion.name}</p>
+                                      <p className="text-xs text-gray-500 truncate">{suggestion.displayName}</p>
+                                      {suggestion.nearestZone && (
+                                        <span className="inline-flex items-center gap-1 mt-1 text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full">
+                                          <Truck className="w-3 h-3" />
+                                          {suggestion.nearestZone.name}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          )}
                       </div>
-                      {/* Suggestions (Mobile) */}
-                       {showAddressSuggestions && addressSuggestions.length > 0 && (
-                          <div className="absolute z-20 w-full mt-1 bg-white rounded-xl shadow-lg border border-gray-100 max-h-48 overflow-y-auto">
-                            {addressSuggestions.map((suggestion, idx) => (
-                              <button
-                                key={idx}
-                                onClick={(e) => { e.preventDefault(); handleAddressSelect(suggestion); }}
-                                className="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 last:border-none"
-                              >
-                                <p className="text-sm font-medium">{suggestion.name}</p>
-                                <p className="text-xs text-gray-500 truncate">{suggestion.displayName}</p>
-                              </button>
-                            ))}
-                          </div>
-                       )}
-                    </div>
 
-                    {/* 4. Zone Select (Only if needed) */}
-                    {(showZoneDropdown || !selectedZone) && (
-                         <div>
-                            <label className="text-xs font-bold text-gray-500 mb-1.5 block uppercase tracking-wide">
-                              Confirm Zone
-                            </label>
-                            <select
+                      {/* Zone Display/Selection - Shown below address */}
+                      {selectedZone ? (
+                        <div className="flex items-center justify-between p-2.5 bg-green-50 rounded-lg border border-green-100">
+                           <div className="flex items-center gap-2">
+                              <div className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center">
+                                <CheckCircle className="w-4 h-4 text-green-600" />
+                              </div>
+                              <div>
+                                <p className="text-xs text-green-700 font-medium">{selectedZone}</p>
+                                <p className="text-[11px] text-green-600">Delivery: {formatPrice(selectedZoneData?.fee || 0)}</p>
+                              </div>
+                           </div>
+                           <button 
+                             onClick={() => setSelectedZone('')} 
+                             className="text-xs font-medium text-green-700 hover:text-green-800 px-2 py-1 hover:bg-green-100 rounded transition-colors"
+                           >
+                             Change
+                           </button>
+                        </div>
+                      ) : (
+                        <div className="p-3 bg-amber-50 rounded-lg border border-amber-100">
+                           <p className="text-xs text-amber-800 font-medium mb-2 flex items-center gap-1.5">
+                             <AlertTriangle className="w-3.5 h-3.5" />
+                             Select your delivery zone
+                           </p>
+                           <select 
                               value={selectedZone}
                               onChange={(e) => { setSelectedZone(e.target.value); if(errors.zone) setErrors({...errors, zone:''}); }}
-                              className={`w-full p-3 rounded-lg border ${errors.zone ? 'border-red-500' : 'border-gray-200'} text-sm`}
-                            >
-                              <option value="">Select Zone...</option>
-                              {deliveryZones.map(z => <option key={z.name} value={z.name}>{z.name} ({formatPrice(z.fee)})</option>)}
-                            </select>
-                         </div>
-                    )}
+                              className={`w-full p-2.5 rounded-lg border ${errors.zone ? 'border-red-500' : 'border-amber-200'} bg-white text-sm`}
+                           >
+                             <option value="">Choose zone...</option>
+                             {deliveryZones.map(z => (
+                               <option key={z.name} value={z.name}>
+                                 {z.name} — {formatPrice(z.fee)}
+                               </option>
+                             ))}
+                           </select>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -911,9 +943,11 @@ export default function CartPage() {
                       </div>
                    </div>
                    
-                   {/* Address Desktop */}
-                    <div className="relative">
-                       <label className="text-sm font-medium text-[#212282] mb-2 block">Delivery Address *</label>
+                   {/* Delivery Location - Combined Address & Zone */}
+                    <div className="space-y-3">
+                       <label className="text-sm font-medium text-[#212282] mb-2 block">Delivery Location *</label>
+                       
+                       {/* Address Search */}
                        <div className="relative">
                           <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
                           <input
@@ -927,47 +961,71 @@ export default function CartPage() {
                             onFocus={() => setShowAddressSuggestions(true)}
                             onBlur={() => setTimeout(() => setShowAddressSuggestions(false), 200)}
                             className={`w-full pl-9 p-3 rounded-xl border ${errors.address && touched.address ? 'border-red-500' : 'border-border bg-gray-50'}`}
-                            placeholder="Search location"
+                            placeholder="Type your address or area..."
                           />
+                          {isSearchingAddress && <Loader2 className="absolute right-3 top-3 w-4 h-4 animate-spin text-primary" />}
+                          
                           {/* Desktop Suggestions */}
                           {showAddressSuggestions && addressSuggestions.length > 0 && (
                             <div className="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-xl border border-gray-100 max-h-60 overflow-y-auto">
                               {addressSuggestions.map((s, i) => (
-                                <button key={i} onClick={(e) => {e.preventDefault(); handleAddressSelect(s);}} className="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100">
-                                   <p className="text-sm font-medium">{s.name}</p>
-                                   <p className="text-xs text-gray-500 truncate">{s.displayName}</p>
+                                <button key={i} onClick={(e) => {e.preventDefault(); handleAddressSelect(s);}} className="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0">
+                                   <div className="flex items-start gap-2">
+                                     <MapPin className="w-4 h-4 text-[#E6411C] mt-0.5 shrink-0" />
+                                     <div className="min-w-0">
+                                       <p className="text-sm font-medium text-gray-900">{s.name}</p>
+                                       <p className="text-xs text-gray-500 truncate">{s.displayName}</p>
+                                       {s.nearestZone && (
+                                         <span className="inline-flex items-center gap-1 mt-1 text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full">
+                                           <Truck className="w-3 h-3" />
+                                           {s.nearestZone.name} zone
+                                         </span>
+                                       )}
+                                     </div>
+                                   </div>
                                 </button>
                               ))}
                             </div>
                           )}
                        </div>
-                    </div>
 
-                    {/* Zone Desktop */}
-                    <div>
-                       {!selectedZone ? (
-                          <div className="mt-2">
-                             <select 
-                                value={selectedZone}
-                                onChange={(e) => setSelectedZone(e.target.value)}
-                                className="w-full p-3 rounded-xl border border-border bg-gray-50 text-sm"
-                             >
-                               <option value="">Select Delivery Zone...</option>
-                               {deliveryZones.map(z => <option key={z.name} value={z.name}>{z.name} - {formatPrice(z.fee)}</option>)}
-                             </select>
-                          </div>
-                       ) : (
-                          <div className="flex items-center justify-between p-3 bg-[#212282]/5 rounded-xl border border-[#212282]/10 mt-2">
+                       {/* Zone Display/Selection - Shown below address */}
+                       {selectedZone ? (
+                          <div className="flex items-center justify-between p-2.5 bg-green-50 rounded-lg border border-green-100">
                              <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-full bg-[#212282]/10 flex items-center justify-center">
-                                  <MapPin className="w-4 h-4 text-[#212282]" />
+                                <div className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center">
+                                  <CheckCircle className="w-4 h-4 text-green-600" />
                                 </div>
                                 <div>
-                                  <p className="text-xs text-gray-500 font-medium">Delivery Zone</p>
-                                  <p className="text-sm font-bold text-[#212282]">{selectedZone}</p>
+                                  <p className="text-xs text-green-700 font-medium">{selectedZone}</p>
+                                  <p className="text-[11px] text-green-600">Delivery: {formatPrice(selectedZoneData?.fee || 0)} • {selectedZoneData?.estimatedTime}</p>
                                 </div>
                              </div>
-                             <button onClick={() => setSelectedZone('')} className="text-xs font-bold text-[#E6411C]">Change</button>
+                             <button 
+                               onClick={() => setSelectedZone('')} 
+                               className="text-xs font-medium text-green-700 hover:text-green-800 px-2 py-1 hover:bg-green-100 rounded transition-colors"
+                             >
+                               Change
+                             </button>
+                          </div>
+                       ) : (
+                          <div className="p-3 bg-amber-50 rounded-lg border border-amber-100">
+                             <p className="text-xs text-amber-800 font-medium mb-2 flex items-center gap-1.5">
+                               <AlertTriangle className="w-3.5 h-3.5" />
+                               Select your delivery zone
+                             </p>
+                             <select 
+                                value={selectedZone}
+                                onChange={(e) => { setSelectedZone(e.target.value); if(errors.zone) setErrors({...errors, zone:''}); }}
+                                className="w-full p-2.5 rounded-lg border border-amber-200 bg-white text-sm focus:ring-[#E6411C] focus:border-[#E6411C]"
+                             >
+                               <option value="">Choose zone...</option>
+                               {deliveryZones.map(z => (
+                                 <option key={z.name} value={z.name}>
+                                   {z.name} — {formatPrice(z.fee)} ({z.estimatedTime})
+                                 </option>
+                               ))}
+                             </select>
                           </div>
                        )}
                     </div>
