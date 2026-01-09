@@ -50,7 +50,7 @@ export default function Index() {
         jsonLd={pageMetadata.home.schema}
       />
       <Header />
-      <main>
+      <main id="main-content">
         <HeroSection />
         <HowItWorksSection />
         <PopularDishesSection />

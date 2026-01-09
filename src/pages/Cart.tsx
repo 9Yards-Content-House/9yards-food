@@ -548,7 +548,7 @@ export default function CartPage() {
     return (
       <div className="min-h-screen bg-background pb-24 lg:pb-0">
         <Header />
-        <main className="pt-16 md:pt-20">
+        <main id="main-content" className="pt-16 md:pt-20">
           <div className="container-custom px-5 sm:px-6 md:px-8 section-padding text-center">
              <div className="max-w-md mx-auto py-12">
                {/* Visual Circle */}
@@ -593,7 +593,7 @@ export default function CartPage() {
       />
       <Header />
 
-      <main className="pt-16 md:pt-20">
+      <main id="main-content" className="pt-16 md:pt-20">
         {/* Mobile App-Style Header */}
         <MobilePageHeader 
           title="Your Cart"

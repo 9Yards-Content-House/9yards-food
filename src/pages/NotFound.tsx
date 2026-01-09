@@ -15,7 +15,7 @@ export default function NotFound() {
         noIndex={pageMetadata.notFound.noIndex}
       />
       <Header />
-      <main className="pt-16 md:pt-20">
+      <main id="main-content" className="pt-16 md:pt-20">
         <section className="section-padding">
           <div className="container-custom">
             <div className="max-w-lg mx-auto text-center">

@@ -1,11 +1,11 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, lazy, Suspense } from 'react';
 import { MapPin, Clock, Truck, Phone, Search, X, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, Navigation, Zap, Crosshair, Loader2, ArrowRight, ShoppingBag } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '@/context/CartContext';
-import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import Header from '@/components/layout/Header';
+
+// Lazy load the map component (Leaflet is ~170KB)
+const DeliveryZonesMap = lazy(() => import('@/components/map/DeliveryZonesMap'));
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import SEO from '@/components/SEO';
 import { pageMetadata } from '@/data/seo';
@@ -15,30 +15,6 @@ import { formatPrice } from '@/lib/utils/order';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import { motion, AnimatePresence } from 'framer-motion';
 import { haptics } from '@/lib/utils/ui';
-
-// Fix Leaflet default marker icon issue
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
-
-// Custom marker icon matching brand colors
-const createCustomIcon = (color: string) => L.divIcon({
-  className: 'custom-marker',
-  html: `<div style="
-    background: ${color};
-    width: 24px;
-    height: 24px;
-    border-radius: 50% 50% 50% 0;
-    transform: rotate(-45deg);
-    border: 3px solid white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  "></div>`,
-  iconSize: [24, 24],
-  iconAnchor: [12, 24],
-});
 
 // Peak hours utility
 function isPeakHours(): boolean {
@@ -94,22 +70,6 @@ const tierConfig = {
     icon: Navigation,
   },
 };
-
-// Map center (Kampala)
-const KAMPALA_CENTER: [number, number] = [0.3163, 32.5822];
-
-// Component to fly to selected zone
-function FlyToZone({ zone }: { zone: DeliveryZone | null }) {
-  const map = useMap();
-  
-  useEffect(() => {
-    if (zone?.coordinates) {
-      map.flyTo(zone.coordinates, 14, { duration: 1 });
-    }
-  }, [zone, map]);
-  
-  return null;
-}
 
 export default function DeliveryZonesPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -294,7 +254,7 @@ export default function DeliveryZonesPage() {
       />
       <Header />
       
-      <main className="pt-16 md:pt-20">
+      <main id="main-content" className="pt-16 md:pt-20">
         {/* Mobile App-Style Header */}
         <MobilePageHeader 
           title="Delivery Zones"
@@ -575,58 +535,22 @@ export default function DeliveryZonesPage() {
                       className="overflow-hidden"
                     >
                       <div className="h-[300px] lg:h-[500px]">
-                        <MapContainer
-                          center={KAMPALA_CENTER}
-                          zoom={12}
-                          className="h-full w-full"
-                          scrollWheelZoom={false}
-                        >
-                          <TileLayer
-                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        <Suspense fallback={
+                          <div className="h-full w-full bg-muted/30 flex items-center justify-center">
+                            <div className="text-center">
+                              <Loader2 className="w-8 h-8 animate-spin text-[#212282] mx-auto mb-2" />
+                              <p className="text-sm text-muted-foreground">Loading map...</p>
+                            </div>
+                          </div>
+                        }>
+                          <DeliveryZonesMap
+                            zones={deliveryZones}
+                            selectedZone={selectedZone}
+                            tierConfig={tierConfig}
+                            getZoneTier={getZoneTier}
+                            onZoneSelect={handleZoneSelect}
                           />
-                          
-                          {/* Zone markers */}
-                          {deliveryZones.map((zone) => {
-                            if (!zone.coordinates) return null;
-                            const tier = getZoneTier(zone.fee);
-                            const config = tierConfig[tier];
-                            
-                            return (
-                              <Marker
-                                key={zone.name}
-                                position={zone.coordinates}
-                                icon={createCustomIcon(config.color)}
-                                eventHandlers={{
-                                  click: () => handleZoneSelect(zone),
-                                }}
-                              >
-                                <Popup>
-                                  <div className="text-center p-1">
-                                    <h4 className="font-bold text-[#212282]">{zone.name}</h4>
-                                    <p className="text-sm text-gray-600">{zone.estimatedTime}</p>
-                                    <p className="font-bold text-[#E6411C]">{formatPrice(zone.fee)}</p>
-                                  </div>
-                                </Popup>
-                              </Marker>
-                            );
-                          })}
-                          
-                          {/* Highlight selected zone */}
-                          {selectedZone?.coordinates && (
-                            <Circle
-                              center={selectedZone.coordinates}
-                              radius={1500}
-                              pathOptions={{
-                                color: tierConfig[getZoneTier(selectedZone.fee)].color,
-                                fillColor: tierConfig[getZoneTier(selectedZone.fee)].color,
-                                fillOpacity: 0.15,
-                              }}
-                            />
-                          )}
-                          
-                          <FlyToZone zone={selectedZone} />
-                        </MapContainer>
+                        </Suspense>
                       </div>
                       
                       {/* Selected Zone Info */}

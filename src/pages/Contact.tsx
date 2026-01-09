@@ -122,7 +122,7 @@ export default function ContactPage() {
       {/* Mobile Header */}
       <MobilePageHeader title="Contact" subtitle="Get in touch" />
 
-      <main className="pt-32">
+      <main id="main-content" className="pt-32">
         {/* Hero Section */}
         <section className="relative bg-gradient-to-br from-[#212282] via-[#2a2b9a] to-[#1a1b68] text-white pt-12 pb-12 lg:pt-16 lg:pb-20 overflow-hidden">
           <div className="absolute top-0 right-0 w-72 h-72 bg-[#E6411C]/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />

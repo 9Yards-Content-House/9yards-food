@@ -31,7 +31,10 @@ export default function PageHeader({
         <div className="absolute inset-0 z-0 opacity-20">
           <img 
             src={backgroundImage} 
-            alt="Header Background" 
+            alt="" 
+            aria-hidden="true"
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-primary/50 mix-blend-multiply" />

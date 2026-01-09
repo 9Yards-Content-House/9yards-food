@@ -124,6 +124,21 @@
     @apply outline-2 outline-offset-2 outline-secondary;
   }
 
+  /* Enhanced focus styles for interactive elements */
+  a:focus-visible,
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    @apply ring-2 ring-secondary ring-offset-2 ring-offset-background outline-none;
+  }
+
+  /* Card/container focus for keyboard navigation */
+  [tabindex="0"]:focus-visible {
+    @apply ring-2 ring-secondary ring-offset-2 ring-offset-background outline-none rounded-lg;
+  }
+
   /* Reduced motion preference */
   @media (prefers-reduced-motion: reduce) {
     *,

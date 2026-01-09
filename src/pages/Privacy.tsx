@@ -25,7 +25,7 @@ export default function PrivacyPage() {
       {/* Mobile Header */}
       <MobilePageHeader title="Privacy Policy" />
 
-      <main className="pt-32">
+      <main id="main-content" className="pt-32">
         {/* Hero */}
         <section className="bg-gradient-to-br from-[#212282] to-[#1a1b68] text-white py-10 lg:py-14">
           <div className="container mx-auto px-4 sm:px-6">

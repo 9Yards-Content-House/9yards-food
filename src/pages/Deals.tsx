@@ -358,6 +358,10 @@ const ComboDealCard = ({ combo, onOrder }: { combo: ComboDeal; onOrder: () => vo
         <img
           src={combo.image}
           alt={combo.name}
+          loading="lazy"
+          decoding="async"
+          width={400}
+          height={176}
           className="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-500"
         />
       </div>
@@ -573,7 +577,7 @@ const Deals = () => {
         subtitle="Exclusive savings for you"
       />
 
-      <main className="min-h-screen bg-white">
+      <main id="main-content" className="min-h-screen bg-white">
         {/* Hero Section */}
         <section className="relative pt-4 lg:pt-24 pb-8 bg-gradient-to-b from-orange-50/50 to-white overflow-hidden">
           <div className="hidden lg:block absolute top-20 left-10 w-72 h-72 bg-orange-200/30 rounded-full blur-3xl" />
@@ -677,7 +681,7 @@ const Deals = () => {
               className="bg-[#25D366] hover:bg-[#22c55e] text-white font-semibold px-6 py-3"
               size="lg"
             >
-              <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" className="w-5 h-5 mr-2" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="" aria-hidden="true" loading="lazy" width={20} height={20} className="w-5 h-5 mr-2" />
               Join WhatsApp Updates
             </Button>
           </div>

@@ -107,7 +107,7 @@ export default function FavoritesPage() {
           noIndex={pageMetadata.favorites.noIndex}
         />
         <Header />
-        <main className="pt-16 md:pt-20">
+        <main id="main-content" className="pt-16 md:pt-20">
           <div className="container-custom section-padding text-center">
             <div className="max-w-md mx-auto">
               <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
@@ -140,7 +140,7 @@ export default function FavoritesPage() {
         noIndex={pageMetadata.favorites.noIndex}
       />
       <Header />
-      <main className="pt-16 md:pt-20">
+      <main id="main-content" className="pt-16 md:pt-20">
         {/* Mobile App-Style Header */}
         <MobilePageHeader 
           title="My Favorites"

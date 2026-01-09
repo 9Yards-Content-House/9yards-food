@@ -61,7 +61,7 @@ export default function AboutPage() {
         subtitle="Our story"
       />
 
-      <main className="pt-32">
+      <main id="main-content" className="pt-32">
         {/* Hero Section */}
         <section className="relative bg-gradient-to-br from-[#212282] via-[#2a2b9a] to-[#1a1b68] text-white pt-12 pb-12 lg:pt-16 lg:pb-24 overflow-hidden">
           {/* Decorative elements */}

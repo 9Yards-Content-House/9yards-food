@@ -31,6 +31,10 @@ export default function Footer() {
               <img 
                 src="/images/logo/9Yards-Food-White-Logo.png"
                 alt="9Yards Food"
+                loading="lazy"
+                decoding="async"
+                width={112}
+                height={56}
                 className="h-14 w-auto object-contain"
               />
             </Link>

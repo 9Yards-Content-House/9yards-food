@@ -102,7 +102,7 @@ export default function HowItWorksPage() {
         jsonLd={pageMetadata.howItWorks.schema}
       />
       <Header />
-      <main className="pt-16 md:pt-20">
+      <main id="main-content" className="pt-16 md:pt-20">
         {/* Hero Section */}
         <section className="bg-primary text-primary-foreground py-16 md:py-24">
           <div className="container-custom px-4">

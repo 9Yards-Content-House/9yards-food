@@ -525,6 +525,8 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                               <img
                                 src={dish.image}
                                 alt={dish.name}
+                                loading="lazy"
+                                decoding="async"
                                 className="h-full w-full object-cover"
                               />
                               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
@@ -574,6 +576,10 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                             <img
                               src={sauce.image}
                               alt={sauce.name}
+                              loading="lazy"
+                              decoding="async"
+                              width={64}
+                              height={64}
                               className="w-16 h-16 rounded-xl object-cover flex-shrink-0"
                             />
                             <div className="flex-1 min-w-0">
@@ -719,6 +725,10 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                               <img
                                 src={side.image}
                                 alt={side.name}
+                                loading="lazy"
+                                decoding="async"
+                                width={80}
+                                height={80}
                                 className="w-20 h-20 rounded-xl object-cover shadow-inner"
                               />
                               <span className="absolute -top-2 -left-2 bg-[#E6411C] text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide border border-white">
@@ -787,6 +797,8 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                               <img
                                 src={juice.image}
                                 alt={juice.name}
+                                loading="lazy"
+                                decoding="async"
                                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                               />
                             </div>
@@ -854,6 +866,8 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                               <img
                                 src={dessert.image}
                                 alt={dessert.name}
+                                loading="lazy"
+                                decoding="async"
                                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                               />
                             </div>

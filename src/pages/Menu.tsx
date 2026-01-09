@@ -379,7 +379,7 @@ export default function MenuPage() {
       />
       <Header />
 
-      <main className="pt-16 md:pt-20">
+      <main id="main-content" className="pt-16 md:pt-20">
         {/* Hero Header - More compact */}
         <section className="bg-primary text-primary-foreground py-8 md:py-12">
           <div className="container-custom px-4">

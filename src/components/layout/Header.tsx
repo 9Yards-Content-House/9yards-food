@@ -64,6 +64,13 @@ export default function Header() {
 
   return (
     <>
+      {/* Skip to main content link for keyboard accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-[#212282] focus:text-white focus:rounded-lg focus:font-medium focus:text-sm focus:outline-none focus:ring-2 focus:ring-[#E6411C] focus:ring-offset-2"
+      >
+        Skip to main content
+      </a>
       <header
         className={`fixed left-0 right-0 z-50 h-16 sm:h-[4.5rem] md:h-20 transition-[background-color,box-shadow] duration-300 ${
           showStickyStyle

@@ -114,7 +114,7 @@ export default function OrderConfirmation() {
       />
       <Header />
 
-      <main className="pt-16 md:pt-20">
+      <main id="main-content" className="pt-16 md:pt-20">
         {/* Mobile Container */}
         <div className="max-w-md mx-auto lg:max-w-4xl">
           {/* Top Navigation - Mobile */}
