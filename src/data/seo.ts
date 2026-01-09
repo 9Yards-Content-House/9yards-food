@@ -225,6 +225,16 @@ export const globalMetadata = {
   locale: "en_UG",
   alternateName: "9Yards Food Delivery Uganda",
   
+  // Verification for Search Console
+  verification: {
+    google: "QDT0bvNomFsJHjx50qFwFZJc0MgLW_ULO3JolmgDxds", 
+  },
+  
+  // Marketing & Analytics
+  marketing: {
+    googleAnalyticsId: "G-GYZ2QRVHGY",
+  },
+  
   // Structured Data - Organization
   organizationSchema: {
     "@context": "https://schema.org",

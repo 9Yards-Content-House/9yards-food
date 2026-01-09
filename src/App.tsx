@@ -11,6 +11,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import MobileNav from "@/components/layout/MobileNav";
+import { Analytics } from "@/components/Analytics";
 
 // Lazy load all pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -57,6 +58,7 @@ const App = () => {
     <CartProvider>
       <GuestProvider>
         <TooltipProvider>
+          <Analytics />
           <Toaster />
           <Sonner position="top-center" />
           <BrowserRouter>

@@ -32,6 +32,26 @@ const SEO = ({
     ? image
     : `https://food.9yards.co.ug${image}`;
 
+  // Generate Breadcrumb Schema
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://food.9yards.co.ug"
+      },
+      ...(url !== "/" && url !== "https://food.9yards.co.ug/" ? [{
+        "@type": "ListItem",
+        "position": 2,
+        "name": title.split("|")[0].trim().substring(0, 30), // Simple name extraction
+        "item": fullUrl
+      }] : [])
+    ]
+  };
+
   // Default Schema.org Structured Data
   // We use the global organization schema as a base for defaults or generic pages
   const defaultStructuredData = {
@@ -58,6 +78,9 @@ const SEO = ({
       )}
       <meta name="messages" content="AI-crawler-friendly" />
       
+      {/* Site Verification */}
+      <meta name="google-site-verification" content={globalMetadata.verification.google} />
+
       {/* AI & Crawler Specific */}
       <meta name="googlebot" content={aiMeta.googlebot} />
       <meta name="bingbot" content={aiMeta.bingbot} />
@@ -87,9 +110,14 @@ const SEO = ({
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={fullImage} />
 
-      {/* Structured Data */}
+      {/* Structured Data: Organization/Page */}
       <script type="application/ld+json">
         {JSON.stringify(finalStructuredData)}
+      </script>
+
+      {/* Structured Data: Breadcrumbs */}
+      <script type="application/ld+json">
+        {JSON.stringify(breadcrumbSchema)}
       </script>
     </Helmet>
   );
