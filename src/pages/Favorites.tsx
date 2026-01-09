@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Heart } from 'lucide-react';
+import { Heart, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import SEO from '@/components/SEO';
@@ -12,10 +12,12 @@ import { MenuItemCard, Category } from '@/components/menu/MenuItemCard';
 import ComboBuilder from '@/components/menu/ComboBuilder';
 import { toast } from 'sonner';
 import { vibrate } from '@/lib/utils/ui';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 export default function FavoritesPage() {
-  const { state, toggleFavorite, isFavorite, addItem, removeItem, updateQuantity, cartCount } = useCart();
+  const { state, toggleFavorite, isFavorite, addItem, removeItem, updateQuantity, clearFavorites } = useCart();
   const [isComboBuilderOpen, setIsComboBuilderOpen] = useState(false);
+  const [isClearConfirmOpen, setIsClearConfirmOpen] = useState(false);
   const [initialComboSelection, setInitialComboSelection] = useState<{ type: 'main' | 'sauce' | 'side'; id: string } | undefined>(undefined);
 
 
@@ -139,9 +141,18 @@ export default function FavoritesPage() {
       <Header />
       <main className="pt-16 md:pt-20">
         <div className="container-custom section-padding">
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-8">
-            My Favorites ({favoriteItems.length})
-          </h1>
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+              My Favorites ({favoriteItems.length})
+            </h1>
+            <button
+              onClick={() => setIsClearConfirmOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-destructive bg-destructive/10 hover:bg-destructive/20 rounded-full transition-colors"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>Clear All</span>
+            </button>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             {favoriteItems.map((item) => (
@@ -188,6 +199,21 @@ export default function FavoritesPage() {
         initialSelection={initialComboSelection}
       />
       
+      <ConfirmModal
+        isOpen={isClearConfirmOpen}
+        onClose={() => setIsClearConfirmOpen(false)}
+        onConfirm={() => {
+          clearFavorites();
+          toast.success('All favorites removed');
+          vibrate(50);
+        }}
+        title="Clear All Favorites?"
+        description="This will remove all items from your favorites list. This action cannot be undone."
+        confirmText="Yes, Clear All"
+        cancelText="Cancel & Keep Favorites"
+        variant="danger"
+      />
+
       <Footer />
     </div>
   );

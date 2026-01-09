@@ -62,6 +62,7 @@ type CartAction =
   | { type: 'UPDATE_QUANTITY'; payload: { id: string; quantity: number } }
   | { type: 'CLEAR_CART' }
   | { type: 'TOGGLE_FAVORITE'; payload: string }
+  | { type: 'CLEAR_FAVORITES' }
   | { type: 'SET_USER_PREFERENCES'; payload: Partial<UserPreferences> }
   | { type: 'ADD_ORDER_TO_HISTORY'; payload: OrderHistoryItem }
   | { type: 'CLEAR_ORDER_HISTORY' }
@@ -125,6 +126,8 @@ function cartReducer(state: CartState, action: CartAction): CartState {
           ? state.favorites.filter(id => id !== action.payload)
           : [...state.favorites, action.payload],
       };
+    case 'CLEAR_FAVORITES':
+      return { ...state, favorites: [] };
     case 'SET_USER_PREFERENCES':
       return {
         ...state,
@@ -152,6 +155,7 @@ interface CartContextType {
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
   toggleFavorite: (id: string) => void;
+  clearFavorites: () => void;
   setUserPreferences: (prefs: Partial<UserPreferences>) => void;
   addOrderToHistory: (order: OrderHistoryItem) => void;
   clearOrderHistory: () => void;
@@ -216,6 +220,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'UPDATE_QUANTITY', payload: { id, quantity } });
   const clearCart = () => dispatch({ type: 'CLEAR_CART' });
   const toggleFavorite = (id: string) => dispatch({ type: 'TOGGLE_FAVORITE', payload: id });
+  const clearFavorites = () => dispatch({ type: 'CLEAR_FAVORITES' });
   const setUserPreferences = (prefs: Partial<UserPreferences>) =>
     dispatch({ type: 'SET_USER_PREFERENCES', payload: prefs });
   const addOrderToHistory = (order: OrderHistoryItem) =>
@@ -255,6 +260,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         updateQuantity,
         clearCart,
         toggleFavorite,
+        clearFavorites,
         setUserPreferences,
         addOrderToHistory,
         clearOrderHistory,
