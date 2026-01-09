@@ -25,13 +25,15 @@ export default function Index() {
 
       if (!lastWelcome || now - parseInt(lastWelcome) > oneDay) {
         // Show toast
-        setTimeout(() => {
+        const timer = setTimeout(() => {
           toast.success(`Welcome back, ${userName}!`, {
             description: "Ready for your next meal?",
             duration: 3000, // Short duration as requested
           });
           localStorage.setItem(lastWelcomeKey, now.toString());
         }, 1500); // Small delay to allow app to load visual elements first
+        
+        return () => clearTimeout(timer);
       }
     }
   }, [userName]);
