@@ -171,14 +171,25 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       className="w-full pl-12 pr-12 py-3.5 text-lg bg-muted/50 border-transparent rounded-xl focus:bg-background focus:ring-2 focus:ring-secondary/20 focus:border-secondary/20 transition-all placeholder:text-muted-foreground/60"
                     />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                       <div className="hidden md:flex items-center gap-1 px-2 py-1 rounded bg-background/50 text-[10px] font-bold text-muted-foreground border border-border/50 shadow-sm">
-                        <Command className="w-3 h-3" />
-                        <span>K</span>
-                      </div>
+                      {/* Clear Text Button (replaces shortcut) */}
+                      {query && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setQuery('');
+                            inputRef.current?.focus();
+                          }}
+                          className="hidden md:flex items-center gap-1 px-2 py-1 rounded bg-muted text-[10px] font-bold text-muted-foreground hover:bg-secondary/10 hover:text-secondary transition-colors"
+                        >
+                          CLEAR
+                        </button>
+                      )}
+                      
                       <button
                         type="button"
                         onClick={onClose}
                         className="p-1.5 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                        aria-label="Close search"
                       >
                         <X className="w-5 h-5" />
                       </button>
