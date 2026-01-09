@@ -321,11 +321,11 @@ export default function OrderHistory() {
           description="Track your current orders or reorder your past favorites in seconds."
         />
 
-        <div className="container-custom py-8 md:py-12">
+        <div className="container-custom px-4 sm:px-6 lg:px-8 py-8 md:py-12">
           <div className="flex items-center justify-between mb-6 md:mb-8">
-            <h2 className="text-xl md:text-2xl font-bold text-foreground flex items-center gap-2">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground flex items-center gap-2">
               <Clock className="w-5 h-5 md:w-6 md:h-6 text-secondary" />
-              Past Orders ({orderHistory.length})
+              <span>Past Orders <span className="text-muted-foreground font-normal">({orderHistory.length})</span></span>
             </h2>
 
             <button
@@ -335,14 +335,14 @@ export default function OrderHistory() {
                   toast.success('Order history cleared');
                 }
               }}
-              className="text-xs md:text-sm text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-destructive/5 border border-transparent hover:border-destructive/20"
+              className="text-[11px] sm:text-xs md:text-sm text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg hover:bg-destructive/5 border border-transparent hover:border-destructive/20"
             >
               <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
-              Clear History
+              <span className="hidden xs:inline">Clear</span> History
             </button>
           </div>
 
-          <div className="grid gap-4 md:gap-6 max-w-4xl mx-auto">
+          <div className="grid gap-5 sm:gap-6 md:gap-7 max-w-4xl mx-auto">
             {orderHistory.map((order) => {
               const badge = getMethodBadge(order.paymentMethod);
               const BadgeIcon = badge.icon;
@@ -446,13 +446,13 @@ export default function OrderHistory() {
                     </button>
 
                     {/* Content Side (Right) - Better padding and spacing */}
-                    <div className="flex-1 p-3 sm:p-4 md:p-5 lg:p-6 flex flex-col justify-between min-w-0">
+                    <div className="flex-1 p-4 sm:p-4 md:p-5 lg:p-6 flex flex-col justify-between min-w-0">
                       {/* Detailed Header Row */}
-                      <div className="mb-2 sm:mb-3 md:mb-4">
-                         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                            <div className="flex items-center gap-2">
+                      <div className="mb-3 sm:mb-3 md:mb-4">
+                         <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+                            <div className="flex items-center gap-2 sm:gap-3">
                               {/* Order ID Tag */}
-                              <span className="font-mono text-[11px] md:text-sm font-bold text-muted-foreground bg-muted/80 px-2 py-1 rounded-md border border-border/50">
+                              <span className="font-mono text-xs sm:text-[11px] md:text-sm font-bold text-foreground bg-muted px-2.5 py-1 rounded-lg border border-border/60">
                                 #{order.orderId.slice(-6).toUpperCase()}
                               </span>
                               {/* Date for Tablet+ */}
@@ -461,21 +461,21 @@ export default function OrderHistory() {
                               </span>
                             </div>
                             
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 sm:gap-3">
                                 {/* Desktop Badge Position */}
                                 <span className={`hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider border ${badge.className}`}>
                                     <BadgeIcon className="w-3 h-3 md:w-3.5 md:h-3.5" />
                                     {badge.label}
                                 </span>
-                                <span className="block text-lg md:text-2xl font-bold text-secondary">
+                                <span className="block text-xl sm:text-lg md:text-2xl font-bold text-secondary">
                                   {formatPrice(order.total)}
                                 </span>
                             </div>
                          </div>
                          
                          {/* Mobile-only date line & Badge */}
-                         <div className="flex items-center justify-between sm:hidden mb-2">
-                            <span className="text-[11px] text-muted-foreground">
+                         <div className="flex items-center justify-between sm:hidden mb-3">
+                            <span className="text-xs text-muted-foreground">
                                {formatDate(order.orderDate)}
                             </span>
                             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border ${badge.className}`}>
@@ -485,7 +485,7 @@ export default function OrderHistory() {
                          </div>
 
                          {/* Items List (Wrapped) */}
-                         <div className="text-xs sm:text-sm text-foreground/80 line-clamp-2 leading-relaxed">
+                         <div className="text-[13px] sm:text-sm text-foreground/90 line-clamp-2 leading-relaxed">
                             {order.items.map((item, idx) => (
                                <span key={idx} className="mr-1.5 sm:mr-2 inline-block">
                                   <span className="font-bold text-secondary">
@@ -517,14 +517,14 @@ export default function OrderHistory() {
                       </div>
 
                       {/* Actions Footer */}
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mt-auto pt-3 md:pt-4 border-t border-dashed border-border/60">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3 mt-auto pt-4 md:pt-4 border-t border-dashed border-border/50">
                         {/* Location - visible on all devices */}
-                        <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground sm:mr-auto">
-                            <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-secondary/70 shrink-0" />
-                            <span className="line-clamp-1 max-w-[180px] sm:max-w-[200px]">{order.deliveryLocation}</span>
+                        <div className="flex items-center gap-2 text-[13px] sm:text-sm text-muted-foreground sm:mr-auto">
+                            <MapPin className="w-4 h-4 text-secondary/60 shrink-0" />
+                            <span className="line-clamp-1">{order.deliveryLocation}</span>
                         </div>
 
-                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <div className="flex items-center gap-3 w-full sm:w-auto">
                            <button
                              onClick={() => handleTrackOrder(order.orderId)}
                              className="flex-1 sm:flex-none h-9 sm:h-10 md:h-11 text-xs md:text-sm font-semibold text-foreground hover:text-green-700 border border-border/80 rounded-xl hover:bg-green-50 hover:border-green-200 transition-all flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 shadow-sm"

@@ -39,8 +39,8 @@ export default function PageHeader({
       )}
 
       <div className={cn(
-        "container-custom px-4 relative z-10",
-        variant === 'compact' ? "py-8 md:py-12" : "py-12 md:py-20",
+        "container-custom px-4 sm:px-6 lg:px-8 relative z-10",
+        variant === 'compact' ? "py-8 md:py-12" : "py-10 md:py-16 lg:py-20",
         variant === 'centered' ? "text-center" : "text-left"
       )}>
         <div className={cn(
