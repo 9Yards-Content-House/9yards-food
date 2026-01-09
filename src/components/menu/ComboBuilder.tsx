@@ -1,11 +1,11 @@
-import { useState, useEffect, useMemo } from 'react';
-import { X, Check, ChevronRight, Plus, Minus, ArrowLeft, ShoppingBag, Utensils, RotateCcw, ArrowRight } from 'lucide-react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { X, Check, ChevronRight, ChevronDown, Plus, Minus, ArrowLeft, ShoppingBag, Utensils, RotateCcw, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { menuData, Sauce } from '@/data/menu';
 import { formatPrice } from '@/lib/utils/order';
 import { useCart, CartItem, SauceSelection, ExtraItem } from '@/context/CartContext';
 import { toast } from 'sonner';
-import { vibrate } from '@/lib/utils/ui';
+import { vibrate, haptics } from '@/lib/utils/ui';
 
 interface ComboBuilderProps {
   isOpen: boolean;
@@ -31,12 +31,23 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
   const [selectedDesserts, setSelectedDesserts] = useState<{ id: string; quantity: number }[]>([]);
   
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showDraftBanner, setShowDraftBanner] = useState(false);
   const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
   const [isDraftLoaded, setIsDraftLoaded] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [comboQuantity, setComboQuantity] = useState(1);
+  
+  const mainContentRef = useRef<HTMLElement>(null);
 
   const { addItem, updateItem } = useCart();
+
+  // Scroll to top when step changes
+  useEffect(() => {
+    if (isOpen && mainContentRef.current) {
+      mainContentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [step, isOpen]);
 
   // Initialize from initialData (Edit Mode)
   useEffect(() => {
@@ -113,6 +124,7 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
     setSelectedSideDish('');
     setSelectedJuices([]);
     setSelectedDesserts([]);
+    setComboQuantity(1);
     
     localStorage.removeItem(DRAFT_KEY);
     setShowDraftBanner(false);
@@ -253,7 +265,7 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
     });
   };
 
-  const totalPrice = useMemo(() => {
+  const unitPrice = useMemo(() => {
     let total = sauceSize?.price || 0;
 
     selectedJuices.forEach((j) => {
@@ -268,6 +280,8 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
 
     return total;
   }, [sauceSize, selectedJuices, selectedDesserts]);
+
+  const totalPrice = useMemo(() => unitPrice * comboQuantity, [unitPrice, comboQuantity]);
 
   // Get summary text for footer
   const summaryText = useMemo(() => {
@@ -335,8 +349,8 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
       sauce: sauceSelection,
       sideDish: sideDishName,
       extras,
-      quantity: isEditMode && initialData ? initialData.quantity : 1,
-      totalPrice: totalPrice,
+      quantity: isEditMode && initialData ? initialData.quantity : comboQuantity,
+      totalPrice: unitPrice,
     };
 
     if (isEditMode) {
@@ -393,7 +407,7 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
   return (
     <>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
+        <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -409,10 +423,54 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
           >
             {/* Header */}
             <header className="flex-none bg-white px-4 pt-4 pb-3 shadow-sm z-20 border-b border-gray-100">
+              {/* Step Labels - Desktop/Tablet */}
+              <div className="hidden sm:flex justify-center gap-1 mb-3">
+                {[
+                  { num: 1, label: 'Food' },
+                  { num: 2, label: 'Sauce' },
+                  { num: 3, label: 'Side' },
+                  { num: 4, label: 'Extras' },
+                  { num: 5, label: 'Review' }
+                ].map((s, idx) => (
+                  <div key={s.num} className="flex items-center">
+                    <button
+                      onClick={() => {
+                        // Only allow going back to completed steps
+                        if (s.num < step) {
+                          haptics.light();
+                          setStep(s.num);
+                        }
+                      }}
+                      disabled={s.num > step}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
+                        s.num === step 
+                          ? 'bg-[#E6411C] text-white' 
+                          : s.num < step 
+                            ? 'bg-[#212282]/10 text-[#212282] hover:bg-[#212282]/20 cursor-pointer' 
+                            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      }`}
+                    >
+                      <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                        s.num < step ? 'bg-[#212282] text-white' : s.num === step ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-500'
+                      }`}>
+                        {s.num < step ? <Check className="w-3 h-3" /> : s.num}
+                      </span>
+                      <span className="hidden md:inline">{s.label}</span>
+                    </button>
+                    {idx < 4 && (
+                      <ChevronRight className={`w-4 h-4 mx-1 ${s.num < step ? 'text-[#212282]/40' : 'text-gray-300'}`} />
+                    )}
+                  </div>
+                ))}
+              </div>
+              
               <div className="flex items-center justify-between">
                 {step > 1 ? (
                   <button
-                    onClick={() => setStep(step - 1)}
+                    onClick={() => {
+                      haptics.light();
+                      setStep(step - 1);
+                    }}
                     className="flex size-10 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors text-[#212282]"
                     aria-label="Go back"
                   >
@@ -427,28 +485,46 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                     <X className="w-5 h-5" />
                   </button>
                 )}
-                <div className="flex flex-col items-center">
+                
+                {/* Mobile Step Indicator */}
+                <div className="flex flex-col items-center sm:hidden">
                   <span className="text-xs font-bold uppercase tracking-widest text-[#E6411C]">
                     Step {step} of 5
                   </span>
                   <div className="mt-1.5 flex gap-1">
                     {[1, 2, 3, 4, 5].map((s) => (
-                      <div
+                      <button
                         key={s}
-                        className={`h-1 rounded-full transition-all duration-300 ${
-                          s === step ? 'w-8 bg-[#E6411C]' : s < step ? 'w-2 bg-[#212282]' : 'w-2 bg-gray-200'
+                        onClick={() => {
+                          if (s < step) {
+                            haptics.light();
+                            setStep(s);
+                          }
+                        }}
+                        disabled={s > step}
+                        className={`h-1.5 rounded-full transition-all duration-300 ${
+                          s === step ? 'w-8 bg-[#E6411C]' : s < step ? 'w-3 bg-[#212282] cursor-pointer hover:bg-[#212282]/80' : 'w-2 bg-gray-200'
                         }`}
+                        aria-label={`Go to step ${s}`}
                       />
                     ))}
                   </div>
+                  {/* Current step label for mobile */}
+                  <span className="text-[10px] text-gray-500 mt-1 font-medium">
+                    {['Food', 'Sauce', 'Side', 'Extras', 'Review'][step - 1]}
+                  </span>
                 </div>
+                
+                {/* Desktop Step Text */}
+                <div className="hidden sm:flex flex-col items-center">
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#E6411C]">
+                    Step {step}: {['Choose Food', 'Choose Sauce', 'Choose Side', 'Add Extras', 'Review'][step - 1]}
+                  </span>
+                </div>
+                
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={() => {
-                      if (confirm('Start a fresh combo? Your current draft will be cleared.')) {
-                        resetBuilder();
-                      }
-                    }}
+                    onClick={() => setShowResetConfirm(true)}
                     className="flex h-10 items-center justify-center rounded-full px-2 hover:bg-gray-100 transition-colors text-gray-500 mr-1"
                     title="Start Fresh"
                   >
@@ -465,7 +541,7 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
             </header>
 
             {/* Scrollable Content */}
-            <main className={`flex-1 overflow-y-auto pb-44 md:pb-48 transition-colors duration-500 ${step === 1 ? 'bg-white' : 'bg-[#FAFAFA]'}`}>
+            <main ref={mainContentRef} className={`flex-1 overflow-y-auto pb-52 sm:pb-48 transition-colors duration-500 ${step === 1 ? 'bg-white' : 'bg-[#FAFAFA]'}`}>
               {/* Draft Banner */}
               {showDraftBanner && (
                 <div className="bg-[#212282] text-white px-5 py-3 flex items-center justify-between animate-in slide-in-from-top duration-500">
@@ -481,6 +557,79 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                   >
                     <X className="w-4 h-4" />
                   </button>
+                </div>
+              )}
+
+              {/* Selection Preview Bar - Shows on steps 2-4 */}
+              {step >= 2 && step <= 4 && (selectedMainDishes.length > 0 || selectedSauce || selectedSideDish) && (
+                <div className="sticky top-0 z-10 bg-white border-b border-gray-100 px-4 py-2">
+                  <div className="flex items-center gap-3">
+                    {/* Main Dishes Preview */}
+                    {selectedMainDishes.length > 0 && (
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex -space-x-2">
+                          {selectedMainDishes.slice(0, 4).map(id => {
+                            const dish = menuData.mainDishes.find(d => d.id === id);
+                            return dish ? (
+                              <img 
+                                key={id}
+                                src={dish.image} 
+                                alt={dish.name}
+                                title={dish.name}
+                                className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-sm"
+                              />
+                            ) : null;
+                          })}
+                          {selectedMainDishes.length > 4 && (
+                            <div className="w-8 h-8 rounded-full bg-[#212282] border-2 border-white flex items-center justify-center text-[10px] font-bold text-white">
+                              +{selectedMainDishes.length - 4}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Sauce Preview */}
+                    {step >= 3 && selectedSauce && (
+                      <>
+                        <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                          <Check className="w-3 h-3 text-green-600" />
+                        </div>
+                        <img 
+                          src={selectedSauce.image} 
+                          alt={selectedSauce.name}
+                          title={selectedSauce.name}
+                          className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
+                        />
+                      </>
+                    )}
+
+                    {/* Side Dish Preview */}
+                    {step >= 4 && selectedSideDish && (
+                      <>
+                        <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                          <Check className="w-3 h-3 text-green-600" />
+                        </div>
+                        {(() => {
+                          const side = menuData.sideDishes.find(s => s.id === selectedSideDish);
+                          return side ? (
+                            <img 
+                              src={side.image} 
+                              alt={side.name}
+                              title={side.name}
+                              className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
+                            />
+                          ) : null;
+                        })()}
+                      </>
+                    )}
+                    
+                    {/* Spacer and summary text */}
+                    <div className="flex-1" />
+                    <span className="text-xs text-gray-500 font-medium shrink-0">
+                      {selectedMainDishes.length} item{selectedMainDishes.length !== 1 ? 's' : ''} selected
+                    </span>
+                  </div>
                 </div>
               )}
 
@@ -766,9 +915,23 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
               {step === 4 && (
                 <div className="animate-in fade-in duration-300">
                   <div className="px-4 pt-5 pb-3">
-                    <h1 className="text-[#212282] tracking-tight text-[28px] font-extrabold leading-tight">
-                      Add Extras <span className="text-gray-400 font-medium text-xl ml-1">(Optional)</span>
-                    </h1>
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <h1 className="text-[#212282] tracking-tight text-2xl sm:text-[28px] font-extrabold leading-tight">
+                          Add Extras
+                        </h1>
+                        <p className="text-gray-500 text-sm mt-1">Optional add-ons to complete your meal</p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          haptics.light();
+                          setStep(5);
+                        }}
+                        className="shrink-0 px-4 py-2 rounded-xl border-2 border-gray-200 text-gray-600 text-sm font-bold hover:border-[#212282] hover:text-[#212282] transition-all"
+                      >
+                        Skip →
+                      </button>
+                    </div>
                   </div>
 
                   {/* Natural Juices Section */}
@@ -790,9 +953,6 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                               isSelected ? 'border-[#E6411C]' : 'border-gray-100 hover:border-gray-200'
                             } ${!juice.available && 'opacity-50 pointer-events-none'}`}
                           >
-                            <div className="absolute top-2 left-2 z-10 bg-[#212282] text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">
-                              100% Natural
-                            </div>
                             <div className="aspect-square w-full bg-gray-100 relative overflow-hidden">
                               <img
                                 src={juice.image}
@@ -842,14 +1002,25 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                     </div>
                   </section>
 
-                  {/* Divider */}
-                  <div className="h-2 bg-gray-100 w-full mb-6" />
+                  {/* Scroll indicator for desserts */}
+                  <div className="relative py-4">
+                    <div className="absolute inset-0 flex items-center px-4">
+                      <div className="w-full border-t border-gray-200" />
+                    </div>
+                    <div className="relative flex justify-center">
+                      <div className="bg-[#FAFAFA] px-4 flex items-center gap-2">
+                        <ChevronDown className="w-4 h-4 text-[#E6411C] animate-bounce" />
+                        <span className="text-sm font-bold text-[#212282]">Desserts Below</span>
+                        <ChevronDown className="w-4 h-4 text-[#E6411C] animate-bounce" />
+                      </div>
+                    </div>
+                  </div>
 
                   {/* Desserts Section */}
                   <section className="mb-4">
                     <div className="px-4 mb-3">
                       <h3 className="text-[#212282] text-xl font-bold leading-tight tracking-tight">Desserts</h3>
-                      <p className="text-gray-500 text-sm font-medium mt-1">Sweet finish</p>
+                      <p className="text-gray-500 text-sm font-medium mt-1">Sweet treats to end your meal</p>
                     </div>
                     <div className="grid grid-cols-2 gap-3 px-4 md:grid-cols-3 lg:grid-cols-4">
                       {menuData.desserts.map((dessert) => {
@@ -922,6 +1093,39 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                   </div>
 
                   <div className="p-4 space-y-4">
+                    {/* Quantity Selector */}
+                    <div className="bg-gradient-to-r from-[#212282] to-[#2d2da8] rounded-2xl p-4 shadow-lg">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-white/70 text-xs font-bold uppercase tracking-wider mb-1">How Many?</p>
+                          <p className="text-white text-lg font-bold">Combo Quantity</p>
+                        </div>
+                        <div className="flex items-center gap-3 bg-white/10 rounded-xl p-1">
+                          <button
+                            onClick={() => {
+                              if (comboQuantity > 1) {
+                                haptics.light();
+                                setComboQuantity(q => q - 1);
+                              }
+                            }}
+                            disabled={comboQuantity <= 1}
+                            className="w-10 h-10 flex items-center justify-center rounded-lg bg-white/20 text-white hover:bg-white/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                          >
+                            <Minus className="w-5 h-5" />
+                          </button>
+                          <span className="w-8 text-center text-white text-xl font-bold">{comboQuantity}</span>
+                          <button
+                            onClick={() => {
+                              haptics.light();
+                              setComboQuantity(q => q + 1);
+                            }}
+                            className="w-10 h-10 flex items-center justify-center rounded-lg bg-[#E6411C] text-white hover:bg-[#d13a18] transition-colors"
+                          >
+                            <Plus className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                     {/* Main Dishes */}
                     <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
                       <div className="flex justify-between items-start mb-3">
@@ -1031,7 +1235,8 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
 
             {/* Sticky Footer */}
             <footer className="absolute bottom-0 left-0 right-0 z-30">
-              <div className={`p-4 pb-6 md:pb-4 ${
+              {/* Safe area padding for mobile devices with bottom nav */}
+              <div className={`p-4 pb-8 sm:pb-6 md:pb-4 ${
                 step >= 2 ? 'bg-[#212282]' : 'bg-white border-t border-gray-100'
               }`}>
                 <div className="flex flex-col gap-3 max-w-xl mx-auto">
@@ -1044,16 +1249,16 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                         {step >= 4 ? 'Order Summary' : 'Your Combo'}
                       </p>
                       {step >= 4 ? (
-                        <div className={`flex items-center gap-1 text-sm font-bold ${
+                        <div className={`flex flex-wrap items-center gap-1 text-sm font-bold ${
                           step >= 2 ? 'text-white' : 'text-[#212282]'
                         }`}>
-                          <span>1 Combo</span>
+                          <span>{comboQuantity > 1 ? `${comboQuantity}x` : '1'} Combo</span>
                           <span className={step >= 2 ? 'text-white/40' : 'text-gray-300'}>•</span>
-                          <span>1 Side</span>
+                          <span>{comboQuantity > 1 ? `${comboQuantity}x` : '1'} Side</span>
                           {extrasCount > 0 && (
                             <>
                               <span className={step >= 2 ? 'text-white/40' : 'text-gray-300'}>•</span>
-                              <span className="text-[#E6411C]">{extrasCount} Extra{extrasCount > 1 ? 's' : ''}</span>
+                              <span className="text-[#E6411C]">{extrasCount * comboQuantity} Extra{extrasCount * comboQuantity > 1 ? 's' : ''}</span>
                             </>
                           )}
                         </div>
@@ -1076,6 +1281,13 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                       }`}>
                         {formatPrice(totalPrice)}
                       </p>
+                      {step === 5 && comboQuantity > 1 && (
+                        <p className={`text-[10px] font-medium ${
+                          step >= 2 ? 'text-white/50' : 'text-gray-400'
+                        }`}>
+                          {formatPrice(unitPrice)} each
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -1083,14 +1295,14 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                   <button
                     onClick={() => {
                       if (step < 5) {
+                        haptics.medium();
                         setStep(step + 1);
-                        vibrate(30);
                       } else {
                         handleAddToCart();
                       }
                     }}
                     disabled={!canProceed}
-                    className={`w-full flex items-center justify-center gap-2 rounded-xl h-14 text-white text-lg font-bold shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`w-full flex items-center justify-center gap-2 rounded-xl h-14 sm:h-12 text-white text-lg sm:text-base font-bold shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] ${
                       step === 5 ? 'bg-[#E6411C] hover:bg-[#d13a18]' : 'bg-[#E6411C] hover:bg-[#d13a18]'
                     }`}
                   >
@@ -1140,6 +1352,40 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
               </div>
             )}
 
+            {/* Reset Confirmation Modal */}
+            {showResetConfirm && (
+              <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm animate-in fade-in duration-100">
+                <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-100">
+                  <div className="w-14 h-14 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-4">
+                    <RotateCcw className="w-7 h-7 text-amber-500" />
+                  </div>
+                  <h3 className="text-xl font-extrabold text-[#212282] mb-2 text-center">Start Fresh?</h3>
+                  <p className="text-gray-500 text-sm font-medium mb-6 text-center">
+                    This will clear all your current selections and start a new combo from scratch.
+                  </p>
+                  <div className="flex flex-col gap-3">
+                    <button
+                      onClick={() => setShowResetConfirm(false)}
+                      className="w-full h-12 rounded-xl bg-[#E6411C] text-white font-bold hover:bg-[#d13a18] transition-colors shadow-sm"
+                    >
+                      Keep My Selections
+                    </button>
+                    <button
+                      onClick={() => {
+                        haptics.medium();
+                        resetBuilder();
+                        setShowResetConfirm(false);
+                        toast.success('Started a fresh combo!');
+                      }}
+                      className="w-full py-3 text-sm font-bold text-red-500 hover:text-red-700 transition-colors uppercase tracking-wider"
+                    >
+                      Yes, Start Fresh
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Success Overlay */}
             {showSuccessOverlay && (
               <div 
@@ -1170,10 +1416,19 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                   <div className="size-24 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-6">
                     <Check className="size-12 text-white" strokeWidth={4} />
                   </div>
-                  <h2 className="text-4xl font-black mb-2 tracking-tight">Added to Cart!</h2>
-                  <p className="text-white/60 font-bold uppercase tracking-widest text-sm mb-12">Great Selection</p>
+                  <h2 className="text-4xl font-black mb-2 tracking-tight">
+                    {comboQuantity > 1 ? `${comboQuantity} Combos` : 'Added to Cart!'}
+                  </h2>
+                  <p className="text-white/60 font-bold uppercase tracking-widest text-sm mb-4">
+                    {comboQuantity > 1 ? 'Added to Cart!' : 'Great Selection'}
+                  </p>
+                  {comboQuantity > 1 && (
+                    <p className="text-white/80 text-lg font-bold mb-8">
+                      Total: {formatPrice(totalPrice)}
+                    </p>
+                  )}
 
-                  <div className="flex flex-col sm:flex-row gap-4 w-full">
+                  <div className={`flex flex-col sm:flex-row gap-4 w-full ${comboQuantity > 1 ? '' : 'mt-8'}`}>
                     <button 
                       onClick={() => {
                         setShowSuccessOverlay(false);
