@@ -90,6 +90,26 @@ export default function OrderHistory() {
 
     // Iterate through items to collect images
     for (const item of order.items) {
+      // 0. Explicit Lookup by ID (Handles all Single Items: Lusaniya, Juices, Desserts, Sides)
+      // We do this unconditionally because combo IDs (generated) won't match these static IDs anyway.
+      // This catches case where type might be missing or logic was ambiguous.
+      
+      const lusaniya = menuData.lusaniya.find(l => l.id === item.id);
+      if (lusaniya?.image) { addImage(lusaniya.image); }
+
+      const juice = menuData.juices.find(j => j.id === item.id);
+      if (juice?.image) { addImage(juice.image); }
+
+      const dessert = menuData.desserts.find(d => d.id === item.id);
+      if (dessert?.image) { addImage(dessert.image); }
+      
+      const side = menuData.sideDishes.find(s => s.id === item.id);
+      if (side?.image) { addImage(side.image); }
+      
+      // Also check main dishes just in case it was a bare main dish added as single (unlikely but safe)
+      const main = menuData.mainDishes.find(m => m.id === item.id);
+      if (main?.image) { addImage(main.image); }
+
       // 1. Main Dishes (Combos)
       if (item.mainDishes) {
         item.mainDishes.forEach(mainName => {
@@ -98,7 +118,7 @@ export default function OrderHistory() {
         });
       }
 
-      // 2. Main Sauce Image (Combo) or Item Image (Single)
+      // 2. Main Sauce Image (Combo) or Item Image (Single - fallback)
       if (item.sauce?.image) addImage(item.sauce.image);
       if (item.image) addImage(item.image);
 
