@@ -74,7 +74,7 @@ export default function WhyChooseUsSection() {
           <div className="order-1 lg:order-2 w-full">
             {/* Header */}
             <div className="mb-6 lg:mb-8 text-center lg:text-left">
-              <span className="inline-block px-3 py-1 rounded-full bg-[#E6411C]/10 text-[#E6411C] text-xs font-bold uppercase tracking-wide mb-3">
+              <span className="inline-block px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-xs font-bold tracking-wider uppercase mb-3">
                 9Yards Juice
               </span>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 mb-2">
@@ -107,7 +107,7 @@ export default function WhyChooseUsSection() {
             <div className="text-center lg:text-left">
               <Link
                 to="/menu"
-                className="inline-flex items-center gap-2 bg-[#E6411C] hover:bg-[#d13a18] text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm"
+                className="btn-secondary inline-flex items-center gap-2"
               >
                 View All Juices
                 <ChevronRight className="w-4 h-4" />
