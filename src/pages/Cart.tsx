@@ -530,10 +530,10 @@ export default function CartPage() {
   // Empty Cart State
   if (state.items.length === 0) {
     return (
-      <div className="min-h-screen bg-background pb-20 lg:pb-0">
+      <div className="min-h-screen bg-background pb-24 lg:pb-0">
         <Header />
         <main className="pt-16 md:pt-20">
-          <div className="container-custom section-padding text-center">
+          <div className="container-custom px-5 sm:px-6 md:px-8 section-padding text-center">
              <div className="max-w-md mx-auto py-12">
                {/* Visual Circle */}
                <div className="w-32 h-32 bg-secondary/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-secondary/10 relative">
@@ -562,7 +562,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20 lg:pb-0">
+    <div className="min-h-screen bg-background pb-24 lg:pb-0">
       <SEO 
         title={pageMetadata.cart.title}
         description={pageMetadata.cart.description}
@@ -584,7 +584,7 @@ export default function CartPage() {
           variant="compact"
         />
 
-        <div className="container-custom py-8 md:py-12">
+        <div className="container-custom px-5 sm:px-6 md:px-8 py-8 md:py-12">
           {/* Peak Hours Alert */}
           {peakHours && (
             <div className="mb-6 p-4 bg-orange-50 border border-orange-100 rounded-xl flex items-start gap-3">
@@ -888,7 +888,7 @@ export default function CartPage() {
                 </button>
 
                 {showDeliveryForm && (
-                  <div id="delivery-form" className="mt-4 p-4 bg-white rounded-xl border border-gray-200 space-y-4 shadow-sm animate-in slide-in-from-top-2">
+                  <div id="delivery-form" className="mt-4 p-5 bg-white rounded-xl border border-gray-200 space-y-5 shadow-sm animate-in slide-in-from-top-2">
                     {/* Re-using the same inputs as desktop but in a mobile container */}
                      {/* 1. Name */}
                      <div>
@@ -1096,6 +1096,36 @@ export default function CartPage() {
                       />
                     </div>
                     
+                    {/* Promo Code - Mobile */}
+                    <div>
+                      <label className="text-xs font-bold text-gray-500 mb-1.5 block uppercase tracking-wide">
+                        Promo Code
+                      </label>
+                      {promoResult?.valid ? (
+                        <div className="flex items-center justify-between p-3 bg-green-50 border border-green-100 rounded-lg">
+                          <span className="text-sm font-bold text-green-700">{promoResult.code} Applied</span>
+                          <button onClick={handleRemovePromo} className="p-1 hover:bg-green-100 rounded transition-colors">
+                            <X className="w-4 h-4 text-green-600"/>
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          <input 
+                            value={promoCode}
+                            onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                            placeholder="Enter code"
+                            className="flex-1 p-3 rounded-lg border border-gray-200 bg-gray-50 text-sm uppercase"
+                          />
+                          <button 
+                            onClick={handleApplyPromo} 
+                            className="px-4 bg-[#212282] text-white rounded-lg font-bold text-sm hover:bg-[#1a1a6e] transition-colors"
+                          >
+                            Apply
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    
                     {/* Mobile Estimated Delivery */}
                     {selectedZone && (
                       <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg py-2.5 mt-2">
@@ -1103,6 +1133,66 @@ export default function CartPage() {
                         <span>Est. delivery: <span className="font-medium text-foreground">{getEstimatedDeliveryTime(selectedZone)}</span></span>
                       </div>
                     )}
+                    
+                    {/* Mobile Order Summary & Buttons */}
+                    <div className="mt-6 pt-5 border-t border-gray-200">
+                      {/* Order Totals */}
+                      <div className="space-y-2.5 mb-5">
+                        <div className="flex justify-between text-sm text-gray-600">
+                          <span>Subtotal ({state.items.reduce((sum, item) => sum + item.quantity, 0)} items)</span>
+                          <span className="font-medium">{formatPrice(cartTotal)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm text-gray-600">
+                          <span>Delivery</span>
+                          <span className="font-medium">
+                            {qualifiesForFreeDelivery ? (
+                              <span className="flex items-center gap-1.5">
+                                <span className="line-through text-gray-400 text-xs">{formatPrice(baseDeliveryFee)}</span>
+                                <span className="text-green-600 font-bold">FREE</span>
+                              </span>
+                            ) : (selectedZone ? formatPrice(baseDeliveryFee) : '-')}
+                          </span>
+                        </div>
+                        {discount > 0 && (
+                          <div className="flex justify-between text-sm text-green-600">
+                            <span>Discount</span>
+                            <span className="font-bold">-{formatPrice(discount)}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between pt-3 border-t border-dashed border-gray-300">
+                          <span className="font-bold text-[#212282] text-lg">Total</span>
+                          <span className="font-black text-2xl text-[#E6411C]">{formatPrice(total)}</span>
+                        </div>
+                      </div>
+                      
+                      {/* Order Buttons */}
+                      <div className="space-y-3">
+                        <button
+                          onClick={handleWhatsAppOrder}
+                          disabled={isProcessingPayment}
+                          className="w-full bg-[#25D366] text-white h-14 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-green-500/20 active:scale-[0.98] transition-all"
+                        >
+                          <WhatsAppIcon className="w-5 h-5" />
+                          <span>Order via WhatsApp</span>
+                        </button>
+                        <button
+                          onClick={handleOnlinePayment}
+                          disabled={isProcessingPayment}
+                          className="w-full bg-[#212282] text-white h-14 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[#1a1a6e] active:scale-[0.98] transition-all"
+                        >
+                          {isProcessingPayment ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                          ) : (
+                            <CreditCard className="w-5 h-5" />
+                          )}
+                          <span>{isProcessingPayment ? 'Processing...' : 'Pay Now'}</span>
+                        </button>
+                        <div className="flex items-center justify-center gap-2 text-[11px] text-gray-400 pt-1">
+                          <Shield className="w-3.5 h-3.5" />
+                          <span>Secure Checkout</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -1385,7 +1475,7 @@ export default function CartPage() {
                    )}
                    
                    {/* Savings Highlight */}
-                   {(qualifiesForFreeDelivery || discount > 0) && (
+                   {((qualifiesForFreeDelivery && baseDeliveryFee > 0) || discount > 0) && (
                      <div className="bg-green-50 border border-green-100 rounded-lg p-2.5 flex items-center gap-2">
                        <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center shrink-0">
                          <Tag className="w-3.5 h-3.5 text-green-600" />
@@ -1433,34 +1523,6 @@ export default function CartPage() {
       </main>
 
       <Footer />
-      
-      {/* Sticky Mobile Checkout Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-100 p-4 safe-area-pb shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-        <div className="flex items-center gap-4">
-          <div className="flex-1">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-0.5">Total</p>
-            <p className="text-xl font-black text-[#212282]">{formatPrice(total)}</p>
-          </div>
-          <button
-            onClick={() => {
-              if (!showDeliveryForm) {
-                setShowDeliveryForm(true);
-                toast.info('Please confirm your delivery details');
-                setTimeout(() => {
-                  document.getElementById('delivery-form')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 100);
-              } else {
-                handleWhatsAppOrder();
-              }
-            }}
-            disabled={isProcessingPayment}
-            className="flex-1 bg-[#25D366] text-white h-12 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-green-500/20 active:scale-95 transition-all"
-          >
-            <WhatsAppIcon className="w-5 h-5" />
-            <span>Order Now</span>
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
