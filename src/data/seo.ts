@@ -215,6 +215,62 @@ export const pageMetadata = {
   }
 };
 
+// FAQ SCHEMA - For use on About, How It Works, or dedicated FAQ page
+export const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What areas do you deliver to in Kampala?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We deliver to Kampala Central, Nakawa, Kololo, Muyenga, Ntinda, Bukoto, Kisaasi, Naguru, Bugolobi, and surrounding areas. Delivery fees range from UGX 5,000 to UGX 10,000 depending on location."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long does delivery take?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Standard delivery takes 30-45 minutes. During peak hours (12-2pm, 6-8pm), delivery may take 45-60 minutes. We'll always keep you updated via WhatsApp."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What payment methods do you accept?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We accept Mobile Money (MTN, Airtel), Cash on Delivery, and online card payments via Flutterwave."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is the food freshly prepared?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! All meals are freshly prepared with 100% natural ingredients. We use no preservatives or artificial additives. Food is cooked to order and delivered hot."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do you offer free delivery?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! Orders above UGX 50,000 qualify for free delivery within our standard delivery zones. Use promo code FREESHIP for free delivery on any order."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I customize my order?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Absolutely! You can choose your main dish (matooke, rice, posho, cassava), protein (fish, chicken, beef), sauce (g-nuts, vegetables), and preparation style (boiled, fried, steamed)."
+      }
+    }
+  ]
+};
+
 // GLOBAL METADATA (Applied to all pages)
 export const globalMetadata = {
   siteName: "9Yards Food",
@@ -253,6 +309,20 @@ export const globalMetadata = {
       "addressLocality": "Kampala",
       "addressRegion": "Central Region",
       "addressCountry": "UG"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "0.3476",
+      "longitude": "32.5825"
+    },
+    "paymentAccepted": ["Mobile Money", "Cash on Delivery"],
+    "currenciesAccepted": "UGX",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "reviewCount": "127",
+      "bestRating": "5",
+      "worstRating": "1"
     },
     "sameAs": [
       "https://www.instagram.com/9yardsfood",

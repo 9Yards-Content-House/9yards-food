@@ -102,6 +102,10 @@ const SEO = ({
       <meta property="og:site_name" content={siteTitle} />
       <meta property="og:locale" content={globalMetadata.locale} />
 
+      {/* Hreflang for international SEO */}
+      <link rel="alternate" hrefLang="en-ug" href={fullUrl} />
+      <link rel="alternate" hrefLang="x-default" href={fullUrl} />
+
       {/* Twitter */}
       <meta name="twitter:card" content={globalMetadata.twitterCard} />
       <meta name="twitter:site" content={globalMetadata.twitterSite} />
