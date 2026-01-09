@@ -104,23 +104,23 @@ export default function Header() {
             </nav>
 
             {/* Right Actions */}
-            <div className="flex items-center gap-0.5 sm:gap-1 md:gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
               {/* Search Button */}
               <button
                 onClick={() => setIsSearchOpen(true)}
-                className="p-1.5 sm:p-2 rounded-full hover:bg-muted/20 transition-colors"
+                className="p-2 sm:p-2.5 rounded-full hover:bg-muted/20 transition-colors"
                 aria-label="Search menu"
                 title="Search Menu (Ctrl+K)"
               >
                 <Search
-                  className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColorClass} transition-colors`}
+                  className={`w-5 h-5 ${iconColorClass} transition-colors`}
                 />
               </button>
 
               {/* Favorites */}
               <Link
                 to="/favorites"
-                className="p-1.5 sm:p-2 rounded-full hover:bg-muted/20 transition-colors relative"
+                className="p-2 sm:p-2.5 rounded-full hover:bg-muted/20 transition-colors relative"
                 aria-label={`Favorites${
                   state.favorites.length > 0
                     ? ` (${state.favorites.length} items)`
@@ -129,10 +129,10 @@ export default function Header() {
                 title={`Favorites${state.favorites.length > 0 ? ` (${state.favorites.length})` : ""}`}
               >
                 <Heart
-                  className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColorClass} transition-colors`}
+                  className={`w-5 h-5 ${iconColorClass} transition-colors`}
                 />
                 {state.favorites.length > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-4 h-4 sm:w-5 sm:h-5 bg-secondary text-secondary-foreground text-[10px] sm:text-xs font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-secondary text-secondary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
                     {state.favorites.length}
                   </span>
                 )}
@@ -141,27 +141,27 @@ export default function Header() {
               {/* Order History */}
               <Link
                 to="/order-history"
-                className="p-1.5 sm:p-2 rounded-full hover:bg-muted/20 transition-colors hidden sm:flex"
+                className="p-2 sm:p-2.5 rounded-full hover:bg-muted/20 transition-colors hidden sm:flex"
                 aria-label="Order History"
                 title="Order History"
               >
-                <Clock className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColorClass} transition-colors`} />
+                <Clock className={`w-5 h-5 ${iconColorClass} transition-colors`} />
               </Link>
 
               {/* Cart */}
               <Link
                 to="/cart"
-                className="hidden lg:flex p-1.5 sm:p-2 rounded-full hover:bg-muted/20 transition-colors relative"
+                className="hidden lg:flex p-2 sm:p-2.5 rounded-full hover:bg-muted/20 transition-colors relative"
                 aria-label={`Cart${
                   cartCount > 0 ? ` (${cartCount} items)` : ""
                 }`}
                 title={`Shopping Cart${cartCount > 0 ? ` (${cartCount} items)` : ""}`}
               >
                 <ShoppingCart
-                  className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColorClass} transition-colors`}
+                  className={`w-5 h-5 ${iconColorClass} transition-colors`}
                 />
                 {cartCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-4 h-4 sm:w-5 sm:h-5 bg-secondary text-secondary-foreground text-[10px] sm:text-xs font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-secondary text-secondary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
                     {cartCount}
                   </span>
                 )}
@@ -170,7 +170,7 @@ export default function Header() {
               {/* CTA Button - Desktop */}
               <button
                 onClick={() => setIsComboBuilderOpen(true)}
-                className="hidden md:flex btn-secondary text-sm py-2.5 px-5 lg:ml-6"
+                className="hidden md:flex btn-secondary text-sm py-2.5 px-5 ml-2 lg:ml-4"
                 title="Create your perfect meal combo"
               >
                 Build Your Combo
