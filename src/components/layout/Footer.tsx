@@ -22,19 +22,19 @@ const defaultWhatsAppUrl = getWhatsAppUrl(WHATSAPP_MESSAGES.default);
 export default function Footer() {
   return (
     // Hidden on mobile - users access footer content via MoreSheet in bottom nav
-    <footer className="hidden lg:block bg-primary text-primary-foreground">
-      <div className="container-custom section-padding">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+    <footer className="hidden lg:block bg-[#212282] text-white">
+      <div className="container mx-auto px-6 py-12 lg:py-14">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* About */}
           <div>
             <Link to="/" className="inline-block mb-4">
               <img 
                 src="/images/logo/9Yards-Food-White-Logo.png"
                 alt="9Yards Food"
-                className="h-20 w-auto object-contain"
+                className="h-14 w-auto object-contain"
               />
             </Link>
-            <p className="text-primary-foreground/70 text-sm leading-relaxed">
+            <p className="text-white/80 text-[13px] leading-relaxed">
               Bringing authentic Ugandan cuisine to your doorstep. 100% natural ingredients, 
               cooked fresh with love in Kampala.
             </p>
@@ -42,19 +42,18 @@ export default function Footer() {
 
           {/* Explore */}
           <div>
-            <h4 className="font-bold text-lg mb-4">Explore</h4>
-            <ul className="space-y-2">
+            <h4 className="font-bold text-base mb-4">Explore</h4>
+            <ul className="space-y-2.5">
               {[
                 { href: '/menu', label: 'Menu' },
-                { href: '#', label: 'How to Order' },
-                { href: '#', label: 'Delivery Areas' },
-                { href: '#', label: 'About Us' },
+                { href: '/delivery-zones', label: 'Delivery Areas' },
+                { href: '/about', label: 'About Us' },
                 { href: '/contact', label: 'Contact' },
               ].map((link) => (
                 <li key={link.label}>
                   <Link
                     to={link.href}
-                    className="text-primary-foreground/70 hover:text-secondary transition-colors text-sm"
+                    className="text-white/80 hover:text-[#E6411C] hover:underline underline-offset-2 transition-colors text-[13px]"
                   >
                     {link.label}
                   </Link>
@@ -65,14 +64,14 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="font-bold text-lg mb-4">Contact Us</h4>
-            <ul className="space-y-3">
+            <h4 className="font-bold text-base mb-4">Contact Us</h4>
+            <ul className="space-y-2.5">
               <li>
                 <a
                   href="tel:+256708899597"
-                  className="flex items-center gap-3 text-primary-foreground/70 hover:text-secondary transition-colors text-sm"
+                  className="flex items-center gap-2.5 text-white/80 hover:text-[#E6411C] transition-colors text-[13px]"
                 >
-                  <Phone className="w-4 h-4" />
+                  <Phone className="w-4 h-4 flex-shrink-0" />
                   +256 708 899 597
                 </a>
               </li>
@@ -81,27 +80,27 @@ export default function Footer() {
                   href={defaultWhatsAppUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 text-primary-foreground/70 hover:text-secondary transition-colors text-sm"
+                  className="flex items-center gap-2.5 text-white/80 hover:text-[#E6411C] transition-colors text-[13px]"
                 >
-                  <WhatsAppIcon className="w-4 h-4" />
+                  <WhatsAppIcon className="w-4 h-4 flex-shrink-0" />
                   Order via WhatsApp
                 </a>
               </li>
               <li>
                 <a
                   href="mailto:deliveries@9yards.co.ug"
-                  className="flex items-center gap-3 text-primary-foreground/70 hover:text-secondary transition-colors text-sm"
+                  className="flex items-center gap-2.5 text-white/80 hover:text-[#E6411C] transition-colors text-[13px]"
                 >
-                  <Mail className="w-4 h-4" />
+                  <Mail className="w-4 h-4 flex-shrink-0" />
                   deliveries@9yards.co.ug
                 </a>
               </li>
               <li>
                 <Link
                   to="/delivery-zones"
-                  className="flex items-start gap-3 text-primary-foreground/70 hover:text-secondary transition-colors text-sm"
+                  className="flex items-center gap-2.5 text-white/80 hover:text-[#E6411C] transition-colors text-[13px]"
                 >
-                  <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <MapPin className="w-4 h-4 flex-shrink-0" />
                   Kampala, Uganda
                 </Link>
               </li>
@@ -110,34 +109,34 @@ export default function Footer() {
 
           {/* Social */}
           <div>
-            <h4 className="font-bold text-lg mb-4">Follow Us</h4>
-            <div className="flex gap-3">
+            <h4 className="font-bold text-base mb-4">Follow Us</h4>
+            <div className="flex gap-2.5">
               <a
                 href={SOCIAL_LINKS.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Follow us on Instagram"
-                className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-secondary transition-colors"
+                className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#E6411C] transition-colors"
               >
-                <Instagram className="w-5 h-5" />
+                <Instagram className="w-4 h-4" />
               </a>
               <a
                 href={SOCIAL_LINKS.tiktok}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Follow us on TikTok"
-                className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-secondary transition-colors"
+                className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#E6411C] transition-colors"
               >
-                <TikTokIcon className="w-5 h-5" />
+                <TikTokIcon className="w-4 h-4" />
               </a>
               <a
                 href={defaultWhatsAppUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Chat on WhatsApp"
-                className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-secondary transition-colors"
+                className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#E6411C] transition-colors"
               >
-                <WhatsAppIcon className="w-5 h-5" />
+                <WhatsAppIcon className="w-4 h-4" />
               </a>
               {SOCIAL_LINKS.youtube && (
                 <a
@@ -145,19 +144,19 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Subscribe on YouTube"
-                  className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-secondary transition-colors"
+                  className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#E6411C] transition-colors"
                 >
-                  <Youtube className="w-5 h-5" />
+                  <Youtube className="w-4 h-4" />
                 </a>
               )}
             </div>
-            <div className="mt-6">
-              <p className="text-primary-foreground/50 text-xs">Part of</p>
+            <div className="mt-5">
+              <p className="text-white/50 text-xs">Part of</p>
               <a
                 href="https://9yards.co.ug"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-secondary hover:underline text-sm font-medium"
+                className="text-[#E6411C] hover:underline text-[13px] font-medium"
               >
                 9yards.co.ug
               </a>
@@ -165,15 +164,15 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-primary-foreground/10 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-primary-foreground/50 text-sm">
+        <div className="mt-10 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-3">
+          <p className="text-white/50 text-xs">
             © {new Date().getFullYear()} 9Yards Food. All rights reserved.
           </p>
-          <div className="flex gap-6 text-sm">
-            <Link to="/privacy" className="text-primary-foreground/50 hover:text-secondary transition-colors">
+          <div className="flex gap-5 text-xs">
+            <Link to="/privacy" className="text-white/50 hover:text-[#E6411C] hover:underline underline-offset-2 transition-colors">
               Privacy Policy
             </Link>
-            <Link to="/terms" className="text-primary-foreground/50 hover:text-secondary transition-colors">
+            <Link to="/terms" className="text-white/50 hover:text-[#E6411C] hover:underline underline-offset-2 transition-colors">
               Terms & Conditions
             </Link>
           </div>
