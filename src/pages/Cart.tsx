@@ -946,10 +946,11 @@ export default function CartPage() {
                     {/* Re-using the same inputs as desktop but in a mobile container */}
                      {/* 1. Name */}
                      <div>
-                      <label className="text-xs font-bold text-gray-500 mb-1.5 block uppercase tracking-wide">
+                      <label htmlFor="mobile-customer-name" className="text-xs font-bold text-gray-500 mb-1.5 block uppercase tracking-wide">
                         Your Name
                       </label>
                       <input
+                        id="mobile-customer-name"
                         type="text"
                         value={state.userPreferences.name}
                         onChange={(e) => {
@@ -957,20 +958,24 @@ export default function CartPage() {
                           if (errors.name) setErrors({ ...errors, name: '' });
                         }}
                         placeholder="e.g. John Doe"
-                        className={`w-full p-3 rounded-lg border ${errors.name ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-sm focus:ring-[#212282]`}
+                        aria-describedby={errors.name ? "mobile-name-error" : undefined}
+                        aria-invalid={errors.name ? "true" : "false"}
+                        className={`w-full p-3 rounded-lg border ${errors.name ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-sm focus-visible:ring-2 focus-visible:ring-[#212282] focus-visible:ring-offset-1 focus:outline-none`}
                       />
+                      {errors.name && <p id="mobile-name-error" role="alert" className="text-red-500 text-xs mt-1">{errors.name}</p>}
                     </div>
 
                     {/* 2. Phone */}
                      <div>
-                      <label className="text-xs font-bold text-gray-500 mb-1.5 block uppercase tracking-wide">
+                      <label htmlFor="mobile-customer-phone" className="text-xs font-bold text-gray-500 mb-1.5 block uppercase tracking-wide">
                         Phone Number
                       </label>
                       <div className="flex">
-                        <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-200 bg-gray-100 text-gray-500 text-sm font-medium">
+                        <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-200 bg-gray-100 text-gray-500 text-sm font-medium" aria-hidden="true">
                           🇺🇬 +256
                         </span>
                         <input
+                          id="mobile-customer-phone"
                           type="tel"
                           value={state.userPreferences.phone}
                           onChange={(e) => {
@@ -978,21 +983,25 @@ export default function CartPage() {
                             if (errors.phone) setErrors({ ...errors, phone: '' });
                           }}
                           placeholder="700 123 456"
-                          className={`flex-1 p-3 rounded-r-lg border ${errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-sm focus:ring-[#212282]`}
+                          aria-describedby={errors.phone ? "mobile-phone-error" : undefined}
+                          aria-invalid={errors.phone ? "true" : "false"}
+                          className={`flex-1 p-3 rounded-r-lg border ${errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-sm focus-visible:ring-2 focus-visible:ring-[#212282] focus-visible:ring-offset-1 focus:outline-none`}
                         />
                       </div>
+                      {errors.phone && <p id="mobile-phone-error" role="alert" className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                     </div>
 
                     {/* 3. Delivery Location - Combined Address & Zone */}
                     <div className="space-y-3">
-                      <label className="text-xs font-bold text-gray-500 mb-1.5 block uppercase tracking-wide">
+                      <label htmlFor="mobile-customer-address" className="text-xs font-bold text-gray-500 mb-1.5 block uppercase tracking-wide">
                         Delivery Location
                       </label>
                       
                       {/* Address Search */}
                       <div className="relative">
-                         <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+                         <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400" aria-hidden="true" />
                           <input
+                            id="mobile-customer-address"
                             type="text"
                             value={addressQuery}
                             onChange={(e) => {
@@ -1004,9 +1013,12 @@ export default function CartPage() {
                             onFocus={() => setShowAddressSuggestions(true)}
                             onBlur={() => setTimeout(() => setShowAddressSuggestions(false), 200)}
                             placeholder="Type your address or area..."
-                            className={`w-full pl-9 p-3 rounded-lg border ${errors.address ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-sm`}
+                            aria-describedby={errors.address ? "mobile-address-error" : undefined}
+                            aria-invalid={errors.address ? "true" : "false"}
+                            aria-autocomplete="list"
+                            className={`w-full pl-9 p-3 rounded-lg border ${errors.address ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-sm focus-visible:ring-2 focus-visible:ring-[#212282] focus-visible:ring-offset-1 focus:outline-none`}
                           />
-                          {isSearchingAddress && <Loader2 className="absolute right-3 top-3 w-4 h-4 animate-spin text-primary" />}
+                          {isSearchingAddress && <Loader2 className="absolute right-3 top-3 w-4 h-4 animate-spin text-primary" aria-hidden="true" />}
                           
                           {/* Suggestions (Mobile) */}
                           {showAddressSuggestions && addressSuggestions.length > 0 && (
@@ -1171,41 +1183,43 @@ export default function CartPage() {
                     
                     {/* Special Instructions - Mobile */}
                     <div>
-                      <label className="text-xs font-bold text-gray-500 mb-1.5 block uppercase tracking-wide">
+                      <label htmlFor="mobile-special-instructions" className="text-xs font-bold text-gray-500 mb-1.5 block uppercase tracking-wide">
                         Special Instructions
                       </label>
                       <textarea
+                        id="mobile-special-instructions"
                         value={state.userPreferences.specialInstructions || ''}
                         onChange={(e) => setUserPreferences({ specialInstructions: e.target.value })}
                         placeholder="E.g., Extra sauce, no onions, call on arrival..."
                         rows={2}
-                        className="w-full p-3 rounded-lg border border-gray-200 bg-gray-50 text-sm resize-none focus:ring-[#212282]"
+                        className="w-full p-3 rounded-lg border border-gray-200 bg-gray-50 text-sm resize-none focus-visible:ring-2 focus-visible:ring-[#212282] focus-visible:ring-offset-1 focus:outline-none"
                       />
                     </div>
                     
                     {/* Promo Code - Mobile */}
                     <div>
-                      <label className="text-xs font-bold text-gray-500 mb-1.5 block uppercase tracking-wide">
+                      <label htmlFor="mobile-promo-code" className="text-xs font-bold text-gray-500 mb-1.5 block uppercase tracking-wide">
                         Promo Code
                       </label>
                       {promoResult?.valid ? (
                         <div className="flex items-center justify-between p-3 bg-green-50 border border-green-100 rounded-lg">
                           <span className="text-sm font-bold text-green-700">{promoResult.code} Applied</span>
-                          <button onClick={handleRemovePromo} className="p-1 hover:bg-green-100 rounded transition-colors">
-                            <X className="w-4 h-4 text-green-600"/>
+                          <button onClick={handleRemovePromo} className="p-1 hover:bg-green-100 rounded transition-colors" aria-label="Remove promo code">
+                            <X className="w-4 h-4 text-green-600" aria-hidden="true"/>
                           </button>
                         </div>
                       ) : (
                         <div className="flex gap-2">
                           <input 
+                            id="mobile-promo-code"
                             value={promoCode}
                             onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
                             placeholder="Enter code"
-                            className="flex-1 p-3 rounded-lg border border-gray-200 bg-gray-50 text-sm uppercase"
+                            className="flex-1 p-3 rounded-lg border border-gray-200 bg-gray-50 text-sm uppercase focus-visible:ring-2 focus-visible:ring-[#212282] focus-visible:ring-offset-1 focus:outline-none"
                           />
                           <button 
                             onClick={handleApplyPromo} 
-                            className="px-4 bg-[#212282] text-white rounded-lg font-bold text-sm hover:bg-[#1a1a6e] transition-colors"
+                            className="px-4 bg-[#212282] text-white rounded-lg font-bold text-sm hover:bg-[#1a1a6e] transition-colors focus-visible:ring-2 focus-visible:ring-[#212282] focus-visible:ring-offset-2"
                           >
                             Apply
                           </button>
@@ -1333,37 +1347,48 @@ export default function CartPage() {
                 {/* Desktop Inputs */}
                 <div className="space-y-4 mb-6">
                    <div>
-                      <label className="text-sm font-medium text-[#212282] mb-2 block">Your Name *</label>
+                      <label htmlFor="desktop-customer-name" className="text-sm font-medium text-[#212282] mb-2 block">Your Name *</label>
                       <input
+                        id="desktop-customer-name"
                         type="text"
                         value={state.userPreferences.name}
                         onChange={(e) => { setUserPreferences({name: e.target.value}); if(errors.name) setErrors({...errors, name:''});}}
                         onBlur={() => setTouched({...touched, name:true})}
-                        className={`w-full p-3 rounded-xl border ${errors.name && touched.name ? 'border-red-500 bg-red-50' : 'border-border bg-gray-50'} focus:ring-[#E6411C]`}
+                        aria-describedby={errors.name && touched.name ? "desktop-name-error" : undefined}
+                        aria-invalid={errors.name && touched.name ? "true" : "false"}
+                        aria-required="true"
+                        className={`w-full p-3 rounded-xl border ${errors.name && touched.name ? 'border-red-500 bg-red-50' : 'border-border bg-gray-50'} focus-visible:ring-2 focus-visible:ring-[#E6411C] focus-visible:ring-offset-1 focus:outline-none`}
                       />
+                      {errors.name && touched.name && <p id="desktop-name-error" role="alert" className="text-red-500 text-xs mt-1">{errors.name}</p>}
                    </div>
                    <div>
-                      <label className="text-sm font-medium text-[#212282] mb-2 block">Phone Number *</label>
+                      <label htmlFor="desktop-customer-phone" className="text-sm font-medium text-[#212282] mb-2 block">Phone Number *</label>
                       <div className="flex">
-                        <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-border bg-gray-100 text-gray-500 text-sm">🇺🇬 +256</span>
+                        <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-border bg-gray-100 text-gray-500 text-sm" aria-hidden="true">🇺🇬 +256</span>
                         <input
+                          id="desktop-customer-phone"
                           type="tel"
                           value={state.userPreferences.phone}
                           onChange={(e) => { setUserPreferences({phone: e.target.value}); if(errors.phone) setErrors({...errors, phone:''});}}
                           onBlur={() => setTouched({...touched, phone:true})}
-                          className={`flex-1 p-3 rounded-r-xl border ${errors.phone && touched.phone ? 'border-red-500 bg-red-50' : 'border-border bg-gray-50'}`}
+                          aria-describedby={errors.phone && touched.phone ? "desktop-phone-error" : undefined}
+                          aria-invalid={errors.phone && touched.phone ? "true" : "false"}
+                          aria-required="true"
+                          className={`flex-1 p-3 rounded-r-xl border ${errors.phone && touched.phone ? 'border-red-500 bg-red-50' : 'border-border bg-gray-50'} focus-visible:ring-2 focus-visible:ring-[#E6411C] focus-visible:ring-offset-1 focus:outline-none`}
                         />
                       </div>
+                      {errors.phone && touched.phone && <p id="desktop-phone-error" role="alert" className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                    </div>
                    
                    {/* Delivery Location - Combined Address & Zone */}
                     <div className="space-y-3">
-                       <label className="text-sm font-medium text-[#212282] mb-2 block">Delivery Location *</label>
+                       <label htmlFor="desktop-customer-address" className="text-sm font-medium text-[#212282] mb-2 block">Delivery Location *</label>
                        
                        {/* Address Search */}
                        <div className="relative">
-                          <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+                          <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400" aria-hidden="true" />
                           <input
+                            id="desktop-customer-address"
                             value={addressQuery}
                             onChange={(e) => {
                                 setAddressQuery(e.target.value);
@@ -1373,10 +1398,14 @@ export default function CartPage() {
                             }}
                             onFocus={() => setShowAddressSuggestions(true)}
                             onBlur={() => setTimeout(() => setShowAddressSuggestions(false), 200)}
-                            className={`w-full pl-9 p-3 rounded-xl border ${errors.address && touched.address ? 'border-red-500' : 'border-border bg-gray-50'}`}
+                            aria-describedby={errors.address && touched.address ? "desktop-address-error" : undefined}
+                            aria-invalid={errors.address && touched.address ? "true" : "false"}
+                            aria-required="true"
+                            aria-autocomplete="list"
+                            className={`w-full pl-9 p-3 rounded-xl border ${errors.address && touched.address ? 'border-red-500' : 'border-border bg-gray-50'} focus-visible:ring-2 focus-visible:ring-[#E6411C] focus-visible:ring-offset-1 focus:outline-none`}
                             placeholder="Type your address or area..."
                           />
-                          {isSearchingAddress && <Loader2 className="absolute right-3 top-3 w-4 h-4 animate-spin text-primary" />}
+                          {isSearchingAddress && <Loader2 className="absolute right-3 top-3 w-4 h-4 animate-spin text-primary" aria-hidden="true" />}
                           
                           {/* Desktop Suggestions */}
                           {showAddressSuggestions && addressSuggestions.length > 0 && (

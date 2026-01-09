@@ -8,7 +8,7 @@ import {
   Mail,
   ArrowRight
 } from 'lucide-react';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { SOCIAL_LINKS, getWhatsAppUrl, WHATSAPP_MESSAGES, PHONE_NUMBER_FORMATTED, EMAIL, BUSINESS_HOURS } from '@/lib/constants';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 
@@ -75,6 +75,12 @@ export default function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
         side="bottom" 
         className="rounded-t-2xl max-h-[90vh] overflow-hidden flex flex-col p-0 gap-0 border-none shadow-2xl safe-area-bottom bg-white [&>button]:hidden sm:max-w-md sm:mx-auto sm:rounded-2xl sm:bottom-6 sm:left-4 sm:right-4 sm:max-h-[82vh]"
       >
+        {/* Screen reader only title and description for accessibility */}
+        <SheetTitle className="sr-only">More Options Menu</SheetTitle>
+        <SheetDescription className="sr-only">
+          Navigation links, contact options, and social media links
+        </SheetDescription>
+        
         {/* Brand Header Section - Extremely Compact */}
         <div className="bg-primary px-6 py-5 sm:py-6 relative overflow-hidden shrink-0">
           <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12 blur-2xl" />

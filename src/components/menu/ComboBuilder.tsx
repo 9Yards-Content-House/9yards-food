@@ -1100,7 +1100,7 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                           <p className="text-white/70 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-0.5 sm:mb-1">How Many?</p>
                           <p className="text-white text-base sm:text-lg font-bold">Combo Quantity</p>
                         </div>
-                        <div className="flex items-center gap-2 sm:gap-3 bg-white/10 rounded-lg sm:rounded-xl p-0.5 sm:p-1 shrink-0">
+                        <div className="flex items-center gap-2 sm:gap-3 bg-white/10 rounded-lg sm:rounded-xl p-0.5 sm:p-1 shrink-0" role="group" aria-label="Combo quantity">
                           <button
                             onClick={() => {
                               if (comboQuantity > 1) {
@@ -1109,19 +1109,21 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                               }
                             }}
                             disabled={comboQuantity <= 1}
+                            aria-label="Decrease combo quantity"
                             className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-md sm:rounded-lg bg-white/20 text-white hover:bg-white/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                           >
-                            <Minus className="w-4 h-4 sm:w-5 sm:h-5" />
+                            <Minus className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
                           </button>
-                          <span className="w-6 sm:w-8 text-center text-white text-lg sm:text-xl font-bold">{comboQuantity}</span>
+                          <span className="w-6 sm:w-8 text-center text-white text-lg sm:text-xl font-bold" aria-live="polite">{comboQuantity}</span>
                           <button
                             onClick={() => {
                               haptics.light();
                               setComboQuantity(q => q + 1);
                             }}
+                            aria-label="Increase combo quantity"
                             className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-md sm:rounded-lg bg-[#E6411C] text-white hover:bg-[#d13a18] transition-colors"
                           >
-                            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+                            <Plus className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
                           </button>
                         </div>
                       </div>

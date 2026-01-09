@@ -123,9 +123,24 @@ export function MenuItemCard({
     }
   };
 
+  // Handle keyboard events for accessibility
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (!item.available) return;
+      if (isIndividual && onAddToCart && !isInCart) {
+        onAddToCart();
+      } else if (!isIndividual) {
+        onAddToOrder();
+      }
+    }
+  };
+
   return (
     <div
       data-item-id={item.id}
+      role="button"
+      tabIndex={item.available ? 0 : -1}
       onClick={() => {
         if (!item.available) return;
         if (isIndividual && onAddToCart && !isInCart) {
@@ -134,8 +149,11 @@ export function MenuItemCard({
           onAddToOrder();
         }
       }}
+      onKeyDown={handleKeyDown}
+      aria-label={`${item.name}${!item.available ? ' - Sold out' : isIndividual ? ' - Add to order' : ' - Start combo'}`}
+      aria-disabled={!item.available}
       className={`group relative bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-secondary/50 hover:bg-secondary/5 active:scale-[0.98]
-        transition-all duration-200 flex flex-col
+        transition-all duration-200 flex flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2
         ${item.available ? "cursor-pointer" : "cursor-not-allowed"}
         ${
           isHighlighted
@@ -260,17 +278,18 @@ export function MenuItemCard({
             isIndividual &&
             onAddToCart &&
             (lusaniyaCount > 0 ? (
-              <div className="flex items-center gap-2 bg-secondary/10 rounded-full px-2 py-1">
+              <div className="flex items-center gap-2 bg-secondary/10 rounded-full px-2 py-1" role="group" aria-label={`Quantity controls for ${item.name}`}>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     onRemoveLusaniya?.();
                   }}
-                  className="w-7 h-7 flex items-center justify-center bg-white text-secondary rounded-full shadow-sm"
+                  className="w-7 h-7 flex items-center justify-center bg-white text-secondary rounded-full shadow-sm focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-1"
+                  aria-label={`Decrease quantity of ${item.name}`}
                 >
-                  -
+                  <span aria-hidden="true">-</span>
                 </button>
-                <span className="text-sm font-bold w-4 text-center">
+                <span className="text-sm font-bold w-4 text-center" aria-label={`Quantity: ${lusaniyaCount}`}>
                   {lusaniyaCount}
                 </span>
                 <button
@@ -278,9 +297,10 @@ export function MenuItemCard({
                     e.stopPropagation();
                     onAddToCart();
                   }}
-                  className="w-7 h-7 flex items-center justify-center bg-secondary text-white rounded-full shadow-sm"
+                  className="w-7 h-7 flex items-center justify-center bg-secondary text-white rounded-full shadow-sm focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-1"
+                  aria-label={`Increase quantity of ${item.name}`}
                 >
-                  +
+                  <span aria-hidden="true">+</span>
                 </button>
               </div>
             ) : (
@@ -289,7 +309,7 @@ export function MenuItemCard({
                   e.stopPropagation();
                   onAddToCart();
                 }}
-                className="text-xs font-bold px-3 py-2 rounded-full transition-all bg-secondary hover:bg-secondary/90 text-secondary-foreground hover:scale-105 active:scale-95"
+                className="text-xs font-bold px-3 py-2 rounded-full transition-all bg-secondary hover:bg-secondary/90 text-secondary-foreground hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2"
               >
                 Add to Order
               </button>

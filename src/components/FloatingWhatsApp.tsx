@@ -1072,6 +1072,9 @@ export default function FloatingWhatsApp({
             <div 
               ref={chatContainerRef}
               className="flex-1 overflow-y-auto px-2 sm:px-3 py-2 space-y-1 custom-scrollbar"
+              role="log"
+              aria-live="polite"
+              aria-label="Chat messages"
               style={{ 
                 backgroundImage: `url('/images/backgrounds/new-real-whatsapp-wallpaper.png')`, 
                 backgroundSize: 'cover', 

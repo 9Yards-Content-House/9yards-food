@@ -22,7 +22,7 @@ const defaultWhatsAppUrl = getWhatsAppUrl(WHATSAPP_MESSAGES.default);
 export default function Footer() {
   return (
     // Hidden on mobile - users access footer content via MoreSheet in bottom nav
-    <footer className="hidden lg:block bg-[#212282] text-white">
+    <footer className="hidden lg:block bg-[#212282] text-white" role="contentinfo" aria-label="Site footer">
       <div className="container mx-auto px-6 py-12 lg:py-14">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* About */}

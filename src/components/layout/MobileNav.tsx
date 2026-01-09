@@ -34,7 +34,11 @@ export default function MobileNav({ onChatClick }: MobileNavProps) {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-t sm:border border-white/20 shadow-[0_-5px_20px_-5px_rgba(0,0,0,0.05)] safe-area-bottom lg:hidden sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:w-full sm:max-w-md sm:bottom-6 sm:rounded-2xl sm:shadow-2xl">
+      <nav 
+        className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-t sm:border border-white/20 shadow-[0_-5px_20px_-5px_rgba(0,0,0,0.05)] safe-area-bottom lg:hidden sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:w-full sm:max-w-md sm:bottom-6 sm:rounded-2xl sm:shadow-2xl"
+        aria-label="Mobile navigation"
+        role="navigation"
+      >
         <div className="flex items-center justify-around h-[72px] px-2">
           {navItems.map((item) => {
             const isActive = location.pathname === item.href;
@@ -45,7 +49,7 @@ export default function MobileNav({ onChatClick }: MobileNavProps) {
               <Link
                 key={item.href}
                 to={item.href}
-                className={`flex flex-col items-center justify-center gap-1 min-w-[64px] h-full transition-colors relative ${
+                className={`flex flex-col items-center justify-center gap-1 min-w-[64px] h-full transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:rounded-lg ${
                   isActive ? 'text-secondary' : 'text-gray-400'
                 }`}
                 aria-label={item.label}
@@ -71,7 +75,7 @@ export default function MobileNav({ onChatClick }: MobileNavProps) {
           {/* WhatsApp Order Button */}
           <button
             onClick={handleWhatsAppClick}
-            className="flex flex-col items-center justify-center gap-1 min-w-[64px] h-full text-gray-400 hover:text-green-600 transition-colors relative"
+            className="flex flex-col items-center justify-center gap-1 min-w-[64px] h-full text-gray-400 hover:text-green-600 transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 focus-visible:rounded-lg"
             aria-label="Order via WhatsApp"
           >
             <div className="relative">
@@ -83,10 +87,12 @@ export default function MobileNav({ onChatClick }: MobileNavProps) {
           {/* More Button */}
           <button
             onClick={() => setMoreSheetOpen(true)}
-            className={`flex flex-col items-center justify-center gap-1 min-w-[64px] h-full transition-colors relative ${
+            className={`flex flex-col items-center justify-center gap-1 min-w-[64px] h-full transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:rounded-lg ${
               moreSheetOpen ? 'text-secondary' : 'text-gray-400'
             }`}
             aria-label="More options"
+            aria-expanded={moreSheetOpen}
+            aria-haspopup="dialog"
           >
             <div className="relative">
               <MoreHorizontal className="w-6 h-6" />
