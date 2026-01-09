@@ -493,6 +493,40 @@ export default function CartPage() {
     return null;
   };
 
+  // Helper to get item description from menu data
+  const getItemDescription = (item: any): string | null => {
+    if (item.description) return item.description;
+    
+    if (item.type === 'single') {
+      const getRawId = (id: string) => {
+        const prefixes = ['lusaniya-', 'juice-', 'dessert-', 'side-', 'main-'];
+        for (const prefix of prefixes) {
+          if (id.startsWith(prefix)) {
+            return id.substring(prefix.length);
+          }
+        }
+        return id;
+      };
+      
+      const rawId = getRawId(item.id);
+      const itemName = item.mainDishes?.[0] || '';
+      
+      const lusaniya = menuData.lusaniya.find(l => l.id === rawId || l.id === item.id || l.name === itemName);
+      if (lusaniya?.description) return lusaniya.description;
+      
+      const juice = menuData.juices.find(j => j.id === rawId || j.id === item.id || j.name === itemName);
+      if (juice?.description) return juice.description;
+      
+      const dessert = menuData.desserts.find(d => d.id === rawId || d.id === item.id || d.name === itemName);
+      if (dessert?.description) return dessert.description;
+      
+      const side = menuData.sideDishes.find(s => s.id === rawId || s.id === item.id || s.name === itemName);
+      if (side?.description) return side.description;
+    }
+    
+    return null;
+  };
+
   // Empty Cart State
   if (state.items.length === 0) {
     return (
@@ -609,6 +643,9 @@ export default function CartPage() {
 
                 {state.items.map((item, index) => {
                   const itemImage = getItemImage(item);
+                  const itemDescription = getItemDescription(item);
+                  const totalItemPrice = item.totalPrice * item.quantity;
+                  
                   return (
                     <div key={item.id} className="group">
                       <div className="flex gap-4 items-start">
@@ -625,13 +662,21 @@ export default function CartPage() {
                                <UtensilsCrossed className="w-8 h-8" />
                              </div>
                           )}
+                          {/* Type badge */}
+                          <span className={`absolute bottom-1 left-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase ${
+                            item.type === 'combo' 
+                              ? 'bg-purple-100 text-purple-700' 
+                              : 'bg-blue-100 text-blue-700'
+                          }`}>
+                            {item.type === 'combo' ? 'Combo' : 'Single'}
+                          </span>
                         </div>
   
                         <div className="flex flex-1 flex-col justify-between min-h-[96px]">
                           <div>
                             <div className="flex justify-between items-start mb-1">
                               <h3 className="text-[#212282] text-base font-bold leading-tight line-clamp-2">
-                                {item.mainDishes.join(' + ')}{item.type !== 'single' ? ' Combo' : ''}
+                                {item.mainDishes.join(' + ')}{item.type === 'combo' ? ' Combo' : ''}
                               </h3>
                               <button 
                                 onClick={() => removeItem(item.id)}
@@ -645,29 +690,52 @@ export default function CartPage() {
                             
                             {/* Descriptions */}
                             <div className="text-sm text-muted-foreground space-y-1">
-                                {!item.description && item.sauce && (
-                                   <div className="flex items-center gap-2">
-                                      <span className="font-medium text-foreground">{item.sauce.name}</span>
+                                {/* Single item description from menu */}
+                                {item.type === 'single' && itemDescription && (
+                                  <p className="text-xs text-muted-foreground line-clamp-2">
+                                    {itemDescription}
+                                  </p>
+                                )}
+                                
+                                {/* Combo: Sauce with preparation and size */}
+                                {item.type === 'combo' && item.sauce && (
+                                   <div className="flex flex-wrap items-center gap-1.5">
+                                      <span className="font-medium text-foreground text-sm">{item.sauce.name}</span>
                                       {item.sauce.preparation && item.sauce.preparation !== 'Default' && (
-                                        <span className="text-xs bg-muted px-1.5 py-0.5 rounded">{item.sauce.preparation}</span>
+                                        <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-medium">{item.sauce.preparation}</span>
+                                      )}
+                                      {item.sauce.size && (
+                                        <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded font-medium">{item.sauce.size}</span>
                                       )}
                                    </div>
                                 )}
+                                
+                                {/* Side dish */}
                                 {item.sideDish && (
                                     <p className="text-xs">+ {item.sideDish}</p>
                                 )}
+                                
+                                {/* Extras */}
                                 {item.extras.length > 0 && (
-                                  <p className="text-xs italic text-[#E6411C]">
-                                    + {item.extras.map((e) => `${e.name} (${e.quantity})`).join(', ')}
+                                  <p className="text-xs text-[#E6411C]">
+                                    + {item.extras.map((e) => e.quantity > 1 ? `${e.name} ×${e.quantity}` : e.name).join(', ')}
                                   </p>
                                 )}
                             </div>
                           </div>
   
                           <div className="flex items-center justify-between mt-3">
-                            <p className="text-[#E6411C] font-bold text-lg">
-                              {formatPrice(item.totalPrice * item.quantity)}
-                            </p>
+                            {/* Price with breakdown for quantity > 1 */}
+                            <div>
+                              <p className="text-[#E6411C] font-bold text-lg">
+                                {formatPrice(totalItemPrice)}
+                              </p>
+                              {item.quantity > 1 && (
+                                <p className="text-[10px] text-muted-foreground">
+                                  {formatPrice(item.totalPrice)} each
+                                </p>
+                              )}
+                            </div>
                             
                             <div className="flex items-center gap-3">
                               {/* Quantity Controls */}
