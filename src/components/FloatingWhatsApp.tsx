@@ -1,55 +1,92 @@
-import { X, ArrowLeft, Phone, MoreVertical, Check } from 'lucide-react';
+import { X, ArrowLeft, Phone, Check, Clock } from 'lucide-react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { WHATSAPP_NUMBER, PHONE_NUMBER, BUSINESS_HOURS } from '@/lib/constants';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import { useCart } from '@/context/CartContext';
 import { useGuest } from '@/context/GuestContext';
-import { deliveryZones, menuData } from '@/data/menu';
+import { deliveryZones, menuData, promoCodes } from '@/data/menu';
 
 // Constants
 const HIDDEN_PAGES = ['/order-confirmation'];
 const CHAT_STORAGE_KEY = '9yards_chat_history';
 const USER_PREFS_KEY = '9yards_chat_prefs';
 const CHAT_EXPIRY_MS = 60 * 60 * 1000; // 1 hour
+const FREE_DELIVERY_THRESHOLD = 50000;
 
-// Types
-type FlowStep = 'start' | 'placeOrder' | 'deliveryInfo' | 'trackOrder' | 'faqs' | 'faq1' | 'faq2' | 'faq3' | 'faq4' | 'getName' | 'rating';
+// Types - Extended action types for cleaner handling
+type ActionType = 
+  | 'start' | 'placeOrder' | 'deliveryInfo' | 'trackOrder' | 'faqs' | 'promoCodes' | 'deals'
+  | 'faq1' | 'faq2' | 'faq3' | 'faq4' | 'faq5' | 'getName'
+  | 'navigate' | 'whatsapp' | 'call' 
+  | 'rate' | 'surprise' | 'reorder';
+
+type FlowStep = 'start' | 'placeOrder' | 'deliveryInfo' | 'trackOrder' | 'faqs' | 'promoCodes' | 'getName' | 'rating';
+
+interface MessageOption {
+  key: string;
+  label: string;
+  action: ActionType;
+  data?: string;
+}
 
 interface Message {
   id: string;
   type: 'received' | 'sent';
   content: string;
   time: string;
-  options?: { key: string; label: string; action: FlowStep | 'navigate' | 'whatsapp' | 'call' | 'rate'; data?: string }[];
+  options?: MessageOption[];
 }
 
 interface ChatState {
   messages: Message[];
   currentFlow: FlowStep;
   timestamp: number;
+  lastContext?: string;
 }
 
 interface UserPrefs {
   name: string;
   visitCount: number;
   lastRating: number;
+  lastOrderZone?: string;
 }
 
-// Natural language variations
-const greetingVariations = [
-  "Hey there! 👋",
-  "Hi! 👋",
-  "Hello! 👋",
-  "Welcome! 👋"
-];
+// Helper: Check if currently peak hours
+function isPeakHours(): boolean {
+  const hour = new Date().getHours();
+  return (hour >= 12 && hour < 14) || (hour >= 18 && hour < 20);
+}
 
-const helpPhrases = [
-  "How can I help you today?",
-  "What can I do for you?",
-  "How may I assist you?",
-  "What would you like to do?"
-];
+// Helper: Check if business is open
+function isBusinessOpen(): boolean {
+  const hour = new Date().getHours();
+  return hour >= 10 && hour < 22;
+}
+
+// Helper: Format price
+function formatPriceStatic(price: number): string {
+  return 'UGX ' + new Intl.NumberFormat('en-UG').format(price);
+}
+
+// Helper: Get available promo codes for display
+function getAvailablePromoCodes(): { code: string; description: string }[] {
+  const codes: { code: string; description: string }[] = [];
+  
+  Object.entries(promoCodes).forEach(([code, details]) => {
+    if (code === 'FREESHIP') {
+      codes.push({ code, description: 'Free delivery on any order' });
+    } else if (details.type === 'percentage') {
+      const minText = details.minOrder ? ` (min ${formatPriceStatic(details.minOrder)})` : '';
+      codes.push({ code, description: `${details.discount}% off${minText}` });
+    } else {
+      const minText = details.minOrder ? ` (min ${formatPriceStatic(details.minOrder)})` : '';
+      codes.push({ code, description: `${formatPriceStatic(details.discount)} off${minText}` });
+    }
+  });
+  
+  return codes;
+}
 
 export interface FloatingWhatsAppProps {
   isOpen?: boolean;
@@ -62,11 +99,9 @@ export default function FloatingWhatsApp({
 }: FloatingWhatsAppProps = {}) {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   
-  // Use controlled state if provided, otherwise internal state
   const isControlled = controlledIsOpen !== undefined;
   const isOpen = isControlled ? controlledIsOpen : internalIsOpen;
   
-  // Helper to handle state updates
   const setIsOpen = useCallback((value: boolean | ((prev: boolean) => boolean)) => {
     if (isControlled && onOpenChange) {
       const newValue = typeof value === 'function' ? value(isOpen!) : value;
@@ -81,8 +116,8 @@ export default function FloatingWhatsApp({
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentFlow, setCurrentFlow] = useState<FlowStep>('start');
   const [userPrefs, setUserPrefs] = useState<UserPrefs>({ name: '', visitCount: 0, lastRating: 0 });
-  const [showRating, setShowRating] = useState(false);
   const [proactiveShown, setProactiveShown] = useState(false);
+  const [lastContext, setLastContext] = useState<string>('');
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -90,15 +125,16 @@ export default function FloatingWhatsApp({
   const buttonRef = useRef<HTMLButtonElement>(null);
   const proactiveTimerRef = useRef<NodeJS.Timeout | null>(null);
   
-  
   const { state, cartTotal, orderHistory, reorderFromHistory } = useCart();
   const { userName, setUserName } = useGuest();
   const navigate = useNavigate();
   const location = useLocation();
   
   const cartItemCount = state.items.reduce((sum, item) => sum + item.quantity, 0);
+  const hasMainDishOnly = state.items.length > 0 && 
+    state.items.every(item => item.type === 'single') && 
+    !state.items.some(item => item.mainDishes.some(d => d.toLowerCase().includes('juice')));
 
-  
   // Handle click outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -114,10 +150,8 @@ export default function FloatingWhatsApp({
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen]);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen, setIsOpen]);
 
   // Utility functions
   const getGreeting = useCallback(() => {
@@ -139,9 +173,9 @@ export default function FloatingWhatsApp({
 
   const getTypingDelay = useCallback((content: string): number => {
     const length = content.length;
-    if (length < 50) return 600 + Math.random() * 300;
-    if (length < 150) return 900 + Math.random() * 500;
-    return 1400 + Math.random() * 600;
+    if (length < 50) return 500 + Math.random() * 200;
+    if (length < 150) return 700 + Math.random() * 400;
+    return 1000 + Math.random() * 500;
   }, []);
 
   // Load user preferences
@@ -152,7 +186,7 @@ export default function FloatingWhatsApp({
         const prefs = JSON.parse(stored);
         setUserPrefs(prefs);
       }
-    } catch (e) {
+    } catch {
       console.log('Could not load user prefs');
     }
   }, []);
@@ -163,365 +197,13 @@ export default function FloatingWhatsApp({
     setUserPrefs(updated);
     try {
       localStorage.setItem(USER_PREFS_KEY, JSON.stringify(updated));
-    } catch (e) {
+    } catch {
       console.log('Could not save user prefs');
     }
   }, [userPrefs]);
 
-  // Load chat history from localStorage
-  useEffect(() => {
-    if (isOpen && messages.length === 0) {
-      try {
-        const stored = localStorage.getItem(CHAT_STORAGE_KEY);
-        if (stored) {
-          const chatState: ChatState = JSON.parse(stored);
-          const age = Date.now() - chatState.timestamp;
-          
-          if (age < CHAT_EXPIRY_MS && chatState.messages.length > 0) {
-            // Resume existing conversation
-            setMessages(chatState.messages);
-            setCurrentFlow(chatState.currentFlow);
-            
-            // Add welcome back message
-            setTimeout(() => {
-              const userName = userPrefs.name ? `, ${userPrefs.name}` : '';
-              addBotMessage({
-                type: 'received',
-                content: `Welcome back${userName}! 🙌\n\nI'm still here to help. Where were we?`,
-                options: getContextOptions()
-              }, 800);
-            }, 500);
-            return;
-          } else {
-            // Clear expired chat
-            localStorage.removeItem(CHAT_STORAGE_KEY);
-          }
-        }
-      } catch (e) {
-        console.log('Could not load chat history');
-      }
-      
-      // Start new conversation
-      startNewConversation();
-    }
-  }, [isOpen]);
-
-  // Save chat history on message change
-  useEffect(() => {
-    if (messages.length > 0) {
-      try {
-        const chatState: ChatState = {
-          messages,
-          currentFlow,
-          timestamp: Date.now()
-        };
-        localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(chatState));
-      } catch (e) {
-        console.log('Could not save chat history');
-      }
-    }
-  }, [messages, currentFlow]);
-
-  // Increment visit count
-  useEffect(() => {
-    if (isOpen && userPrefs.visitCount >= 0) {
-      saveUserPrefs({ visitCount: userPrefs.visitCount + 1 });
-    }
-  }, [isOpen]);
-
-  // Proactive message timer
-  useEffect(() => {
-    if (isOpen && !proactiveShown && messages.length > 0) {
-      proactiveTimerRef.current = setTimeout(() => {
-        showProactiveMessage();
-        setProactiveShown(true);
-      }, 45000); // 45 seconds
-    }
-    
-    return () => {
-      if (proactiveTimerRef.current) {
-        clearTimeout(proactiveTimerRef.current);
-      }
-    };
-  }, [isOpen, messages, proactiveShown]);
-
-  // Context-Aware Idle Help (Time-Based)
-  useEffect(() => {
-    if (!isOpen) return;
-
-    let deepHelpTimer: NodeJS.Timeout;
-
-    // 1. Cart Abandonment Help (45s idle on cart)
-    if (location.pathname === '/cart' && cartItemCount > 0) {
-      deepHelpTimer = setTimeout(() => {
-        addBotMessage({
-          type: 'received',
-          content: `Stuck at checkout? 🤔\n\nComplete your order in the next 10 minutes and use code **QUICK5** for 5% off!`,
-          options: [
-            { key: '1', label: 'Applied! Checkout ✅', action: 'navigate', data: '/cart' }
-          ]
-        });
-      }, 45000);
-    } 
-    // 2. Menu indecision (60s idle on menu)
-    else if (location.pathname === '/menu') {
-      deepHelpTimer = setTimeout(() => {
-        addBotMessage({
-          type: 'received',
-          content: `Can't decide what to eat? 🎲\n\nTry our "Surprise Me" feature to find a random delicious meal!`,
-          options: [
-            { key: '1', label: '🎲 Surprise Me!', action: 'rate', data: 'surprise' } // Re-using 'rate' action slot for custom logic handling is hacky but we'll intercept it
-          ]
-        });
-      }, 60000);
-    }
-
-    return () => clearTimeout(deepHelpTimer);
-  }, [isOpen, location.pathname, cartItemCount]);
-
-  // Scroll to bottom on updates (smooth)
-  useEffect(() => {
-    if (isOpen) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages, isTyping]);
-
-  // Scroll to bottom on open (instant)
-  useEffect(() => {
-    if (isOpen) {
-      // Small timeout ensures layout is ready before scrolling
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
-      }, 0);
-    }
-  }, [isOpen]);
-
-  // Hide widget on certain pages
-  if (HIDDEN_PAGES.includes(location.pathname)) {
-    return null;
-  }
-
-  // Start new conversation
-  const startNewConversation = () => {
-    setIsTyping(true);
-    const delay = userName ? 800 : 1200;
-    
-    setTimeout(() => {
-      setIsTyping(false);
-      
-      const personalGreeting = userName 
-        ? `${getGreeting()}, ${userName}! 👋`
-        : `${getGreeting()}! ${getRandomItem(greetingVariations.map(g => g.replace('👋', '')))}`;
-      
-      // If items in cart, show simplified cart flow immediately
-      if (cartItemCount > 0) {
-        addBotMessage({
-          type: 'received',
-          content: `${personalGreeting}\n\nYou have ${cartItemCount} item${cartItemCount > 1 ? 's' : ''} waiting in your cart. Ready to complete your order?`,
-          options: [
-            { key: '1', label: 'View Cart 🛒', action: 'navigate', data: '/cart' },
-            { key: '2', label: 'Add More Items', action: 'navigate', data: '/menu' },
-            { key: '3', label: 'Main Menu', action: 'start' }
-          ]
-        });
-        return; // Skip normal welcome flow
-      }
-
-      // Quick Reorder for returning users
-      if (orderHistory.length > 0) {
-        const lastOrder = orderHistory[0];
-        addBotMessage({
-          type: 'received',
-          content: `${personalGreeting}\n\nWelcome back! 👋\n\nHungry for your usual **${lastOrder.items[0]?.mainDishes[0] || 'Meal'}** + ${lastOrder.items.length - 1} others?`,
-          options: [
-            { key: '1', label: '🔄 Reorder Now', action: 'rate', data: 'reorder' }, // Intercept 'rate' for reorder
-            { key: '2', label: 'No, see menu', action: 'start' }
-          ]
-        });
-        return;
-      }
-
-      const helpText = getRandomItem(helpPhrases);
-      
-      addBotMessage({
-        type: 'received',
-        content: `${personalGreeting}\nWelcome to 9Yards Food!\n\n${helpText}\n\n💡 Tap an option below or type a number (1-5):`,
-        options: getMainMenuOptions()
-      });
-      
-      // Check if we should ask for name (Monthly logic)
-      if (!userName) {
-        const LAST_PROMPT_KEY = '9yards_last_name_prompt';
-        const lastPrompt = parseInt(localStorage.getItem(LAST_PROMPT_KEY) || '0');
-        const now = Date.now();
-        const oneMonth = 30 * 24 * 60 * 60 * 1000;
-        
-        // Ask if never asked (0) OR if month passed
-        if (lastPrompt === 0 || (now - lastPrompt > oneMonth)) {
-          setTimeout(() => {
-            setIsTyping(true);
-            setTimeout(() => {
-              setIsTyping(false);
-              addBotMessage({
-                type: 'received',
-                content: `By the way, what's your name? 😊\n\n(Just type your name, or skip to continue)`,
-                options: [{ key: 'skip', label: 'Skip for now', action: 'start' }]
-              });
-              setCurrentFlow('getName');
-              
-              // Record that we prompted
-              localStorage.setItem(LAST_PROMPT_KEY, now.toString());
-            }, 1000);
-          }, 2000);
-        }
-      }
-    }, delay);
-  };
-
-  // Get context-aware options based on current page
-  const getContextOptions = (): Message['options'] => {
-    const baseOptions = getMainMenuOptions();
-    
-    if (location.pathname === '/menu') {
-      return [
-        { key: '1', label: '🍗 Add popular item', action: 'navigate', data: '/menu' },
-        ...baseOptions.slice(0, 4)
-      ];
-    }
-    
-    if (location.pathname === '/cart') {
-      return [
-        { key: '1', label: '✅ Continue to checkout', action: 'navigate', data: '/cart' },
-        { key: '2', label: '🎁 Apply promo code', action: 'whatsapp', data: `${getGreeting()}! I have a promo code.` },
-        ...baseOptions.slice(2, 5)
-      ];
-    }
-    
-    return baseOptions;
-  };
-
-  // Get main menu options
-  const getMainMenuOptions = (): Message['options'] => [
-    { key: '1', label: `1️⃣ Place an Order ${cartItemCount > 0 ? `(${cartItemCount} in cart)` : ''}`, action: 'placeOrder' },
-    { key: '2', label: '2️⃣ Delivery Info & Fees', action: 'deliveryInfo' },
-    { key: '3', label: '3️⃣ Track My Order', action: 'trackOrder' },
-    { key: '4', label: '4️⃣ FAQs', action: 'faqs' },
-    { key: '5', label: '🎲 Surprise Me!', action: 'rate', data: 'surprise' }, // Using 'rate' as generic handler hook
-    { key: '6', label: '📞 Speak to Support', action: 'whatsapp' },
-  ];
-
-  // Show proactive message based on context
-  const showProactiveMessage = () => {
-    if (cartItemCount > 0) {
-      addBotMessage({
-        type: 'received',
-        content: `Just checking in! 👀\n\nYou have ${cartItemCount} item${cartItemCount > 1 ? 's' : ''} waiting in your cart.\n\nReady to order? 🛒`,
-        options: [
-          { key: '1', label: '✅ Yes, checkout now', action: 'navigate', data: '/cart' },
-          { key: '2', label: '➕ Add more items', action: 'navigate', data: '/menu' },
-          { key: '0', label: 'Not yet, thanks', action: 'start' },
-        ]
-      }, 0);
-    } else if (location.pathname === '/menu') {
-      addBotMessage({
-        type: 'received',
-        content: `Need help choosing? 🤔\n\nOur Chicken Stew combo is a customer favorite! Would you like me to tell you about our popular dishes?`,
-        options: [
-          { key: '1', label: '👍 Yes, show me!', action: 'navigate', data: '/' },
-          { key: '0', label: 'I\'m good, thanks', action: 'start' },
-        ]
-      }, 0);
-    }
-  };
-
-  // Message generation functions
-  const getPlaceOrderMessage = (): Omit<Message, 'id' | 'time'> => {
-    if (cartItemCount > 0) {
-      return {
-        type: 'received',
-        content: `Great choice! 🎉\n\n🛒 Your cart: ${cartItemCount} item${cartItemCount > 1 ? 's' : ''}\n💰 Total: ${formatPrice(cartTotal)}\n\nWhat would you like to do?`,
-        options: [
-          { key: '1', label: '1️⃣ Checkout Now ✅', action: 'navigate', data: '/cart' },
-          { key: '2', label: '2️⃣ Add More Items', action: 'navigate', data: '/menu' },
-          { key: '3', label: '3️⃣ View Cart Details', action: 'navigate', data: '/cart' },
-          { key: '0', label: '0️⃣ Back to Menu', action: 'start' },
-        ]
-      };
-    }
-    return {
-      type: 'received',
-      content: `Ready to order? 🍽️\n\nYour cart is empty right now.\nLet's find you something delicious!`,
-      options: [
-        { key: '1', label: '1️⃣ Browse Menu', action: 'navigate', data: '/menu' },
-        { key: '2', label: '2️⃣ See Popular Dishes', action: 'navigate', data: '/' },
-        { key: '0', label: '0️⃣ Back to Menu', action: 'start' },
-      ]
-    };
-  };
-
-  const getDeliveryInfoMessage = (): Omit<Message, 'id' | 'time'> => {
-    const topZones = deliveryZones.slice(0, 5);
-    const zonesText = topZones.map(z => `• ${z.name}: ${formatPrice(z.fee)}`).join('\n');
-    
-    return {
-      type: 'received',
-      content: `🚚 Delivery Info\n\nWe deliver across Kampala!\n\n📍 Popular areas:\n${zonesText}\n\n🎉 FREE delivery on orders 50K+ UGX!\n⏱️ Delivery: 30-55 mins`,
-      options: [
-        { key: '1', label: '1️⃣ All Delivery Zones', action: 'navigate', data: '/delivery-zones' },
-        { key: '2', label: '2️⃣ Ask About My Area', action: 'whatsapp', data: `${getGreeting()}! Do you deliver to my area?` },
-        { key: '0', label: '0️⃣ Back to Menu', action: 'start' },
-      ]
-    };
-  };
-
-  const getTrackOrderMessage = (): Omit<Message, 'id' | 'time'> => {
-    const lastOrderId = localStorage.getItem('lastOrderId');
-    return {
-      type: 'received',
-      content: lastOrderId 
-        ? `📦 Track Order\n\nYour last order: #${lastOrderId}\n\nFor real-time updates, let's chat on WhatsApp!`
-        : `📦 Track Order\n\nHave your order number ready?\n\nI'll connect you with our team for live tracking!`,
-      options: [
-        { key: '1', label: '1️⃣ Track on WhatsApp', action: 'whatsapp', data: lastOrderId ? `${getGreeting()}! I'd like to track order #${lastOrderId}` : `${getGreeting()}! I'd like to track my order` },
-        { key: '2', label: '2️⃣ Order History', action: 'navigate', data: '/order-history' },
-        { key: '0', label: '0️⃣ Back to Menu', action: 'start' },
-      ]
-    };
-  };
-
-  const getFAQsMessage = (): Omit<Message, 'id' | 'time'> => ({
-    type: 'received',
-    content: `❓ Frequently Asked Questions\n\nPick a question:`,
-    options: [
-      { key: '1', label: '1️⃣ How do I order?', action: 'faq1' },
-      { key: '2', label: '2️⃣ Payment methods?', action: 'faq2' },
-      { key: '3', label: '3️⃣ Delivery time?', action: 'faq3' },
-      { key: '4', label: '4️⃣ Cancel order?', action: 'faq4' },
-      { key: '0', label: '0️⃣ Back to Menu', action: 'start' },
-    ]
-  });
-
-  const getFAQAnswer = (faqId: string): Omit<Message, 'id' | 'time'> => {
-    const answers: Record<string, string> = {
-      faq1: `📱 How to Order:\n\n1. Browse our menu\n2. Add items to cart\n3. Go to checkout\n4. Enter delivery details\n5. Pay via Mobile Money or Cash\n6. Enjoy your meal! 🍽️`,
-      faq2: `💳 Payment Methods:\n\n• Mobile Money (MTN, Airtel)\n• Cash on Delivery\n• Card (Visa, Mastercard)\n\nAll payments are secure! 🔒`,
-      faq3: `⏱️ Delivery Time:\n\n• Kampala Central: 30-45 mins\n• Outer areas: 45-60 mins\n\nWe'll notify you when it's on the way! 🚚`,
-      faq4: `❌ Cancellation:\n\nCancel within 5 minutes of ordering.\n\nAfter that, please contact us on WhatsApp.\n\nRefunds processed within 24 hours.`,
-    };
-    
-    return {
-      type: 'received',
-      content: answers[faqId] || 'Information not available.',
-      options: [
-        { key: '1', label: '1️⃣ More FAQs', action: 'faqs' },
-        { key: '2', label: '2️⃣ Talk to Support', action: 'whatsapp' },
-        { key: '0', label: '0️⃣ Back to Menu', action: 'start' },
-      ]
-    };
-  };
-
-  // Add bot message with human-like delay
-  const addBotMessage = (messageData: Omit<Message, 'id' | 'time'>, customDelay?: number) => {
+  // Add bot message with typing animation
+  const addBotMessage = useCallback((messageData: Omit<Message, 'id' | 'time'>, customDelay?: number) => {
     const delay = customDelay ?? getTypingDelay(messageData.content);
     
     setIsTyping(true);
@@ -534,6 +216,436 @@ export default function FloatingWhatsApp({
       };
       setMessages(prev => [...prev, newMessage]);
     }, delay);
+  }, [getTypingDelay, getCurrentTime]);
+
+  // Get main menu options
+  const getMainMenuOptions = useCallback((): MessageOption[] => {
+    const cartLabel = cartItemCount > 0 ? ` (${cartItemCount} in cart)` : '';
+    return [
+      { key: '1', label: `1️⃣ Place an Order${cartLabel}`, action: 'placeOrder' },
+      { key: '2', label: '2️⃣ Delivery Info', action: 'deliveryInfo' },
+      { key: '3', label: '3️⃣ Track My Order', action: 'trackOrder' },
+      { key: '4', label: '4️⃣ Promo Codes 🎁', action: 'promoCodes' },
+      { key: '5', label: '5️⃣ FAQs', action: 'faqs' },
+      { key: '6', label: '📞 Speak to Support', action: 'whatsapp' }
+    ];
+  }, [cartItemCount]);
+
+  // Get context-aware options
+  const getContextOptions = useCallback((): MessageOption[] => {
+    if (cartItemCount > 0) {
+      return [
+        { key: '1', label: `Checkout (${cartItemCount} items)`, action: 'navigate', data: '/cart' },
+        { key: '2', label: 'Apply Promo Code', action: 'promoCodes' },
+        { key: '3', label: 'Add More Items', action: 'navigate', data: '/menu' },
+        { key: '0', label: 'Main Menu', action: 'start' }
+      ];
+    }
+    
+    if (location.pathname === '/menu') {
+      return [
+        { key: '1', label: 'Popular Dishes', action: 'navigate', data: '/' },
+        { key: '2', label: 'View Deals', action: 'deals' },
+        { key: '3', label: '🎲 Surprise Me', action: 'surprise' },
+        { key: '0', label: 'Main Menu', action: 'start' }
+      ];
+    }
+    
+    return getMainMenuOptions();
+  }, [cartItemCount, location.pathname, getMainMenuOptions]);
+
+  // Start new conversation with smart context
+  const startNewConversation = useCallback(() => {
+    setIsTyping(true);
+    const delay = userName ? 600 : 900;
+    
+    setTimeout(() => {
+      setIsTyping(false);
+      
+      const personalGreeting = userName 
+        ? `${getGreeting()}, ${userName}! 👋`
+        : `${getGreeting()}! Welcome to 9Yards Food 👋`;
+      
+      // Check business hours first
+      if (!isBusinessOpen()) {
+        addBotMessage({
+          type: 'received',
+          content: `${personalGreeting}\n\nWe're currently closed 🌙\n\nOur hours: ${BUSINESS_HOURS.open} - ${BUSINESS_HOURS.close}\n\nYou can still browse our menu and place an order for tomorrow!`,
+          options: [
+            { key: '1', label: 'Browse Menu', action: 'navigate', data: '/menu' },
+            { key: '2', label: 'View Deals', action: 'deals' },
+            { key: '3', label: 'Leave a Message', action: 'whatsapp', data: `Hello, I know you're closed, but I wanted to ask...` }
+          ]
+        });
+        return;
+      }
+      
+      // Peak hours warning
+      const peakWarning = isPeakHours() 
+        ? "\n\n⏰ *Heads up: We're in peak hours. Delivery may take 15-20 mins longer.*" 
+        : "";
+      
+      // If items in cart, prioritize checkout
+      if (cartItemCount > 0) {
+        const freeDeliveryMsg = cartTotal >= FREE_DELIVERY_THRESHOLD 
+          ? "🎉 You qualify for FREE delivery!" 
+          : `Add ${formatPrice(FREE_DELIVERY_THRESHOLD - cartTotal)} more for free delivery`;
+        
+        addBotMessage({
+          type: 'received',
+          content: `${personalGreeting}\n\nYou have **${cartItemCount} item${cartItemCount > 1 ? 's' : ''}** in your cart.\n💰 Total: ${formatPrice(cartTotal)}\n${freeDeliveryMsg}${peakWarning}`,
+          options: [
+            { key: '1', label: 'Checkout Now ✅', action: 'navigate', data: '/cart' },
+            { key: '2', label: 'Add More Items', action: 'navigate', data: '/menu' },
+            { key: '3', label: 'Apply Promo Code', action: 'promoCodes' },
+            { key: '0', label: 'Main Menu', action: 'start' }
+          ]
+        });
+        return;
+      }
+
+      // Returning user with order history - quick reorder
+      if (orderHistory.length > 0) {
+        const lastOrder = orderHistory[0];
+        const itemNames = lastOrder.items.slice(0, 2).map(i => i.mainDishes[0]).join(' + ');
+        const moreCount = lastOrder.items.length > 2 ? ` +${lastOrder.items.length - 2} more` : '';
+        
+        addBotMessage({
+          type: 'received',
+          content: `${personalGreeting}\n\nWelcome back! Hungry for your usual?\n\n🍽️ **${itemNames}${moreCount}**${peakWarning}`,
+          options: [
+            { key: '1', label: '🔄 Reorder Now', action: 'reorder' },
+            { key: '2', label: 'Browse Menu', action: 'navigate', data: '/menu' },
+            { key: '3', label: 'View Deals', action: 'deals' },
+            { key: '0', label: 'Other Options', action: 'start' }
+          ]
+        });
+        return;
+      }
+
+      // Default welcome for new users
+      addBotMessage({
+        type: 'received',
+        content: `${personalGreeting}\n\nAuthentic Ugandan cuisine delivered fresh to your door! 🍗${peakWarning}\n\nHow can I help you today?`,
+        options: getMainMenuOptions()
+      });
+      
+      // Ask for name if we don't have it (once per month)
+      if (!userName) {
+        const LAST_PROMPT_KEY = '9yards_last_name_prompt';
+        const lastPrompt = parseInt(localStorage.getItem(LAST_PROMPT_KEY) || '0');
+        const now = Date.now();
+        const oneMonth = 30 * 24 * 60 * 60 * 1000;
+        
+        if (lastPrompt === 0 || (now - lastPrompt > oneMonth)) {
+          setTimeout(() => {
+            setIsTyping(true);
+            setTimeout(() => {
+              setIsTyping(false);
+              addBotMessage({
+                type: 'received',
+                content: `By the way, what's your name? 😊\n\n(Just type it, or skip)`,
+                options: [{ key: 'skip', label: 'Skip for now', action: 'start' }]
+              });
+              setCurrentFlow('getName');
+              localStorage.setItem(LAST_PROMPT_KEY, now.toString());
+            }, 800);
+          }, 1500);
+        }
+      }
+    }, delay);
+  }, [userName, getGreeting, addBotMessage, cartItemCount, cartTotal, formatPrice, orderHistory, getMainMenuOptions]);
+
+  // Load chat history from localStorage
+  useEffect(() => {
+    if (isOpen && messages.length === 0) {
+      try {
+        const stored = localStorage.getItem(CHAT_STORAGE_KEY);
+        if (stored) {
+          const chatState: ChatState = JSON.parse(stored);
+          const age = Date.now() - chatState.timestamp;
+          
+          if (age < CHAT_EXPIRY_MS && chatState.messages.length > 0) {
+            setMessages(chatState.messages);
+            setCurrentFlow(chatState.currentFlow);
+            if (chatState.lastContext) setLastContext(chatState.lastContext);
+            
+            // Better welcome back with context
+            setTimeout(() => {
+              const name = userPrefs.name ? `, ${userPrefs.name}` : '';
+              let contextMessage = "Where were we?";
+              
+              if (chatState.lastContext === 'cart') {
+                contextMessage = `You were checking out your cart (${cartItemCount} items).`;
+              } else if (chatState.lastContext === 'menu') {
+                contextMessage = "You were browsing our menu.";
+              } else if (chatState.lastContext === 'delivery') {
+                contextMessage = "You were asking about delivery.";
+              }
+              
+              addBotMessage({
+                type: 'received',
+                content: `Welcome back${name}! 👋\n\n${contextMessage}\n\nHow can I help?`,
+                options: getContextOptions()
+              }, 600);
+            }, 400);
+            return;
+          } else {
+            localStorage.removeItem(CHAT_STORAGE_KEY);
+          }
+        }
+      } catch {
+        console.log('Could not load chat history');
+      }
+      
+      startNewConversation();
+    }
+  }, [isOpen, messages.length, userPrefs.name, cartItemCount, addBotMessage, getContextOptions, startNewConversation]);
+
+  // Save chat history
+  useEffect(() => {
+    if (messages.length > 0) {
+      try {
+        const chatState: ChatState = {
+          messages,
+          currentFlow,
+          timestamp: Date.now(),
+          lastContext
+        };
+        localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(chatState));
+      } catch {
+        console.log('Could not save chat history');
+      }
+    }
+  }, [messages, currentFlow, lastContext]);
+
+  // Track context based on location
+  useEffect(() => {
+    if (location.pathname === '/cart') {
+      setLastContext('cart');
+    } else if (location.pathname === '/menu') {
+      setLastContext('menu');
+    } else if (location.pathname.includes('delivery')) {
+      setLastContext('delivery');
+    }
+  }, [location.pathname]);
+
+  // Proactive message timer with smarter triggers
+  useEffect(() => {
+    if (isOpen && !proactiveShown && messages.length > 0) {
+      proactiveTimerRef.current = setTimeout(() => {
+        showProactiveMessage();
+        setProactiveShown(true);
+      }, 30000);
+    }
+    
+    return () => {
+      if (proactiveTimerRef.current) {
+        clearTimeout(proactiveTimerRef.current);
+      }
+    };
+  }, [isOpen, messages.length, proactiveShown]);
+
+  // Smart upsell for incomplete orders
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    let upsellTimer: NodeJS.Timeout;
+    
+    if (location.pathname === '/cart' && hasMainDishOnly && cartItemCount > 0) {
+      upsellTimer = setTimeout(() => {
+        const randomJuice = getRandomItem(menuData.juices);
+        addBotMessage({
+          type: 'received',
+          content: `💡 **Complete Your Meal!**\n\nI noticed you don't have a drink yet.\n\nHow about adding a fresh **${randomJuice.name}** for just ${formatPrice(randomJuice.price)}?`,
+          options: [
+            { key: '1', label: `Add ${randomJuice.name}`, action: 'navigate', data: '/menu' },
+            { key: '2', label: 'View All Juices', action: 'navigate', data: '/menu' },
+            { key: '0', label: 'No thanks', action: 'start' }
+          ]
+        });
+      }, 20000);
+    }
+
+    return () => clearTimeout(upsellTimer);
+  }, [isOpen, location.pathname, hasMainDishOnly, cartItemCount, addBotMessage, formatPrice]);
+
+  // Scroll handling
+  useEffect(() => {
+    if (isOpen) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, isTyping, isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+      }, 0);
+    }
+  }, [isOpen]);
+
+  // Proactive message based on context
+  const showProactiveMessage = () => {
+    if (cartItemCount > 0 && location.pathname !== '/cart') {
+      addBotMessage({
+        type: 'received',
+        content: `Just checking in! 👀\n\nYou have ${cartItemCount} item${cartItemCount > 1 ? 's' : ''} (${formatPrice(cartTotal)}) waiting.\n\nReady to order?`,
+        options: [
+          { key: '1', label: 'Checkout Now ✅', action: 'navigate', data: '/cart' },
+          { key: '2', label: 'Add More', action: 'navigate', data: '/menu' },
+          { key: '0', label: 'Not yet', action: 'start' }
+        ]
+      }, 0);
+    } else if (location.pathname === '/menu') {
+      addBotMessage({
+        type: 'received',
+        content: `Need help choosing? 🤔\n\nOur **Chicken Stew** combo is a customer favorite!\n\nWant me to suggest something?`,
+        options: [
+          { key: '1', label: '🎲 Surprise Me', action: 'surprise' },
+          { key: '2', label: 'See Popular Dishes', action: 'navigate', data: '/' },
+          { key: '0', label: "I'm good", action: 'start' }
+        ]
+      }, 0);
+    } else if (location.pathname === '/' && orderHistory.length === 0) {
+      addBotMessage({
+        type: 'received',
+        content: `First time here? 🌟\n\nUse code **FIRST10** for 10% off your first order!`,
+        options: [
+          { key: '1', label: 'Start Order', action: 'navigate', data: '/menu' },
+          { key: '2', label: 'More Deals', action: 'promoCodes' }
+        ]
+      }, 0);
+    }
+  };
+
+  // Hide widget on certain pages
+  if (HIDDEN_PAGES.includes(location.pathname)) {
+    return null;
+  }
+
+  // Message generators
+  const getPlaceOrderMessage = (): Omit<Message, 'id' | 'time'> => {
+    if (cartItemCount > 0) {
+      const itemsList = state.items.slice(0, 3).map(i => `• ${i.mainDishes[0]}`).join('\n');
+      const moreText = state.items.length > 3 ? `\n• +${state.items.length - 3} more...` : '';
+      
+      return {
+        type: 'received',
+        content: `🛒 **Your Cart:**\n${itemsList}${moreText}\n\n💰 **Total:** ${formatPrice(cartTotal)}\n\nWhat would you like to do?`,
+        options: [
+          { key: '1', label: 'Checkout Now ✅', action: 'navigate', data: '/cart' },
+          { key: '2', label: 'Add More Items', action: 'navigate', data: '/menu' },
+          { key: '3', label: 'Apply Promo', action: 'promoCodes' },
+          { key: '0', label: 'Back', action: 'start' }
+        ]
+      };
+    }
+    return {
+      type: 'received',
+      content: `Let's get you some food! 🍽️\n\nYour cart is empty. Browse our menu to find something delicious.`,
+      options: [
+        { key: '1', label: 'Browse Full Menu', action: 'navigate', data: '/menu' },
+        { key: '2', label: 'Popular Dishes', action: 'navigate', data: '/' },
+        { key: '3', label: '🎲 Surprise Me', action: 'surprise' },
+        { key: '0', label: 'Back', action: 'start' }
+      ]
+    };
+  };
+
+  const getDeliveryInfoMessage = (): Omit<Message, 'id' | 'time'> => {
+    const topZones = deliveryZones.slice(0, 5);
+    const zonesText = topZones.map(z => `• ${z.name}: ${formatPrice(z.fee)}`).join('\n');
+    const peakNote = isPeakHours() ? '\n\n⏰ *Peak hours: Add 15-20 mins to estimates*' : '';
+    
+    return {
+      type: 'received',
+      content: `🚚 **Delivery Info**\n\nWe deliver across Kampala!\n\n📍 **Popular Areas:**\n${zonesText}\n\n🎉 **FREE delivery** on orders over ${formatPrice(FREE_DELIVERY_THRESHOLD)}!\n\n⏱️ Est. time: 30-55 mins${peakNote}`,
+      options: [
+        { key: '1', label: 'All Delivery Zones', action: 'navigate', data: '/delivery-zones' },
+        { key: '2', label: 'Check My Area', action: 'whatsapp', data: `Hello, do you deliver to my area?` },
+        { key: '0', label: 'Back', action: 'start' }
+      ]
+    };
+  };
+
+  const getTrackOrderMessage = (): Omit<Message, 'id' | 'time'> => {
+    const lastOrderId = localStorage.getItem('lastOrderId');
+    const hasRecentOrder = orderHistory.length > 0 && orderHistory[0].status;
+    
+    if (hasRecentOrder) {
+      const recentOrder = orderHistory[0];
+      return {
+        type: 'received',
+        content: `📦 **Track Order**\n\nYour most recent order:\n**#${recentOrder.orderId}**\nStatus: ${recentOrder.status || 'Processing'}\n\nFor live updates, chat with our team:`,
+        options: [
+          { key: '1', label: 'Track on WhatsApp', action: 'whatsapp', data: `Hello, I would like to track order #${recentOrder.orderId}` },
+          { key: '2', label: 'Order History', action: 'navigate', data: '/order-history' },
+          { key: '0', label: 'Back', action: 'start' }
+        ]
+      };
+    }
+    
+    return {
+      type: 'received',
+      content: lastOrderId 
+        ? `📦 **Track Order**\n\nYour last order: **#${lastOrderId}**\n\nFor real-time updates, let's chat on WhatsApp!`
+        : `📦 **Track Order**\n\nHave your order number ready?\n\nI'll connect you with our team for live tracking!`,
+      options: [
+        { key: '1', label: 'Track on WhatsApp', action: 'whatsapp', data: lastOrderId ? `Hello, I would like to track order #${lastOrderId}` : `Hello, I would like to track my order` },
+        { key: '2', label: 'Order History', action: 'navigate', data: '/order-history' },
+        { key: '0', label: 'Back', action: 'start' }
+      ]
+    };
+  };
+
+  const getPromoCodesMessage = (): Omit<Message, 'id' | 'time'> => {
+    const codes = getAvailablePromoCodes();
+    const codesText = codes.map(c => `🏷️ **${c.code}**\n   ${c.description}`).join('\n\n');
+    
+    return {
+      type: 'received',
+      content: `🎁 **Available Promo Codes:**\n\n${codesText}\n\n💡 Apply at checkout to save!`,
+      options: [
+        { key: '1', label: 'Start Order', action: 'navigate', data: '/menu' },
+        { key: '2', label: 'Go to Cart', action: 'navigate', data: '/cart' },
+        { key: '3', label: 'View All Deals', action: 'navigate', data: '/deals' },
+        { key: '0', label: 'Back', action: 'start' }
+      ]
+    };
+  };
+
+  const getFAQsMessage = (): Omit<Message, 'id' | 'time'> => ({
+    type: 'received',
+    content: `❓ **Frequently Asked Questions**\n\nTap a question:`,
+    options: [
+      { key: '1', label: 'How do I order?', action: 'faq1' },
+      { key: '2', label: 'Payment methods?', action: 'faq2' },
+      { key: '3', label: 'Delivery time?', action: 'faq3' },
+      { key: '4', label: 'Cancel/refund?', action: 'faq4' },
+      { key: '5', label: 'Minimum order?', action: 'faq5' },
+      { key: '0', label: 'Back', action: 'start' }
+    ]
+  });
+
+  const getFAQAnswer = (faqId: string): Omit<Message, 'id' | 'time'> => {
+    const answers: Record<string, string> = {
+      faq1: `📱 **How to Order:**\n\n1. Browse our menu\n2. Add items to cart\n3. Go to checkout\n4. Enter delivery details\n5. Pay via Mobile Money or Cash\n6. Enjoy your meal!`,
+      faq2: `💳 **Payment Methods:**\n\n• Mobile Money (MTN, Airtel)\n• Cash on Delivery\n• Card (Visa, Mastercard)\n\nAll payments are secure! 🔒`,
+      faq3: `⏱️ **Delivery Time:**\n\n• Kampala Central: 30-45 mins\n• Outer areas: 45-60 mins${isPeakHours() ? '\n\n*Currently peak hours - add 15-20 mins*' : ''}\n\nWe'll notify you when it's on the way!`,
+      faq4: `❌ **Cancellation & Refunds:**\n\nCancel within 5 minutes of ordering.\n\nAfter that, contact us on WhatsApp.\n\nRefunds processed within 24 hours.`,
+      faq5: `📦 **Minimum Order:**\n\nNo minimum order required!\n\nHowever, orders over ${formatPrice(FREE_DELIVERY_THRESHOLD)} get FREE delivery 🎉`,
+    };
+    
+    return {
+      type: 'received',
+      content: answers[faqId] || 'Information not available.',
+      options: [
+        { key: '1', label: 'More FAQs', action: 'faqs' },
+        { key: '2', label: 'Talk to Support', action: 'whatsapp' },
+        { key: '0', label: 'Back', action: 'start' }
+      ]
+    };
   };
 
   // Add user message
@@ -552,78 +664,73 @@ export default function FloatingWhatsApp({
   };
 
   // Handle option selection
-  const handleOptionSelect = (option: Message['options'][0]) => {
+  const handleOptionSelect = (option: MessageOption) => {
     addUserMessage(option.label);
     
     switch (option.action) {
       case 'navigate':
         if (option.data) {
           setTimeout(() => {
-            navigate(option.data);
+            navigate(option.data!);
             setIsOpen(false);
           }, 300);
         }
         break;
-      case 'whatsapp':
+        
+      case 'whatsapp': {
         const message = option.data || `${getGreeting()}, I need assistance.`;
         setTimeout(() => {
           window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
         }, 300);
-        // Show rating after WhatsApp redirect
-        setTimeout(() => {
-          if (!showRating) {
-            setShowRating(true);
-            addBotMessage({
-              type: 'received',
-              content: `Thanks for chatting with us! 🙏\n\nHow was your experience today?`,
-              options: [
-                { key: '1', label: '⭐ Great!', action: 'rate', data: '5' },
-                { key: '2', label: '👍 Good', action: 'rate', data: '4' },
-                { key: '3', label: '😐 Okay', action: 'rate', data: '3' },
-              ]
-            }, 2000);
-          }
-        }, 1000);
         break;
+      }
+        
       case 'call':
-        window.location.href = `tel:${PHONE_NUMBER}`;
+        handleCall();
         break;
-      case 'rate':
-        // HACK: Intercepting 'rate' action to handle custom flows like 'surprise' and 'reorder' to avoid refactoring types completely right now
-        if (option.data === 'surprise') {
-          // Surprise Me Logic
-          const allItems = [...menuData.mainDishes, ...menuData.lusaniya];
-          const randomItem = getRandomItem(allItems);
-          
+        
+      case 'surprise': {
+        const allItems = [...menuData.mainDishes, ...menuData.lusaniya, ...menuData.sauces];
+        const randomItem = getRandomItem(allItems);
+        addBotMessage({
+          type: 'received',
+          content: `🎲 **Chef's Pick!**\n\n**${randomItem.name}**\n${randomItem.description || 'A delicious choice!'}\n\nLooks good?`,
+          options: [
+            { key: '1', label: 'Order This', action: 'navigate', data: '/menu' },
+            { key: '2', label: '🎲 Spin Again', action: 'surprise' },
+            { key: '0', label: 'Back', action: 'start' }
+          ]
+        }, 500);
+        break;
+      }
+        
+      case 'reorder':
+        if (orderHistory.length > 0) {
+          reorderFromHistory(orderHistory[0]);
           addBotMessage({
-             type: 'received',
-             content: `🎲 **Surprise!** We recommend:\n\n**${randomItem.name}**\n${randomItem.description}\n\nDoes that sound good?`,
-             options: [
-               { key: '1', label: '😋 Order This', action: 'navigate', data: '/menu' },
-               { key: '2', label: '🎲 Spin Again', action: 'rate', data: 'surprise' },
-               { key: '0', label: 'Back to Menu', action: 'start' }
-             ]
+            type: 'received',
+            content: `Done! 🎉\n\nYour previous order has been added to the cart.\n\nReady to checkout?`,
+            options: [
+              { key: '1', label: 'Checkout Now', action: 'navigate', data: '/cart' },
+              { key: '2', label: 'Add More Items', action: 'navigate', data: '/menu' }
+            ]
           }, 600);
-          return;
         }
-
-        if (option.data === 'reorder') {
-          // Reorder Logic
-          if (orderHistory.length > 0) {
-            reorderFromHistory(orderHistory[0]);
-            addBotMessage({
-              type: 'received',
-              content: `Done! 🎉\n\nI've added your previous order to the cart.`,
-              options: [
-                { key: '1', label: 'Checkout Now 🛒', action: 'navigate', data: '/cart' },
-                { key: '2', label: 'Add More Items', action: 'navigate', data: '/menu' }
-              ]
-            });
-            setTimeout(() => navigate('/cart'), 1500);
-          }
-          return;
-        }
-
+        break;
+        
+      case 'deals':
+        addBotMessage({
+          type: 'received',
+          content: `🎁 **Current Deals:**\n\n• FREE delivery on orders 50K+\n• 10% off first orders (FIRST10)\n• Combo meals save you more!\n\nCheck our Deals page for flash sales!`,
+          options: [
+            { key: '1', label: 'View All Deals', action: 'navigate', data: '/deals' },
+            { key: '2', label: 'Promo Codes', action: 'promoCodes' },
+            { key: '0', label: 'Back', action: 'start' }
+          ]
+        });
+        break;
+        
+      case 'rate': {
         const rating = parseInt(option.data || '5');
         saveUserPrefs({ lastRating: rating });
         addBotMessage({
@@ -631,75 +738,87 @@ export default function FloatingWhatsApp({
           content: rating >= 4 
             ? `Thank you so much! 💚\n\nWe're glad we could help. See you next time!`
             : `Thanks for the feedback! 🙏\n\nWe'll work on improving. Feel free to reach out anytime!`,
-        }, 800);
+        }, 600);
         break;
+      }
+        
       case 'start':
         setCurrentFlow('start');
         addBotMessage({
           type: 'received',
-          content: `Alright! ${getRandomItem(helpPhrases)}\n\n💡 Tap an option or type 1-5:`,
+          content: `How else can I help?\n\nTap an option or type 1-6:`,
           options: getMainMenuOptions()
         });
         break;
+        
       case 'placeOrder':
         setCurrentFlow('placeOrder');
         addBotMessage(getPlaceOrderMessage());
         break;
+        
       case 'deliveryInfo':
         setCurrentFlow('deliveryInfo');
         addBotMessage(getDeliveryInfoMessage());
         break;
+        
       case 'trackOrder':
         setCurrentFlow('trackOrder');
         addBotMessage(getTrackOrderMessage());
         break;
+        
+      case 'promoCodes':
+        setCurrentFlow('promoCodes');
+        addBotMessage(getPromoCodesMessage());
+        break;
+        
       case 'faqs':
         setCurrentFlow('faqs');
         addBotMessage(getFAQsMessage());
         break;
+        
       case 'faq1':
       case 'faq2':
       case 'faq3':
       case 'faq4':
-        setCurrentFlow(option.action);
+      case 'faq5':
         addBotMessage(getFAQAnswer(option.action));
         break;
     }
   };
 
-  // Handle text input
+  // Handle text input with smart parsing
   const handleTextInput = (input: string) => {
     const trimmed = input.trim();
     const lower = trimmed.toLowerCase();
     
-    // Check if setting name
+    // Setting name flow
     if (currentFlow === 'getName' && trimmed.length > 0 && trimmed.length < 30) {
-      if (trimmed.toLowerCase() === 'skip') {
+      if (lower === 'skip') {
         addUserMessage(input);
         setCurrentFlow('start');
         addBotMessage({
-           type: 'received',
-           content: `No problem! How can I help you today?`,
-           options: getMainMenuOptions()
+          type: 'received',
+          content: `No problem! How can I help you today?`,
+          options: getMainMenuOptions()
         });
         return;
       }
       
       addUserMessage(trimmed);
       const firstName = trimmed.split(' ')[0];
-      setUserName(firstName); // Sync with context
-      saveUserPrefs({ name: firstName }); // Keep syncing with local prefs just in case
+      setUserName(firstName);
+      saveUserPrefs({ name: firstName });
       
       addBotMessage({
         type: 'received',
-        content: `Nice to meet you, ${firstName}! 😊\n\nI'll remember you next time. Now, how can I help?`,
+        content: `Nice to meet you, ${firstName}! 😊\n\nI'll remember you next time. How can I help?`,
         options: getMainMenuOptions()
       });
       setCurrentFlow('start');
       return;
     }
     
-    // Find matching option
+    // Match numbered input or option label
     const lastBotMessage = [...messages].reverse().find(m => m.type === 'received');
     if (lastBotMessage?.options) {
       const matchedOption = lastBotMessage.options.find(
@@ -711,173 +830,161 @@ export default function FloatingWhatsApp({
       }
     }
     
-    // Handle keywords
+    // Keywords: navigation
     if (['menu', 'main', 'home', 'start', 'back', '0', 'hi', 'hello'].includes(lower)) {
       addUserMessage(input);
       setCurrentFlow('start');
       addBotMessage({
         type: 'received',
-        content: `${getRandomItem(helpPhrases)}\n\n💡 Tap an option or type 1-5:`,
+        content: `How can I help?\n\nTap an option or type 1-6:`,
         options: getMainMenuOptions()
       });
       return;
     }
     
-    if (['help', 'support', 'agent', 'human', 'person'].includes(lower)) {
+    // Keywords: help/support
+    if (['help', 'support', 'agent', 'human', 'person', 'speak'].includes(lower)) {
       addUserMessage(input);
       addBotMessage({
         type: 'received',
-        content: `I'll connect you with our team right away! 🙌`,
+        content: `I'll connect you with our team right away!`,
         options: [
-          { key: '1', label: '💬 Chat on WhatsApp', action: 'whatsapp', data: `${getGreeting()}! I need help: ${input}` },
-          { key: '2', label: '📞 Call Us', action: 'call' },
+          { key: '1', label: 'Chat on WhatsApp', action: 'whatsapp', data: `Hello, I need help: ${input}` },
+          { key: '2', label: 'Call Us', action: 'call' }
         ]
       });
       return;
     }
     
-    // Default: escalate with empathy
-    // NEW: Smart Search & Delivery Estimator Logic
-    
-    // 0. Operating Hours Check (Genius Mode)
-    const currentHour = new Date().getHours();
-    const isClosed = currentHour < 10 || currentHour >= 22; // 10 AM to 10 PM
-    if (isClosed) {
-       addBotMessage({
-         type: 'received',
-         content: `We're currently closed 🌙\n\nOur hours are ${BUSINESS_HOURS.open} - ${BUSINESS_HOURS.close}.\nYou can still browse the menu for tomorrow!`,
-         options: [
-           { key: '1', label: 'Browse Menu 🌙', action: 'navigate', data: '/menu' },
-           { key: '2', label: 'Leave a Message', action: 'whatsapp', data: `${getGreeting()}! I know you're closed, but...` }
-         ]
-       }, 500);
-       // Don't return, let them continue if they really want, or maybe we should return? 
-       // Better to let them browse, but we warned them.
-       // Actually, let's just return to not trigger other logic that implies immediate service
-       // But we still want to allow simple navigation commands.
-       // For now, let's return to prevent "ordering" confusion.
-       return;
-    }
-
-    // 1. Sentiment Recovery (Genius Mode)
-    const negativeKeywords = ['angry', 'late', 'bad', 'waiting', 'slow', 'wrong', 'cold'];
-    if (negativeKeywords.some(k => lower.includes(k))) {
-       addUserMessage(input);
-       addBotMessage({
-         type: 'received',
-         content: `I'm so sorry to hear that 😟\n\nThis doesn't sound like the 9Yards standard. Let me connect you to our Manager IMMEDIATELY.`,
-         options: [
-           { key: '1', label: '🚨 Priority Support', action: 'whatsapp', data: `URGENT: I am unhappy about: ${input}` },
-           { key: '2', label: '📞 Call Manager', action: 'call' }
-         ]
-       }, 400);
-       return;
-    }
-
-    // 2. Dietary Smart Filter (Genius Mode)
-    if (lower.includes('vegan') || lower.includes('vegetarian')) {
-       addUserMessage(input);
-       addBotMessage({
-         type: 'received',
-         content: `🌱 **Plant-Based Options**\n\nI recommend our fresh **Garden Salad** or **Vegetable Stir Fry**! Also, our fruit juices are 100% natural. 🍊`,
-         options: [
-           { key: '1', label: 'View Salads', action: 'navigate', data: '/menu' },
-           { key: '2', label: 'View Juices', action: 'navigate', data: '/menu' }
-         ]
-       });
-       return;
-    }
-    if (lower.includes('pork')) {
-       addUserMessage(input);
-       addBotMessage({
-         type: 'received',
-         content: `🍖 **Pork Options**\n\nYes! We have delicious **BBQ Pork Ribs** available on weekends and special request.`,
-         options: [
-           { key: '1', label: 'Ask about Ribs', action: 'whatsapp', data: 'Is the BBQ Pork available today?' },
-           { key: '0', label: 'Back to Menu', action: 'start' }
-         ]
-       });
-       return;
-    }
-
-    // 3. Combo Builder (Genius Mode)
-    if (lower.includes(' and ') && lower.length < 30) {
-      // E.g. "Chicken and Rice"
+    // Keywords: promo/discount/code
+    if (['promo', 'code', 'discount', 'coupon', 'deal'].some(k => lower.includes(k))) {
       addUserMessage(input);
-      // Simple heuristic: recommend a combo
+      addBotMessage(getPromoCodesMessage());
+      return;
+    }
+    
+    // Keywords: cart/checkout
+    if (['cart', 'checkout', 'order', 'buy'].includes(lower)) {
+      addUserMessage(input);
+      addBotMessage(getPlaceOrderMessage());
+      return;
+    }
+    
+    // Keywords: delivery/track
+    if (['delivery', 'deliver', 'shipping', 'track', 'where'].some(k => lower.includes(k))) {
+      addUserMessage(input);
+      if (lower.includes('track') || lower.includes('where')) {
+        addBotMessage(getTrackOrderMessage());
+      } else {
+        addBotMessage(getDeliveryInfoMessage());
+      }
+      return;
+    }
+    
+    // Sentiment: negative feedback
+    const negativeKeywords = ['angry', 'late', 'bad', 'waiting', 'slow', 'wrong', 'cold', 'terrible', 'awful', 'complaint'];
+    if (negativeKeywords.some(k => lower.includes(k))) {
+      addUserMessage(input);
       addBotMessage({
-         type: 'received',
-         content: `💡 **Smart Tip!**\n\nInstead of ordering separately, check out our **Combos**! They include main + side + drink for a better price. 💰`,
-         options: [
-           { key: '1', label: 'View Combos', action: 'navigate', data: '/menu' },
-           { key: '0', label: 'No, just browsing', action: 'start' }
-         ]
+        type: 'received',
+        content: `I'm so sorry to hear that 😟\n\nThis doesn't sound right. Let me connect you to our team immediately.`,
+        options: [
+          { key: '1', label: '🚨 Priority Support', action: 'whatsapp', data: `URGENT: I am unhappy about: ${input}` },
+          { key: '2', label: 'Call Manager', action: 'call' }
+        ]
+      }, 400);
+      return;
+    }
+    
+    // Dietary keywords
+    if (['vegan', 'vegetarian', 'veggie'].some(k => lower.includes(k))) {
+      addUserMessage(input);
+      addBotMessage({
+        type: 'received',
+        content: `🌱 **Plant-Based Options:**\n\nWe have fresh salads, vegetable sides, and 100% natural fruit juices!\n\nCheck our menu for all options.`,
+        options: [
+          { key: '1', label: 'View Menu', action: 'navigate', data: '/menu' },
+          { key: '2', label: 'Ask About Options', action: 'whatsapp', data: 'Hello, what vegetarian options do you have?' }
+        ]
       });
       return;
     }
-
-    // 4. Delivery Estimator
-    const deliveryZoneMatch = deliveryZones.find(z => input.toLowerCase().includes(z.name.toLowerCase()));
-    if (deliveryZoneMatch) {
-       addUserMessage(input);
-       addBotMessage({
-         type: 'received',
-         content: `📍 **Delivery Check**\n\nYes, we deliver to **${deliveryZoneMatch.name}**!\n\n💰 Fee: ${formatPrice(deliveryZoneMatch.fee)}\n⏱️ Time: ${deliveryZoneMatch.estimatedTime}\n\nWant to start your order?`,
-         options: [
-           { key: '1', label: 'Start Order 🍗', action: 'navigate', data: '/menu' },
-           { key: '0', label: 'Check another area', action: 'deliveryInfo' }
-         ]
-       });
-       return;
-    }
-
-    // 2. Smart Menu Search
-    const searchResult = [...menuData.mainDishes, ...menuData.sauces, ...menuData.lusaniya]
-      .filter(item => item.name.toLowerCase().includes(lower));
     
-    if (searchResult.length > 0) {
+    // Delivery zone detection
+    const zoneMatch = deliveryZones.find(z => lower.includes(z.name.toLowerCase()));
+    if (zoneMatch) {
       addUserMessage(input);
-      const topResult = searchResult[0];
-      const count = searchResult.length;
+      const estTime = isPeakHours() 
+        ? `${parseInt(zoneMatch.estimatedTime) + 15}-${parseInt(zoneMatch.estimatedTime.split('-')[1] || '45') + 15} mins (peak hours)`
+        : zoneMatch.estimatedTime;
       
       addBotMessage({
         type: 'received',
-        content: `🔍 **I found ${count} match${count > 1 ? 'es' : ''}!**\n\nTop match: **${topResult.name}**\n${topResult.description}\n\nWant to see it?`,
+        content: `📍 **Delivery to ${zoneMatch.name}:**\n\n✅ Yes, we deliver there!\n💰 Fee: ${formatPrice(zoneMatch.fee)}\n⏱️ Est. time: ${estTime}\n\nReady to order?`,
         options: [
-           { key: '1', label: `View ${topResult.name}`, action: 'navigate', data: '/menu' },
-           { key: '2', label: 'Show Full Menu', action: 'navigate', data: '/menu' }
+          { key: '1', label: 'Start Order', action: 'navigate', data: '/menu' },
+          { key: '2', label: 'Check Another Area', action: 'deliveryInfo' },
+          { key: '0', label: 'Back', action: 'start' }
         ]
       });
       return;
     }
-
-    // Default fallback
+    
+    // Menu item search
+    const allMenuItems = [...menuData.mainDishes, ...menuData.sauces, ...menuData.lusaniya, ...menuData.juices];
+    const searchResults = allMenuItems.filter(item => 
+      item.name.toLowerCase().includes(lower) || 
+      (item.description && item.description.toLowerCase().includes(lower))
+    );
+    
+    if (searchResults.length > 0) {
+      addUserMessage(input);
+      const topResult = searchResults[0];
+      // Get price based on item type - Sauces have basePrice, others have price
+      const itemPrice = 'price' in topResult ? (topResult as { price: number }).price : 
+        ('basePrice' in topResult ? (topResult as { basePrice: number }).basePrice : null);
+      const priceText = itemPrice ? formatPrice(itemPrice) : 'see menu for pricing';
+      
+      addBotMessage({
+        type: 'received',
+        content: `🔍 **Found: ${topResult.name}**\n\n${topResult.description || 'Delicious choice!'}\n💰 ${priceText}\n\nWant to add it to your order?`,
+        options: [
+          { key: '1', label: `Order ${topResult.name}`, action: 'navigate', data: '/menu' },
+          { key: '2', label: 'See Full Menu', action: 'navigate', data: '/menu' },
+          { key: '0', label: 'Back', action: 'start' }
+        ]
+      });
+      return;
+    }
+    
+    // Default: escalate to human
     addUserMessage(input);
     addBotMessage({
       type: 'received',
-      content: `I'd love to help with that! 💬\n\nLet me connect you with our team who can assist better:`,
+      content: `I'd love to help with that!\n\nLet me connect you with our team who can assist better:`,
       options: [
-        { key: '1', label: '💬 Chat on WhatsApp', action: 'whatsapp', data: `${getGreeting()}! ${input}` },
-        { key: '0', label: '0️⃣ Back to Menu', action: 'start' },
+        { key: '1', label: 'Chat on WhatsApp', action: 'whatsapp', data: `Hello, ${input}` },
+        { key: '2', label: 'Call Us', action: 'call' },
+        { key: '0', label: 'Back to Menu', action: 'start' }
       ]
     });
   };
 
   return (
     <>
-      {/* Floating Button */}
+      {/* Floating Button - Desktop only */}
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="hidden lg:flex fixed bottom-24 right-4 z-[100] w-14 h-14 sm:w-16 sm:h-16 sm:bottom-32 lg:bottom-8 lg:right-6 bg-[#25D366] hover:bg-[#20ba5a] rounded-full items-center justify-center shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
+        className="hidden lg:flex fixed bottom-8 right-6 z-[100] w-14 h-14 bg-[#25D366] hover:bg-[#20ba5a] rounded-full items-center justify-center shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
         aria-label="Chat with us"
-        title={isOpen ? "Close chat" : "Chat with us on WhatsApp"}
+        title={isOpen ? "Close chat" : "Chat with us"}
       >
         {isOpen ? (
-          <X className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+          <X className="w-6 h-6 text-white" />
         ) : (
           <>
-            <WhatsAppIcon className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+            <WhatsAppIcon className="w-7 h-7 text-white" />
             {cartItemCount > 0 && (
               <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
                 {cartItemCount > 9 ? '9+' : cartItemCount}
@@ -890,7 +997,11 @@ export default function FloatingWhatsApp({
       {/* Chat Window */}
       {isOpen && (
         <>
-          <div className="fixed inset-0 bg-black/30 z-[90] sm:hidden backdrop-blur-sm" onClick={() => setIsOpen(false)} />
+          {/* Backdrop for mobile */}
+          <div 
+            className="fixed inset-0 bg-black/30 z-[90] sm:hidden backdrop-blur-sm" 
+            onClick={() => setIsOpen(false)} 
+          />
           
           <div 
             ref={mainContainerRef}
@@ -899,38 +1010,73 @@ export default function FloatingWhatsApp({
             
             {/* Header */}
             <div className="bg-[#008069] px-4 py-3 flex items-center gap-3 shrink-0 shadow-sm">
-              <button onClick={() => setIsOpen(false)} className="sm:hidden w-9 h-9 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors -ml-2">
+              <button 
+                onClick={() => setIsOpen(false)} 
+                className="sm:hidden w-9 h-9 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors -ml-2"
+              >
                 <ArrowLeft className="w-6 h-6 text-white" />
               </button>
               
               <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white overflow-hidden shrink-0 ring-2 ring-white/20">
-                <img src="/images/logo/9Yards-Food-White-Logo-colored.png" alt="9Yards Food" className="w-full h-full object-contain p-0.5" />
+                <img 
+                  src="/images/logo/9Yards-Food-White-Logo-colored.png" 
+                  alt="9Yards Food" 
+                  className="w-full h-full object-contain p-0.5" 
+                />
               </div>
               
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-2">
                   <h3 className="text-white font-bold text-[17px] leading-tight">9Yards Food</h3>
+                  {isPeakHours() && (
+                    <span className="text-[10px] bg-amber-400 text-amber-900 px-1.5 py-0.5 rounded font-medium">
+                      BUSY
+                    </span>
+                  )}
                 </div>
                 <p className="text-white/90 text-[13px] leading-tight font-medium">
-                  {isTyping ? 'typing...' : 'online'}
+                  {isTyping ? 'typing...' : isBusinessOpen() ? 'online' : 'away'}
                 </p>
               </div>
               
               <div className="flex items-center gap-1">
-                <button onClick={handleCall} className="text-white/90 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full" aria-label="Call us" title="Call Us">
+                <button 
+                  onClick={handleCall} 
+                  className="text-white/90 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full" 
+                  aria-label="Call us"
+                  title="Call Us"
+                >
                   <Phone className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
-                <button onClick={() => setIsOpen(false)} className="hidden sm:block text-white/90 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full" title="Close Chat">
+                <button 
+                  onClick={() => setIsOpen(false)} 
+                  className="hidden sm:block text-white/90 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full" 
+                  title="Close Chat"
+                >
                   <X className="w-6 h-6" />
                 </button>
               </div>
             </div>
 
+            {/* Peak Hours Banner */}
+            {isPeakHours() && (
+              <div className="bg-amber-50 border-b border-amber-100 px-4 py-2 flex items-center gap-2">
+                <Clock className="w-4 h-4 text-amber-600" />
+                <p className="text-xs text-amber-700">
+                  <span className="font-medium">Peak hours</span> — Delivery may take 15-20 mins longer
+                </p>
+              </div>
+            )}
+
             {/* Messages */}
             <div 
               ref={chatContainerRef}
               className="flex-1 overflow-y-auto px-2 sm:px-3 py-2 space-y-1 custom-scrollbar"
-              style={{ backgroundImage: `url('/images/backgrounds/new-real-whatsapp-wallpaper.png')`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+              style={{ 
+                backgroundImage: `url('/images/backgrounds/new-real-whatsapp-wallpaper.png')`, 
+                backgroundSize: 'cover', 
+                backgroundPosition: 'center' 
+              }}
             >
               <div className="flex justify-center py-3">
                 <div className="bg-white/95 backdrop-blur-sm rounded-md px-3 py-1 shadow-sm">
@@ -939,9 +1085,18 @@ export default function FloatingWhatsApp({
               </div>
 
               {messages.map((message) => (
-                <div key={message.id} className={`flex ${message.type === 'sent' ? 'justify-end' : 'justify-start'} mb-1`}>
-                  <div className={`relative rounded-xl shadow-sm px-3 py-2.5 max-w-[88%] sm:max-w-[85%] ${message.type === 'sent' ? 'bg-[#d9fdd3]' : 'bg-white'}`}>
-                    <p className="text-[#111b21] text-[15px] leading-[1.5] whitespace-pre-wrap">{message.content}</p>
+                <div 
+                  key={message.id} 
+                  className={`flex ${message.type === 'sent' ? 'justify-end' : 'justify-start'} mb-1`}
+                >
+                  <div 
+                    className={`relative rounded-xl shadow-sm px-3 py-2.5 max-w-[88%] sm:max-w-[85%] ${
+                      message.type === 'sent' ? 'bg-[#d9fdd3]' : 'bg-white'
+                    }`}
+                  >
+                    <p className="text-[#111b21] text-[15px] leading-[1.5] whitespace-pre-wrap">
+                      {message.content}
+                    </p>
                     
                     {message.options && message.options.length > 0 && (
                       <div className="flex flex-wrap gap-2 mt-2.5">
@@ -970,28 +1125,25 @@ export default function FloatingWhatsApp({
                 </div>
               ))}
               
+              {/* Typing indicator */}
               {isTyping && (
                 <div className="flex justify-start mb-1">
                   <div className="bg-white rounded-lg shadow-sm px-3 py-2.5">
                     <div className="flex gap-1">
-                      <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                      <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                      <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                      <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                     </div>
                   </div>
                 </div>
               )}
               
-              <div ref={messagesEndRef} className="h-2"></div>
+              <div ref={messagesEndRef} className="h-2" />
             </div>
 
-            {/* Input */}
-            <div className="bg-[#F0F0F0] px-2 py-1.5 sm:py-2 flex items-center gap-2 shrink-0">
-              <button className="text-[#54656f] hover:text-[#3b4a54] transition-colors p-1.5">
-                <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-              </button>
-              
-              <div className="flex-1 bg-white rounded-[21px] pl-3 sm:pl-4 pr-1 py-1.5 flex items-center gap-2 h-[40px] sm:h-[42px] shadow-sm">
+            {/* Input Area - Clean and polished */}
+            <div className="bg-[#F0F0F0] px-3 py-2.5 flex items-center gap-3 shrink-0">
+              <div className="flex-1 bg-white rounded-full px-4 py-2.5 flex items-center shadow-sm min-w-0 border border-gray-200">
                 <input
                   type="text"
                   value={typingMessage}
@@ -1002,19 +1154,30 @@ export default function FloatingWhatsApp({
                       setTypingMessage('');
                     }
                   }}
-                  placeholder="Type a message"
-                  className="flex-1 bg-transparent outline-none text-[14px] sm:text-[15px] text-[#3B4A54] placeholder:text-[#8696A0]"
+                  placeholder="Type a message..."
+                  className="flex-1 bg-transparent outline-none text-[15px] text-[#3B4A54] placeholder:text-[#8696A0] min-w-0"
                 />
-                
-                {typingMessage.trim() && (
-                  <button 
-                    onClick={() => { handleTextInput(typingMessage); setTypingMessage(''); }}
-                    className="bg-[#1daa61] text-white rounded-full p-2 hover:bg-[#1a9952] active:scale-95 transition-all shrink-0"
-                  >
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="white"><path d="M1.101 21.757L23.8 12.028 1.101 2.3l.011 7.912 13.623 1.816-13.623 1.817-.011 7.912z"/></svg>
-                  </button>
-                )}
               </div>
+              
+              {/* Send button - always visible with better contrast */}
+              <button 
+                onClick={() => { 
+                  if (typingMessage.trim()) {
+                    handleTextInput(typingMessage); 
+                    setTypingMessage(''); 
+                  }
+                }}
+                disabled={!typingMessage.trim()}
+                className={`rounded-full w-11 h-11 flex items-center justify-center transition-all shrink-0 shadow-md ${
+                  typingMessage.trim() 
+                    ? 'bg-[#25D366] hover:bg-[#20bd5a] active:scale-95' 
+                    : 'bg-[#25D366]/70'
+                }`}
+              >
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="white">
+                  <path d="M1.101 21.757L23.8 12.028 1.101 2.3l.011 7.912 13.623 1.816-13.623 1.817-.011 7.912z"/>
+                </svg>
+              </button>
             </div>
           </div>
 
