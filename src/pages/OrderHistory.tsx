@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Clock,
@@ -8,7 +9,10 @@ import {
   Trash2,
   CreditCard,
   MapPin,
-  UtensilsCrossed
+  UtensilsCrossed,
+  ChevronDown,
+  ChevronUp,
+  X
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import SEO from '@/components/SEO';
@@ -17,7 +21,7 @@ import Footer from '@/components/layout/Footer';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import PageHeader from '@/components/layout/PageHeader';
 import OptimizedImage from '@/components/ui/optimized-image';
-import { useCart, OrderHistoryItem } from '@/context/CartContext';
+import { useCart, OrderHistoryItem, CartItem } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils/order';
 import { WHATSAPP_NUMBER } from '@/lib/constants';
 import { toast } from 'sonner';
@@ -25,6 +29,7 @@ import { menuData } from '@/data/menu';
 
 export default function OrderHistory() {
   const { orderHistory, clearOrderHistory, addItem } = useCart();
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
 
   const handleReorder = (order: OrderHistoryItem) => {
     // Add each item from the order to cart, preserving their original type
@@ -157,6 +162,91 @@ export default function OrderHistory() {
     return images;
   };
 
+  // Helper to get detailed item info for expanded view
+  interface OrderItemDetail {
+    id: string;
+    name: string;
+    image: string;
+    price: number;
+    quantity: number;
+    type: 'combo' | 'single';
+    description?: string;
+  }
+
+  const getOrderItemDetails = (order: OrderHistoryItem): OrderItemDetail[] => {
+    const details: OrderItemDetail[] = [];
+
+    // Helper to extract raw ID
+    const getRawItemId = (cartItemId: string) => {
+      const prefixes = ['lusaniya-', 'juice-', 'dessert-', 'side-', 'main-'];
+      for (const prefix of prefixes) {
+        if (cartItemId.startsWith(prefix)) {
+          return cartItemId.substring(prefix.length);
+        }
+      }
+      return cartItemId;
+    };
+
+    for (const item of order.items) {
+      const rawId = getRawItemId(item.id);
+      let image = '';
+      let name = item.mainDishes?.join(' + ') || 'Item';
+      let description = '';
+
+      // Try to find image based on item type
+      if (item.type === 'combo') {
+        // For combos, use sauce image or first main dish image
+        if (item.sauce?.image) {
+          image = item.sauce.image;
+        } else if (item.mainDishes?.[0]) {
+          const dish = menuData.mainDishes.find(d => d.name === item.mainDishes[0]);
+          if (dish?.image) image = dish.image;
+        }
+        description = item.sauce?.name || '';
+        if (item.sideDish) description += (description ? ' + ' : '') + item.sideDish;
+      } else {
+        // Single items - look up in menu data
+        const lusaniya = menuData.lusaniya.find(l => l.id === rawId || l.id === item.id);
+        if (lusaniya) {
+          image = lusaniya.image;
+          name = lusaniya.name;
+        }
+
+        const juice = menuData.juices.find(j => j.id === rawId || j.id === item.id);
+        if (juice) {
+          image = juice.image;
+          name = juice.name;
+        }
+
+        const dessert = menuData.desserts.find(d => d.id === rawId || d.id === item.id);
+        if (dessert) {
+          image = dessert.image;
+          name = dessert.name;
+        }
+
+        // Fallback to item properties
+        if (!image && item.image) image = item.image;
+        if (item.description) description = item.description;
+      }
+
+      details.push({
+        id: item.id,
+        name,
+        image,
+        price: item.totalPrice,
+        quantity: item.quantity,
+        type: item.type,
+        description
+      });
+    }
+
+    return details;
+  };
+
+  const toggleExpanded = (orderId: string) => {
+    setExpandedOrderId(prev => prev === orderId ? null : orderId);
+  };
+
   if (orderHistory.length === 0) {
     return (
       <div className="min-h-screen bg-background pb-20 lg:pb-0">
@@ -233,21 +323,27 @@ export default function OrderHistory() {
               const badge = getMethodBadge(order.paymentMethod);
               const BadgeIcon = badge.icon;
               const orderImages = getOrderImages(order);
+              const isExpanded = expandedOrderId === order.orderId;
+              const itemDetails = isExpanded ? getOrderItemDetails(order) : [];
               
               return (
                 <div
                   key={order.orderId}
                   className="card-premium group overflow-hidden border border-border/60 hover:border-secondary/30 transition-all duration-300"
                 >
-                  <div className="flex flex-row md:flex-row h-full">
-                    {/* Visual Side (Left) - Optimized widths */}
-                    <div className="w-28 sm:w-40 md:w-56 bg-secondary/5 shrink-0 relative border-r border-border/50">
+                  <div className="flex flex-row md:flex-row">
+                    {/* Visual Side (Left) - Clickable for expand */}
+                    <button
+                      onClick={() => toggleExpanded(order.orderId)}
+                      className="w-28 sm:w-40 md:w-56 bg-secondary/5 shrink-0 relative border-r border-border/50 cursor-pointer group/img overflow-hidden"
+                      title="Click to see order items"
+                    >
                       {orderImages.length > 0 ? (
                         orderImages.length === 1 ? (
                           <OptimizedImage 
                             src={orderImages[0]} 
                             alt="Order Preview"
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-110"
                           />
                         ) : orderImages.length === 2 ? (
                           /* 2 images: Side by side layout */
@@ -305,7 +401,24 @@ export default function OrderHistory() {
                            <ShoppingBag className="w-8 h-8 md:w-12 md:h-12" />
                         </div>
                       )}
-                    </div>
+                      
+                      {/* Expand indicator overlay */}
+                      <div className={`absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end justify-center pb-2 transition-opacity ${isExpanded ? 'opacity-100' : 'opacity-0 group-hover/img:opacity-100'}`}>
+                        <span className="flex items-center gap-1 text-white text-[10px] sm:text-xs font-medium bg-black/40 backdrop-blur-sm px-2 py-1 rounded-full">
+                          {isExpanded ? (
+                            <>
+                              <ChevronUp className="w-3 h-3" />
+                              <span className="hidden sm:inline">Collapse</span>
+                            </>
+                          ) : (
+                            <>
+                              <ChevronDown className="w-3 h-3" />
+                              <span className="hidden sm:inline">View Items</span>
+                            </>
+                          )}
+                        </span>
+                      </div>
+                    </button>
 
                     {/* Content Side (Right) - Better padding and spacing */}
                     <div className="flex-1 p-4 md:p-6 flex flex-col justify-between min-w-0">
@@ -382,6 +495,95 @@ export default function OrderHistory() {
                            </button>
                         </div>
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Expandable Items Section */}
+                  <div 
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                      isExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+                    }`}
+                  >
+                    <div className="border-t border-border/50 bg-muted/30 p-3 md:p-4">
+                      {/* Header with close button */}
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-xs md:text-sm font-semibold text-foreground flex items-center gap-2">
+                          <Package className="w-4 h-4 text-secondary" />
+                          Order Items ({order.items.length})
+                        </h4>
+                        <button
+                          onClick={() => setExpandedOrderId(null)}
+                          className="p-1.5 hover:bg-background rounded-full transition-colors text-muted-foreground hover:text-foreground"
+                          title="Close"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                      
+                      {/* Horizontal scrollable items */}
+                      <div className="overflow-x-auto pb-2 -mx-1 px-1 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+                        <div className="flex gap-3 md:gap-4">
+                          {itemDetails.map((item, idx) => (
+                            <div 
+                              key={idx}
+                              className="flex-shrink-0 w-[140px] sm:w-[160px] md:w-[180px] bg-background rounded-xl border border-border/60 overflow-hidden shadow-sm hover:shadow-md hover:border-secondary/30 transition-all"
+                            >
+                              {/* Item Image */}
+                              <div className="aspect-square w-full bg-muted relative overflow-hidden">
+                                {item.image ? (
+                                  <OptimizedImage 
+                                    src={item.image} 
+                                    alt={item.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-muted-foreground/30">
+                                    <UtensilsCrossed className="w-8 h-8" />
+                                  </div>
+                                )}
+                                
+                                {/* Quantity badge */}
+                                {item.quantity > 1 && (
+                                  <span className="absolute top-2 left-2 bg-secondary text-secondary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                                    ×{item.quantity}
+                                  </span>
+                                )}
+                                
+                                {/* Type badge */}
+                                <span className={`absolute top-2 right-2 text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase ${
+                                  item.type === 'combo' 
+                                    ? 'bg-purple-100 text-purple-700' 
+                                    : 'bg-blue-100 text-blue-700'
+                                }`}>
+                                  {item.type === 'combo' ? 'Combo' : 'Single'}
+                                </span>
+                              </div>
+                              
+                              {/* Item Details */}
+                              <div className="p-2.5 md:p-3">
+                                <h5 className="font-semibold text-foreground text-xs md:text-sm leading-tight line-clamp-2 mb-1">
+                                  {item.name}
+                                </h5>
+                                {item.description && (
+                                  <p className="text-[10px] md:text-xs text-muted-foreground line-clamp-1 mb-1.5">
+                                    {item.description}
+                                  </p>
+                                )}
+                                <p className="text-secondary font-bold text-sm md:text-base">
+                                  {formatPrice(item.price * item.quantity)}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Scroll hint for mobile */}
+                      {itemDetails.length > 2 && (
+                        <p className="text-[10px] text-muted-foreground text-center mt-2 md:hidden">
+                          ← Swipe to see more →
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
