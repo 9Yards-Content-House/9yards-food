@@ -1,12 +1,179 @@
-import { MapPin, Clock, Truck, Phone } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { MapPin, Clock, Truck, Phone, Search, X, AlertTriangle, CheckCircle, ChevronDown, ChevronUp, Navigation, Zap } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import Header from '@/components/layout/Header';
+import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import SEO from '@/components/SEO';
 import { pageMetadata } from '@/data/seo';
 import Footer from '@/components/layout/Footer';
-import { deliveryZones } from '@/data/menu';
+import { deliveryZones, DeliveryZone } from '@/data/menu';
 import { formatPrice } from '@/lib/utils/order';
+import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
+import { motion, AnimatePresence } from 'framer-motion';
+import { haptics } from '@/lib/utils/ui';
+
+// Fix Leaflet default marker icon issue
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
+
+// Custom marker icon matching brand colors
+const createCustomIcon = (color: string) => L.divIcon({
+  className: 'custom-marker',
+  html: `<div style="
+    background: ${color};
+    width: 24px;
+    height: 24px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  "></div>`,
+  iconSize: [24, 24],
+  iconAnchor: [12, 24],
+});
+
+// Peak hours utility
+function isPeakHours(): boolean {
+  const now = new Date();
+  const hour = now.getHours();
+  return (hour >= 12 && hour < 14) || (hour >= 18 && hour < 20);
+}
+
+function getAdjustedTime(baseTime: string): string {
+  if (!isPeakHours()) return baseTime;
+  const match = baseTime.match(/(\d+)-(\d+)/);
+  if (match) {
+    return `${parseInt(match[1]) + 15}-${parseInt(match[2]) + 15} mins`;
+  }
+  return baseTime;
+}
+
+// Zone tiers based on delivery fee
+type ZoneTier = 'express' | 'standard' | 'extended';
+
+function getZoneTier(fee: number): ZoneTier {
+  if (fee <= 5000) return 'express';
+  if (fee <= 7000) return 'standard';
+  return 'extended';
+}
+
+const tierConfig = {
+  express: {
+    label: 'Express Zone',
+    description: 'Fastest delivery, closest to us',
+    color: '#22c55e',
+    bgColor: 'bg-green-50',
+    textColor: 'text-green-700',
+    borderColor: 'border-green-200',
+    icon: Zap,
+  },
+  standard: {
+    label: 'Standard Zone',
+    description: 'Regular delivery times',
+    color: '#3b82f6',
+    bgColor: 'bg-blue-50',
+    textColor: 'text-blue-700',
+    borderColor: 'border-blue-200',
+    icon: Truck,
+  },
+  extended: {
+    label: 'Extended Zone',
+    description: 'Slightly longer delivery',
+    color: '#f59e0b',
+    bgColor: 'bg-amber-50',
+    textColor: 'text-amber-700',
+    borderColor: 'border-amber-200',
+    icon: Navigation,
+  },
+};
+
+// Map center (Kampala)
+const KAMPALA_CENTER: [number, number] = [0.3163, 32.5822];
+
+// Component to fly to selected zone
+function FlyToZone({ zone }: { zone: DeliveryZone | null }) {
+  const map = useMap();
+  
+  useEffect(() => {
+    if (zone?.coordinates) {
+      map.flyTo(zone.coordinates, 14, { duration: 1 });
+    }
+  }, [zone, map]);
+  
+  return null;
+}
 
 export default function DeliveryZonesPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedZone, setSelectedZone] = useState<DeliveryZone | null>(null);
+  const [expandedTier, setExpandedTier] = useState<ZoneTier | null>('express');
+  const [showMap, setShowMap] = useState(true);
+  const peakHours = isPeakHours();
+
+  // Group zones by tier
+  const groupedZones = useMemo(() => {
+    const groups: Record<ZoneTier, DeliveryZone[]> = {
+      express: [],
+      standard: [],
+      extended: [],
+    };
+    
+    deliveryZones.forEach(zone => {
+      const tier = getZoneTier(zone.fee);
+      groups[tier].push(zone);
+    });
+    
+    // Sort each group by fee
+    Object.keys(groups).forEach(tier => {
+      groups[tier as ZoneTier].sort((a, b) => a.fee - b.fee);
+    });
+    
+    return groups;
+  }, []);
+
+  // Filter zones based on search
+  const filteredZones = useMemo(() => {
+    if (!searchQuery.trim()) return groupedZones;
+    
+    const query = searchQuery.toLowerCase();
+    const filtered: Record<ZoneTier, DeliveryZone[]> = {
+      express: [],
+      standard: [],
+      extended: [],
+    };
+    
+    Object.entries(groupedZones).forEach(([tier, zones]) => {
+      filtered[tier as ZoneTier] = zones.filter(zone => 
+        zone.name.toLowerCase().includes(query)
+      );
+    });
+    
+    return filtered;
+  }, [groupedZones, searchQuery]);
+
+  // Total zones count for search results
+  const totalFilteredZones = Object.values(filteredZones).flat().length;
+
+  const handleZoneSelect = (zone: DeliveryZone) => {
+    haptics.light();
+    setSelectedZone(zone);
+    // On mobile, scroll to map
+    if (window.innerWidth < 1024) {
+      document.getElementById('delivery-map')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
+  const toggleTier = (tier: ZoneTier) => {
+    haptics.light();
+    setExpandedTier(prev => prev === tier ? null : tier);
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20 lg:pb-0">
       <SEO 
@@ -18,86 +185,379 @@ export default function DeliveryZonesPage() {
         jsonLd={pageMetadata.deliveryZones.schema}
       />
       <Header />
+      
       <main className="pt-16 md:pt-20">
-        {/* Hero */}
-        <section className="bg-primary text-primary-foreground py-12 md:py-16">
+        {/* Mobile App-Style Header */}
+        <MobilePageHeader 
+          title="Delivery Zones"
+          subtitle={`${deliveryZones.length} areas covered`}
+        />
+
+        {/* Desktop Hero */}
+        <section className="hidden lg:block bg-gradient-to-br from-[#212282] to-[#1a1a6e] text-white py-12">
           <div className="container-custom px-4">
             <div className="max-w-2xl">
               <h1 className="text-3xl md:text-4xl font-bold mb-4">
                 Delivery Areas
               </h1>
-              <p className="text-primary-foreground/70">
+              <p className="text-white/70 text-lg">
                 We deliver across Kampala! Check if we cover your area and see delivery fees.
               </p>
             </div>
           </div>
         </section>
 
-        {/* Zones Grid */}
-        <section className="section-padding">
-          <div className="container-custom">
-            {/* Free Delivery Banner */}
-            <div className="mb-8 p-6 rounded-2xl gradient-cta text-secondary-foreground text-center">
-              <Truck className="w-10 h-10 mx-auto mb-3" />
-              <h3 className="text-xl font-bold mb-1">FREE Delivery</h3>
-              <p className="text-secondary-foreground/80">
-                On all orders over 50,000 UGX!
-              </p>
-            </div>
+        <div className="container-custom px-4 py-6 lg:py-10">
+          {/* Peak Hours Alert */}
+          {peakHours && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 p-4 bg-orange-50 border border-orange-100 rounded-xl flex items-start gap-3"
+            >
+              <AlertTriangle className="w-5 h-5 text-[#E6411C] flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="font-bold text-gray-900 text-sm">Peak Hours Active</p>
+                <p className="text-sm text-gray-600">
+                  Delivery times may be 15-20 mins longer than usual. We're working hard to get your food to you!
+                </p>
+              </div>
+            </motion.div>
+          )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {deliveryZones.map((zone) => (
-                <div
-                  key={zone.name}
-                  className="card-premium p-5"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <MapPin className="w-4 h-4 text-secondary" />
-                        <h3 className="font-bold text-foreground">{zone.name}</h3>
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5" />
-                          {zone.estimatedTime}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-secondary font-bold">
-                        {formatPrice(zone.fee)}
-                      </span>
-                      <span className="text-xs text-muted-foreground block">
-                        delivery fee
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Not in list */}
-            <div className="mt-12 text-center p-8 bg-muted/50 rounded-2xl">
-              <h3 className="text-lg font-bold text-foreground mb-2">
-                Don't See Your Area?
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Contact us and we'll try to accommodate your delivery!
-              </p>
-              <a
-                href="https://wa.me/256708899597"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-secondary inline-flex items-center gap-2"
-              >
-                <Phone className="w-4 h-4" />
-                Contact Us on WhatsApp
-              </a>
+          {/* Free Delivery Banner */}
+          <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-[#E6411C] to-[#ff6b4a] text-white">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                <Truck className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold">FREE Delivery</h3>
+                <p className="text-white/90 text-sm">
+                  On all orders over {formatPrice(50000)}!
+                </p>
+              </div>
             </div>
           </div>
-        </section>
+
+          {/* Search Bar */}
+          <div className="mb-6">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search for your area..."
+                className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-border bg-background focus:ring-2 focus:ring-[#212282]/20 focus:border-[#212282] transition-all text-sm"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full transition-colors"
+                >
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              )}
+            </div>
+            {searchQuery && (
+              <p className="mt-2 text-sm text-muted-foreground">
+                {totalFilteredZones} area{totalFilteredZones !== 1 ? 's' : ''} found
+              </p>
+            )}
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
+            {/* Zones List */}
+            <div className="space-y-4">
+              {(['express', 'standard', 'extended'] as ZoneTier[]).map(tier => {
+                const config = tierConfig[tier];
+                const zones = filteredZones[tier];
+                const isExpanded = expandedTier === tier;
+                const TierIcon = config.icon;
+                
+                if (zones.length === 0 && searchQuery) return null;
+                
+                return (
+                  <div 
+                    key={tier}
+                    className={`rounded-xl border overflow-hidden transition-all ${config.borderColor} ${
+                      isExpanded ? 'shadow-md' : ''
+                    }`}
+                  >
+                    {/* Tier Header */}
+                    <button
+                      onClick={() => toggleTier(tier)}
+                      className={`w-full p-4 flex items-center justify-between ${config.bgColor} transition-colors`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${config.textColor} bg-white`}>
+                          <TierIcon className="w-5 h-5" />
+                        </div>
+                        <div className="text-left">
+                          <h3 className={`font-bold ${config.textColor}`}>{config.label}</h3>
+                          <p className="text-xs text-muted-foreground">{config.description}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${config.bgColor} ${config.textColor}`}>
+                          {zones.length}
+                        </span>
+                        {isExpanded ? (
+                          <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                        ) : (
+                          <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                        )}
+                      </div>
+                    </button>
+                    
+                    {/* Zones in Tier */}
+                    <AnimatePresence>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="p-2 bg-white divide-y divide-border/50">
+                            {zones.map((zone) => (
+                              <button
+                                key={zone.name}
+                                onClick={() => handleZoneSelect(zone)}
+                                className={`w-full p-3 flex items-center justify-between hover:bg-muted/50 rounded-lg transition-colors ${
+                                  selectedZone?.name === zone.name ? 'bg-muted' : ''
+                                }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div 
+                                    className="w-3 h-3 rounded-full"
+                                    style={{ backgroundColor: config.color }}
+                                  />
+                                  <div className="text-left">
+                                    <h4 className="font-semibold text-foreground text-sm">
+                                      {zone.name}
+                                    </h4>
+                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                      <Clock className="w-3 h-3" />
+                                      <span className={peakHours ? 'text-orange-600' : ''}>
+                                        {getAdjustedTime(zone.estimatedTime)}
+                                      </span>
+                                      {peakHours && (
+                                        <span className="text-[10px] bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded">
+                                          +15 min
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <span className="font-bold text-[#E6411C] text-sm">
+                                    {formatPrice(zone.fee)}
+                                  </span>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
+              
+              {/* No Results */}
+              {totalFilteredZones === 0 && searchQuery && (
+                <div className="text-center py-8 px-4 bg-muted/30 rounded-xl">
+                  <MapPin className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                  <h3 className="font-bold text-foreground mb-1">No areas found</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    We couldn't find "{searchQuery}" in our delivery zones.
+                  </p>
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="text-sm text-[#212282] font-medium hover:underline"
+                  >
+                    Clear search
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Map Section */}
+            <div className="lg:sticky lg:top-24">
+              <div 
+                id="delivery-map"
+                className="rounded-2xl overflow-hidden border border-border shadow-sm"
+              >
+                {/* Map Toggle for Mobile */}
+                <button
+                  onClick={() => setShowMap(!showMap)}
+                  className="lg:hidden w-full p-4 bg-muted/50 flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-[#212282]" />
+                    <span className="font-medium text-foreground">Interactive Map</span>
+                  </div>
+                  {showMap ? (
+                    <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                  )}
+                </button>
+                
+                {/* Map Container */}
+                <AnimatePresence>
+                  {(showMap || window.innerWidth >= 1024) && (
+                    <motion.div
+                      initial={{ height: 0 }}
+                      animate={{ height: 'auto' }}
+                      exit={{ height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="h-[300px] lg:h-[500px]">
+                        <MapContainer
+                          center={KAMPALA_CENTER}
+                          zoom={12}
+                          className="h-full w-full"
+                          scrollWheelZoom={false}
+                        >
+                          <TileLayer
+                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                          />
+                          
+                          {/* Zone markers */}
+                          {deliveryZones.map((zone) => {
+                            if (!zone.coordinates) return null;
+                            const tier = getZoneTier(zone.fee);
+                            const config = tierConfig[tier];
+                            
+                            return (
+                              <Marker
+                                key={zone.name}
+                                position={zone.coordinates}
+                                icon={createCustomIcon(config.color)}
+                                eventHandlers={{
+                                  click: () => handleZoneSelect(zone),
+                                }}
+                              >
+                                <Popup>
+                                  <div className="text-center p-1">
+                                    <h4 className="font-bold text-[#212282]">{zone.name}</h4>
+                                    <p className="text-sm text-gray-600">{zone.estimatedTime}</p>
+                                    <p className="font-bold text-[#E6411C]">{formatPrice(zone.fee)}</p>
+                                  </div>
+                                </Popup>
+                              </Marker>
+                            );
+                          })}
+                          
+                          {/* Highlight selected zone */}
+                          {selectedZone?.coordinates && (
+                            <Circle
+                              center={selectedZone.coordinates}
+                              radius={1500}
+                              pathOptions={{
+                                color: tierConfig[getZoneTier(selectedZone.fee)].color,
+                                fillColor: tierConfig[getZoneTier(selectedZone.fee)].color,
+                                fillOpacity: 0.15,
+                              }}
+                            />
+                          )}
+                          
+                          <FlyToZone zone={selectedZone} />
+                        </MapContainer>
+                      </div>
+                      
+                      {/* Selected Zone Info */}
+                      {selectedZone && (
+                        <div className="p-4 bg-white border-t border-border">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div 
+                                className="w-10 h-10 rounded-full flex items-center justify-center"
+                                style={{ backgroundColor: `${tierConfig[getZoneTier(selectedZone.fee)].color}20` }}
+                              >
+                                <MapPin 
+                                  className="w-5 h-5"
+                                  style={{ color: tierConfig[getZoneTier(selectedZone.fee)].color }}
+                                />
+                              </div>
+                              <div>
+                                <h4 className="font-bold text-foreground">{selectedZone.name}</h4>
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <Clock className="w-3.5 h-3.5" />
+                                  <span>{getAdjustedTime(selectedZone.estimatedTime)}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-xl font-bold text-[#E6411C]">
+                                {formatPrice(selectedZone.fee)}
+                              </span>
+                              <p className="text-xs text-muted-foreground">delivery fee</p>
+                            </div>
+                          </div>
+                          <div className="mt-3 flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                            <span className="text-sm text-green-700 font-medium">
+                              We deliver to this area!
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Map Legend */}
+              <div className="hidden lg:block mt-4 p-4 bg-muted/30 rounded-xl">
+                <h4 className="text-sm font-bold text-foreground mb-3">Zone Legend</h4>
+                <div className="space-y-2">
+                  {(['express', 'standard', 'extended'] as ZoneTier[]).map(tier => {
+                    const config = tierConfig[tier];
+                    return (
+                      <div key={tier} className="flex items-center gap-2">
+                        <div 
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: config.color }}
+                        />
+                        <span className="text-sm text-muted-foreground">{config.label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Not in list CTA */}
+          <div className="mt-10 text-center p-8 bg-gradient-to-br from-muted/50 to-muted/30 rounded-2xl border border-border">
+            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+              <Phone className="w-7 h-7 text-[#212282]" />
+            </div>
+            <h3 className="text-xl font-bold text-foreground mb-2">
+              Don't See Your Area?
+            </h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              We're constantly expanding! Contact us and we'll try to accommodate your delivery.
+            </p>
+            <a
+              href="https://wa.me/256708899597"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#25D366] text-white rounded-xl font-bold hover:bg-[#22c55e] transition-colors shadow-sm"
+            >
+              <WhatsAppIcon className="w-5 h-5" />
+              Contact Us on WhatsApp
+            </a>
+          </div>
+        </div>
       </main>
+      
       <Footer />
     </div>
   );
