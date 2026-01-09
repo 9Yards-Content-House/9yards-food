@@ -636,18 +636,18 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
               {/* Step 1: Choose Your Food */}
               {step === 1 && (
                 <div className="animate-in fade-in duration-300">
-                  <div className="px-5 pt-5 pb-3">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h1 id="combo-builder-title" className="text-[28px] font-extrabold leading-tight tracking-tight text-[#212282]">
+                  <div className="px-4 sm:px-5 pt-4 sm:pt-5 pb-3">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <h1 id="combo-builder-title" className="text-xl sm:text-[28px] font-extrabold leading-tight tracking-tight text-[#212282]">
                         Choose Your Food
                       </h1>
                       {selectedMainDishes.length > 0 && (
-                        <span className="px-2.5 py-1 rounded-full bg-[#E6411C] text-white text-sm font-bold">
+                        <span className="shrink-0 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-[#E6411C] text-white text-xs sm:text-sm font-bold whitespace-nowrap">
                           {selectedMainDishes.length} selected
                         </span>
                       )}
                     </div>
-                    <p className="text-base text-gray-500 font-medium">
+                    <p className="text-sm sm:text-base text-gray-500 font-medium">
                       Choose as many as you like. They're all included!
                     </p>
                   </div>
@@ -700,14 +700,14 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
               {/* Step 2: Choose Your Sauce */}
               {step === 2 && (
                 <div className="animate-in fade-in duration-300">
-                  <div className="px-5 pt-5 pb-2">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h1 className="text-2xl font-bold text-[#212282] tracking-tight">Choose Your Sauce</h1>
-                      <span className="px-2 py-0.5 rounded-full bg-[#E6411C]/10 text-[#E6411C] text-[10px] font-bold uppercase tracking-wider border border-[#E6411C]/20">
+                  <div className="px-4 sm:px-5 pt-4 sm:pt-5 pb-2">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <h1 className="text-xl sm:text-2xl font-bold text-[#212282] tracking-tight">Choose Your Sauce</h1>
+                      <span className="shrink-0 px-1.5 sm:px-2 py-0.5 rounded-full bg-[#E6411C]/10 text-[#E6411C] text-[9px] sm:text-[10px] font-bold uppercase tracking-wider border border-[#E6411C]/20">
                         Required
                       </span>
                     </div>
-                    <p className="text-sm text-gray-500">Select one sauce to accompany your meal.</p>
+                    <p className="text-xs sm:text-sm text-gray-500">Select one sauce to accompany your meal.</p>
                   </div>
 
                   <div className="flex flex-col gap-3 p-4">
@@ -842,11 +842,11 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
               {/* Step 3: Choose Your FREE Side Dish */}
               {step === 3 && (
                 <div className="animate-in fade-in duration-300">
-                  <div className="px-5 pt-5 pb-3">
-                    <h1 className="text-[28px] font-extrabold leading-[1.1] text-[#212282] mb-2">
+                  <div className="px-4 sm:px-5 pt-4 sm:pt-5 pb-2 sm:pb-3">
+                    <h1 className="text-xl sm:text-[28px] font-extrabold leading-[1.1] text-[#212282] mb-1 sm:mb-2">
                       Choose Your <span className="text-[#E6411C]">FREE</span> Side Dish
                     </h1>
-                    <p className="text-base text-gray-600 leading-relaxed">
+                    <p className="text-xs sm:text-base text-gray-600 leading-relaxed">
                       Every order comes with a free side dish of your choice! Select one option to complete your meal.
                     </p>
                   </div>
@@ -935,11 +935,11 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                   </div>
 
                   {/* Natural Juices Section */}
-                  <section className="mb-6">
-                    <div className="px-4 mb-3 flex justify-between items-end">
+                  <section className="mb-4 sm:mb-6">
+                    <div className="px-4 mb-2 sm:mb-3 flex justify-between items-end">
                       <div>
-                        <h3 className="text-[#212282] text-xl font-bold leading-tight tracking-tight">Natural Juice</h3>
-                        <p className="text-gray-500 text-sm font-medium mt-1">Freshly squeezed • 100% Natural</p>
+                        <h3 className="text-[#212282] text-lg sm:text-xl font-bold leading-tight tracking-tight">Natural Juice</h3>
+                        <p className="text-gray-500 text-xs sm:text-sm font-medium mt-0.5 sm:mt-1">Freshly squeezed • 100% Natural</p>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3 px-4 md:grid-cols-3 lg:grid-cols-4">
@@ -1087,20 +1087,20 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
               {/* Step 5: Review Your Combo */}
               {step === 5 && (
                 <div className="animate-in fade-in zoom-in-95 duration-300">
-                  <div className="px-5 pt-6 pb-2">
-                    <h1 className="text-2xl font-black text-[#212282] tracking-tight mb-1">Review Your Combo</h1>
-                    <p className="text-sm text-gray-500 font-medium">Almost there! Check your selections below.</p>
+                  <div className="px-4 sm:px-5 pt-5 sm:pt-6 pb-2">
+                    <h1 className="text-xl sm:text-2xl font-black text-[#212282] tracking-tight mb-1">Review Your Combo</h1>
+                    <p className="text-xs sm:text-sm text-gray-500 font-medium">Almost there! Check your selections below.</p>
                   </div>
 
-                  <div className="p-4 space-y-4">
+                  <div className="p-4 sm:p-5 space-y-3 sm:space-y-4">
                     {/* Quantity Selector */}
-                    <div className="bg-gradient-to-r from-[#212282] to-[#2d2da8] rounded-2xl p-4 shadow-lg">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-white/70 text-xs font-bold uppercase tracking-wider mb-1">How Many?</p>
-                          <p className="text-white text-lg font-bold">Combo Quantity</p>
+                    <div className="bg-gradient-to-r from-[#212282] to-[#2d2da8] rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-lg">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="min-w-0">
+                          <p className="text-white/70 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-0.5 sm:mb-1">How Many?</p>
+                          <p className="text-white text-base sm:text-lg font-bold">Combo Quantity</p>
                         </div>
-                        <div className="flex items-center gap-3 bg-white/10 rounded-xl p-1">
+                        <div className="flex items-center gap-2 sm:gap-3 bg-white/10 rounded-lg sm:rounded-xl p-0.5 sm:p-1 shrink-0">
                           <button
                             onClick={() => {
                               if (comboQuantity > 1) {
@@ -1109,39 +1109,39 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                               }
                             }}
                             disabled={comboQuantity <= 1}
-                            className="w-10 h-10 flex items-center justify-center rounded-lg bg-white/20 text-white hover:bg-white/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                            className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-md sm:rounded-lg bg-white/20 text-white hover:bg-white/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                           >
-                            <Minus className="w-5 h-5" />
+                            <Minus className="w-4 h-4 sm:w-5 sm:h-5" />
                           </button>
-                          <span className="w-8 text-center text-white text-xl font-bold">{comboQuantity}</span>
+                          <span className="w-6 sm:w-8 text-center text-white text-lg sm:text-xl font-bold">{comboQuantity}</span>
                           <button
                             onClick={() => {
                               haptics.light();
                               setComboQuantity(q => q + 1);
                             }}
-                            className="w-10 h-10 flex items-center justify-center rounded-lg bg-[#E6411C] text-white hover:bg-[#d13a18] transition-colors"
+                            className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-md sm:rounded-lg bg-[#E6411C] text-white hover:bg-[#d13a18] transition-colors"
                           >
-                            <Plus className="w-5 h-5" />
+                            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                           </button>
                         </div>
                       </div>
                     </div>
                     {/* Main Dishes */}
-                    <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-                      <div className="flex justify-between items-start mb-3">
+                    <div className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-gray-100">
+                      <div className="flex justify-between items-start mb-2 sm:mb-3">
                         <div className="flex items-center gap-2">
-                          <div className="size-8 rounded-full bg-green-50 flex items-center justify-center text-green-600">
-                            <Check className="w-4 h-4" />
+                          <div className="size-6 sm:size-8 rounded-full bg-green-50 flex items-center justify-center text-green-600">
+                            <Check className="w-3 h-3 sm:w-4 sm:h-4" />
                           </div>
-                          <h3 className="font-bold text-[#212282]">Main Dishes</h3>
+                          <h3 className="text-sm sm:text-base font-bold text-[#212282]">Main Dishes</h3>
                         </div>
                         <button onClick={() => setStep(1)} className="text-[#E6411C] text-xs font-bold hover:underline">Edit</button>
                       </div>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-1.5 sm:gap-2">
                         {selectedMainDishes.map(id => {
                           const dish = menuData.mainDishes.find(d => d.id === id);
                           return (
-                            <span key={id} className="px-3 py-1.5 bg-gray-50 rounded-lg text-sm font-semibold text-[#212282]">
+                            <span key={id} className="px-2 sm:px-3 py-1 sm:py-1.5 bg-gray-50 rounded-md sm:rounded-lg text-xs sm:text-sm font-semibold text-[#212282]">
                               {dish?.name}
                             </span>
                           );
@@ -1150,21 +1150,21 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                     </div>
 
                     {/* Sauce */}
-                    <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-                      <div className="flex justify-between items-start mb-3">
+                    <div className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-gray-100">
+                      <div className="flex justify-between items-start mb-2 sm:mb-3">
                         <div className="flex items-center gap-2">
-                          <div className="size-8 rounded-full bg-green-50 flex items-center justify-center text-green-600">
-                            <Check className="w-4 h-4" />
+                          <div className="size-6 sm:size-8 rounded-full bg-green-50 flex items-center justify-center text-green-600">
+                            <Check className="w-3 h-3 sm:w-4 sm:h-4" />
                           </div>
-                          <h3 className="font-bold text-[#212282]">Sauce Selection</h3>
+                          <h3 className="text-sm sm:text-base font-bold text-[#212282]">Sauce Selection</h3>
                         </div>
                         <button onClick={() => setStep(2)} className="text-[#E6411C] text-xs font-bold hover:underline">Edit</button>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <img src={selectedSauce?.image} alt="" className="size-12 rounded-xl object-cover" />
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <img src={selectedSauce?.image} alt="" className="size-10 sm:size-12 rounded-lg sm:rounded-xl object-cover" />
                         <div>
-                          <p className="font-bold text-[#212282]">{selectedSauce?.name}</p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-sm sm:text-base font-bold text-[#212282]">{selectedSauce?.name}</p>
+                          <p className="text-[11px] sm:text-xs text-gray-500">
                             {saucePreparation !== 'Default' ? `${saucePreparation} • ` : ''}
                             {sauceSize?.name} ({formatPrice(sauceSize?.price || 0)})
                           </p>
@@ -1173,44 +1173,44 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                     </div>
 
                     {/* Side Dish */}
-                    <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-                      <div className="flex justify-between items-start mb-3">
+                    <div className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-gray-100">
+                      <div className="flex justify-between items-start mb-2 sm:mb-3">
                         <div className="flex items-center gap-2">
-                          <div className="size-8 rounded-full bg-green-50 flex items-center justify-center text-green-600">
-                            <Check className="w-4 h-4" />
+                          <div className="size-6 sm:size-8 rounded-full bg-green-50 flex items-center justify-center text-green-600">
+                            <Check className="w-3 h-3 sm:w-4 sm:h-4" />
                           </div>
-                          <h3 className="font-bold text-[#212282]">Free Side Dish</h3>
+                          <h3 className="text-sm sm:text-base font-bold text-[#212282]">Free Side Dish</h3>
                         </div>
                         <button onClick={() => setStep(3)} className="text-[#E6411C] text-xs font-bold hover:underline">Edit</button>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <img src={menuData.sideDishes.find(s => s.id === selectedSideDish)?.image} alt="" className="size-12 rounded-xl object-cover" />
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <img src={menuData.sideDishes.find(s => s.id === selectedSideDish)?.image} alt="" className="size-10 sm:size-12 rounded-lg sm:rounded-xl object-cover" />
                         <div>
-                          <p className="font-bold text-[#212282]">
+                          <p className="text-sm sm:text-base font-bold text-[#212282]">
                             {menuData.sideDishes.find(s => s.id === selectedSideDish)?.name}
                           </p>
-                          <p className="text-xs text-green-600 font-bold uppercase tracking-wider">Free & Included</p>
+                          <p className="text-[10px] sm:text-xs text-green-600 font-bold uppercase tracking-wider">Free & Included</p>
                         </div>
                       </div>
                     </div>
 
                     {/* Extras */}
                     {(selectedJuices.length > 0 || selectedDesserts.length > 0) && (
-                      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-                        <div className="flex justify-between items-start mb-3">
+                      <div className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-gray-100">
+                        <div className="flex justify-between items-start mb-2 sm:mb-3">
                           <div className="flex items-center gap-2">
-                            <div className="size-8 rounded-full bg-green-50 flex items-center justify-center text-green-600">
-                              <Check className="w-4 h-4" />
+                            <div className="size-6 sm:size-8 rounded-full bg-green-50 flex items-center justify-center text-green-600">
+                              <Check className="w-3 h-3 sm:w-4 sm:h-4" />
                             </div>
-                            <h3 className="font-bold text-[#212282]">Extra Add-ons</h3>
+                            <h3 className="text-sm sm:text-base font-bold text-[#212282]">Extra Add-ons</h3>
                           </div>
                           <button onClick={() => setStep(4)} className="text-[#E6411C] text-xs font-bold hover:underline">Edit</button>
                         </div>
-                        <div className="space-y-2">
+                        <div className="space-y-1.5 sm:space-y-2">
                           {selectedJuices.map(j => {
                             const juice = menuData.juices.find(jc => jc.id === j.id);
                             return (
-                              <div key={j.id} className="flex justify-between items-center text-sm">
+                              <div key={j.id} className="flex justify-between items-center text-xs sm:text-sm">
                                 <span className="font-medium text-gray-700">{j.quantity}x {juice?.name}</span>
                                 <span className="font-bold text-[#212282]">{formatPrice((juice?.price || 0) * j.quantity)}</span>
                               </div>
@@ -1219,7 +1219,7 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                           {selectedDesserts.map(d => {
                             const dessert = menuData.desserts.find(ds => ds.id === d.id);
                             return (
-                              <div key={d.id} className="flex justify-between items-center text-sm">
+                              <div key={d.id} className="flex justify-between items-center text-xs sm:text-sm">
                                 <span className="font-medium text-gray-700">{d.quantity}x {dessert?.name}</span>
                                 <span className="font-bold text-[#212282]">{formatPrice((dessert?.price || 0) * d.quantity)}</span>
                               </div>
@@ -1236,20 +1236,20 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
             {/* Sticky Footer */}
             <footer className="absolute bottom-0 left-0 right-0 z-30">
               {/* Safe area padding for mobile devices with bottom nav */}
-              <div className={`p-4 pb-8 sm:pb-6 md:pb-4 ${
+              <div className={`p-4 pb-8 sm:p-5 sm:pb-6 md:p-6 md:pb-5 ${
                 step >= 2 ? 'bg-[#212282]' : 'bg-white border-t border-gray-100'
               }`}>
-                <div className="flex flex-col gap-3 max-w-xl mx-auto">
+                <div className="flex flex-col gap-3 sm:gap-4 max-w-xl mx-auto">
                   {/* Order Summary */}
                   <div className="flex justify-between items-start gap-4">
                     <div className="flex-1 min-w-0">
-                      <p className={`text-xs font-medium uppercase tracking-wider mb-1 ${
+                      <p className={`text-[10px] sm:text-xs font-medium uppercase tracking-wider mb-0.5 sm:mb-1 ${
                         step >= 2 ? 'text-white/60' : 'text-gray-500'
                       }`}>
                         {step >= 4 ? 'Order Summary' : 'Your Combo'}
                       </p>
                       {step >= 4 ? (
-                        <div className={`flex flex-wrap items-center gap-1 text-sm font-bold ${
+                        <div className={`flex flex-wrap items-center gap-1 text-xs sm:text-sm font-bold ${
                           step >= 2 ? 'text-white' : 'text-[#212282]'
                         }`}>
                           <span>{comboQuantity > 1 ? `${comboQuantity}x` : '1'} Combo</span>
@@ -1271,12 +1271,12 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                       )}
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <p className={`text-xs font-medium uppercase tracking-wider mb-1 ${
+                      <p className={`text-[10px] sm:text-xs font-medium uppercase tracking-wider mb-0.5 sm:mb-1 ${
                         step >= 2 ? 'text-white/60' : 'text-gray-500'
                       }`}>
                         Total
                       </p>
-                      <p className={`text-xl font-extrabold tracking-tight ${
+                      <p className={`text-lg sm:text-xl md:text-2xl font-extrabold tracking-tight ${
                         step >= 2 ? 'text-white' : 'text-[#212282]'
                       }`}>
                         {formatPrice(totalPrice)}
@@ -1302,7 +1302,7 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                       }
                     }}
                     disabled={!canProceed}
-                    className={`w-full flex items-center justify-center gap-2 rounded-xl h-14 sm:h-12 text-white text-lg sm:text-base font-bold shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] ${
+                    className={`w-full flex items-center justify-center gap-2 rounded-xl h-12 sm:h-13 md:h-14 text-white text-base sm:text-lg font-bold shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] hover:shadow-lg ${
                       step === 5 ? 'bg-[#E6411C] hover:bg-[#d13a18]' : 'bg-[#E6411C] hover:bg-[#d13a18]'
                     }`}
                   >
@@ -1428,16 +1428,17 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                     </p>
                   )}
 
-                  <div className={`flex flex-col sm:flex-row gap-4 w-full ${comboQuantity > 1 ? '' : 'mt-8'}`}>
+                  <div className={`flex flex-row gap-2 sm:gap-3 w-full px-2 sm:px-4 ${comboQuantity > 1 ? '' : 'mt-6 sm:mt-8'}`}>
                     <button 
                       onClick={() => {
                         setShowSuccessOverlay(false);
                         resetBuilder();
                         onClose();
                       }}
-                      className="flex-1 h-16 rounded-2xl border-2 border-white/20 font-bold text-lg hover:bg-white/10 transition-colors flex items-center justify-center px-8 whitespace-nowrap"
+                      className="flex-1 h-11 sm:h-14 rounded-xl border-2 border-white/20 font-bold text-xs sm:text-base hover:bg-white/10 transition-colors flex items-center justify-center px-2 sm:px-6"
                     >
-                      Order More Items
+                      <span className="sm:hidden">Add More</span>
+                      <span className="hidden sm:inline">Order More Items</span>
                     </button>
                     <Link 
                       to="/cart"
@@ -1446,9 +1447,10 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                         resetBuilder();
                         onClose();
                       }}
-                      className="flex-1 h-16 rounded-2xl bg-[#E6411C] flex items-center justify-center font-bold text-lg hover:bg-[#d13a18] transition-colors shadow-lg px-8 whitespace-nowrap"
+                      className="flex-1 h-11 sm:h-14 rounded-xl bg-[#E6411C] flex items-center justify-center font-bold text-xs sm:text-base hover:bg-[#d13a18] transition-colors shadow-lg px-2 sm:px-6"
                     >
-                      Proceed to Checkout
+                      <span className="sm:hidden">Checkout</span>
+                      <span className="hidden sm:inline">Proceed to Checkout</span>
                     </Link>
                   </div>
                 </div>
