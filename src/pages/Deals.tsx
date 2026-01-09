@@ -1,456 +1,696 @@
-import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Tag, Truck, Calendar, Copy, ArrowRight, Check, 
-  Clock, GraduationCap, Users, Smartphone, Ticket, 
-  Coins, MapPin, Star, Gift, Crown, Utensils,
-  Fish, Flame, ChefHat
+  Tag, 
+  Copy, 
+  Check, 
+  Clock, 
+  Sparkles, 
+  Gift, 
+  Percent, 
+  ChevronRight,
+  Timer,
+  ShoppingBag,
+  Star,
+  Zap,
+  TrendingUp,
+  ArrowRight,
+  Flame,
+  Users,
+  Truck,
+  BadgePercent,
+  X
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { useCart } from "@/context/CartContext";
+import MobilePageHeader from "@/components/layout/MobilePageHeader";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SEO from "@/components/SEO";
-import { pageMetadata } from "@/data/seo";
-import { toast } from "sonner";
+import { promoCodes } from "@/data/menu";
+import { haptics } from "@/lib/utils/ui";
 
-export default function Deals() {
-  const activeDeals = [
-    {
-      id: "first-10",
-      code: "FIRST10",
-      title: "10% Off Your First Order",
-      description: "New to 9Yards? Enjoy a warm welcome with 10% off your entire first purchase.",
-      icon: Tag,
-      color: "bg-blue-100 text-blue-700",
-      btnColor: "bg-blue-600 hover:bg-blue-700",
-      terms: "Valid for new accounts only. No minimum spend.",
-      badge: "ACTIVE",
-      type: "code"
+// Deal types
+interface Deal {
+  id: string;
+  code: string;
+  title: string;
+  description: string;
+  discount: number;
+  type: "percentage" | "fixed";
+  minOrder?: number;
+  icon: React.ElementType;
+  color: "orange" | "blue" | "green" | "purple" | "pink";
+  badge?: string;
+  expiresAt?: Date;
+  usageLimit?: string;
+}
+
+interface ComboDeal {
+  id: string;
+  name: string;
+  description: string;
+  originalPrice: number;
+  dealPrice: number;
+  items: string[];
+  image: string;
+  badge?: string;
+}
+
+// Transform promoCodes from menu.ts into Deal objects
+const transformPromoDeals = (): Deal[] => {
+  const dealConfigs: Record<string, { title: string; description: string; icon: React.ElementType; color: Deal["color"]; badge?: string; expiresAt?: Date; usageLimit?: string }> = {
+    "FIRST10": {
+      title: "First Order Discount",
+      description: "Welcome to 9Yards! Enjoy 10% off your first order with us.",
+      icon: Gift,
+      color: "orange",
+      badge: "New Customer",
+      usageLimit: "One-time use"
     },
-    {
-      id: "weekend-15",
-      code: "WEEKEND15",
-      title: "Weekend Special",
-      description: "Make your weekends tastier! Get 15% off all combos every Saturday and Sunday.",
-      icon: Calendar,
-      color: "bg-orange-100 text-orange-700",
-      btnColor: "bg-orange-600 hover:bg-orange-700",
-      terms: "Valid Sat-Sun. Applies to Main+Sauce combos.",
-      badge: "ACTIVE",
-      type: "code"
+    "SAVE5K": {
+      title: "Save 5,000 UGX",
+      description: "Get 5,000 UGX off when you order above 30,000 UGX.",
+      icon: BadgePercent,
+      color: "blue",
+      badge: "Popular"
     },
-    {
-      id: "free-delivery",
+    "FREESHIP": {
       title: "Free Delivery",
-      description: "Order for UGX 50,000 or more and we'll bring it to your doorstep for free.",
+      description: "Enjoy free delivery on your order. No delivery fees!",
       icon: Truck,
-      color: "bg-green-100 text-green-700",
-      btnColor: "bg-green-600 hover:bg-green-700",
-      terms: "Automatic at checkout. Within standard delivery zones.",
-      badge: "ACTIVE",
-      type: "automatic"
+      color: "green",
+      badge: "Free Shipping"
     },
-    {
-      id: "lunch-20",
-      code: "LUNCH20",
-      title: "Lunch Hour Deal",
-      description: "Get 20% off orders placed between 12pm-2pm, Monday to Friday.",
-      icon: Clock,
-      color: "bg-yellow-100 text-yellow-700",
-      btnColor: "bg-yellow-600 hover:bg-yellow-700 text-white",
-      terms: "Mon-Fri, 12pm-2pm only.",
-      badge: "NEW",
-      type: "code"
-    },
-    {
-      id: "student-15",
-      code: "STUDENT15",
-      title: "Student Special",
-      description: "15% off your meal with a valid student ID. Fuel your studies!",
-      icon: GraduationCap,
-      color: "bg-purple-100 text-purple-700",
-      btnColor: "bg-purple-600 hover:bg-purple-700",
-      terms: "Must verify student status on delivery.",
-      badge: "ACTIVE",
-      type: "code"
-    },
-    {
-      id: "refer-friend",
-      title: "Refer a Friend",
-      description: "Share the love! Both you and your friend get UGX 5,000 off your next order.",
-      icon: Users,
-      color: "bg-pink-100 text-pink-700",
-      btnColor: "bg-pink-600 hover:bg-pink-700",
-      terms: "Reward applied after friend's first order.",
-      badge: "REWARDS",
-      type: "action"
-    },
-  ];
+    "TEST28": {
+      title: "Special 28% Off",
+      description: "Limited time offer - 28% off your entire order!",
+      icon: Zap,
+      color: "purple",
+      badge: "Limited Time",
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
+    }
+  };
 
-  const combos = [
+  return Object.entries(promoCodes).map(([code, data]) => {
+    const config = dealConfigs[code] || {
+      title: `${code} Discount`,
+      description: `Apply code ${code} for your discount.`,
+      icon: Tag,
+      color: "blue" as Deal["color"]
+    };
+
+    return {
+      id: code.toLowerCase(),
+      code,
+      title: config.title,
+      description: config.description,
+      discount: data.discount,
+      type: data.type,
+      minOrder: data.minOrder,
+      icon: config.icon,
+      color: config.color,
+      badge: 'badge' in config ? config.badge : undefined,
+      expiresAt: 'expiresAt' in config ? config.expiresAt : undefined,
+      usageLimit: 'usageLimit' in config ? config.usageLimit : undefined
+    };
+  });
+};
+
+// Combo deals
+const comboDeals: ComboDeal[] = [
+  {
+    id: "family-feast",
+    name: "Family Feast",
+    description: "Perfect for the whole family - feeds 4-5 people",
+    originalPrice: 85000,
+    dealPrice: 69000,
+    items: ["2 Whole Chicken Pilao Lusaniya", "2 Beef Stew", "4 Mixed Juices", "4 Mandazi"],
+    image: "/images/menu/lusaniya/whole-chicken-pilao-lusaniya.png",
+    badge: "Best Value"
+  },
+  {
+    id: "solo-special",
+    name: "Solo Special",
+    description: "Perfect lunch for one person",
+    originalPrice: 25000,
+    dealPrice: 19000,
+    items: ["1 Ordinary Lusaniya", "1 Juice", "1 Mandazi"],
+    image: "/images/menu/lusaniya/ordinary-lusaniya.png",
+    badge: "Lunch Deal"
+  },
+  {
+    id: "weekend-warrior",
+    name: "Weekend Warrior",
+    description: "Treat yourself to something special",
+    originalPrice: 48000,
+    dealPrice: 39000,
+    items: ["1 Whole Chicken Pilao", "2 Fish", "2 Cocktail Juices"],
+    image: "/images/menu/lusaniya/whole-chicken-pilao-lusaniya.png"
+  }
+];
+
+// Color configurations
+const colorConfig = {
+  orange: {
+    bg: "bg-gradient-to-br from-orange-50 to-orange-100",
+    border: "border-orange-200",
+    icon: "bg-orange-100 text-orange-600",
+    badge: "bg-orange-100 text-orange-700",
+    button: "bg-orange-500 hover:bg-orange-600 text-white"
+  },
+  blue: {
+    bg: "bg-gradient-to-br from-blue-50 to-blue-100",
+    border: "border-blue-200",
+    icon: "bg-blue-100 text-blue-600",
+    badge: "bg-blue-100 text-blue-700",
+    button: "bg-blue-500 hover:bg-blue-600 text-white"
+  },
+  green: {
+    bg: "bg-gradient-to-br from-green-50 to-green-100",
+    border: "border-green-200",
+    icon: "bg-green-100 text-green-600",
+    badge: "bg-green-100 text-green-700",
+    button: "bg-green-500 hover:bg-green-600 text-white"
+  },
+  purple: {
+    bg: "bg-gradient-to-br from-purple-50 to-purple-100",
+    border: "border-purple-200",
+    icon: "bg-purple-100 text-purple-600",
+    badge: "bg-purple-100 text-purple-700",
+    button: "bg-purple-500 hover:bg-purple-600 text-white"
+  },
+  pink: {
+    bg: "bg-gradient-to-br from-pink-50 to-pink-100",
+    border: "border-pink-200",
+    icon: "bg-pink-100 text-pink-600",
+    badge: "bg-pink-100 text-pink-700",
+    button: "bg-pink-500 hover:bg-pink-600 text-white"
+  }
+};
+
+// Countdown timer hook
+const useCountdown = (targetDate: Date | undefined) => {
+  const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
+
+  useEffect(() => {
+    if (!targetDate) return;
+
+    const calculateTimeLeft = () => {
+      const difference = targetDate.getTime() - Date.now();
+      if (difference <= 0) {
+        setTimeLeft(null);
+        return;
+      }
+      setTimeLeft({
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60)
+      });
+    };
+
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 1000);
+    return () => clearInterval(timer);
+  }, [targetDate]);
+
+  return timeLeft;
+};
+
+// Deal Card Component
+const DealCard = ({ deal, onCopy }: { deal: Deal; onCopy: (code: string) => void }) => {
+  const [copied, setCopied] = useState(false);
+  const countdown = useCountdown(deal.expiresAt);
+  const colors = colorConfig[deal.color];
+  const Icon = deal.icon;
+
+  const handleCopy = () => {
+    haptics.success();
+    onCopy(deal.code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const formatDiscount = () => {
+    if (deal.type === "percentage") return `${deal.discount}% OFF`;
+    if (deal.discount === 0) return "FREE";
+    return `${deal.discount.toLocaleString()} UGX OFF`;
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      className={`relative overflow-hidden rounded-2xl border-2 ${colors.bg} ${colors.border} p-4 sm:p-5`}
+    >
+      {/* Badge */}
+      {deal.badge && (
+        <div className={`absolute top-3 right-3 px-2 py-0.5 rounded-full text-xs font-medium ${colors.badge}`}>
+          {deal.badge}
+        </div>
+      )}
+
+      <div className="flex items-start gap-3 sm:gap-4">
+        {/* Icon */}
+        <div className={`flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-xl ${colors.icon} flex items-center justify-center`}>
+          <Icon className="w-6 h-6 sm:w-7 sm:h-7" />
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <h3 className="font-bold text-gray-900 text-base sm:text-lg leading-tight">{deal.title}</h3>
+          <p className="text-sm text-gray-600 mt-0.5 line-clamp-2">{deal.description}</p>
+          
+          {/* Min order if applicable */}
+          {deal.minOrder && deal.minOrder > 0 && (
+            <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+              <ShoppingBag className="w-3 h-3" />
+              Min order: {deal.minOrder.toLocaleString()} UGX
+            </p>
+          )}
+
+          {/* Usage limit */}
+          {deal.usageLimit && (
+            <p className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
+              <Users className="w-3 h-3" />
+              {deal.usageLimit}
+            </p>
+          )}
+
+          {/* Countdown Timer */}
+          {countdown && (
+            <div className="flex items-center gap-1.5 mt-2">
+              <Timer className="w-3.5 h-3.5 text-red-500" />
+              <span className="text-xs font-medium text-red-500">
+                Ends in: {countdown.days}d {countdown.hours}h {countdown.minutes}m
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom section */}
+      <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-200/50">
+        {/* Discount badge */}
+        <div className="flex items-center gap-2">
+          <span className="text-2xl sm:text-3xl font-black text-gray-900">{formatDiscount()}</span>
+        </div>
+
+        {/* Copy button */}
+        <button
+          onClick={handleCopy}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-semibold text-sm transition-all ${
+            copied 
+              ? "bg-green-100 text-green-700" 
+              : `${colors.button}`
+          }`}
+        >
+          {copied ? (
+            <>
+              <Check className="w-4 h-4" />
+              Copied!
+            </>
+          ) : (
+            <>
+              <Copy className="w-4 h-4" />
+              {deal.code}
+            </>
+          )}
+        </button>
+      </div>
+    </motion.div>
+  );
+};
+
+// Combo Deal Card
+const ComboDealCard = ({ combo, onOrder }: { combo: ComboDeal; onOrder: () => void }) => {
+  const savings = combo.originalPrice - combo.dealPrice;
+  const savingsPercent = Math.round((savings / combo.originalPrice) * 100);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -4 }}
+      className="relative bg-white rounded-2xl border border-gray-200 overflow-hidden group"
+    >
+      {/* Badge */}
+      {combo.badge && (
+        <div className="absolute top-3 left-3 z-10 px-2.5 py-1 bg-[#E6411C] text-white text-xs font-bold rounded-full flex items-center gap-1">
+          <Flame className="w-3 h-3" />
+          {combo.badge}
+        </div>
+      )}
+
+      {/* Savings badge */}
+      <div className="absolute top-3 right-3 z-10 px-2.5 py-1 bg-green-500 text-white text-xs font-bold rounded-full">
+        Save {savingsPercent}%
+      </div>
+
+      {/* Image */}
+      <div className="relative h-36 sm:h-44 bg-gradient-to-br from-orange-50 to-amber-50 overflow-hidden">
+        <img
+          src={combo.image}
+          alt={combo.name}
+          className="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-500"
+        />
+      </div>
+
+      {/* Content */}
+      <div className="p-4">
+        <h3 className="font-bold text-lg text-gray-900">{combo.name}</h3>
+        <p className="text-sm text-gray-500 mt-0.5">{combo.description}</p>
+
+        {/* Items list */}
+        <div className="mt-3 space-y-1">
+          {combo.items.map((item, i) => (
+            <div key={i} className="flex items-center gap-1.5 text-xs text-gray-600">
+              <Check className="w-3.5 h-3.5 text-green-500" />
+              <span>{item}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Price */}
+        <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
+          <div>
+            <span className="text-xs text-gray-400 line-through">
+              {combo.originalPrice.toLocaleString()} UGX
+            </span>
+            <div className="flex items-baseline gap-1">
+              <span className="text-xl font-black text-[#E6411C]">
+                {combo.dealPrice.toLocaleString()}
+              </span>
+              <span className="text-sm text-gray-500">UGX</span>
+            </div>
+          </div>
+          <Button
+            onClick={() => {
+              haptics.success();
+              onOrder();
+            }}
+            className="bg-[#212282] hover:bg-[#1a1b68] text-white"
+          >
+            <ShoppingBag className="w-4 h-4 mr-1" />
+            Order
+          </Button>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+// Featured Deal Hero
+const FeaturedDealHero = ({ deal, onCopy }: { deal: Deal; onCopy: (code: string) => void }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    haptics.success();
+    onCopy(deal.code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#E6411C] via-[#ff5c35] to-[#ff7a54] p-6 sm:p-8 text-white"
+    >
+      {/* Decorative elements */}
+      <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2" />
+      <div className="absolute top-1/2 right-10 w-20 h-20 bg-white/5 rounded-full" />
+
+      <div className="relative z-10">
+        <div className="flex items-center gap-2 mb-3">
+          <Sparkles className="w-5 h-5" />
+          <span className="text-sm font-semibold uppercase tracking-wider opacity-90">
+            Deal of the Week
+          </span>
+        </div>
+
+        <h2 className="text-2xl sm:text-3xl font-black mb-2">{deal.title}</h2>
+        <p className="text-white/80 text-sm sm:text-base max-w-md">{deal.description}</p>
+
+        <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:items-center">
+          <button
+            onClick={handleCopy}
+            className={`inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold text-base transition-all ${
+              copied
+                ? "bg-green-500 text-white"
+                : "bg-white text-[#E6411C] hover:bg-white/90"
+            }`}
+          >
+            {copied ? (
+              <>
+                <Check className="w-5 h-5" />
+                Copied to Clipboard!
+              </>
+            ) : (
+              <>
+                <Tag className="w-5 h-5" />
+                Use Code: {deal.code}
+                <Copy className="w-4 h-4 ml-1 opacity-60" />
+              </>
+            )}
+          </button>
+
+          {deal.minOrder && deal.minOrder > 0 && (
+            <span className="text-sm text-white/70">
+              Min. order: {deal.minOrder.toLocaleString()} UGX
+            </span>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+// How It Works Section
+const HowItWorks = () => {
+  const steps = [
     {
-      id: "family-feast",
-      title: "Family Feast",
-      items: "Matooke + Rice + Chicken (Half) + 2 Juices + Side",
-      price: "45,000 UGX",
-      originalPrice: "55,000 UGX",
-      save: "Save 10K!",
-      icon: ChefHat,
-      color: "bg-orange-50 text-orange-600"
+      step: 1,
+      title: "Copy Code",
+      description: "Tap any promo code to copy it",
+      icon: Copy
     },
     {
-      id: "solo-special",
-      title: "Solo Special",
-      items: "Your choice + Fish + Juice + Side",
-      price: "35,000 UGX",
-      originalPrice: null,
-      save: "Best Value",
-      icon:  Utensils,
-      color: "bg-blue-50 text-blue-600"
+      step: 2,
+      title: "Add Items",
+      description: "Browse menu and add to cart",
+      icon: ShoppingBag
     },
     {
-      id: "weekend-warrior",
-      title: "Weekend Warrior",
-      items: "Double portion + 2 sides + Dessert",
-      price: "45,000 UGX",
-      originalPrice: "53,000 UGX",
-      save: "Save 8K!",
-      icon: Flame,
-      color: "bg-red-50 text-red-600"
+      step: 3,
+      title: "Apply & Save",
+      description: "Paste code at checkout",
+      icon: Percent
     }
   ];
 
-  const copyToClipboard = (code: string) => {
+  return (
+    <div className="bg-gray-50 rounded-2xl p-5 sm:p-6">
+      <h3 className="font-bold text-gray-900 text-lg mb-4 flex items-center gap-2">
+        <Star className="w-5 h-5 text-[#E6411C]" />
+        How to Use Promo Codes
+      </h3>
+      <div className="grid grid-cols-3 gap-3 sm:gap-4">
+        {steps.map((step) => (
+          <div key={step.step} className="text-center">
+            <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-white border-2 border-[#212282] flex items-center justify-center">
+              <step.icon className="w-5 h-5 text-[#212282]" />
+            </div>
+            <h4 className="font-semibold text-sm text-gray-900">{step.title}</h4>
+            <p className="text-xs text-gray-500 mt-0.5">{step.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Empty State
+const EmptyState = () => (
+  <div className="text-center py-16">
+    <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+      <Tag className="w-10 h-10 text-gray-400" />
+    </div>
+    <h3 className="text-xl font-bold text-gray-900">No Active Deals</h3>
+    <p className="text-gray-500 mt-2 max-w-sm mx-auto">
+      Check back soon! We're always cooking up new deals for you.
+    </p>
+  </div>
+);
+
+// Main Deals Page Component
+const Deals = () => {
+  const navigate = useNavigate();
+  const deals = useMemo(() => transformPromoDeals(), []);
+  const featuredDeal = deals.find(d => d.badge === "Popular" || d.badge === "Limited Time") || deals[0];
+
+  const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code);
-    toast.success("Coupon code copied!", {
-      description: `${code} has been copied to your clipboard.`,
-      icon: <Check className="w-4 h-4 text-green-600" />,
+    toast.success(`Copied "${code}" to clipboard!`, {
+      description: "Apply at checkout to save",
+      duration: 2000
     });
   };
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+  const handleOrderCombo = (combo: ComboDeal) => {
+    toast.success(`${combo.name} added!`, {
+      description: "View in your cart",
+      action: {
+        label: "View Cart",
+        onClick: () => navigate("/cart")
+      }
+    });
+    // In a real app, you'd add the combo to the cart here
+    navigate("/menu");
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <>
       <SEO
-        title={pageMetadata.deals.title}
-        description={pageMetadata.deals.description}
-        keywords={pageMetadata.deals.keywords}
-        image={pageMetadata.deals.ogImage}
-        url={pageMetadata.deals.canonicalUrl}
-        jsonLd={pageMetadata.deals.schema}
+        title="Deals & Promo Codes"
+        description="Save big on authentic Ugandan food! Get exclusive promo codes and combo deals from 9Yards Food."
+        keywords="9Yards promo codes, food deals, Uganda food discounts, combo meals, save money"
       />
+
+      {/* Desktop Header */}
       <Header />
 
-      <main className="flex-grow pt-16 md:pt-20">
-        {/* HERO SECTION */}
-        <section className="bg-primary text-primary-foreground py-12 md:py-20 relative overflow-hidden">
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full translate-x-1/2 -translate-y-1/2" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-white rounded-full -translate-x-1/2 translate-y-1/2" />
-          </div>
+      {/* Mobile Header */}
+      <MobilePageHeader 
+        title="Deals & Offers" 
+        subtitle="Exclusive savings for you"
+      />
 
-          <div className="container-custom px-4 relative z-10 text-center max-w-3xl mx-auto">
-            <span className="inline-block py-1 px-3 rounded-full bg-white/10 text-white/90 text-sm font-medium mb-4 backdrop-blur-sm border border-white/10">
-              Limited Time Offers
-            </span>
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-              Exclusive Deals & <br className="hidden md:block" />
-              <span className="text-secondary">Special Promotions</span>
-            </h1>
-            <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto leading-relaxed">
-              Serving you more for less. Grab the latest promo codes and enjoy authentic Ugandan cuisine at unbeatable prices.
-            </p>
+      <main className="min-h-screen bg-white">
+        {/* Hero Section */}
+        <section className="relative pt-4 lg:pt-24 pb-8 bg-gradient-to-b from-orange-50/50 to-white overflow-hidden">
+          <div className="hidden lg:block absolute top-20 left-10 w-72 h-72 bg-orange-200/30 rounded-full blur-3xl" />
+          <div className="hidden lg:block absolute bottom-0 right-10 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl" />
+          
+          <div className="relative z-10 container mx-auto px-4 sm:px-6">
+            {/* Page title - desktop only */}
+            <div className="hidden lg:block text-center mb-8">
+              <Badge className="mb-4 bg-[#E6411C]/10 text-[#E6411C] border-none">
+                <Sparkles className="w-3 h-3 mr-1" />
+                Exclusive Offers
+              </Badge>
+              <h1 className="text-4xl font-black text-gray-900">
+                Deals & <span className="text-[#E6411C]">Promo Codes</span>
+              </h1>
+              <p className="text-gray-600 mt-2 max-w-lg mx-auto">
+                Save big on your favorite Ugandan dishes with our exclusive deals and promo codes.
+              </p>
+            </div>
+
+            {/* Featured Deal */}
+            {featuredDeal && (
+              <FeaturedDealHero deal={featuredDeal} onCopy={handleCopyCode} />
+            )}
+
+            {/* How it works */}
+            <div className="mt-6">
+              <HowItWorks />
+            </div>
           </div>
         </section>
 
-        {/* SECTION 1: ACTIVE PROMO CODES */}
-        <section className="py-12 md:py-16 px-4">
-          <div className="container-custom">
-            <h2 className="text-2xl md:text-3xl font-bold mb-8 flex items-center gap-2">
-              <Tag className="text-secondary" />
-              Active Promo Codes
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {activeDeals.map((deal) => (
-                <div 
-                  key={deal.id}
-                  className="bg-white rounded-2xl p-6 border border-border hover:border-secondary/50 transition-all duration-300 flex flex-col h-full group relative overflow-hidden"
-                >
-                  {/* Badge */}
-                  <div className="absolute top-4 right-4">
-                     <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${
-                       deal.badge === 'NEW' ? 'bg-green-100 text-green-700 border-green-200' : 
-                       deal.badge === 'ACTIVE' ? 'bg-blue-50 text-blue-600 border-blue-100' :
-                       'bg-purple-50 text-purple-600 border-purple-100'
-                     }`}>
-                       {deal.badge}
-                     </span>
-                  </div>
+        {/* Promo Codes Section */}
+        <section className="py-8 bg-white">
+          <div className="container mx-auto px-4 sm:px-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <BadgePercent className="w-5 h-5 text-[#E6411C]" />
+                <h2 className="text-xl font-bold text-gray-900">Active Promo Codes</h2>
+              </div>
+              <span className="text-sm text-gray-500">{deals.length} available</span>
+            </div>
 
-                  <div className="flex items-start justify-between mb-4 mt-1">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${deal.color}`}>
-                      <deal.icon className="w-6 h-6" />
-                    </div>
-                  </div>
-                  
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-primary transition-colors pr-8">
-                    {deal.title}
-                  </h3>
-                  <p className="text-gray-600 mb-6 flex-grow leading-relaxed text-sm">
-                    {deal.description}
-                  </p>
+            {deals.length > 0 ? (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {deals.map((deal) => (
+                  <DealCard key={deal.id} deal={deal} onCopy={handleCopyCode} />
+                ))}
+              </div>
+            ) : (
+              <EmptyState />
+            )}
+          </div>
+        </section>
 
-                  <div className="space-y-4 pt-4 border-t border-gray-100 mt-auto">
-                    {deal.type === "code" ? (
-                      <button
-                        onClick={() => copyToClipboard(deal.code!)}
-                        className="w-full relative overflow-hidden group/btn bg-gray-50 hover:bg-gray-100 border border-gray-200 border-dashed rounded-xl p-3 flex items-center justify-between transition-all"
-                      >
-                        <span className="font-mono font-bold text-lg text-gray-800 ml-2">
-                          {deal.code}
-                        </span>
-                        <span className="flex items-center gap-1.5 text-xs font-bold uppercase text-primary pr-2">
-                          <Copy className="w-3.5 h-3.5" />
-                          Copy Code
-                        </span>
-                      </button>
-                    ) : deal.type === "action" ? (
-                       <button
-                        onClick={() => {
-                           const text = "Hey! Check out 9Yards Food. Use my referral link to get 5k off!";
-                           if (navigator.share) {
-                             navigator.share({ title: '9Yards Food Referal', text, url: window.location.origin });
-                           } else {
-                             copyToClipboard(window.location.origin);
-                           }
-                        }}
-                        className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-white font-semibold transition-colors ${deal.btnColor}`}
-                      >
-                        Share Link
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
-                    ) : (
-                      <Link
-                        to="/delivery-zones"
-                        className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-white font-semibold transition-colors ${deal.btnColor}`}
-                      >
-                        Check Zones
-                        <ArrowRight className="w-4 h-4" />
-                      </Link>
-                    )}
-                    
-                    <p className="text-[11px] text-gray-400 text-center italic">
-                      {deal.terms}
-                    </p>
-                  </div>
-                </div>
+        {/* Combo Deals Section */}
+        <section className="py-8 bg-gray-50">
+          <div className="container mx-auto px-4 sm:px-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-[#212282]" />
+                <h2 className="text-xl font-bold text-gray-900">Combo Deals</h2>
+              </div>
+              <Button 
+                variant="ghost" 
+                className="text-[#212282] hover:text-[#212282]/80"
+                onClick={() => navigate("/menu")}
+              >
+                View Menu
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {comboDeals.map((combo) => (
+                <ComboDealCard 
+                  key={combo.id} 
+                  combo={combo} 
+                  onOrder={() => handleOrderCombo(combo)} 
+                />
               ))}
             </div>
           </div>
         </section>
 
-        {/* SECTION 2: HOW PROMO CODES WORK */}
-        <section className="py-12 bg-white border-y border-border">
-          <div className="container-custom px-4">
-            <div className="text-center mb-10">
-               <h2 className="text-2xl md:text-3xl font-bold mb-3">How to Use Your Promo Code</h2>
-               <p className="text-muted-foreground">Saving money on your favorite meals is easy</p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-               <div className="text-center p-6 rounded-2xl bg-gray-50">
-                  <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                     <Smartphone className="w-8 h-8" />
-                  </div>
-                  <h3 className="font-bold text-lg mb-2">1. Choose Your Food</h3>
-                  <p className="text-sm text-gray-600">Browse our menu, build your perfect combo, and add items to your cart.</p>
-               </div>
-               <div className="text-center p-6 rounded-2xl bg-gray-50">
-                  <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                     <Ticket className="w-8 h-8" />
-                  </div>
-                  <h3 className="font-bold text-lg mb-2">2. Enter Code at Checkout</h3>
-                  <p className="text-sm text-gray-600">Paste your copied promo code in the "Discount Code" box before paying.</p>
-               </div>
-               <div className="text-center p-6 rounded-2xl bg-gray-50">
-                  <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                     <Coins className="w-8 h-8" />
-                  </div>
-                  <h3 className="font-bold text-lg mb-2">3. Enjoy Your Savings</h3>
-                  <p className="text-sm text-gray-600">The discount is applied instantly to your total. Bon appétit!</p>
-               </div>
-            </div>
+        {/* CTA Section */}
+        <section className="py-12 bg-gradient-to-br from-[#212282] to-[#1a1b68] text-white">
+          <div className="container mx-auto px-4 sm:px-6 text-center">
+            <Gift className="w-12 h-12 mx-auto mb-4 opacity-80" />
+            <h2 className="text-2xl sm:text-3xl font-black mb-3">
+              Hungry for More Savings?
+            </h2>
+            <p className="text-white/70 max-w-md mx-auto mb-6">
+              Follow us on WhatsApp to get notified about exclusive flash deals and new promotions!
+            </p>
+            <Button
+              onClick={() => {
+                haptics.success();
+                window.open("https://wa.me/256785aborey", "_blank");
+              }}
+              className="bg-[#25D366] hover:bg-[#22c55e] text-white font-semibold px-6 py-3"
+              size="lg"
+            >
+              <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" className="w-5 h-5 mr-2" />
+              Join WhatsApp Updates
+            </Button>
           </div>
         </section>
 
-        {/* SECTION 3: FREE DELIVERY */}
-        <section className="py-12 md:py-16 px-4">
-          <div className="container-custom">
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-3xl p-6 md:p-10 border border-green-100 flex flex-col md:flex-row items-center gap-8 md:gap-12">
-               <div className="flex-1">
-                  <div className="inline-flex items-center gap-2 bg-green-200/50 text-green-800 px-3 py-1 rounded-full text-xs font-bold mb-4">
-                     <Truck className="w-3.5 h-3.5" />
-                     FREE SHIPPING
-                  </div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">Free Delivery Made Simple</h2>
-                  <p className="text-gray-700 mb-6 text-lg">
-                     Don't worry about shipping costs. Spend <span className="font-bold text-green-700">UGX 50,000</span> or more and we'll deliver to your doorstep for free within our standard zones.
-                  </p>
-                  
-                  {/* Visual Progress Bar Mockup */}
-                  <div className="bg-white p-4 rounded-xl border border-green-100 max-w-md mb-6">
-                     <div className="flex justify-between text-xs font-bold text-gray-500 mb-2">
-                        <span>UGX 0</span>
-                        <span>UGX 50,000 GOAL</span>
-                     </div>
-                     <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
-                        <div className="h-full w-[65%] bg-green-500 rounded-full" />
-                     </div>
-                     <p className="text-xs text-center mt-2 font-medium text-green-700">
-                        Spend 50k+ to unlock free delivery!
-                     </p>
-                  </div>
-
-                  <Link to="/delivery-zones" className="font-bold text-green-700 hover:text-green-800 hover:underline flex items-center gap-1">
-                     Check Delivery Zones <ArrowRight className="w-4 h-4" />
-                  </Link>
-               </div>
-               
-               <div className="w-full md:w-1/3 flex justify-center">
-                  <div className="relative">
-                     <div className="absolute inset-0 bg-green-200/50 blur-3xl rounded-full" />
-                     <MapPin className="w-32 h-32 text-green-600 relative z-10" />
-                  </div>
-               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION 4: COMBO DEALS SHOWCASE */}
-        <section className="py-12 md:py-16 px-4 bg-gray-50">
-          <div className="container-custom">
-             <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">Popular Combo Deals</h2>
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {combos.map((combo) => (
-                   <div key={combo.id} className="bg-white rounded-2xl overflow-hidden border border-border hover:border-secondary/50 transition-all flex flex-col">
-                      <div className={`p-6 flex items-center justify-between ${combo.color}`}>
-                         <div>
-                            <h3 className="font-bold text-lg">{combo.title}</h3>
-                            <span className="text-xs font-bold bg-white/50 px-2 py-1 rounded-full">{combo.save}</span>
-                         </div>
-                         <combo.icon className="w-8 h-8 opacity-80" />
-                      </div>
-                      <div className="p-6 flex-grow flex flex-col">
-                         <p className="text-sm text-gray-600 mb-4 flex-grow font-medium leading-relaxed">
-                            {combo.items}
-                         </p>
-                         <div className="mt-auto">
-                            <div className="flex items-center gap-3 mb-4">
-                               <span className="text-xl font-bold text-primary">{combo.price}</span>
-                               {combo.originalPrice && (
-                                  <span className="text-sm text-muted-foreground line-through decoration-red-500">{combo.originalPrice}</span>
-                               )}
-                            </div>
-                            <Link 
-                               to={`/menu?combo=true&highlight=${combo.id}`} // Assuming functionality exists or just to menu
-                               className="w-full btn-outline py-2.5 rounded-xl block text-center"
-                            >
-                               Build This Combo
-                            </Link>
-                         </div>
-                      </div>
-                   </div>
-                ))}
-             </div>
-          </div>
-        </section>
-
-        {/* SECTION 5: LOYALTY REWARDS PREVIEW */}
-        <section className="py-12 px-4">
-           <div className="container-custom">
-              <div className="bg-primary rounded-3xl p-8 md:p-12 text-center relative overflow-hidden text-white">
-                 {/* Decorative background */}
-                 <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/20 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
-                 
-                 <div className="relative z-10 max-w-2xl mx-auto">
-                    <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold mb-4 border border-white/20">
-                       <Crown className="w-3.5 h-3.5 text-yellow-400" />
-                       COMING SOON
-                    </div>
-                    <h2 className="text-3xl md:text-4xl font-bold mb-4">Loyalty Program</h2>
-                    <p className="text-lg text-primary-foreground/80 mb-8">
-                       Earn points with every order, unlock exclusive VIP rewards, and enjoy member-only tastings.
-                    </p>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 max-w-lg mx-auto">
-                       <div className="flex flex-col items-center">
-                          <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-2">
-                             <Coins className="w-5 h-5 text-yellow-400" />
-                          </div>
-                          <span className="text-sm font-bold">Earn Points</span>
-                       </div>
-                       <div className="flex flex-col items-center">
-                          <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-2">
-                             <Gift className="w-5 h-5 text-pink-400" />
-                          </div>
-                          <span className="text-sm font-bold">Get Rewards</span>
-                       </div>
-                       <div className="flex flex-col items-center">
-                          <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-2">
-                             <Star className="w-5 h-5 text-purple-400" />
-                          </div>
-                          <span className="text-sm font-bold">VIP Status</span>
-                       </div>
-                    </div>
-
-                    <div className="bg-white/10 backdrop-blur-sm p-1 rounded-full max-w-sm mx-auto flex items-center">
-                       <input 
-                          type="email" 
-                          placeholder="Your email address" 
-                          className="bg-transparent border-none focus:ring-0 text-white placeholder:text-white/50 text-sm flex-grow px-4"
-                       />
-                       <button className="bg-secondary hover:bg-secondary/90 text-white rounded-full px-5 py-2 text-sm font-bold transition-transform active:scale-95">
-                          Join Waitlist
-                       </button>
-                    </div>
-                 </div>
-              </div>
-           </div>
-        </section>
-
-        {/* SECTION 8: NEWSLETTER (Keep existing style) */}
-        <section className="pb-12 md:pb-20 px-4">
-          <div className="container-custom">
-            <div className="bg-gray-900 rounded-3xl p-8 md:p-12 text-center text-white relative overflow-hidden border border-gray-800">
-               <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-950" />
-               <div className="absolute -top-[50%] -left-[10%] w-[100%] h-[200%] bg-secondary/10 rotate-12 blur-3xl rounded-[100%] pointer-events-none" />
-              
-              <div className="relative z-10 max-w-2xl mx-auto">
-                <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                  Don't Miss Out on Future Deals
-                </h2>
-                <p className="text-gray-300 mb-8 leading-relaxed">
-                  Subscribe to our WhatsApp updates to get exclusive promo codes, flash sale alerts, and "Secret Menu" items delivered straight to your phone.
-                </p>
-                
-                <a 
-                  href="https://wa.me/256708899597?text=Hello%2C%20I%20would%20like%20to%20receive%20updates%20about%20deals%20and%20promotions."
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white px-8 py-3.5 rounded-full font-bold transition-all hover:scale-105"
-                >
-                  <Smartphone className="w-5 h-5" />
-                  Subscribe on WhatsApp
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* Bottom padding for mobile nav */}
+        <div className="h-24 lg:hidden" />
       </main>
 
+      {/* Footer - Desktop only */}
       <Footer />
-    </div>
+    </>
   );
-}
+};
+
+export default Deals;
