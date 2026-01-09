@@ -27,7 +27,8 @@ import { formatPrice } from '@/lib/utils/order';
 import { WHATSAPP_NUMBER } from '@/lib/constants';
 import { toast } from 'sonner';
 import { menuData } from '@/data/menu';
-import { haptics } from '@/lib/utils/ui';
+import { haptics, vibrate } from '@/lib/utils/ui';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 const INITIAL_ORDERS_SHOWN = 5; // Show 5 orders initially
 
@@ -35,6 +36,7 @@ export default function OrderHistory() {
   const { orderHistory, clearOrderHistory, addItem } = useCart();
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [showAllOrders, setShowAllOrders] = useState(false);
+  const [isClearConfirmOpen, setIsClearConfirmOpen] = useState(false);
   
   // Determine which orders to display
   const visibleOrders = showAllOrders 
@@ -356,13 +358,7 @@ export default function OrderHistory() {
           rightAction={
             orderHistory.length > 0 ? (
               <button
-                onClick={() => {
-                  if (confirm('Are you sure you want to clear all order history?')) {
-                    haptics.medium();
-                    clearOrderHistory();
-                    toast.success('Order history cleared');
-                  }
-                }}
+                onClick={() => setIsClearConfirmOpen(true)}
                 className="p-2 -mr-2 rounded-full hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
                 title="Clear history"
               >
@@ -387,17 +383,13 @@ export default function OrderHistory() {
               <span>Past Orders <span className="text-muted-foreground font-normal">({orderHistory.length})</span></span>
             </h2>
 
+            {/* Desktop only: Clear History button (mobile uses header icon) */}
             <button
-              onClick={() => {
-                if (confirm('Are you sure you want to clear all order history?')) {
-                  clearOrderHistory();
-                  toast.success('Order history cleared');
-                }
-              }}
-              className="text-[11px] sm:text-xs md:text-sm text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg hover:bg-destructive/5 border border-transparent hover:border-destructive/20"
+              onClick={() => setIsClearConfirmOpen(true)}
+              className="hidden lg:flex text-xs md:text-sm text-muted-foreground hover:text-destructive transition-colors items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-destructive/5 border border-transparent hover:border-destructive/20"
             >
               <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
-              <span className="hidden xs:inline">Clear</span> History
+              Clear History
             </button>
           </div>
 
@@ -778,6 +770,21 @@ export default function OrderHistory() {
           )}
         </div>
       </main>
+
+      <ConfirmModal
+        isOpen={isClearConfirmOpen}
+        onClose={() => setIsClearConfirmOpen(false)}
+        onConfirm={() => {
+          clearOrderHistory();
+          toast.success('Order history cleared');
+          vibrate(50);
+        }}
+        title="Clear Order History?"
+        description="This will permanently delete all your order history. This action cannot be undone."
+        confirmText="Yes, Clear History"
+        cancelText="Cancel & Keep History"
+        variant="danger"
+      />
 
       <Footer />
 

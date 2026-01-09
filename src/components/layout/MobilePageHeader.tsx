@@ -52,13 +52,13 @@ export default function MobilePageHeader({
 
   return (
     <header
-      className={`lg:hidden ${sticky ? 'sticky top-16 z-40' : ''} ${
+      className={`lg:hidden ${sticky ? 'sticky top-16 sm:top-[4.5rem] z-40' : ''} ${
         transparent 
           ? 'bg-transparent' 
           : 'bg-background/95 backdrop-blur-xl border-b border-border/50'
       } ${className}`}
     >
-      <div className="flex items-center justify-between h-14 px-4">
+      <div className="flex items-center justify-between h-14 px-4 shrink-0">
         {/* Left - Back Button */}
         <div className="w-12 flex justify-start">
           {showBackButton && (
