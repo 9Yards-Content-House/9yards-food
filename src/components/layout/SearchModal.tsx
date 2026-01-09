@@ -168,7 +168,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
                       placeholder="What are you craving?"
-                      className="w-full pl-12 pr-12 py-3.5 text-lg bg-muted/50 border-transparent rounded-xl focus:bg-background focus:ring-2 focus:ring-secondary/20 focus:border-secondary/20 transition-all placeholder:text-muted-foreground/60"
+                      className="w-full pl-12 pr-12 py-3.5 text-lg bg-muted/50 border-transparent rounded-xl outline-none focus:bg-background focus:ring-2 focus:ring-secondary focus:border-secondary transition-all placeholder:text-muted-foreground/60"
                     />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
                       {/* Clear Text Button (replaces shortcut) */}
