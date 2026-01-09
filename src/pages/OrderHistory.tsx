@@ -171,6 +171,13 @@ export default function OrderHistory() {
     quantity: number;
     type: 'combo' | 'single';
     description?: string;
+    // Combo-specific details
+    comboDetails?: {
+      mainDishes: string[];
+      sauce?: { name: string; preparation?: string };
+      sideDish?: string;
+      extras?: { name: string; quantity: number }[];
+    };
   }
 
   const getOrderItemDetails = (order: OrderHistoryItem): OrderItemDetail[] => {
@@ -192,6 +199,7 @@ export default function OrderHistory() {
       let image = '';
       let name = item.mainDishes?.join(' + ') || 'Item';
       let description = '';
+      let comboDetails: OrderItemDetail['comboDetails'] = undefined;
 
       // Try to find image based on item type
       if (item.type === 'combo') {
@@ -202,8 +210,23 @@ export default function OrderHistory() {
           const dish = menuData.mainDishes.find(d => d.name === item.mainDishes[0]);
           if (dish?.image) image = dish.image;
         }
-        description = item.sauce?.name || '';
-        if (item.sideDish) description += (description ? ' + ' : '') + item.sideDish;
+        
+        // Build combo name from sauce
+        name = item.sauce?.name ? `${item.sauce.name} Combo` : `${item.mainDishes?.join(' + ')} Combo`;
+        
+        // Store detailed combo info
+        comboDetails = {
+          mainDishes: item.mainDishes || [],
+          sauce: item.sauce ? { 
+            name: item.sauce.name, 
+            preparation: item.sauce.preparation 
+          } : undefined,
+          sideDish: item.sideDish || undefined,
+          extras: item.extras?.length > 0 ? item.extras.map(e => ({ 
+            name: e.name, 
+            quantity: e.quantity 
+          })) : undefined
+        };
       } else {
         // Single items - look up in menu data
         const lusaniya = menuData.lusaniya.find(l => l.id === rawId || l.id === item.id);
@@ -236,7 +259,8 @@ export default function OrderHistory() {
         price: item.totalPrice,
         quantity: item.quantity,
         type: item.type,
-        description
+        description,
+        comboDetails
       });
     }
 
@@ -333,9 +357,10 @@ export default function OrderHistory() {
                 >
                   <div className="flex flex-row md:flex-row">
                     {/* Visual Side (Left) - Clickable for expand */}
+                    {/* Image Collage - Hidden on mobile, visible on sm+ */}
                     <button
                       onClick={() => toggleExpanded(order.orderId)}
-                      className="w-28 sm:w-40 md:w-56 bg-secondary/5 shrink-0 relative border-r border-border/50 cursor-pointer group/img overflow-hidden"
+                      className="hidden sm:block w-36 md:w-44 lg:w-52 bg-secondary/5 shrink-0 relative border-r border-border/50 cursor-pointer group/img overflow-hidden"
                       title="Click to see order items"
                     >
                       {orderImages.length > 0 ? (
@@ -421,9 +446,9 @@ export default function OrderHistory() {
                     </button>
 
                     {/* Content Side (Right) - Better padding and spacing */}
-                    <div className="flex-1 p-4 md:p-6 flex flex-col justify-between min-w-0">
+                    <div className="flex-1 p-3 sm:p-4 md:p-5 lg:p-6 flex flex-col justify-between min-w-0">
                       {/* Detailed Header Row */}
-                      <div className="mb-3 md:mb-5">
+                      <div className="mb-2 sm:mb-3 md:mb-4">
                          <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                             <div className="flex items-center gap-2">
                               {/* Order ID Tag */}
@@ -460,35 +485,56 @@ export default function OrderHistory() {
                          </div>
 
                          {/* Items List (Wrapped) */}
-                         <div className="text-sm text-foreground/80 line-clamp-2 leading-relaxed">
+                         <div className="text-xs sm:text-sm text-foreground/80 line-clamp-2 leading-relaxed">
                             {order.items.map((item, idx) => (
-                               <span key={idx} className="mr-2 inline-block">
-                                  <span className="font-bold text-foreground">
+                               <span key={idx} className="mr-1.5 sm:mr-2 inline-block">
+                                  <span className="font-bold text-secondary">
                                     {item.quantity}x
-                                  </span> {item.mainDishes?.join(' + ') || item.name}
+                                  </span>{' '}
+                                  <span className="text-foreground">{item.mainDishes?.join(' + ') || item.name}</span>
+                                  {idx < order.items.length - 1 && <span className="text-muted-foreground/50 ml-1.5">·</span>}
                                </span>
                             ))}
                          </div>
+                         
+                         {/* Mobile-only: View Items button (since collage is hidden) */}
+                         <button
+                           onClick={() => toggleExpanded(order.orderId)}
+                           className="sm:hidden mt-2 text-[11px] text-secondary font-medium flex items-center gap-1 hover:underline"
+                         >
+                           {isExpanded ? (
+                             <>
+                               <ChevronUp className="w-3.5 h-3.5" />
+                               Hide items
+                             </>
+                           ) : (
+                             <>
+                               <ChevronDown className="w-3.5 h-3.5" />
+                               View {order.items.length} item{order.items.length > 1 ? 's' : ''}
+                             </>
+                           )}
+                         </button>
                       </div>
 
                       {/* Actions Footer */}
-                      <div className="flex items-center gap-3 mt-auto pt-3 md:pt-4 border-t border-dashed border-border/60">
-                        <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground mr-auto">
-                            <MapPin className="w-4 h-4 text-secondary/70 shrink-0" />
-                            <span className="line-clamp-1 max-w-[200px]">{order.deliveryLocation}</span>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mt-auto pt-3 md:pt-4 border-t border-dashed border-border/60">
+                        {/* Location - visible on all devices */}
+                        <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground sm:mr-auto">
+                            <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-secondary/70 shrink-0" />
+                            <span className="line-clamp-1 max-w-[180px] sm:max-w-[200px]">{order.deliveryLocation}</span>
                         </div>
 
-                        <div className="flex items-center gap-2 w-full md:w-auto">
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
                            <button
                              onClick={() => handleTrackOrder(order.orderId)}
-                             className="flex-1 md:flex-none h-10 md:h-11 text-xs md:text-sm font-semibold text-foreground hover:text-green-700 border border-border/80 rounded-xl hover:bg-green-50 hover:border-green-200 transition-all flex items-center justify-center gap-2 px-4 shadow-sm"
+                             className="flex-1 sm:flex-none h-9 sm:h-10 md:h-11 text-xs md:text-sm font-semibold text-foreground hover:text-green-700 border border-border/80 rounded-xl hover:bg-green-50 hover:border-green-200 transition-all flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 shadow-sm"
                            >
-                             <WhatsAppIcon className="w-4 h-4" />
+                             <WhatsAppIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                              Track
                            </button>
                            <button
                              onClick={() => handleReorder(order)}
-                             className="flex-1 md:flex-none h-10 md:h-11 text-xs md:text-sm font-bold bg-[#E6411C] hover:bg-[#d13a17] text-white rounded-xl flex items-center justify-center gap-2 px-6 shadow-sm shadow-orange-500/20 transition-all active:scale-[0.98]"
+                             className="flex-1 sm:flex-none h-9 sm:h-10 md:h-11 text-xs md:text-sm font-bold bg-[#E6411C] hover:bg-[#d13a17] text-white rounded-xl flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 shadow-sm shadow-orange-500/20 transition-all active:scale-[0.98]"
                            >
                              <RefreshCw className="w-4 h-4" />
                              Reorder
@@ -526,10 +572,16 @@ export default function OrderHistory() {
                           {itemDetails.map((item, idx) => (
                             <div 
                               key={idx}
-                              className="flex-shrink-0 w-[140px] sm:w-[160px] md:w-[180px] bg-background rounded-xl border border-border/60 overflow-hidden shadow-sm hover:shadow-md hover:border-secondary/30 transition-all"
+                              className={`flex-shrink-0 bg-background rounded-xl border border-border/60 overflow-hidden shadow-sm hover:shadow-md hover:border-secondary/30 transition-all ${
+                                item.type === 'combo' 
+                                  ? 'w-[180px] sm:w-[200px] md:w-[220px]' 
+                                  : 'w-[140px] sm:w-[160px] md:w-[180px]'
+                              }`}
                             >
                               {/* Item Image */}
-                              <div className="aspect-square w-full bg-muted relative overflow-hidden">
+                              <div className={`w-full bg-muted relative overflow-hidden ${
+                                item.type === 'combo' ? 'aspect-[4/3]' : 'aspect-square'
+                              }`}>
                                 {item.image ? (
                                   <OptimizedImage 
                                     src={item.image} 
@@ -561,14 +613,67 @@ export default function OrderHistory() {
                               
                               {/* Item Details */}
                               <div className="p-2.5 md:p-3">
-                                <h5 className="font-semibold text-foreground text-xs md:text-sm leading-tight line-clamp-2 mb-1">
+                                <h5 className="font-semibold text-foreground text-xs md:text-sm leading-tight line-clamp-2 mb-1.5">
                                   {item.name}
                                 </h5>
-                                {item.description && (
+                                
+                                {/* Combo breakdown */}
+                                {item.type === 'combo' && item.comboDetails && (
+                                  <div className="space-y-1 mb-2">
+                                    {/* Base/Starch */}
+                                    {item.comboDetails.mainDishes.length > 0 && (
+                                      <div className="flex items-start gap-1.5">
+                                        <span className="text-[9px] font-semibold text-muted-foreground uppercase shrink-0 w-8">Base</span>
+                                        <span className="text-[10px] md:text-xs text-foreground/80 leading-tight">
+                                          {item.comboDetails.mainDishes.join(' + ')}
+                                        </span>
+                                      </div>
+                                    )}
+                                    
+                                    {/* Sauce/Protein with preparation */}
+                                    {item.comboDetails.sauce && (
+                                      <div className="flex items-start gap-1.5">
+                                        <span className="text-[9px] font-semibold text-muted-foreground uppercase shrink-0 w-8">Sauce</span>
+                                        <span className="text-[10px] md:text-xs text-foreground/80 leading-tight">
+                                          {item.comboDetails.sauce.name}
+                                          {item.comboDetails.sauce.preparation && (
+                                            <span className="text-muted-foreground"> ({item.comboDetails.sauce.preparation})</span>
+                                          )}
+                                        </span>
+                                      </div>
+                                    )}
+                                    
+                                    {/* Side dish */}
+                                    {item.comboDetails.sideDish && (
+                                      <div className="flex items-start gap-1.5">
+                                        <span className="text-[9px] font-semibold text-muted-foreground uppercase shrink-0 w-8">Side</span>
+                                        <span className="text-[10px] md:text-xs text-foreground/80 leading-tight">
+                                          {item.comboDetails.sideDish}
+                                        </span>
+                                      </div>
+                                    )}
+                                    
+                                    {/* Extras (juices, desserts) */}
+                                    {item.comboDetails.extras && item.comboDetails.extras.length > 0 && (
+                                      <div className="flex items-start gap-1.5">
+                                        <span className="text-[9px] font-semibold text-muted-foreground uppercase shrink-0 w-8">+Add</span>
+                                        <span className="text-[10px] md:text-xs text-foreground/80 leading-tight">
+                                          {item.comboDetails.extras.map(e => 
+                                            e.quantity > 1 ? `${e.name} ×${e.quantity}` : e.name
+                                          ).join(', ')}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                                
+                                {/* Single item description */}
+                                {item.type === 'single' && item.description && (
                                   <p className="text-[10px] md:text-xs text-muted-foreground line-clamp-1 mb-1.5">
                                     {item.description}
                                   </p>
                                 )}
+                                
                                 <p className="text-secondary font-bold text-sm md:text-base">
                                   {formatPrice(item.price * item.quantity)}
                                 </p>
