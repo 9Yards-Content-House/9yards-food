@@ -90,19 +90,25 @@ export default function OrderHistory() {
 
     // Iterate through items to collect images
     for (const item of order.items) {
-      if (images.length >= 4) break;
+      // 1. Main Dishes (Combos)
+      if (item.mainDishes) {
+        item.mainDishes.forEach(mainName => {
+           const dish = menuData.mainDishes.find(d => d.name === mainName);
+           if (dish?.image) addImage(dish.image);
+        });
+      }
 
-      // 1. Main Sauce Image (Combo) or Item Image (Single)
+      // 2. Main Sauce Image (Combo) or Item Image (Single)
       if (item.sauce?.image) addImage(item.sauce.image);
       if (item.image) addImage(item.image);
 
-      // 2. Side Dish Image (Look up from menuData)
+      // 3. Side Dish Image
       if (item.sideDish) {
         const side = menuData.sideDishes.find(s => s.name === item.sideDish || s.id === item.sideDish);
         if (side?.image) addImage(side.image);
       }
 
-      // 3. Extras
+      // 4. Extras
       if (item.extras) {
         for (const extra of item.extras) {
           const juice = menuData.juices.find(j => j.id === extra.id);
@@ -114,7 +120,7 @@ export default function OrderHistory() {
       }
     }
 
-    return images.slice(0, 4);
+    return images;
   };
 
   if (orderHistory.length === 0) {
@@ -211,28 +217,16 @@ export default function OrderHistory() {
                           />
                         ) : (
                           <div className="grid grid-cols-2 grid-rows-2 w-full h-full">
-                            {orderImages.map((img, i) => (
+                            {/* Fill 4 slots, repeating images if necessary to create a full collage */}
+                            {Array.from({ length: 4 }).map((_, i) => (
                               <div key={i} className="relative overflow-hidden border-[0.5px] border-white/20">
                                 <OptimizedImage 
-                                  src={img} 
+                                  src={orderImages[i % orderImages.length]} 
                                   alt={`Item ${i+1}`}
                                   className="w-full h-full object-cover"
                                 />
                               </div>
                             ))}
-                            {/* Fill remaining slots with placeholder pattern if < 4, only if we want specific 2x2. 
-                                Actually, sticking to just rendering available images in grid might look weird if 3.
-                                Let's ensure we fill 4 slots for 2x2 if we have > 1, repeating if needed? 
-                                User asked for "collage", 3 items in 2x2 leaves one blank. 
-                                Let's attempt to fill up to 4 using modulo if we have at least 2.
-                             */}
-                             {Array.from({ length: 4 - orderImages.length }).map((_, i) => (
-                                orderImages.length > 1 && (
-                                   <div key={`fill-${i}`} className="bg-secondary/10 flex items-center justify-center">
-                                      <div className="w-full h-full bg-secondary/5" />
-                                   </div>
-                                )
-                             ))}
                           </div>
                         )
                       ) : (
