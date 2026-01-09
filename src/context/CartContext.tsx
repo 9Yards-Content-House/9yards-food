@@ -136,7 +136,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
     case 'ADD_ORDER_TO_HISTORY':
       return {
         ...state,
-        orderHistory: [action.payload, ...state.orderHistory].slice(0, 50), // Keep last 50 orders
+        orderHistory: [action.payload, ...state.orderHistory].slice(0, MAX_ORDER_HISTORY),
       };
     case 'CLEAR_ORDER_HISTORY':
       return { ...state, orderHistory: [] };
@@ -171,6 +171,20 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const STORAGE_KEY = '9yards_cart';
 
+// Order history limits
+const MAX_ORDER_HISTORY = 20; // Maximum number of orders to keep
+const ORDER_HISTORY_DAYS = 90; // Remove orders older than this many days
+
+// Helper to filter out old orders
+function cleanOrderHistory(orders: OrderHistoryItem[]): OrderHistoryItem[] {
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - ORDER_HISTORY_DAYS);
+  
+  return orders
+    .filter(order => new Date(order.orderDate) > cutoffDate) // Remove orders older than 90 days
+    .slice(0, MAX_ORDER_HISTORY); // Keep only the most recent 20
+}
+
 // Load initial state from localStorage
 function getInitialState(): CartState {
   try {
@@ -183,7 +197,7 @@ function getInitialState(): CartState {
           items: parsed.items || [],
           favorites: parsed.favorites || [],
           userPreferences: parsed.userPreferences || initialState.userPreferences,
-          orderHistory: parsed.orderHistory || [],
+          orderHistory: cleanOrderHistory(parsed.orderHistory || []), // Clean up old orders on load
         };
       }
     }

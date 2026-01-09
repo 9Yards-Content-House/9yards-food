@@ -27,9 +27,18 @@ import { WHATSAPP_NUMBER } from '@/lib/constants';
 import { toast } from 'sonner';
 import { menuData } from '@/data/menu';
 
+const INITIAL_ORDERS_SHOWN = 5; // Show 5 orders initially
+
 export default function OrderHistory() {
   const { orderHistory, clearOrderHistory, addItem } = useCart();
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+  const [showAllOrders, setShowAllOrders] = useState(false);
+  
+  // Determine which orders to display
+  const visibleOrders = showAllOrders 
+    ? orderHistory 
+    : orderHistory.slice(0, INITIAL_ORDERS_SHOWN);
+  const hiddenOrdersCount = orderHistory.length - INITIAL_ORDERS_SHOWN;
 
   const handleReorder = (order: OrderHistoryItem) => {
     // Add each item from the order to cart, preserving their original type
@@ -365,7 +374,7 @@ export default function OrderHistory() {
           </div>
 
           <div className="grid gap-5 sm:gap-6 md:gap-7 max-w-4xl mx-auto">
-            {orderHistory.map((order) => {
+            {visibleOrders.map((order) => {
               const badge = getMethodBadge(order.paymentMethod);
               const BadgeIcon = badge.icon;
               const orderImages = getOrderImages(order);
@@ -717,6 +726,28 @@ export default function OrderHistory() {
               );
             })}
           </div>
+          
+          {/* Show More / Show Less Button */}
+          {orderHistory.length > INITIAL_ORDERS_SHOWN && (
+            <div className="max-w-4xl mx-auto mt-6 md:mt-8">
+              <button
+                onClick={() => setShowAllOrders(!showAllOrders)}
+                className="w-full py-3 px-4 rounded-xl border border-border/60 bg-background hover:bg-muted/50 hover:border-secondary/30 transition-all flex items-center justify-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground group"
+              >
+                {showAllOrders ? (
+                  <>
+                    <ChevronUp className="w-4 h-4 transition-transform group-hover:-translate-y-0.5" />
+                    Show less
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="w-4 h-4 transition-transform group-hover:translate-y-0.5" />
+                    Show {hiddenOrdersCount} older order{hiddenOrdersCount > 1 ? 's' : ''}
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
       </main>
 
