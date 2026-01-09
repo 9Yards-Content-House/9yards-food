@@ -11,7 +11,7 @@ import { useEffect } from 'react';
 import { toast } from 'sonner';
 
 import SEO from '@/components/SEO';
-import { pageMetadata } from '@/data/seo';
+import { pageMetadata, speakableSchema } from '@/data/seo';
 import { useGuest } from '@/context/GuestContext';
 
 export default function Index() {
@@ -48,6 +48,7 @@ export default function Index() {
         image={pageMetadata.home.ogImage}
         url={pageMetadata.home.canonicalUrl} // Use canonical as primary URL
         jsonLd={pageMetadata.home.schema}
+        additionalSchemas={[speakableSchema]}
       />
       <Header />
       <main id="main-content">

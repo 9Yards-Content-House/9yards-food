@@ -9,6 +9,7 @@ interface SEOProps {
   url?: string;
   type?: string;
   jsonLd?: Record<string, any>;
+  additionalSchemas?: Record<string, any>[]; // Support multiple schemas
   noIndex?: boolean;
 }
 
@@ -16,10 +17,13 @@ const SEO = ({
   title,
   description,
   keywords = globalMetadata.organizationSchema.description, // Fallback if needed, though keywords usually specific
-  image = globalMetadata.organizationSchema.image,
+  image = Array.isArray(globalMetadata.organizationSchema.image) 
+    ? globalMetadata.organizationSchema.image[0] 
+    : globalMetadata.organizationSchema.image,
   url = globalMetadata.organizationSchema.url,
   type = "website",
   jsonLd,
+  additionalSchemas = [],
   noIndex = false,
 }: SEOProps) => {
   const siteTitle = globalMetadata.siteName;
@@ -99,6 +103,9 @@ const SEO = ({
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={fullImage} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content={`${title} - 9Yards Food`} />
       <meta property="og:site_name" content={siteTitle} />
       <meta property="og:locale" content={globalMetadata.locale} />
 
@@ -113,6 +120,7 @@ const SEO = ({
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={fullImage} />
+      <meta name="twitter:image:alt" content={`${title} - 9Yards Food`} />
 
       {/* Structured Data: Organization/Page */}
       <script type="application/ld+json">
@@ -123,6 +131,13 @@ const SEO = ({
       <script type="application/ld+json">
         {JSON.stringify(breadcrumbSchema)}
       </script>
+
+      {/* Additional Structured Data (FAQ, etc.) */}
+      {additionalSchemas.map((schema, index) => (
+        <script key={index} type="application/ld+json">
+          {JSON.stringify(schema)}
+        </script>
+      ))}
     </Helmet>
   );
 };

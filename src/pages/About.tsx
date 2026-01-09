@@ -7,7 +7,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import SEO from '@/components/SEO';
-import { pageMetadata } from '@/data/seo';
+import { pageMetadata, faqSchema } from '@/data/seo';
 import { haptics } from '@/lib/utils/ui';
 
 // Animation variants
@@ -50,6 +50,7 @@ export default function AboutPage() {
         image={pageMetadata.about.ogImage}
         url={pageMetadata.about.canonicalUrl}
         jsonLd={pageMetadata.about.schema}
+        additionalSchemas={[faqSchema]}
       />
       
       {/* Desktop Header */}

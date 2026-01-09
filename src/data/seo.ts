@@ -37,12 +37,98 @@ export const pageMetadata = {
     schema: {
       "@context": "https://schema.org",
       "@type": "Menu",
+      "@id": "https://food.9yards.co.ug/menu#menu",
       "name": "9Yards Food Menu",
+      "description": "Authentic Ugandan cuisine - build your perfect combo meal",
+      "inLanguage": "en",
       "hasMenuSection": [
         {
           "@type": "MenuSection",
-          "name": "Combo Meals",
-          "description": "Build your own combo with main dishes and sauces"
+          "name": "Main Dishes",
+          "description": "Choose your base - matooke, rice, posho, or cassava",
+          "hasMenuItem": [
+            {
+              "@type": "MenuItem",
+              "name": "Matooke",
+              "description": "Steamed green banana, a Ugandan staple",
+              "suitableForDiet": "https://schema.org/VeganDiet"
+            },
+            {
+              "@type": "MenuItem",
+              "name": "Rice",
+              "description": "Fluffy white rice"
+            },
+            {
+              "@type": "MenuItem",
+              "name": "Posho",
+              "description": "Traditional Ugandan maize meal"
+            },
+            {
+              "@type": "MenuItem",
+              "name": "Cassava",
+              "description": "Boiled or fried cassava"
+            }
+          ]
+        },
+        {
+          "@type": "MenuSection",
+          "name": "Sauces & Proteins",
+          "description": "Add your protein and sauce",
+          "hasMenuItem": [
+            {
+              "@type": "MenuItem",
+              "name": "Tilapia Fish",
+              "description": "Fresh Nile Tilapia, fried or steamed",
+              "offers": {
+                "@type": "Offer",
+                "price": "15000",
+                "priceCurrency": "UGX"
+              }
+            },
+            {
+              "@type": "MenuItem",
+              "name": "Chicken",
+              "description": "Tender chicken pieces in sauce",
+              "offers": {
+                "@type": "Offer",
+                "price": "18000",
+                "priceCurrency": "UGX"
+              }
+            },
+            {
+              "@type": "MenuItem",
+              "name": "G-Nuts Sauce",
+              "description": "Traditional groundnut sauce",
+              "suitableForDiet": "https://schema.org/VeganDiet"
+            }
+          ]
+        },
+        {
+          "@type": "MenuSection",
+          "name": "Natural Juices",
+          "description": "100% natural fresh juices",
+          "hasMenuItem": [
+            {
+              "@type": "MenuItem",
+              "name": "Passion Fruit Juice",
+              "description": "Fresh squeezed passion fruit",
+              "offers": {
+                "@type": "Offer",
+                "price": "5000",
+                "priceCurrency": "UGX"
+              }
+            },
+            {
+              "@type": "MenuItem",
+              "name": "Mango Juice",
+              "description": "Fresh mango juice",
+              "offers": {
+                "@type": "Offer",
+                "price": "5000",
+                "priceCurrency": "UGX"
+              }
+            }
+          ]
         }
       ]
     }
@@ -215,6 +301,19 @@ export const pageMetadata = {
   }
 };
 
+// SPEAKABLE SCHEMA - For voice search (Google Assistant, Alexa)
+export const speakableSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "speakable": {
+    "@type": "SpeakableSpecification",
+    "cssSelector": ["h1", "h2", ".hero-description", ".menu-description"]
+  },
+  "name": "9Yards Food - Authentic Ugandan Cuisine Delivery",
+  "description": "Order authentic Ugandan food delivery in Kampala. Fresh matooke, posho, fish, chicken and more. 100% natural ingredients. 30 to 45 minute delivery.",
+  "url": "https://food.9yards.co.ug"
+};
+
 // FAQ SCHEMA - For use on About, How It Works, or dedicated FAQ page
 export const faqSchema = {
   "@context": "https://schema.org",
@@ -291,23 +390,36 @@ export const globalMetadata = {
     googleAnalyticsId: "G-GYZ2QRVHGY",
   },
   
-  // Structured Data - Organization
+  // Structured Data - Organization (Enhanced LocalBusiness)
   organizationSchema: {
     "@context": "https://schema.org",
-    "@type": "FoodEstablishment",
+    "@type": ["FoodEstablishment", "LocalBusiness"],
+    "@id": "https://food.9yards.co.ug/#organization",
     "name": "9Yards Food",
+    "alternateName": "9Yards Food Delivery Uganda",
     "url": "https://food.9yards.co.ug",
-    "logo": "https://food.9yards.co.ug/images/logo.png",
-    "image": "https://food.9yards.co.ug/images/og-home.jpg",
-    "description": "Authentic Ugandan cuisine delivery service in Kampala",
-    "servesCuisine": "Ugandan",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://food.9yards.co.ug/images/logo/9Yards-Food-White-Logo-colored.png",
+      "width": 512,
+      "height": 512
+    },
+    "image": [
+      "https://food.9yards.co.ug/images/og-home.jpg",
+      "https://food.9yards.co.ug/images/backgrounds/Matooke-Food-9yards-food.webp"
+    ],
+    "description": "Authentic Ugandan cuisine delivery service in Kampala. Fresh matooke, posho, fish, chicken & more with 100% natural ingredients.",
+    "slogan": "From our kitchen to your table",
+    "servesCuisine": ["Ugandan", "African", "East African"],
     "priceRange": "UGX 15,000 - 50,000",
-    "telephone": "+256708453744", // Updated
+    "telephone": "+256708453744",
     "email": "info@9yards.co.ug",
     "address": {
       "@type": "PostalAddress",
+      "streetAddress": "Kampala",
       "addressLocality": "Kampala",
       "addressRegion": "Central Region",
+      "postalCode": "",
       "addressCountry": "UG"
     },
     "geo": {
@@ -315,7 +427,21 @@ export const globalMetadata = {
       "latitude": "0.3476",
       "longitude": "32.5825"
     },
-    "paymentAccepted": ["Mobile Money", "Cash on Delivery"],
+    "areaServed": {
+      "@type": "City",
+      "name": "Kampala",
+      "sameAs": "https://en.wikipedia.org/wiki/Kampala"
+    },
+    "serviceArea": {
+      "@type": "GeoCircle",
+      "geoMidpoint": {
+        "@type": "GeoCoordinates",
+        "latitude": "0.3476",
+        "longitude": "32.5825"
+      },
+      "geoRadius": "15000"
+    },
+    "paymentAccepted": ["Mobile Money", "Cash on Delivery", "MTN Mobile Money", "Airtel Money"],
     "currenciesAccepted": "UGX",
     "aggregateRating": {
       "@type": "AggregateRating",
@@ -324,14 +450,68 @@ export const globalMetadata = {
       "bestRating": "5",
       "worstRating": "1"
     },
+    "review": [
+      {
+        "@type": "Review",
+        "author": { "@type": "Person", "name": "Sarah K." },
+        "reviewRating": { "@type": "Rating", "ratingValue": "5" },
+        "reviewBody": "Best Ugandan food in Kampala! The matooke combo is amazing."
+      }
+    ],
     "sameAs": [
       "https://www.instagram.com/9yardsfood",
       "https://www.tiktok.com/@9yardsfood",
-      "https://9yards.co.ug"
+      "https://9yards.co.ug",
+      "https://wa.me/256708453744"
     ],
-    "openingHours": "Mo-Su 10:00-22:00",
-    "acceptsReservations": "False",
-    "hasMenu": "https://food.9yards.co.ug/menu"
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        "opens": "10:00",
+        "closes": "22:00"
+      }
+    ],
+    "acceptsReservations": false,
+    "hasMenu": {
+      "@type": "Menu",
+      "@id": "https://food.9yards.co.ug/menu",
+      "name": "9Yards Food Menu",
+      "url": "https://food.9yards.co.ug/menu",
+      "hasMenuSection": [
+        {
+          "@type": "MenuSection",
+          "name": "Combo Meals",
+          "description": "Build your own combo with main dishes, sauces, and sides"
+        },
+        {
+          "@type": "MenuSection",
+          "name": "Natural Juices",
+          "description": "100% natural fresh juices"
+        },
+        {
+          "@type": "MenuSection",
+          "name": "Desserts",
+          "description": "Sweet treats to complete your meal"
+        }
+      ]
+    },
+    "potentialAction": {
+      "@type": "OrderAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://food.9yards.co.ug/menu",
+        "actionPlatform": ["http://schema.org/DesktopWebPlatform", "http://schema.org/MobileWebPlatform"]
+      },
+      "deliveryMethod": "http://purl.org/goodrelations/v1#DeliveryModeOwnFleet"
+    },
+    "knowsAbout": ["Ugandan cuisine", "Matooke", "Posho", "Rolex", "African food"],
+    "foundingDate": "2023",
+    "numberOfEmployees": {
+      "@type": "QuantitativeValue",
+      "minValue": 5,
+      "maxValue": 20
+    }
   },
 
   // Additional tags for AI crawlers

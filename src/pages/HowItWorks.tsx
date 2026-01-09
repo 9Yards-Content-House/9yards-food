@@ -9,7 +9,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import SEO from '@/components/SEO';
-import { pageMetadata } from '@/data/seo';
+import { pageMetadata, faqSchema } from '@/data/seo';
 import OptimizedImage from '@/components/ui/optimized-image';
 
 // Animated counter hook
@@ -100,6 +100,7 @@ export default function HowItWorksPage() {
         image={pageMetadata.howItWorks.ogImage}
         url={pageMetadata.howItWorks.canonicalUrl}
         jsonLd={pageMetadata.howItWorks.schema}
+        additionalSchemas={[faqSchema]}
       />
       <Header />
       <main id="main-content" className="pt-16 md:pt-20">

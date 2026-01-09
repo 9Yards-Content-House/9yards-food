@@ -66,7 +66,7 @@
     <!-- Canonical -->
     <link rel="canonical" href="https://food.9yards.co.ug/" />
 
-    <!-- Favicon -->
+    <!-- Favicon & App Icons -->
     <link
       rel="icon"
       type="image/jpeg"
@@ -77,6 +77,23 @@
       type="image/jpeg"
       href="/images/logo/9Yards-Food-Coloured-favicon.jpg"
     />
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="/images/logo/9Yards-Food-White-Logo-colored.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/logo/9Yards-Food-White-Logo-colored.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/images/logo/9Yards-Food-White-Logo-colored.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/images/logo/9Yards-Food-White-Logo-colored.png" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    
+    <!-- iOS PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="9Yards Food" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    
+    <!-- Windows Tile -->
+    <meta name="msapplication-TileImage" content="/images/logo/9Yards-Food-White-Logo-colored.png" />
 
     <!-- Font Optimization: Preconnect + Preload -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -102,11 +119,12 @@
     <link rel="preconnect" href="https://checkout.flutterwave.com" />
     <link rel="preconnect" href="https://images.unsplash.com" />
     <link rel="dns-prefetch" href="https://api.whatsapp.com" />
+    <link rel="dns-prefetch" href="https://www.google-analytics.com" />
     
-    <!-- Preload critical images -->
-    <link rel="preload" as="image" href="/images/logo/9Yards-Food-White-Logo-colored.png" />
-    <link rel="preload" as="image" href="/images/backgrounds/Matooke-Food-9yards-food.webp" fetchpriority="high" />
-    <script type="module" crossorigin src="/assets/index-BP8WhrfP.js"></script>
+    <!-- Preload critical images for LCP -->
+    <link rel="preload" as="image" href="/images/logo/9Yards-Food-White-Logo-colored.png" fetchpriority="high" />
+    <link rel="preload" as="image" href="/images/lusaniya/9Yards-Food-Lusaniya-05.png" fetchpriority="high" />
+    <script type="module" crossorigin src="/assets/index-DstO9htB.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/vendor-react-CD261Q_a.js">
     <link rel="modulepreload" crossorigin href="/assets/vendor-ui-CB51wskI.js">
     <link rel="modulepreload" crossorigin href="/assets/vendor-utils--BulIq_u.js">
