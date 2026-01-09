@@ -350,7 +350,7 @@ export default function DeliveryZonesPage() {
 
           {/* Search Bar */}
           <div className="mb-6">
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <input
@@ -374,14 +374,14 @@ export default function DeliveryZonesPage() {
               <button
                 onClick={detectLocation}
                 disabled={isLocating}
-                className="flex items-center gap-2 px-4 py-3.5 rounded-xl bg-[#212282] text-white font-medium hover:bg-[#1a1a6e] active:scale-[0.98] transition-all disabled:opacity-70 whitespace-nowrap"
+                className="flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-[#212282] text-white text-sm font-bold hover:bg-[#1a1a6e] active:scale-[0.98] transition-all disabled:opacity-70"
               >
                 {isLocating ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
                   <Crosshair className="w-5 h-5" />
                 )}
-                <span className="hidden sm:inline">{isLocating ? 'Detecting...' : 'Use My Location'}</span>
+                <span>{isLocating ? 'Detecting...' : 'Use My Location'}</span>
               </button>
             </div>
             
@@ -398,20 +398,20 @@ export default function DeliveryZonesPage() {
               <motion.div 
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-3 p-3 bg-green-50 border border-green-100 rounded-xl flex items-center justify-between"
+                className="mt-3 p-3 bg-green-50 border border-green-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
                     <CheckCircle className="w-4 h-4 text-green-600" />
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-green-800">Nearest zone: {nearestZone.name}</p>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-green-800 truncate">Nearest zone: {nearestZone.name}</p>
                     <p className="text-xs text-green-600">{formatPrice(nearestZone.fee)} • {nearestZone.estimatedTime}</p>
                   </div>
                 </div>
                 <button
                   onClick={() => handleZoneSelect(nearestZone)}
-                  className="text-xs font-bold text-green-700 hover:underline"
+                  className="text-xs font-bold text-green-700 hover:text-green-800 px-3 py-1.5 bg-green-100 hover:bg-green-200 rounded-lg transition-colors flex-shrink-0"
                 >
                   View on map
                 </button>
@@ -667,21 +667,21 @@ export default function DeliveryZonesPage() {
                           </div>
                           
                           {/* Order Now CTA */}
-                          <div className="mt-4 flex gap-2">
+                          <div className="mt-4 flex flex-col sm:flex-row gap-2">
                             <button
                               onClick={handleOrderNow}
-                              className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-[#E6411C] text-white rounded-xl font-bold hover:bg-[#d13a18] active:scale-[0.98] transition-all shadow-lg shadow-[#E6411C]/20"
+                              className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-[#E6411C] text-white rounded-xl text-sm font-bold hover:bg-[#d13a18] active:scale-[0.98] transition-all"
                             >
-                              <ShoppingBag className="w-5 h-5" />
-                              Order Now
+                              <ShoppingBag className="w-4 h-4" />
+                              <span>Order Now</span>
                               <ArrowRight className="w-4 h-4" />
                             </button>
                             {state.items.length > 0 && (
                               <Link
                                 to="/cart"
-                                className="flex items-center justify-center gap-2 py-3 px-4 bg-[#212282] text-white rounded-xl font-bold hover:bg-[#1a1a6e] active:scale-[0.98] transition-all"
+                                className="flex items-center justify-center gap-2 py-3 px-4 bg-[#212282] text-white rounded-xl text-sm font-bold hover:bg-[#1a1a6e] active:scale-[0.98] transition-all"
                               >
-                                Go to Cart
+                                <span>Go to Cart</span>
                               </Link>
                             )}
                           </div>
