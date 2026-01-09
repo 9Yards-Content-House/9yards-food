@@ -370,6 +370,12 @@
         "discount": 0,
         "type": "fixed",
         "_description": "Free shipping (handled separately in code)"
+      },
+      "TEST28": {
+        "discount": 28,
+        "type": "percentage",
+        "minOrder": 0,
+        "_description": "TEST ONLY - 28% off any order, no minimum"
       }
     }
   },
