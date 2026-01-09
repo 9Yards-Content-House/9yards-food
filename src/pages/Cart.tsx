@@ -183,6 +183,12 @@ export default function CartPage() {
   } = useAddressAutocomplete('');
 
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
+  const [coverageWarning, setCoverageWarning] = useState<{
+    show: boolean;
+    type: 'out-of-area' | 'far-from-zones' | null;
+    distance?: number;
+    message?: string;
+  }>({ show: false, type: null });
 
   // Sync address query with user preferences on mount/change
   useEffect(() => {
@@ -195,6 +201,35 @@ export default function CartPage() {
     setAddressQuery(result.displayName);
     setUserPreferences({ address: result.displayName });
     setShowAddressSuggestions(false);
+    
+    // Check if location is within delivery coverage
+    if (!result.isInKampalaArea) {
+      // Location is outside Kampala metro area (>25km from center)
+      setCoverageWarning({
+        show: true,
+        type: 'out-of-area',
+        distance: Math.round(result.distanceToZone),
+        message: 'This location is outside our delivery area. We currently deliver within Kampala and surrounding areas only.'
+      });
+      setSelectedZone('');
+      return;
+    }
+    
+    // Check distance to nearest zone
+    if (result.distanceToZone > 10) {
+      // More than 10km from any delivery zone
+      setCoverageWarning({
+        show: true,
+        type: 'far-from-zones',
+        distance: Math.round(result.distanceToZone),
+        message: `This location is ${Math.round(result.distanceToZone)}km from our nearest delivery zone. Delivery may not be available or may take longer.`
+      });
+      setSelectedZone('');
+      return;
+    }
+    
+    // Clear any previous warnings
+    setCoverageWarning({ show: false, type: null });
     
     // Auto-select zone if available
     if (result.nearestZone) {
@@ -271,6 +306,12 @@ export default function CartPage() {
     if (!state.userPreferences.address?.trim()) {
       newErrors.address = 'Delivery address is required';
       isValid = false;
+    }
+
+    // Check for coverage warnings
+    if (coverageWarning.show && coverageWarning.type === 'out-of-area') {
+      toast.error('We cannot deliver to this location. Please choose an address within our delivery area.');
+      return false;
     }
 
     setErrors(newErrors);
@@ -811,19 +852,35 @@ export default function CartPage() {
                                 <button
                                   key={idx}
                                   onClick={(e) => { e.preventDefault(); handleAddressSelect(suggestion); }}
-                                  className="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 last:border-none"
+                                  className={`w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 last:border-none ${
+                                    !suggestion.isInKampalaArea ? 'bg-red-50/50' : suggestion.distanceToZone > 5 ? 'bg-amber-50/50' : ''
+                                  }`}
                                 >
                                   <div className="flex items-start gap-2">
-                                    <MapPin className="w-4 h-4 text-[#E6411C] mt-0.5 shrink-0" />
-                                    <div className="min-w-0">
+                                    <MapPin className={`w-4 h-4 mt-0.5 shrink-0 ${
+                                      !suggestion.isInKampalaArea ? 'text-red-500' : suggestion.nearestZone ? 'text-green-600' : 'text-amber-500'
+                                    }`} />
+                                    <div className="min-w-0 flex-1">
                                       <p className="text-sm font-medium text-gray-900">{suggestion.name}</p>
                                       <p className="text-xs text-gray-500 truncate">{suggestion.displayName}</p>
-                                      {suggestion.nearestZone && (
+                                      
+                                      {/* Coverage Status Badge */}
+                                      {!suggestion.isInKampalaArea ? (
+                                        <span className="inline-flex items-center gap-1 mt-1 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
+                                          <X className="w-3 h-3" />
+                                          Outside delivery area
+                                        </span>
+                                      ) : suggestion.nearestZone ? (
                                         <span className="inline-flex items-center gap-1 mt-1 text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full">
                                           <Truck className="w-3 h-3" />
                                           {suggestion.nearestZone.name}
                                         </span>
-                                      )}
+                                      ) : suggestion.distanceToZone > 5 ? (
+                                        <span className="inline-flex items-center gap-1 mt-1 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                                          <AlertTriangle className="w-3 h-3" />
+                                          ~{Math.round(suggestion.distanceToZone)}km away
+                                        </span>
+                                      ) : null}
                                     </div>
                                   </div>
                                 </button>
@@ -832,8 +889,51 @@ export default function CartPage() {
                           )}
                       </div>
 
+                      {/* Coverage Warning - Mobile */}
+                      {coverageWarning.show && (
+                        <div className={`p-3 rounded-lg border flex items-start gap-2 ${
+                          coverageWarning.type === 'out-of-area' 
+                            ? 'bg-red-50 border-red-200' 
+                            : 'bg-amber-50 border-amber-200'
+                        }`}>
+                           <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${
+                             coverageWarning.type === 'out-of-area' ? 'bg-red-100' : 'bg-amber-100'
+                           }`}>
+                             {coverageWarning.type === 'out-of-area' ? (
+                               <X className="w-3.5 h-3.5 text-red-600" />
+                             ) : (
+                               <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+                             )}
+                           </div>
+                           <div className="flex-1 min-w-0">
+                             <p className={`text-xs font-medium ${
+                               coverageWarning.type === 'out-of-area' ? 'text-red-800' : 'text-amber-800'
+                             }`}>
+                               {coverageWarning.type === 'out-of-area' ? 'Outside Delivery Area' : 'Limited Coverage'}
+                             </p>
+                             <p className={`text-[11px] mt-0.5 ${
+                               coverageWarning.type === 'out-of-area' ? 'text-red-600' : 'text-amber-600'
+                             }`}>
+                               {coverageWarning.message}
+                             </p>
+                             <button 
+                               onClick={() => {
+                                 setCoverageWarning({ show: false, type: null });
+                                 setAddressQuery('');
+                                 setUserPreferences({ address: '' });
+                               }}
+                               className={`text-[11px] font-medium mt-1.5 underline ${
+                                 coverageWarning.type === 'out-of-area' ? 'text-red-700' : 'text-amber-700'
+                               }`}
+                             >
+                               Try a different address
+                             </button>
+                           </div>
+                        </div>
+                      )}
+
                       {/* Zone Display/Selection - Shown below address */}
-                      {selectedZone ? (
+                      {!coverageWarning.show && selectedZone ? (
                         <div className="flex items-center justify-between p-2.5 bg-green-50 rounded-lg border border-green-100">
                            <div className="flex items-center gap-2">
                               <div className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center">
@@ -851,7 +951,7 @@ export default function CartPage() {
                              Change
                            </button>
                         </div>
-                      ) : (
+                      ) : !coverageWarning.show ? (
                         <div className="p-3 bg-amber-50 rounded-lg border border-amber-100">
                            <p className="text-xs text-amber-800 font-medium mb-2 flex items-center gap-1.5">
                              <AlertTriangle className="w-3.5 h-3.5" />
@@ -870,7 +970,7 @@ export default function CartPage() {
                              ))}
                            </select>
                         </div>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 )}
@@ -969,18 +1069,38 @@ export default function CartPage() {
                           {showAddressSuggestions && addressSuggestions.length > 0 && (
                             <div className="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-xl border border-gray-100 max-h-60 overflow-y-auto">
                               {addressSuggestions.map((s, i) => (
-                                <button key={i} onClick={(e) => {e.preventDefault(); handleAddressSelect(s);}} className="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0">
+                                <button 
+                                  key={i} 
+                                  onClick={(e) => {e.preventDefault(); handleAddressSelect(s);}} 
+                                  className={`w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 transition-colors ${
+                                    !s.isInKampalaArea ? 'bg-red-50/50' : s.distanceToZone > 5 ? 'bg-amber-50/50' : ''
+                                  }`}
+                                >
                                    <div className="flex items-start gap-2">
-                                     <MapPin className="w-4 h-4 text-[#E6411C] mt-0.5 shrink-0" />
-                                     <div className="min-w-0">
+                                     <MapPin className={`w-4 h-4 mt-0.5 shrink-0 ${
+                                       !s.isInKampalaArea ? 'text-red-500' : s.nearestZone ? 'text-green-600' : 'text-amber-500'
+                                     }`} />
+                                     <div className="min-w-0 flex-1">
                                        <p className="text-sm font-medium text-gray-900">{s.name}</p>
                                        <p className="text-xs text-gray-500 truncate">{s.displayName}</p>
-                                       {s.nearestZone && (
+                                       
+                                       {/* Coverage Status Badge */}
+                                       {!s.isInKampalaArea ? (
+                                         <span className="inline-flex items-center gap-1 mt-1 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
+                                           <X className="w-3 h-3" />
+                                           Outside delivery area
+                                         </span>
+                                       ) : s.nearestZone ? (
                                          <span className="inline-flex items-center gap-1 mt-1 text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full">
                                            <Truck className="w-3 h-3" />
-                                           {s.nearestZone.name} zone
+                                           {s.nearestZone.name} • {formatPrice(s.nearestZone.fee)}
                                          </span>
-                                       )}
+                                       ) : s.distanceToZone > 5 ? (
+                                         <span className="inline-flex items-center gap-1 mt-1 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                                           <AlertTriangle className="w-3 h-3" />
+                                           ~{Math.round(s.distanceToZone)}km from zones
+                                         </span>
+                                       ) : null}
                                      </div>
                                    </div>
                                 </button>
@@ -989,8 +1109,51 @@ export default function CartPage() {
                           )}
                        </div>
 
+                       {/* Coverage Warning */}
+                       {coverageWarning.show && (
+                          <div className={`p-3 rounded-lg border flex items-start gap-2 ${
+                            coverageWarning.type === 'out-of-area' 
+                              ? 'bg-red-50 border-red-200' 
+                              : 'bg-amber-50 border-amber-200'
+                          }`}>
+                             <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                               coverageWarning.type === 'out-of-area' ? 'bg-red-100' : 'bg-amber-100'
+                             }`}>
+                               {coverageWarning.type === 'out-of-area' ? (
+                                 <X className="w-4 h-4 text-red-600" />
+                               ) : (
+                                 <AlertTriangle className="w-4 h-4 text-amber-600" />
+                               )}
+                             </div>
+                             <div className="flex-1 min-w-0">
+                               <p className={`text-sm font-medium ${
+                                 coverageWarning.type === 'out-of-area' ? 'text-red-800' : 'text-amber-800'
+                               }`}>
+                                 {coverageWarning.type === 'out-of-area' ? 'Outside Delivery Area' : 'Limited Coverage'}
+                               </p>
+                               <p className={`text-xs mt-0.5 ${
+                                 coverageWarning.type === 'out-of-area' ? 'text-red-600' : 'text-amber-600'
+                               }`}>
+                                 {coverageWarning.message}
+                               </p>
+                               <button 
+                                 onClick={() => {
+                                   setCoverageWarning({ show: false, type: null });
+                                   setAddressQuery('');
+                                   setUserPreferences({ address: '' });
+                                 }}
+                                 className={`text-xs font-medium mt-2 underline ${
+                                   coverageWarning.type === 'out-of-area' ? 'text-red-700' : 'text-amber-700'
+                                 }`}
+                               >
+                                 Try a different address
+                               </button>
+                             </div>
+                          </div>
+                       )}
+
                        {/* Zone Display/Selection - Shown below address */}
-                       {selectedZone ? (
+                       {!coverageWarning.show && selectedZone ? (
                           <div className="flex items-center justify-between p-2.5 bg-green-50 rounded-lg border border-green-100">
                              <div className="flex items-center gap-2">
                                 <div className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center">
@@ -1008,7 +1171,7 @@ export default function CartPage() {
                                Change
                              </button>
                           </div>
-                       ) : (
+                       ) : !coverageWarning.show ? (
                           <div className="p-3 bg-amber-50 rounded-lg border border-amber-100">
                              <p className="text-xs text-amber-800 font-medium mb-2 flex items-center gap-1.5">
                                <AlertTriangle className="w-3.5 h-3.5" />
@@ -1027,7 +1190,7 @@ export default function CartPage() {
                                ))}
                              </select>
                           </div>
-                       )}
+                       ) : null}
                     </div>
                 </div>
                 
