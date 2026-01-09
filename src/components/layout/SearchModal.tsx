@@ -402,7 +402,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                             setSelectedIndex(-1);
                             inputRef.current?.focus();
                           }}
-                          className="px-2.5 py-1 rounded-full hover:bg-gray-100 text-muted-foreground hover:text-foreground transition-colors text-xs font-medium"
+                          className="px-2.5 py-1 rounded-lg text-xs font-medium text-muted-foreground hover:text-secondary transition-colors border border-transparent hover:border-secondary/20 hover:bg-secondary/5"
                           aria-label="Clear search"
                         >
                           Clear
