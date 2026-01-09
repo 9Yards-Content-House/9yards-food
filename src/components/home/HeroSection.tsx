@@ -741,7 +741,7 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-[85svh] sm:min-h-[85svh] md:min-h-[80svh] lg:min-h-[80svh] flex items-center overflow-visible pt-20 sm:pt-28 md:pt-28 lg:pt-24 pb-8 sm:pb-10 md:pb-12">
+    <section className="relative min-h-[85svh] sm:min-h-[82svh] md:min-h-[78svh] lg:min-h-[82svh] flex items-center overflow-hidden pt-20 sm:pt-28 md:pt-28 lg:pt-24 pb-8 sm:pb-10 md:pb-12">
       {/* Background */}
       <div className="absolute inset-0 gradient-hero" />
       <div
@@ -754,7 +754,7 @@ export default function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/10" />
 
       <div className="container-custom relative z-10 px-4 sm:px-6 md:px-8 lg:px-12 w-full">
-        <div className="flex flex-col-reverse lg:flex-row items-center lg:items-start gap-4 sm:gap-6 lg:gap-12 xl:gap-16">
+        <div className="flex flex-col-reverse lg:flex-row items-center lg:items-center gap-4 sm:gap-6 lg:gap-12 xl:gap-16">
           {/* Left Content */}
           <div
             className={`flex-1 text-center lg:text-left w-full lg:max-w-xl xl:max-w-2xl lg:pt-4 transition-all duration-700 ease-out relative z-20 ${
@@ -764,13 +764,13 @@ export default function HeroSection() {
             }`}
           >
             {/* Headline */}
-            <h1 className="text-[1.6rem] sm:text-3xl md:text-4xl lg:text-[2.75rem] xl:text-[3.3rem] font-extrabold text-primary-foreground leading-[1.15] xl:leading-[1.2] mb-3 sm:mb-4 text-balance">
+            <h1 className="text-[1.75rem] sm:text-3xl md:text-4xl lg:text-[2.75rem] xl:text-[3.3rem] font-extrabold text-primary-foreground leading-[1.12] xl:leading-[1.18] mb-3 sm:mb-4 text-balance">
               Craving Local Ugandan Food?{" "}
               <span className="text-secondary">We've Got You.</span>
             </h1>
 
             {/* Subheadline */}
-            <p className="text-sm sm:text-base md:text-lg text-primary-foreground/85 mb-5 sm:mb-6 leading-relaxed max-w-md mx-auto lg:mx-0">
+            <p className="text-sm sm:text-base md:text-lg text-primary-foreground/90 mb-5 sm:mb-6 leading-relaxed max-w-md mx-auto lg:mx-0">
               Freshly cooked with 100% natural ingredients. Delivered hot and
               fast across Kampala.
             </p>
@@ -778,7 +778,7 @@ export default function HeroSection() {
             {/* Location Search Card */}
             <div
               ref={containerRef}
-              className="bg-white rounded-xl sm:rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.25)] p-3.5 sm:p-5 max-w-md mx-auto lg:mx-0 transition-shadow duration-300 hover:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.3)] relative z-[100]"
+              className="bg-white rounded-xl sm:rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.25)] p-4 sm:p-5 max-w-md mx-auto lg:mx-0 transition-shadow duration-300 hover:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.3)] relative z-[100]"
             >
               {/* Search Input */}
               <div className="relative">
@@ -1175,7 +1175,7 @@ export default function HeroSection() {
 
           {/* Right Image - Shows first on mobile (flex-col-reverse), positioned right on desktop */}
           <div
-            className={`flex-shrink-0 w-full max-w-[160px] sm:max-w-[180px] md:max-w-[220px] lg:max-w-[340px] xl:max-w-[400px] lg:absolute lg:right-4 lg:top-1/2 lg:-translate-y-1/2 xl:right-12 transition-all duration-700 delay-100 ease-out z-10 ${
+            className={`flex-shrink-0 w-full max-w-[180px] sm:max-w-[200px] md:max-w-[240px] lg:max-w-[340px] xl:max-w-[400px] lg:absolute lg:right-4 lg:top-1/2 lg:-translate-y-1/2 xl:right-12 transition-all duration-700 delay-100 ease-out z-10 ${
               isVisible
                 ? "opacity-100 translate-y-0 scale-100"
                 : "opacity-0 translate-y-4 scale-95"
@@ -1183,7 +1183,7 @@ export default function HeroSection() {
           >
             <div className="relative">
               {/* Subtle shadow effect behind image */}
-              <div className="absolute inset-0 bg-black/10 blur-3xl rounded-full scale-75 -z-10" />
+              <div className="absolute inset-0 bg-secondary/15 blur-3xl rounded-full scale-90 -z-10" />
               <OptimizedImage
                 src="/images/lusaniya/9Yards-Food-Lusaniya-05.png"
                 alt="Delicious Ugandan food platter featuring fresh local cuisine"
