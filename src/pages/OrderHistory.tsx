@@ -206,8 +206,8 @@ export default function OrderHistory() {
                   className="card-premium group overflow-hidden border border-border/60 hover:border-secondary/30 transition-all duration-300"
                 >
                   <div className="flex flex-row md:flex-row h-full">
-                    {/* Visual Side (Left) - Fixed square layout for mobile/desktop consistent */}
-                    <div className="w-24 sm:w-32 md:w-48 bg-secondary/5 shrink-0 relative border-r border-border/50">
+                    {/* Visual Side (Left) - Optimized widths */}
+                    <div className="w-28 sm:w-40 md:w-56 bg-secondary/5 shrink-0 relative border-r border-border/50">
                       {orderImages.length > 0 ? (
                         orderImages.length === 1 ? (
                           <OptimizedImage 
@@ -236,47 +236,47 @@ export default function OrderHistory() {
                       )}
                     </div>
 
-                    {/* Content Side (Right) */}
-                    <div className="flex-1 p-3 md:p-6 flex flex-col justify-between min-w-0">
+                    {/* Content Side (Right) - Better padding and spacing */}
+                    <div className="flex-1 p-4 md:p-6 flex flex-col justify-between min-w-0">
                       {/* Detailed Header Row */}
-                      <div className="mb-2 md:mb-4">
+                      <div className="mb-3 md:mb-5">
                          <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                             <div className="flex items-center gap-2">
-                              <span className="font-mono text-[10px] md:text-sm font-bold text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                              {/* Order ID Tag */}
+                              <span className="font-mono text-[11px] md:text-sm font-bold text-muted-foreground bg-muted/80 px-2 py-1 rounded-md border border-border/50">
                                 #{order.orderId.slice(-6).toUpperCase()}
                               </span>
-                              <span className="text-[10px] md:text-xs text-muted-foreground hidden sm:flex items-center gap-1">
+                              {/* Date for Tablet+ */}
+                              <span className="text-xs text-muted-foreground hidden sm:flex items-center gap-1">
                                  {formatDate(order.orderDate)}
                               </span>
                             </div>
                             
                             <div className="flex items-center gap-2">
-                                {/* Desktop Badge Position (Next to Price) */}
-                                <span className={`hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${badge.className}`}>
-                                    <BadgeIcon className="w-3 h-3" />
+                                {/* Desktop Badge Position */}
+                                <span className={`hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider border ${badge.className}`}>
+                                    <BadgeIcon className="w-3 h-3 md:w-3.5 md:h-3.5" />
                                     {badge.label}
                                 </span>
-                                <span className="block text-base md:text-xl font-bold text-secondary">
+                                <span className="block text-lg md:text-2xl font-bold text-secondary">
                                   {formatPrice(order.total)}
                                 </span>
                             </div>
                          </div>
                          
-                         {/* Mobile-only date line */}
-                         <div className="flex items-center gap-2 mb-1.5 sm:hidden">
-                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border ${badge.className}`}>
-                                <BadgeIcon className="w-2.5 h-2.5" />
-                                {badge.label}
-                            </span>
-                            <span className="text-[10px] text-muted-foreground">
+                         {/* Mobile-only date line & Badge */}
+                         <div className="flex items-center justify-between sm:hidden mb-2">
+                            <span className="text-[11px] text-muted-foreground">
                                {formatDate(order.orderDate)}
+                            </span>
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border ${badge.className}`}>
+                                <BadgeIcon className="w-3 h-3" />
+                                {badge.label}
                             </span>
                          </div>
 
-
-
                          {/* Items List (Wrapped) */}
-                         <div className="text-xs md:text-sm text-foreground/80 line-clamp-2 leading-relaxed">
+                         <div className="text-sm text-foreground/80 line-clamp-2 leading-relaxed">
                             {order.items.map((item, idx) => (
                                <span key={idx} className="mr-2 inline-block">
                                   <span className="font-bold text-foreground">
@@ -288,25 +288,25 @@ export default function OrderHistory() {
                       </div>
 
                       {/* Actions Footer */}
-                      <div className="flex items-center gap-2 mt-2 pt-2 md:pt-4 border-t border-border/50">
+                      <div className="flex items-center gap-3 mt-auto pt-3 md:pt-4 border-t border-dashed border-border/60">
                         <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground mr-auto">
-                            <MapPin className="w-4 h-4 text-secondary/70" />
+                            <MapPin className="w-4 h-4 text-secondary/70 shrink-0" />
                             <span className="line-clamp-1 max-w-[200px]">{order.deliveryLocation}</span>
                         </div>
 
                         <div className="flex items-center gap-2 w-full md:w-auto">
                            <button
                              onClick={() => handleTrackOrder(order.orderId)}
-                             className="flex-1 md:flex-none h-8 md:h-10 text-xs md:text-sm font-medium text-foreground hover:text-green-600 border border-border rounded-lg hover:bg-green-50 transition-colors flex items-center justify-center gap-1.5 px-3"
+                             className="flex-1 md:flex-none h-10 md:h-11 text-xs md:text-sm font-semibold text-foreground hover:text-green-700 border border-border/80 rounded-xl hover:bg-green-50 hover:border-green-200 transition-all flex items-center justify-center gap-2 px-4 shadow-sm"
                            >
-                             <WhatsAppIcon className="w-3.5 h-3.5" />
+                             <WhatsAppIcon className="w-4 h-4" />
                              Track
                            </button>
                            <button
                              onClick={() => handleReorder(order)}
-                             className="flex-1 md:flex-none h-8 md:h-10 text-xs md:text-sm btn-secondary px-4 flex items-center justify-center gap-1.5"
+                             className="flex-1 md:flex-none h-10 md:h-11 text-xs md:text-sm font-bold bg-[#E6411C] hover:bg-[#d13a17] text-white rounded-xl flex items-center justify-center gap-2 px-6 shadow-sm shadow-orange-500/20 transition-all active:scale-[0.98]"
                            >
-                             <RefreshCw className="w-3.5 h-3.5" />
+                             <RefreshCw className="w-4 h-4" />
                              Reorder
                            </button>
                         </div>
