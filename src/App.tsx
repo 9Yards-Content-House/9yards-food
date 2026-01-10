@@ -27,50 +27,35 @@ const OrderConfirmation = lazy(() => import("./pages/OrderConfirmation"));
 const OrderHistory = lazy(() => import("./pages/OrderHistory"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-// Loading fallback component - Premium branded experience
-const loadingMessages = [
-  "Preparing deliciousness...",
-  "Warming up the kitchen...",
-  "Gathering fresh ingredients...",
-  "Almost ready to serve...",
-  "Cooking up something special...",
-  "Setting the table...",
-];
-
+// Loading fallback component - Only shows for navigation AFTER initial load
+// During initial load, the splash screen handles the loading state
 const PageLoader = () => {
-  const [messageIndex, setMessageIndex] = useState(0);
-  const [dots, setDots] = useState(1);
-
-  // Rotate messages every 2.5 seconds
+  const [visible, setVisible] = useState(false);
+  
+  // Only show loader if splash screen is already hidden (not initial load)
   useEffect(() => {
-    const messageTimer = setInterval(() => {
-      setMessageIndex((prev) => (prev + 1) % loadingMessages.length);
-    }, 2500);
-    return () => clearInterval(messageTimer);
+    // Small delay to prevent flash on fast loads
+    const timer = setTimeout(() => {
+      if (window.splashScreenHidden) {
+        setVisible(true);
+      }
+    }, 100);
+    return () => clearTimeout(timer);
   }, []);
 
-  // Animate dots
-  useEffect(() => {
-    const dotTimer = setInterval(() => {
-      setDots((prev) => (prev % 3) + 1);
-    }, 400);
-    return () => clearInterval(dotTimer);
-  }, []);
+  // Don't render anything if splash is still showing or not visible yet
+  if (!visible) return null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#fdfcfc] to-[#f5f3f3]">
-      <div className="flex flex-col items-center gap-6">
-        {/* Logo with spinner */}
-        <div className="relative w-28 h-28">
-          {/* Outer ring - spins */}
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="flex flex-col items-center gap-4">
+        {/* Simple spinner */}
+        <div className="relative w-16 h-16">
           <div 
-            className="absolute inset-0 rounded-full border-[3px] border-[#212282]/20 border-t-[#E6411C] motion-safe:animate-spin"
-            style={{ animationDuration: '1s' }}
+            className="absolute inset-0 rounded-full border-[3px] border-muted border-t-[#E6411C] animate-spin"
+            style={{ animationDuration: '0.8s' }}
           />
-          {/* Inner ring - pulses */}
-          <div className="absolute inset-2 rounded-full bg-[#212282]/5 motion-safe:animate-pulse" />
-          {/* Logo */}
-          <div className="absolute inset-3 rounded-full bg-white shadow-lg flex items-center justify-center overflow-hidden">
+          <div className="absolute inset-2 rounded-full bg-white shadow-sm flex items-center justify-center overflow-hidden">
             <img 
               src="/images/logo/9Yards-Food-Coloured-favicon.jpg" 
               alt="9Yards Food" 
@@ -78,33 +63,7 @@ const PageLoader = () => {
             />
           </div>
         </div>
-
-        {/* Brand name */}
-        <h1 className="text-[#212282] font-bold text-xl tracking-tight">
-          9Yards Food
-        </h1>
-
-        {/* Rotating message */}
-        <p className="text-[#212282]/70 font-medium text-base h-6 transition-opacity duration-300">
-          {loadingMessages[messageIndex]}
-        </p>
-
-        {/* Progress dots */}
-        <div className="flex items-center gap-2">
-          {[1, 2, 3].map((dot) => (
-            <div
-              key={dot}
-              className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                dot <= dots ? 'bg-[#E6411C] scale-100' : 'bg-[#212282]/20 scale-75'
-              }`}
-            />
-          ))}
-        </div>
-
-        {/* Accessibility: reduced motion fallback */}
-        <noscript>
-          <p className="text-[#212282]/50 text-sm">Loading...</p>
-        </noscript>
+        <p className="text-muted-foreground text-sm">Loading...</p>
       </div>
     </div>
   );
@@ -121,6 +80,21 @@ const queryClient = new QueryClient({
   },
 });
 
+// Component that hides splash screen once the page is mounted
+const SplashHider = ({ children }: { children: React.ReactNode }) => {
+  useEffect(() => {
+    // Hide splash screen after a brief moment to ensure content is painted
+    const timer = setTimeout(() => {
+      if (typeof window !== 'undefined' && window.hideSplashScreen) {
+        window.hideSplashScreen();
+      }
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+  
+  return <>{children}</>;
+};
+
 const App = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
 
@@ -136,26 +110,27 @@ const App = () => {
             <ErrorBoundary>
               <ScrollToTop />
               <Suspense fallback={<PageLoader />}>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/menu" element={<Menu />} />
-                  <Route path="/cart" element={<Cart />} />
-                  <Route path="/favorites" element={<Favorites />} />
-                  <Route path="/deals" element={<Deals />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/how-it-works" element={<HowItWorks />} />
-                  <Route path="/privacy" element={<Privacy />} />
-                  <Route path="/terms" element={<Terms />} />
-                  <Route path="/order-confirmation" element={<OrderConfirmation />} />
-                  <Route path="/order-history" element={<OrderHistory />} />
-                  <Route path="*" element={<NotFound />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-                <FloatingWhatsApp isOpen={isChatOpen} onOpenChange={setIsChatOpen} />
-                <PWAInstallPrompt />
-                <MobileNav onChatClick={() => setIsChatOpen(prev => !prev)} />
+                <SplashHider>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/menu" element={<Menu />} />
+                    <Route path="/cart" element={<Cart />} />
+                    <Route path="/favorites" element={<Favorites />} />
+                    <Route path="/deals" element={<Deals />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/how-it-works" element={<HowItWorks />} />
+                    <Route path="/privacy" element={<Privacy />} />
+                    <Route path="/terms" element={<Terms />} />
+                    <Route path="/order-confirmation" element={<OrderConfirmation />} />
+                    <Route path="/order-history" element={<OrderHistory />} />
+                    <Route path="*" element={<NotFound />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                  <FloatingWhatsApp isOpen={isChatOpen} onOpenChange={setIsChatOpen} />
+                  <PWAInstallPrompt />
+                  <MobileNav onChatClick={() => setIsChatOpen(prev => !prev)} />
+                </SplashHider>
               </Suspense>
-
             </ErrorBoundary>
           </BrowserRouter>
         </TooltipProvider>
