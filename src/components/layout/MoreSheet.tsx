@@ -10,11 +10,12 @@ import {
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { SOCIAL_LINKS, getWhatsAppUrl, WHATSAPP_MESSAGES, PHONE_NUMBER_FORMATTED, EMAIL, BUSINESS_HOURS } from '@/lib/constants';
+import { vibrate } from '@/lib/utils/ui';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 
 // TikTok icon manual definition to ensure it matches Lucide style
 const TikTokIconComponent = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
   </svg>
 );
@@ -69,6 +70,19 @@ export default function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
 
   const status = getKitchenStatus();
 
+  const handleNavClick = () => {
+    vibrate(20);
+    onOpenChange(false);
+  };
+
+  const handleContactClick = () => {
+    vibrate(25);
+  };
+
+  const handleSocialClick = () => {
+    vibrate(15);
+  };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent 
@@ -83,10 +97,10 @@ export default function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
         
         {/* Brand Header Section - Extremely Compact */}
         <div className="bg-primary px-6 py-5 sm:py-6 relative overflow-hidden shrink-0">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12 blur-2xl" />
+          <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12 blur-2xl" aria-hidden="true" />
           
           <div className="relative z-10 flex flex-col items-center text-center">
-            <div className="w-10 h-1 rounded-full bg-white/20 mb-3 shrink-0" />
+            <div className="w-10 h-1 rounded-full bg-white/20 mb-3 shrink-0" aria-hidden="true" />
             <h2 className="text-lg font-extrabold text-white tracking-tight">We're Here to Help</h2>
             <p className="text-white/70 text-[9px] mt-1 whitespace-nowrap tracking-widest uppercase">
               Support Available Daily {BUSINESS_HOURS.open} - {BUSINESS_HOURS.close}
@@ -98,66 +112,76 @@ export default function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
         <div className="flex-1 px-5 pt-3 pb-6 flex flex-col gap-6 overflow-y-auto overscroll-contain">
 
           {/* Navigation Links */}
-          <div className="space-y-1">
-            {navLinks.map((link) => {
-              const isActive = location.pathname === link.href;
-              
-              return (
-                <Link
-                  key={link.href}
-                  onClick={() => onOpenChange(false)}
-                  to={link.href}
-                  className={`flex items-center justify-between p-3 rounded-xl transition-all duration-200 ${
-                    isActive
-                      ? 'bg-primary/5 text-primary font-bold'
-                      : 'hover:bg-gray-50 text-gray-700 font-medium'
-                  }`}
-                >
-                  <span className="text-base">{link.label}</span>
-                  {isActive && <div className="w-1.5 h-1.5 rounded-full bg-primary" />}
-                </Link>
-              );
-            })}
-          </div>
+          <nav aria-label="More options navigation">
+            <ul className="space-y-1">
+              {navLinks.map((link) => {
+                const isActive = location.pathname === link.href;
+                
+                return (
+                  <li key={link.href}>
+                    <Link
+                      onClick={handleNavClick}
+                      to={link.href}
+                      className={`flex items-center justify-between p-3 rounded-xl transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
+                        isActive
+                          ? 'bg-primary/5 text-primary font-bold'
+                          : 'hover:bg-gray-50 text-gray-700 font-medium'
+                      }`}
+                      aria-current={isActive ? 'page' : undefined}
+                    >
+                      <span className="text-base">{link.label}</span>
+                      {isActive && <div className="w-1.5 h-1.5 rounded-full bg-primary" aria-hidden="true" />}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
           
           {/* Contact Methods */}
-          <div className="space-y-0.5">
+          <div role="group" aria-label="Contact options" className="space-y-0.5">
               <a
                 href={defaultWhatsAppUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-4 py-3 px-2 rounded-xl active:bg-gray-50 transition-all group"
+                onClick={handleContactClick}
+                className="flex items-center gap-4 py-3 px-2 rounded-xl active:scale-[0.98] active:bg-gray-50 transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+                aria-label="Order on WhatsApp - Fastest way to order"
               >
-                <WhatsAppIcon className="w-6 h-6 text-[#25D366] shrink-0" />
+                <WhatsAppIcon className="w-6 h-6 text-[#25D366] shrink-0" aria-hidden="true" />
                 <div className="flex-1">
                   <p className="font-bold text-gray-900 text-sm tracking-tight">Order on WhatsApp</p>
                   <p className="text-[10px] text-gray-500 font-medium">Fastest way to order</p>
                 </div>
-                <ArrowRight className="w-4 h-4 text-gray-200 group-active:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 text-gray-200 group-hover:translate-x-1 group-focus-visible:translate-x-1 group-active:translate-x-1 transition-transform" aria-hidden="true" />
               </a>
 
               <a
                 href={`tel:${PHONE_NUMBER_FORMATTED.replace(/\s/g, '')}`}
-                className="flex items-center gap-4 py-3 px-2 rounded-xl active:bg-gray-50 transition-all group"
+                onClick={handleContactClick}
+                className="flex items-center gap-4 py-3 px-2 rounded-xl active:scale-[0.98] active:bg-gray-50 transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                aria-label="Call Support - Instant assistance"
               >
-                <Phone className="w-5 h-5 ml-0.5 text-primary shrink-0" />
+                <Phone className="w-5 h-5 ml-0.5 text-primary shrink-0" aria-hidden="true" />
                 <div className="flex-1 ml-0.5">
                   <p className="font-bold text-gray-900 text-sm tracking-tight">Call Support</p>
                   <p className="text-[10px] text-gray-500 font-medium">Instant assistance</p>
                 </div>
-                <ArrowRight className="w-4 h-4 text-gray-200 group-active:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 text-gray-200 group-hover:translate-x-1 group-focus-visible:translate-x-1 group-active:translate-x-1 transition-transform" aria-hidden="true" />
               </a>
 
               <a
                 href={`mailto:${EMAIL}`}
-                className="flex items-center gap-4 py-3 px-2 rounded-xl active:bg-gray-50 transition-all group"
+                onClick={handleContactClick}
+                className="flex items-center gap-4 py-3 px-2 rounded-xl active:scale-[0.98] active:bg-gray-50 transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                aria-label={`Email Support at ${EMAIL}`}
               >
-                <Mail className="w-5 h-5 ml-0.5 text-gray-600 shrink-0" />
+                <Mail className="w-5 h-5 ml-0.5 text-gray-600 shrink-0" aria-hidden="true" />
                 <div className="flex-1 ml-0.5">
                   <p className="font-bold text-gray-900 text-sm tracking-tight">Email Support</p>
                   <p className="text-[10px] text-gray-500 font-medium">{EMAIL}</p>
                 </div>
-                <ArrowRight className="w-4 h-4 text-gray-200 group-active:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 text-gray-200 group-hover:translate-x-1 group-focus-visible:translate-x-1 group-active:translate-x-1 transition-transform" aria-hidden="true" />
               </a>
           </div>
 
@@ -171,26 +195,34 @@ export default function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
                           Daily {BUSINESS_HOURS.open} - {BUSINESS_HOURS.close}
                         </p>
                     </div>
-                    <div className={`px-2 py-0.5 rounded-full text-[8px] font-black tracking-widest border shadow-sm ${status.class}`}>
+                    <div 
+                      className={`px-2 py-0.5 rounded-full text-[8px] font-black tracking-widest border shadow-sm ${status.class}`}
+                      role="status"
+                      aria-live="polite"
+                    >
                         {status.label}
                     </div>
                 </div>
                 
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-2" role="group" aria-label="Social media links">
                     <a
                         href={SOCIAL_LINKS.instagram}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex flex-col items-center justify-center gap-1 py-2 rounded-lg bg-white shadow-sm border border-gray-100 active:scale-95 transition-transform"
+                        onClick={handleSocialClick}
+                        className="flex flex-col items-center justify-center gap-1 py-2 rounded-lg bg-white shadow-sm border border-gray-100 active:scale-95 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                        aria-label="Follow us on Instagram"
                     >
-                        <Instagram className="w-4 h-4 text-gray-900" />
+                        <Instagram className="w-4 h-4 text-gray-900" aria-hidden="true" />
                         <span className="text-[8px] font-bold text-gray-900 uppercase">Insta</span>
                     </a>
                     <a
                         href={SOCIAL_LINKS.tiktok}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex flex-col items-center justify-center gap-1 py-2 rounded-lg bg-white shadow-sm border border-gray-100 active:scale-95 transition-transform"
+                        onClick={handleSocialClick}
+                        className="flex flex-col items-center justify-center gap-1 py-2 rounded-lg bg-white shadow-sm border border-gray-100 active:scale-95 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                        aria-label="Follow us on TikTok"
                     >
                         <TikTokIconComponent className="w-4 h-4 text-gray-900" />
                         <span className="text-[8px] font-bold text-gray-900 uppercase">TikTok</span>
@@ -200,9 +232,11 @@ export default function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
                             href={SOCIAL_LINKS.youtube}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex flex-col items-center justify-center gap-1 py-2 rounded-lg bg-white shadow-sm border border-gray-100 active:scale-95 transition-transform"
+                            onClick={handleSocialClick}
+                            className="flex flex-col items-center justify-center gap-1 py-2 rounded-lg bg-white shadow-sm border border-gray-100 active:scale-95 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                            aria-label="Subscribe on YouTube"
                         >
-                            <Youtube className="w-4 h-4 text-gray-900" />
+                            <Youtube className="w-4 h-4 text-gray-900" aria-hidden="true" />
                             <span className="text-[8px] font-bold text-gray-900 uppercase">YouTube</span>
                         </a>
                     )}
@@ -212,8 +246,11 @@ export default function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
             {/* Action Section */}
             <div className="flex flex-col items-center gap-4">
               <button
-                onClick={() => onOpenChange(false)}
-                className="w-full py-4 rounded-xl bg-primary text-white font-bold text-sm active:scale-[0.98] transition-all shadow-lg"
+                onClick={() => {
+                  vibrate(30);
+                  onOpenChange(false);
+                }}
+                className="w-full py-4 rounded-xl bg-primary text-white font-bold text-sm active:scale-[0.98] transition-all shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 Close Menu
               </button>
@@ -222,10 +259,11 @@ export default function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
                 href="https://9yards.co.ug"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-[9px] font-bold text-gray-400 hover:text-gray-600 transition-colors uppercase tracking-widest"
+                className="inline-flex items-center gap-1 text-[9px] font-bold text-gray-400 hover:text-gray-600 transition-colors uppercase tracking-widest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:rounded"
+                aria-label="Visit 9yards.co.ug main website"
               >
                 Part of 9yards.co.ug
-                <ExternalLink className="w-3 h-3" />
+                <ExternalLink className="w-3 h-3" aria-hidden="true" />
               </a>
             </div>
           </div>
