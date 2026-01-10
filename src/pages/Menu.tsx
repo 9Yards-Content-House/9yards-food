@@ -576,10 +576,11 @@ export default function MenuPage() {
                   aria-label={`${categories.find((c) => c.id === activeCategory)?.label || 'All Items'} menu items`}
                   className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
                 >
-                  {items.map((item) => (
+                  {items.map((item, index) => (
                     <MenuItemCard
                       key={`${item.category}-${item.id}`}
                       item={item}
+                      priority={index < 6}
                       onAddToOrder={() => {
                 let type: 'main' | 'sauce' | 'side' | undefined;
                 if (item.categoryType === 'main') type = 'main';

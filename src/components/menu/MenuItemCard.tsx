@@ -38,6 +38,7 @@ export interface MenuItemCardProps {
   isHighlighted?: boolean;
   lusaniyaCount?: number;
   onRemoveLusaniya?: () => void;
+  priority?: boolean;
 }
 
 export function MenuItemCard({
@@ -50,6 +51,7 @@ export function MenuItemCard({
   isHighlighted,
   lusaniyaCount = 0,
   onRemoveLusaniya,
+  priority = false,
 }: MenuItemCardProps) {
   const isBestSeller = bestSellers.includes(item.id);
   const isNew = newItems.includes(item.id);
@@ -167,6 +169,7 @@ export function MenuItemCard({
         <OptimizedImage
           src={item.image}
           alt={item.name}
+          priority={priority}
           className={`w-full h-full object-cover 
             ${!item.available ? "grayscale" : ""}`}
         />

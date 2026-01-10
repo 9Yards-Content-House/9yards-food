@@ -77,6 +77,7 @@ interface DishCardProps {
   isInCart?: boolean;
   isVisible?: boolean;
   animationDelay?: number;
+  priority?: boolean;
 }
 
 function DishCard({ 
@@ -86,7 +87,8 @@ function DishCard({
   isFavorite,
   isInCart,
   isVisible = true,
-  animationDelay = 0
+  animationDelay = 0,
+  priority = false
 }: DishCardProps) {
   const getPriceDisplay = () => {
     if (item.isIncluded) {
@@ -138,6 +140,7 @@ function DishCard({
         <OptimizedImage
           src={item.image}
           alt={item.name}
+          priority={priority}
           className={`w-full h-full object-cover 
             ${!item.available ? 'grayscale' : ''}`}
         />
@@ -339,6 +342,7 @@ export default function PopularDishesSection() {
                 isInCart={(item.isIndividual || item.categoryType === 'lusaniya' || item.categoryType === 'juice' || item.categoryType === 'dessert') ? isIndividualInCart(item.id, item.categoryType) : false}
                 isVisible={isVisible}
                 animationDelay={100 + index * 75}
+                priority={index < 3}
               />
             ))}
           </ul>

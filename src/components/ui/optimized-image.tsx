@@ -17,7 +17,7 @@ interface OptimizedImageProps extends ImgHTMLAttributes<HTMLImageElement> {
  * OptimizedImage - Performance-optimized image component
  * 
  * Features:
- * - Lazy loading with IntersectionObserver
+ * - Lazy loading with IntersectionObserver (disabled for priority images)
  * - Blur placeholder while loading
  * - Responsive srcset for Unsplash images
  * - Loading state management
@@ -36,8 +36,8 @@ export function OptimizedImage({
   quality = 80,
   ...props
 }: OptimizedImageProps) {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [isInView, setIsInView] = useState(priority);
+  const [isLoaded, setIsLoaded] = useState(priority); // Start as loaded for priority images
+  const [isInView, setIsInView] = useState(priority); // Priority images are always "in view"
   const imgRef = useRef<HTMLImageElement>(null);
 
   // Generate responsive srcset for Unsplash images
@@ -87,7 +87,7 @@ export function OptimizedImage({
         });
       },
       {
-        rootMargin: "200px", // Start loading 200px before in view
+        rootMargin: "400px", // Start loading 400px before in view for faster perceived load
         threshold: 0.01,
       }
     );
@@ -114,8 +114,8 @@ export function OptimizedImage({
         aspectRatio: width && height ? `${width}/${height}` : undefined,
       }}
     >
-      {/* Blur placeholder */}
-      {placeholder === "blur" && blurSrc && !isLoaded && (
+      {/* Blur placeholder - don't show for priority images that start loaded */}
+      {placeholder === "blur" && blurSrc && !isLoaded && !priority && (
         <img
           src={blurSrc}
           alt=""
@@ -125,7 +125,7 @@ export function OptimizedImage({
       )}
       
       {/* Loading skeleton for empty placeholder */}
-      {placeholder === "empty" && !isLoaded && (
+      {placeholder === "empty" && !isLoaded && !priority && (
         <div className="absolute inset-0 bg-muted animate-pulse" />
       )}
 
@@ -144,7 +144,7 @@ export function OptimizedImage({
           onLoad={() => setIsLoaded(true)}
           className={cn(
             "w-full h-full object-cover transition-opacity duration-300",
-            isLoaded ? "opacity-100" : "opacity-0"
+            isLoaded || priority ? "opacity-100" : "opacity-0"
           )}
           {...props}
         />
