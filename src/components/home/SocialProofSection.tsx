@@ -125,8 +125,8 @@ export default function SocialProofSection() {
                   <img
                     src={testimonial.image}
                     alt={testimonial.name}
-                    loading="lazy"
-                    decoding="async"
+                    loading="eager"
+                    decoding="sync"
                     width={56}
                     height={56}
                     className="w-14 h-14 rounded-full object-cover ring-2 ring-secondary/20"

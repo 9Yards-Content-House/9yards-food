@@ -33,8 +33,8 @@ export default function PageHeader({
             src={backgroundImage} 
             alt="" 
             aria-hidden="true"
-            loading="lazy"
-            decoding="async"
+            loading="eager"
+            decoding="sync"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-primary/50 mix-blend-multiply" />

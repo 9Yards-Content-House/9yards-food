@@ -59,6 +59,8 @@ const PageLoader = () => {
             <img 
               src="/images/logo/9Yards-Food-Coloured-favicon.jpg" 
               alt="9Yards Food" 
+              loading="eager"
+              decoding="sync"
               className="w-full h-full object-cover"
             />
           </div>
