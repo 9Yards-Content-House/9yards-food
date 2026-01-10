@@ -1,8 +1,8 @@
 # 9Yards Food
 
-Authentic Ugandan food delivery web application for 9Yards Food - bringing delicious, homemade Ugandan cuisine to doorsteps across Kampala.
+Authentic Ugandan food delivery web application for 9Yards Food - bringing delicious, Ugandan cuisine to doorsteps across Kampala.
 
-## 🍽️ Features
+## Features
 
 - **Online Menu** - Browse our full menu of authentic Ugandan dishes
 - **Smart Cart** - Add items, customize orders, apply promo codes
@@ -11,7 +11,7 @@ Authentic Ugandan food delivery web application for 9Yards Food - bringing delic
 - **Progressive Web App** - Install on mobile for app-like experience
 - **WhatsApp Integration** - Quick order support via WhatsApp
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Framework**: React 18 with TypeScript
 - **Build Tool**: Vite
@@ -21,7 +21,7 @@ Authentic Ugandan food delivery web application for 9Yards Food - bringing delic
 - **Routing**: React Router v6
 - **State**: React Context + localStorage persistence
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -44,7 +44,7 @@ npm run build
 npm run preview
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 src/
@@ -60,9 +60,9 @@ src/
 └── pages/          # Page components
 ```
 
-## 🌐 Deployment
+## Deployment
 
-This project is configured for deployment on **Netlify**.
+This project is configured for deployment.
 
 ```bash
 # Build command
@@ -72,15 +72,10 @@ npm run build
 dist/
 ```
 
-The `netlify.toml` includes:
-- Security headers (X-Frame-Options, CSP, etc.)
-- Asset caching for optimal performance
-- SPA redirect handling
-
-## 📱 PWA Support
+## PWA Support
 
 The app is installable as a Progressive Web App on supported devices.
 
-## 📄 License
+## License
 
 Private - All rights reserved © 9Yards Food

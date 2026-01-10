@@ -28,21 +28,30 @@ export default defineConfig(({ mode }) => ({
         name: '9Yards Food',
         short_name: '9Yards',
         description: 'Authentic Ugandan Food Delivery',
-        theme_color: '#ffffff',
-        background_color: '#ffffff',
+        theme_color: '#212282',
+        background_color: '#212282',
         display: 'standalone',
+        start_url: '/',
+        orientation: 'portrait-primary',
+        categories: ['food', 'shopping', 'lifestyle'],
         icons: [
           {
             src: '/images/logo/9Yards-Food-White-Logo-colored.png',
             sizes: '192x192',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
           },
           {
             src: '/images/logo/9Yards-Food-White-Logo-colored.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
+          },
+          {
+            src: '/images/logo/9Yards-Food-White-Logo-colored.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
           }
         ]
       }

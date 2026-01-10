@@ -126,6 +126,100 @@
     <link rel="preload" as="image" href="/images/lusaniya/9Yards-Food-Lusaniya-05.png" fetchpriority="high" />
   </head>
   <body>
+    <!-- PWA Splash Screen - Shows immediately before React loads -->
+    <div id="splash-screen" style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #212282 0%, #1a1a6e 50%, #0f0f4a 100%);
+      transition: opacity 0.4s ease-out, visibility 0.4s ease-out;
+    ">
+      <!-- Logo Container with Pulse Animation -->
+      <div style="
+        animation: splash-pulse 2s ease-in-out infinite;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+      ">
+        <!-- Logo -->
+        <img 
+          src="/images/logo/9Yards-Food-White-Logo.png" 
+          alt="9Yards Food" 
+          width="160" 
+          height="80"
+          style="
+            width: 160px;
+            height: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 20px rgba(0,0,0,0.3));
+          "
+        />
+        
+        <!-- Loading Dots -->
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <span style="
+            width: 10px;
+            height: 10px;
+            background: #E6411C;
+            border-radius: 50%;
+            animation: splash-dot 1.4s ease-in-out infinite;
+            animation-delay: 0s;
+          "></span>
+          <span style="
+            width: 10px;
+            height: 10px;
+            background: #E6411C;
+            border-radius: 50%;
+            animation: splash-dot 1.4s ease-in-out infinite;
+            animation-delay: 0.2s;
+          "></span>
+          <span style="
+            width: 10px;
+            height: 10px;
+            background: #E6411C;
+            border-radius: 50%;
+            animation: splash-dot 1.4s ease-in-out infinite;
+            animation-delay: 0.4s;
+          "></span>
+        </div>
+        
+        <!-- Tagline -->
+        <p style="
+          color: rgba(255,255,255,0.7);
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-size: 14px;
+          font-weight: 500;
+          letter-spacing: 0.5px;
+          margin: 0;
+        ">Authentic Ugandan Cuisine</p>
+      </div>
+    </div>
+    
+    <!-- Splash Screen Animations -->
+    <style>
+      @keyframes splash-pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.02); opacity: 0.95; }
+      }
+      @keyframes splash-dot {
+        0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+        40% { transform: scale(1); opacity: 1; }
+      }
+      #splash-screen.splash-hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+    </style>
+
     <!-- Hidden form for Netlify detection -->
     <form name="contact" netlify netlify-honeypot="bot-field" hidden>
       <input type="text" name="name" />
