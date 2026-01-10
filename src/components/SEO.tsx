@@ -94,8 +94,13 @@ const SEO = ({
       <meta name="citation_online_date" content={aiMeta.citation_online_date} />
 
       <link rel="canonical" href={fullUrl} />
-      <link rel="icon" type="image/jpeg" href="/images/logo/9Yards-Food-Coloured-favicon.jpg" />
-      <link rel="shortcut icon" type="image/jpeg" href="/images/logo/9Yards-Food-Coloured-favicon.jpg" />
+      
+      {/* Favicon for all pages - Critical for Google Search Results */}
+      <link rel="icon" type="image/x-icon" href="/images/logo/favicon.ico" />
+      <link rel="icon" type="image/jpeg" sizes="192x192" href="/images/logo/9Yards-Food-Coloured-favicon.jpg" />
+      <link rel="icon" type="image/png" sizes="32x32" href="/images/logo/9Yards-Food-White-Logo-colored.png" />
+      <link rel="shortcut icon" type="image/x-icon" href="/images/logo/favicon.ico" />
+      <link rel="apple-touch-icon" sizes="180x180" href="/images/logo/9Yards-Food-White-Logo-colored.png" />
 
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={type} />
@@ -125,6 +130,11 @@ const SEO = ({
       {/* Structured Data: Organization/Page */}
       <script type="application/ld+json">
         {JSON.stringify(finalStructuredData)}
+      </script>
+
+      {/* Structured Data: WebSite - For Brand Search & Sitelinks */}
+      <script type="application/ld+json">
+        {JSON.stringify(globalMetadata.websiteSchema)}
       </script>
 
       {/* Structured Data: Breadcrumbs */}

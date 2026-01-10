@@ -2,17 +2,19 @@ export const pageMetadata = {
   // HOME PAGE (/)
   home: {
     title: "9Yards Food | Authentic Ugandan Cuisine Delivery in Kampala | Order Now",
-    description: "Order authentic Ugandan food delivery in Kampala. Fresh matooke, posho, fish, chicken & more. 100% natural ingredients, 30-45 min delivery. Celebrity approved. Order via WhatsApp or pay online.",
-    keywords: "Ugandan food delivery, Kampala food delivery, authentic Ugandan cuisine, matooke delivery, posho, fish combo, chicken delivery, food delivery Kampala, 9Yards Food, natural juice Uganda",
+    description: "9Yards Food - Order authentic Ugandan food delivery in Kampala. Fresh matooke, posho, fish, chicken & more. 100% natural ingredients, 30-45 min delivery. Celebrity approved. Order via WhatsApp or pay online.",
+    keywords: "9Yards Food, 9yards food, 9 yards food, 9yards, Ugandan food delivery, Kampala food delivery, authentic Ugandan cuisine, matooke delivery, posho, fish combo, chicken delivery, food delivery Kampala, natural juice Uganda",
     ogTitle: "9Yards Food - Authentic Ugandan Cuisine Delivered Fresh to Your Door",
-    ogDescription: "From our kitchen to your table in 30-45 minutes. 100% natural ingredients, no preservatives. Trusted by Spice Diana & top influencers.",
+    ogDescription: "9Yards Food delivers from our kitchen to your table in 30-45 minutes. 100% natural ingredients, no preservatives. Trusted by Spice Diana & top influencers.",
     ogImage: "/images/og-home.jpg", // Hero image with food
     canonicalUrl: "https://food.9yards.co.ug/",
     schema: {
       "@context": "https://schema.org",
       "@type": "Restaurant",
+      "@id": "https://food.9yards.co.ug/#restaurant",
       "name": "9Yards Food",
-      "image": "https://food.9yards.co.ug/images/logo.png",
+      "alternateName": ["9 Yards Food", "9yards", "Nine Yards Food"],
+      "image": "https://food.9yards.co.ug/images/logo/9Yards-Food-White-Logo-colored.png",
       "servesCuisine": "Ugandan",
       "priceRange": "UGX 15,000 - 50,000",
       "address": {
@@ -350,6 +352,29 @@ export const globalMetadata = {
   marketing: {
     googleAnalyticsId: "G-GYZ2QRVHGY",
   },
+
+  // WebSite Schema for Brand Search & Sitelinks
+  websiteSchema: {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": "https://food.9yards.co.ug/#website",
+    "url": "https://food.9yards.co.ug",
+    "name": "9Yards Food",
+    "alternateName": ["9 Yards Food", "9yards", "Nine Yards Food", "9Yards Food Delivery"],
+    "description": "Authentic Ugandan cuisine delivery service in Kampala",
+    "publisher": {
+      "@id": "https://food.9yards.co.ug/#organization"
+    },
+    "inLanguage": "en",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://food.9yards.co.ug/menu?search={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  },
   
   // Structured Data - Organization (Enhanced LocalBusiness)
   organizationSchema: {
@@ -357,15 +382,19 @@ export const globalMetadata = {
     "@type": ["FoodEstablishment", "LocalBusiness"],
     "@id": "https://food.9yards.co.ug/#organization",
     "name": "9Yards Food",
-    "alternateName": "9Yards Food Delivery Uganda",
+    "alternateName": ["9 Yards Food", "9yards", "Nine Yards Food", "9Yards Food Delivery", "9Yards Food Uganda"],
     "url": "https://food.9yards.co.ug",
     "logo": {
       "@type": "ImageObject",
+      "@id": "https://food.9yards.co.ug/#logo",
       "url": "https://food.9yards.co.ug/images/logo/9Yards-Food-White-Logo-colored.png",
+      "contentUrl": "https://food.9yards.co.ug/images/logo/9Yards-Food-White-Logo-colored.png",
+      "caption": "9Yards Food Logo",
       "width": 512,
       "height": 512
     },
     "image": [
+      "https://food.9yards.co.ug/images/logo/9Yards-Food-White-Logo-colored.png",
       "https://food.9yards.co.ug/images/og-home.jpg",
       "https://food.9yards.co.ug/images/backgrounds/Matooke-Food-9yards-food.webp"
     ],
