@@ -350,7 +350,7 @@ export const globalMetadata = {
   
   // Marketing & Analytics
   marketing: {
-    googleAnalyticsId: "G-GYZ2QRVHGY",
+    googleAnalyticsId: "G-1V70QJ2GCY",
   },
 
   // WebSite Schema for Brand Search & Sitelinks
