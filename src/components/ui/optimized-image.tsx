@@ -16,7 +16,7 @@ interface OptimizedImageProps extends ImgHTMLAttributes<HTMLImageElement> {
 /**
  * OptimizedImage - Simple image component
  * 
- * All images load immediately - no lazy loading
+ * No optimization, no lazy loading - just a plain img tag
  */
 export function OptimizedImage({
   src,
@@ -24,35 +24,22 @@ export function OptimizedImage({
   width,
   height,
   className,
-  priority = false,
-  placeholder = "blur",
+  priority,
+  placeholder,
   blurDataURL,
-  sizes = "100vw",
-  quality = 80,
+  sizes,
+  quality,
   ...props
 }: OptimizedImageProps) {
   return (
-    <div
-      className={cn(
-        "relative overflow-hidden",
-        className
-      )}
-      style={{
-        aspectRatio: width && height ? `${width}/${height}` : undefined,
-      }}
-    >
-      <img
-        src={src}
-        alt={alt}
-        width={width}
-        height={height}
-        loading="eager"
-        decoding="sync"
-        fetchPriority="high"
-        className="w-full h-full object-cover"
-        {...props}
-      />
-    </div>
+    <img
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
+      className={cn("w-full h-full object-cover", className)}
+      {...props}
+    />
   );
 }
 
