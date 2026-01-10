@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Home, UtensilsCrossed, ShoppingCart, MoreHorizontal } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { WHATSAPP_NUMBER } from '@/lib/constants';
+import { vibrate } from '@/lib/utils/ui';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import MoreSheet from './MoreSheet';
 
@@ -22,6 +23,7 @@ export default function MobileNav({ onChatClick }: MobileNavProps) {
   const [moreSheetOpen, setMoreSheetOpen] = useState(false);
 
   const handleWhatsAppClick = () => {
+    vibrate(30);
     if (onChatClick) {
       onChatClick();
     } else {
@@ -30,6 +32,15 @@ export default function MobileNav({ onChatClick }: MobileNavProps) {
       const message = `${greeting}, I would like to place an order.`;
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
     }
+  };
+
+  const handleNavClick = () => {
+    vibrate(20);
+  };
+
+  const handleMoreClick = () => {
+    vibrate(20);
+    setMoreSheetOpen(true);
   };
 
   return (
@@ -49,17 +60,19 @@ export default function MobileNav({ onChatClick }: MobileNavProps) {
               <Link
                 key={item.href}
                 to={item.href}
-                className={`flex flex-col items-center justify-center gap-1 min-w-[64px] h-full transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:rounded-lg ${
+                onClick={handleNavClick}
+                className={`flex flex-col items-center justify-center gap-1 min-w-[64px] h-full transition-colors relative active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:rounded-lg ${
                   isActive ? 'text-secondary' : 'text-gray-400'
                 }`}
-                aria-label={item.label}
+                aria-label={badgeCount > 0 ? `${item.label}, ${badgeCount} ${badgeCount === 1 ? 'item' : 'items'} in cart` : item.label}
                 aria-current={isActive ? 'page' : undefined}
               >
                 <div className="relative">
-                  <Icon className="w-6 h-6" strokeWidth={isActive ? 2.5 : 2} />
+                  <Icon className="w-6 h-6" strokeWidth={isActive ? 2.5 : 2} aria-hidden="true" />
                   {badgeCount > 0 && (
                     <span 
-                      className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 bg-secondary text-white text-[10px] font-bold rounded-full flex items-center justify-center"
+                      className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 bg-secondary text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-in zoom-in-50 duration-200"
+                      aria-hidden="true"
                     >
                       {badgeCount > 99 ? '99+' : badgeCount}
                     </span>
@@ -75,19 +88,19 @@ export default function MobileNav({ onChatClick }: MobileNavProps) {
           {/* WhatsApp Order Button */}
           <button
             onClick={handleWhatsAppClick}
-            className="flex flex-col items-center justify-center gap-1 min-w-[64px] h-full text-gray-400 hover:text-green-600 transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 focus-visible:rounded-lg"
+            className="flex flex-col items-center justify-center gap-1 min-w-[64px] h-full text-gray-400 hover:text-green-600 active:scale-95 transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 focus-visible:rounded-lg"
             aria-label="Order via WhatsApp"
           >
             <div className="relative">
-              <WhatsAppIcon className="w-6 h-6" />
+              <WhatsAppIcon className="w-6 h-6" aria-hidden="true" />
             </div>
             <span className="text-[10px] font-bold tracking-tight">WhatsApp</span>
           </button>
 
           {/* More Button */}
           <button
-            onClick={() => setMoreSheetOpen(true)}
-            className={`flex flex-col items-center justify-center gap-1 min-w-[64px] h-full transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:rounded-lg ${
+            onClick={handleMoreClick}
+            className={`flex flex-col items-center justify-center gap-1 min-w-[64px] h-full active:scale-95 transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:rounded-lg ${
               moreSheetOpen ? 'text-secondary' : 'text-gray-400'
             }`}
             aria-label="More options"
@@ -95,7 +108,7 @@ export default function MobileNav({ onChatClick }: MobileNavProps) {
             aria-haspopup="dialog"
           >
             <div className="relative">
-              <MoreHorizontal className="w-6 h-6" />
+              <MoreHorizontal className="w-6 h-6" aria-hidden="true" />
             </div>
             <span className="text-[10px] font-bold tracking-tight">More</span>
           </button>
