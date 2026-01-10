@@ -124,11 +124,11 @@ export default function WhyChooseUsSection() {
   return (
     <section 
       ref={sectionRef}
-      className="py-12 lg:py-20 bg-white overflow-hidden"
+      className="py-10 lg:py-20 bg-white overflow-hidden"
       aria-labelledby="juice-section-heading"
     >
       <div className="container mx-auto px-4 sm:px-6">
-        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6 lg:gap-12 items-center">
           
           {/* Content Side */}
           <div className="order-1 lg:order-2 w-full">
