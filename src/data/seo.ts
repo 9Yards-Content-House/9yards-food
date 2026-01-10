@@ -153,28 +153,6 @@ export const pageMetadata = {
     noIndex: true // Personal pages shouldn't be indexed
   },
 
-  // DELIVERY ZONES PAGE (/delivery-zones)
-  deliveryZones: {
-    title: "Delivery Zones & Fees | Where We Deliver in Kampala | 9Yards Food",
-    description: "Check if we deliver to your area in Kampala. View delivery zones, fees (UGX 5,000-10,000), and estimated delivery times (30-60 mins). Covers Kampala Central, Nakawa, Kololo, Muyenga & more.",
-    keywords: "Kampala delivery zones, food delivery areas Kampala, delivery fee Uganda, Kampala Central delivery, Nakawa food delivery, Kololo delivery, where does 9Yards deliver",
-    ogTitle: "9Yards Food Delivery Zones - We Deliver Across Kampala",
-    ogDescription: "Fast delivery to Kampala Central, Nakawa, Kololo, Muyenga and more. Check your area and see delivery fees. Free delivery on orders above UGX 50,000.",
-    ogImage: "/images/og-delivery-map.jpg",
-    canonicalUrl: "https://food.9yards.co.ug/delivery-zones",
-    schema: {
-      "@context": "https://schema.org",
-      "@type": "Service",
-      "name": "9Yards Food Delivery",
-      "areaServed": [
-        "Kampala Central",
-        "Nakawa",
-        "Kololo",
-        "Muyenga"
-      ]
-    }
-  },
-
   // DEALS PAGE (/deals)
   deals: {
     title: "Deals & Promo Codes | Special Offers on Ugandan Food | 9Yards Food",
@@ -189,23 +167,6 @@ export const pageMetadata = {
       "@type": "Offer",
       "name": "9Yards Food Promotions",
       "description": "Exclusive deals and promo codes for authentic Ugandan food delivery"
-    }
-  },
-
-  // ABOUT PAGE (/about)
-  about: {
-    title: "About Us | Our Story & Mission | 9Yards Food - Authentic Ugandan Cuisine",
-    description: "Discover 9Yards Food's story. We're Ugandans cooking authentic Ugandan food for Ugandans. 100% natural ingredients, no preservatives, fresh daily. Trusted by Spice Diana and top Kampala influencers.",
-    keywords: "about 9Yards Food, authentic Ugandan restaurant, who cooks 9Yards food, natural ingredients Uganda, celebrity food delivery, Spice Diana food, Ugandan food culture",
-    ogTitle: "About 9Yards Food - Bringing Authentic Ugandan Cuisine to Your Doorstep",
-    ogDescription: "We're not just a delivery service. We're Ugandans, cooking authentic Ugandan food with 100% natural ingredients. From our kitchen to your table.",
-    ogImage: "/images/og-about.jpg", // Kitchen/team photo
-    canonicalUrl: "https://food.9yards.co.ug/about",
-    schema: {
-      "@context": "https://schema.org",
-      "@type": "AboutPage",
-      "name": "About 9Yards Food",
-      "description": "Learn about 9Yards Food's mission to deliver authentic Ugandan cuisine"
     }
   },
 

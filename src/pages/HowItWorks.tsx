@@ -516,11 +516,6 @@ export default function HowItWorksPage() {
                     >
                       <p className="px-6 pb-6 text-muted-foreground leading-relaxed">
                         {faq.answer}
-                        {faq.question.includes('deliver to my area') && (
-                          <Link to="/delivery-zones" className="text-secondary font-semibold hover:underline ml-1">
-                            View delivery areas →
-                          </Link>
-                        )}
                       </p>
                     </div>
                   </div>

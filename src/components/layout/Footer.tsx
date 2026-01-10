@@ -50,8 +50,6 @@ export default function Footer() {
             <ul className="space-y-2.5">
               {[
                 { href: '/menu', label: 'Menu' },
-                { href: '/delivery-zones', label: 'Delivery Areas' },
-                { href: '/about', label: 'About Us' },
                 { href: '/contact', label: 'Contact' },
               ].map((link) => (
                 <li key={link.label}>
@@ -101,13 +99,12 @@ export default function Footer() {
                   </a>
                 </li>
                 <li>
-                  <Link
-                    to="/delivery-zones"
-                    className="flex items-center gap-2.5 text-white/80 hover:text-[#E6411C] transition-colors text-[13px] focus-visible:outline-none focus-visible:text-[#E6411C] focus-visible:underline"
+                  <span
+                    className="flex items-center gap-2.5 text-white/80 text-[13px]"
                   >
                     <MapPin className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
                     Kampala, Uganda
-                  </Link>
+                  </span>
                 </li>
               </ul>
             </address>

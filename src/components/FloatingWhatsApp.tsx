@@ -562,8 +562,7 @@ export default function FloatingWhatsApp({
       type: 'received',
       content: `🚚 **Delivery Info**\n\nWe deliver across Kampala!\n\n📍 **Popular Areas:**\n${zonesText}\n\n🎉 **FREE delivery** on orders over ${formatPrice(FREE_DELIVERY_THRESHOLD)}!\n\n⏱️ Est. time: 30-55 mins${peakNote}`,
       options: [
-        { key: '1', label: 'All Delivery Zones', action: 'navigate', data: '/delivery-zones' },
-        { key: '2', label: 'Check My Area', action: 'whatsapp', data: `Hello, do you deliver to my area?` },
+        { key: '1', label: 'Check My Area', action: 'whatsapp', data: `Hello, do you deliver to my area?` },
         { key: '0', label: 'Back', action: 'start' }
       ]
     };
