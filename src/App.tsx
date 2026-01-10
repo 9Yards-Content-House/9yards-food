@@ -126,7 +126,6 @@ const App = () => {
                     <Route path="/order-confirmation" element={<OrderConfirmation />} />
                     <Route path="/order-history" element={<OrderHistory />} />
                     <Route path="*" element={<NotFound />} />
-                    <Route path="*" element={<NotFound />} />
                   </Routes>
                   <FloatingWhatsApp isOpen={isChatOpen} onOpenChange={setIsChatOpen} />
                   <PWAInstallPrompt />

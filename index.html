@@ -228,6 +228,31 @@
     </form>
 
     <div id="root"></div>
+    
+    <!-- Splash Screen Control Script -->
+    <script>
+      // Flag to track splash screen state
+      window.splashScreenHidden = false;
+      
+      // Function to hide splash screen (called by React after mount)
+      window.hideSplashScreen = function() {
+        var splash = document.getElementById('splash-screen');
+        if (splash && !window.splashScreenHidden) {
+          splash.classList.add('splash-hidden');
+          window.splashScreenHidden = true;
+          // Remove from DOM after animation
+          setTimeout(function() { 
+            if (splash.parentNode) splash.parentNode.removeChild(splash); 
+          }, 400);
+        }
+      };
+      
+      // Fallback: Auto-hide after 5s if React fails to load
+      setTimeout(function() {
+        if (!window.splashScreenHidden) window.hideSplashScreen();
+      }, 5000);
+    </script>
+    
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
