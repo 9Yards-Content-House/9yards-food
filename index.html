@@ -116,6 +116,7 @@
     <link rel="dns-prefetch" href="https://www.google-analytics.com" />
     
     <!-- Preload critical images for LCP -->
+    <link rel="preload" as="image" href="/images/logo/9Yards-Food-White-Logo.png" fetchpriority="high" />
     <link rel="preload" as="image" href="/images/logo/9Yards-Food-White-Logo-colored.png" fetchpriority="high" />
     <link rel="preload" as="image" href="/images/lusaniya/9Yards-Food-Lusaniya-05.png" fetchpriority="high" />
   </head>
@@ -147,10 +148,13 @@
         <img 
           src="/images/logo/9Yards-Food-White-Logo.png" 
           alt="9Yards Food" 
-          width="280" 
-          height="140"
+          width="200" 
+          height="100"
+          fetchpriority="high"
+          loading="eager"
+          decoding="sync"
           style="
-            width: 280px;
+            width: 200px;
             height: auto;
             object-fit: contain;
             filter: drop-shadow(0 4px 20px rgba(0,0,0,0.3));
