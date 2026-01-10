@@ -23,35 +23,41 @@ export default defineConfig(({ mode }) => ({
     }),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png', 'images/logo/9Yards-Food-Coloured-favicon.jpg'],
+      includeAssets: ['favicon.ico', 'robots.txt', 'images/logo/apple-touch-icon.png', 'images/logo/favicon.svg'],
       manifest: {
-        name: '9Yards Food',
-        short_name: '9Yards',
-        description: 'Authentic Ugandan Food Delivery',
+        name: '9Yards Food - Authentic Ugandan Cuisine Delivery',
+        short_name: '9Yards Food',
+        description: 'Order authentic Ugandan dishes delivered fresh to your door. Matooke, Posho, Chicken, Fish & more. Serving Kampala.',
         theme_color: '#212282',
-        background_color: '#212282',
+        background_color: '#ffffff',
         display: 'standalone',
         start_url: '/',
         orientation: 'portrait-primary',
         categories: ['food', 'shopping', 'lifestyle'],
         icons: [
           {
-            src: '/images/logo/9Yards-Food-White-Logo-colored.png',
+            src: '/images/logo/web-app-manifest-192x192.png',
             sizes: '192x192',
             type: 'image/png',
-            purpose: 'any'
+            purpose: 'maskable'
           },
           {
-            src: '/images/logo/9Yards-Food-White-Logo-colored.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any'
-          },
-          {
-            src: '/images/logo/9Yards-Food-White-Logo-colored.png',
+            src: '/images/logo/web-app-manifest-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable'
+          },
+          {
+            src: '/images/logo/favicon-96x96.png',
+            sizes: '96x96',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: '/images/logo/apple-touch-icon.png',
+            sizes: '180x180',
+            type: 'image/png',
+            purpose: 'any'
           }
         ]
       }
