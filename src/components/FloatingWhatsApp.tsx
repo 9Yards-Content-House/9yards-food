@@ -187,7 +187,7 @@ export default function FloatingWhatsApp({
         setUserPrefs(prefs);
       }
     } catch {
-      console.log('Could not load user prefs');
+      // Silent fail for localStorage
     }
   }, []);
 
@@ -198,7 +198,7 @@ export default function FloatingWhatsApp({
     try {
       localStorage.setItem(USER_PREFS_KEY, JSON.stringify(updated));
     } catch {
-      console.log('Could not save user prefs');
+      // Silent fail for localStorage
     }
   }, [userPrefs]);
 
@@ -395,7 +395,7 @@ export default function FloatingWhatsApp({
           }
         }
       } catch {
-        console.log('Could not load chat history');
+        // Silent fail for localStorage
       }
       
       startNewConversation();
@@ -414,7 +414,7 @@ export default function FloatingWhatsApp({
         };
         localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(chatState));
       } catch {
-        console.log('Could not save chat history');
+        // Silent fail for localStorage
       }
     }
   }, [messages, currentFlow, lastContext]);

@@ -646,10 +646,6 @@ export default function HeroSection() {
         (position) => {
           const { latitude, longitude, accuracy } = position.coords;
 
-          console.log(
-            `Location obtained: ${latitude}, ${longitude} (accuracy: ${accuracy}m, highAccuracy: ${highAccuracy})`
-          );
-
           // Find the nearest delivery zone
           let nearestZone: (typeof deliveryZones)[0] | null = null;
           let minDistance = Infinity;
@@ -687,7 +683,6 @@ export default function HeroSection() {
         (error) => {
           // If high accuracy fails, try with low accuracy
           if (highAccuracy && error.code !== error.PERMISSION_DENIED) {
-            console.log("High accuracy failed, trying low accuracy...");
             tryGetPosition(false);
             return;
           }
