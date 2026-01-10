@@ -184,7 +184,7 @@ export function MenuItemCard({
         <div className="absolute top-2.5 left-2.5">
           {item.available && isBestSeller && (
             <span className="bg-secondary text-secondary-foreground text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1">
-              <Flame className="w-3 h-3" />
+              <Flame className="w-3 h-3" aria-hidden="true" />
               Popular
             </span>
           )}
@@ -207,7 +207,7 @@ export function MenuItemCard({
             onToggleFavorite(item.id);
           }}
           className="absolute top-2 right-2 w-10 h-10 bg-white/90 dark:bg-black/70 backdrop-blur-sm rounded-full 
-            flex items-center justify-center hover:bg-white transition-colors z-10"
+            flex items-center justify-center hover:bg-white transition-colors z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2"
           aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
           title={isFavorite ? "Remove from Favorites" : "Add to Favorites"}
         >
@@ -217,12 +217,13 @@ export function MenuItemCard({
                 ? "text-red-500 fill-red-500"
                 : "text-gray-500 dark:text-gray-300"
             }`}
+            aria-hidden="true"
           />
         </button>
 
         {/* Tap indicator on hover - desktop only */}
         {item.available && !isIndividual && (
-          <div className="absolute inset-0 bg-secondary/0 group-hover:bg-secondary/10 transition-colors flex items-center justify-center">
+          <div className="absolute inset-0 bg-secondary/0 group-hover:bg-secondary/10 transition-colors flex items-center justify-center" aria-hidden="true">
             <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-secondary text-secondary-foreground text-xs font-semibold px-3 py-1.5 rounded-full hidden md:flex items-center gap-1.5">
               <Plus className="w-3.5 h-3.5" />
               Start Combo
@@ -232,7 +233,7 @@ export function MenuItemCard({
 
         {/* Tap indicator on hover for Individual items - desktop only */}
         {item.available && isIndividual && (
-          <div className="absolute inset-0 bg-secondary/0 group-hover:bg-secondary/10 transition-colors flex items-center justify-center">
+          <div className="absolute inset-0 bg-secondary/0 group-hover:bg-secondary/10 transition-colors flex items-center justify-center" aria-hidden="true">
             <span className={`opacity-0 group-hover:opacity-100 transition-opacity text-xs font-semibold px-3 py-1.5 rounded-full hidden md:flex items-center gap-1.5 ${
               isInCart ? 'bg-green-500 text-white' : 'bg-secondary text-secondary-foreground'
             }`}>

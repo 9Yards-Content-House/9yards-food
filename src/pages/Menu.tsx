@@ -392,10 +392,13 @@ export default function MenuPage() {
               </p>
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                 <button
-                  onClick={() => setIsComboBuilderOpen(true)}
-                  className="btn-secondary inline-flex items-center gap-2 text-base px-5 py-2.5"
+                  onClick={() => {
+                    vibrate(30);
+                    setIsComboBuilderOpen(true);
+                  }}
+                  className="btn-secondary inline-flex items-center gap-2 text-base px-5 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
                 >
-                  <Plus className="w-5 h-5" />
+                  <Plus className="w-5 h-5" aria-hidden="true" />
                   Build My Combo
                 </button>
               </div>
@@ -404,17 +407,18 @@ export default function MenuPage() {
         </section>
 
         {/* Search & Filters */}
-        <section className="sticky top-16 md:top-20 z-30 bg-card/95 backdrop-blur-md border-b border-border">
+        <section className="sticky top-16 md:top-20 z-30 bg-card/95 backdrop-blur-md border-b border-border" aria-label="Menu filters">
           <div className="container-custom px-4 py-3">
             {/* Search Bar */}
-            <div className="mb-3">
+            <div className="mb-3" role="search">
               <div className="relative max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" aria-hidden="true" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Find your favorite dish..."
+                  aria-label="Search menu items"
                   className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-border bg-background text-sm focus:border-secondary focus:ring-1 focus:ring-secondary/20 focus:outline-none transition-all"
                   inputMode="search"
                   enterKeyHint="search"
@@ -423,17 +427,21 @@ export default function MenuPage() {
                 {searchQuery && (
                   <button
                     onClick={clearSearch}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
                     aria-label="Clear search"
                   >
-                    <X className="w-4 h-4 text-muted-foreground" />
+                    <X className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
                   </button>
                 )}
               </div>
             </div>
 
             {/* Category Tabs - Horizontal scroll */}
-            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4">
+            <div 
+              className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4"
+              role="tablist"
+              aria-label="Menu categories"
+            >
               {categories.map((cat) => {
                 const config = categoryConfig[cat.id];
                 const count = categoryCounts[cat.id as Category];
@@ -442,8 +450,14 @@ export default function MenuPage() {
                 return (
                   <button
                     key={cat.id}
-                    onClick={() => setActiveCategory(cat.id as Category)}
-                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all border min-h-[40px] flex-shrink-0 ${
+                    onClick={() => {
+                      vibrate(15);
+                      setActiveCategory(cat.id as Category);
+                    }}
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-controls="menu-grid"
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all border min-h-[40px] flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 ${
                       isActive
                         ? "bg-secondary text-secondary-foreground border-secondary shadow-md"
                         : "bg-card text-muted-foreground border-border hover:border-secondary/50 hover:bg-secondary/5"
@@ -454,6 +468,7 @@ export default function MenuPage() {
                       className={`text-[11px] px-1.5 py-0.5 rounded-full ${
                         isActive ? "bg-white/20" : "bg-muted"
                       }`}
+                      aria-hidden="true"
                     >
                       {count}
                     </span>
@@ -470,7 +485,7 @@ export default function MenuPage() {
             {/* Build Combo CTA Banner */}
             <div className="mb-8 p-5 md:p-8 rounded-2xl bg-secondary text-white shadow-lg overflow-hidden relative">
               {/* Background pattern */}
-              <div className="absolute inset-0 opacity-10">
+              <div className="absolute inset-0 opacity-10" aria-hidden="true">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
                 <div className="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full translate-y-1/2 -translate-x-1/2" />
               </div>
@@ -486,22 +501,25 @@ export default function MenuPage() {
                   </p>
                   <div className="hidden md:flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium mt-3 text-white/80">
                     <span className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 bg-white rounded-full"></span>{" "}
+                      <span className="w-1.5 h-1.5 bg-white rounded-full" aria-hidden="true"></span>{" "}
                       Choose Multiple Mains
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 bg-white rounded-full"></span>{" "}
+                      <span className="w-1.5 h-1.5 bg-white rounded-full" aria-hidden="true"></span>{" "}
                       Fresh Protein Sauce
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 bg-white rounded-full"></span>{" "}
+                      <span className="w-1.5 h-1.5 bg-white rounded-full" aria-hidden="true"></span>{" "}
                       Complimentary Side
                     </span>
                   </div>
                 </div>
                 <button
-                  onClick={() => setIsComboBuilderOpen(true)}
-                  className="w-full md:w-auto bg-white text-secondary font-bold px-6 py-3 md:px-8 md:py-4 rounded-xl border-2 border-white hover:bg-white/90 transition-colors text-base md:text-lg flex items-center justify-center gap-2"
+                  onClick={() => {
+                    vibrate(30);
+                    setIsComboBuilderOpen(true);
+                  }}
+                  className="w-full md:w-auto bg-white text-secondary font-bold px-6 py-3 md:px-8 md:py-4 rounded-xl border-2 border-white hover:bg-white/90 transition-colors text-base md:text-lg flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-secondary"
                 >
                   Create My Meal →
                 </button>
@@ -522,8 +540,8 @@ export default function MenuPage() {
 
             {/* Empty State */}
             {items.length === 0 ? (
-              <div className="text-center py-16">
-                <Search className="w-16 h-16 mx-auto mb-4 text-muted-foreground/50" />
+              <div className="text-center py-16" role="status" aria-live="polite">
+                <Search className="w-16 h-16 mx-auto mb-4 text-muted-foreground/50" aria-hidden="true" />
                 <h3 className="text-2xl font-bold text-foreground mb-2">
                   No items found
                 </h3>
@@ -545,14 +563,19 @@ export default function MenuPage() {
               <>
                 {/* Results count */}
                 {searchQuery && (
-                  <p className="text-muted-foreground text-sm mb-4">
+                  <p className="text-muted-foreground text-sm mb-4" role="status" aria-live="polite">
                     {items.length} {items.length === 1 ? "result" : "results"}{" "}
                     for "{searchQuery}"
                   </p>
                 )}
 
                 {/* Menu Grid - 3 cols desktop, 2 tablet, 2 mobile */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                <div 
+                  id="menu-grid"
+                  role="tabpanel"
+                  aria-label={`${categories.find((c) => c.id === activeCategory)?.label || 'All Items'} menu items`}
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
+                >
                   {items.map((item) => (
                     <MenuItemCard
                       key={`${item.category}-${item.id}`}
@@ -608,10 +631,14 @@ export default function MenuPage() {
       {/* Sticky Build Combo Button (Mobile) */}
       <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 lg:hidden w-auto sm:bottom-32">
         <button
-          onClick={() => setIsComboBuilderOpen(true)}
-          className="bg-primary text-primary-foreground font-bold px-6 py-3 rounded-full shadow-xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-transform"
+          onClick={() => {
+            vibrate(30);
+            setIsComboBuilderOpen(true);
+          }}
+          className="bg-primary text-primary-foreground font-bold px-6 py-3 rounded-full shadow-xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          aria-label="Start building your combo order"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4 h-4" aria-hidden="true" />
           <span className="text-sm">Start Order</span>
         </button>
       </div>
