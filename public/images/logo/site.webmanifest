@@ -1,15 +1,11 @@
 {
   "name": "9Yards Food - Authentic Ugandan Cuisine Delivery",
   "short_name": "9Yards Food",
-  "description": "Order authentic Ugandan dishes delivered fresh to your door. Matooke, Posho, Chicken, Fish & more. 100% natural ingredients. Serving Kampala.",
+  "description": "Order authentic Ugandan dishes delivered fresh to your door. Matooke, Posho, Chicken, Fish & more. Serving Kampala.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#212282",
-  "orientation": "portrait-primary",
-  "scope": "/",
-  "lang": "en",
-  "categories": ["food", "delivery", "restaurant"],
   "icons": [
     {
       "src": "/images/logo/web-app-manifest-192x192.png",
@@ -26,8 +22,7 @@
     {
       "src": "/images/logo/favicon-96x96.png",
       "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     },
     {
       "src": "/images/logo/apple-touch-icon.png",
@@ -35,16 +30,5 @@
       "type": "image/png",
       "purpose": "any"
     }
-  ],
-  "screenshots": [
-    {
-      "src": "/images/og-home.jpg",
-      "sizes": "1200x630",
-      "type": "image/jpeg",
-      "form_factor": "wide",
-      "label": "9Yards Food Homepage"
-    }
-  ],
-  "related_applications": [],
-  "prefer_related_applications": false
+  ]
 }
