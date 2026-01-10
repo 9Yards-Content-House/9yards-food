@@ -354,6 +354,12 @@
     "_minOrder": "Optional minimum order amount required (in UGX)",
     "_howToAdd": "Add new code: 'CODE_NAME': { discount: amount, type: 'percentage' or 'fixed', minOrder: amount }",
     "codes": {
+      "SAVE8": {
+        "discount": 8,
+        "type": "percentage",
+        "minOrder": 80000,
+        "_description": "8% off on orders above 80,000 UGX - Deal of the Week"
+      },
       "FIRST10": {
         "discount": 10,
         "type": "percentage",

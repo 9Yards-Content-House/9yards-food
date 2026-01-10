@@ -459,7 +459,7 @@ export const globalMetadata = {
       }
     ],
     "sameAs": [
-      "https://www.instagram.com/9yardsfood",
+      "https://www.instagram.com/9yards_food/",
       "https://www.tiktok.com/@9yardsfood",
       "https://9yards.co.ug",
       "https://wa.me/256708453744"
