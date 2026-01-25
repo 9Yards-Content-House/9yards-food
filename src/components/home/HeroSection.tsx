@@ -736,7 +736,7 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-[85svh] sm:min-h-[82svh] md:min-h-[78svh] lg:min-h-[82svh] flex items-center overflow-hidden pt-20 sm:pt-28 md:pt-28 lg:pt-24 pb-8 sm:pb-10 md:pb-12">
+    <section className="relative min-h-[85svh] sm:min-h-[82svh] md:min-h-[78svh] lg:min-h-[82svh] flex items-center pt-20 sm:pt-28 md:pt-28 lg:pt-24 pb-8 sm:pb-10 md:pb-12">
       {/* Background */}
       <div className="absolute inset-0 gradient-hero" />
       <div
