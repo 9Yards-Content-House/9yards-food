@@ -168,13 +168,11 @@ export default function CartPage() {
   } = useCart();
   const { userName } = useGuest();
   
-  const [selectedZone, setSelectedZone] = useState<string>('');
   const [promoCode, setPromoCode] = useState('');
   const [promoResult, setPromoResult] = useState<PromoResult | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [specialInstructions, setSpecialInstructions] = useState('');
   const [showDeliveryForm, setShowDeliveryForm] = useState(false);
-  const [showZoneOverride, setShowZoneOverride] = useState(false);
   const [isClearCartConfirmOpen, setIsClearCartConfirmOpen] = useState(false);
   
   // Validation State
@@ -202,59 +200,27 @@ export default function CartPage() {
     if (state.userPreferences.address && addressQuery !== state.userPreferences.address) {
       setAddressQuery(state.userPreferences.address);
     }
-    // Pre-populate zone from context (set on home page)
-    if (state.userPreferences.location && !selectedZone) {
-      const zoneFromContext = deliveryZones.find(z => z.name === state.userPreferences.location);
-      if (zoneFromContext) {
-        setSelectedZone(zoneFromContext.name);
-      }
-    }
-  }, [state.userPreferences.address, state.userPreferences.location]);
+  }, [state.userPreferences.address]);
 
   const handleAddressSelect = (result: PhotonResult) => {
     setAddressQuery(result.displayName);
     setUserPreferences({ address: result.displayName });
     setShowAddressSuggestions(false);
     
-    // Check if location is within delivery coverage
+    // Check if location is within delivery coverage using distance from kitchen
     if (!result.isInKampalaArea) {
-      // Location is outside Kampala metro area (>25km from center)
+      // Location is outside Kampala metro area
       setCoverageWarning({
         show: true,
         type: 'out-of-area',
-        distance: Math.round(result.distanceToZone),
-        message: 'This location is outside our delivery area. We currently deliver within Kampala and surrounding areas only.'
+        message: 'This location is outside our delivery area. We currently deliver within 20km of Kigo.'
       });
-      setSelectedZone('');
       return;
     }
     
-    // Check distance to nearest zone
-    if (result.distanceToZone > 10) {
-      // More than 10km from any delivery zone
-      setCoverageWarning({
-        show: true,
-        type: 'far-from-zones',
-        distance: Math.round(result.distanceToZone),
-        message: `This location is ${Math.round(result.distanceToZone)}km from our nearest delivery zone. Delivery may not be available or may take longer.`
-      });
-      setSelectedZone('');
-      return;
-    }
-    
-    // Clear any previous warnings
+    // Clear any previous warnings - address is valid
     setCoverageWarning({ show: false, type: null });
-    
-    // Auto-select zone if available
-    if (result.nearestZone) {
-      setSelectedZone(result.nearestZone.name);
-      setShowZoneOverride(false);
-      // Persist to context
-      setUserPreferences({ location: result.nearestZone.name });
-      toast.success(`Delivery zone: ${result.nearestZone.name}`, {
-        description: `${formatPrice(result.nearestZone.fee)} • ${result.nearestZone.estimatedTime}`
-      });
-    }
+    toast.success('Address updated');
   };
 
   const selectedZoneData = state.userPreferences.deliveryFee !== undefined ? {
@@ -321,8 +287,8 @@ export default function CartPage() {
       isValid = false;
     }
 
-    if (!selectedZone) {
-      newErrors.zone = 'Please select a delivery zone';
+    if (!state.userPreferences.location) {
+      newErrors.zone = 'Please select a delivery location on the home page';
       isValid = false;
     }
 
@@ -362,7 +328,6 @@ export default function CartPage() {
       items: state.items,
       customerInfo: {
         ...state.userPreferences,
-        location: selectedZone,
         specialInstructions,
       },
       subtotal: cartTotal,
@@ -380,7 +345,7 @@ export default function CartPage() {
       orderId,
       orderDate: new Date().toISOString(),
       items: state.items,
-      deliveryLocation: selectedZone,
+      deliveryLocation: state.userPreferences.location,
       deliveryFee,
       subtotal: cartTotal,
       discount,
@@ -400,7 +365,6 @@ export default function CartPage() {
       state.items,
       {
         ...state.userPreferences,
-        location: selectedZone,
         specialInstructions,
       },
       cartTotal,
@@ -900,10 +864,10 @@ export default function CartPage() {
                         <span className="text-foreground font-bold">
                           {qualifiesForFreeDelivery || (promoResult?.valid && promoResult.discountType === 'free_delivery') ? (
                             <span className="text-green-600">FREE</span>
-                          ) : selectedZone ? (
+                          ) : state.userPreferences.location ? (
                             formatPrice(baseDeliveryFee)
                           ) : (
-                            <span className="text-xs text-orange-500">Select zone below</span>
+                            <span className="text-xs text-orange-500">Select location on home page</span>
                           )}
                         </span>
                       </div>
@@ -935,7 +899,7 @@ export default function CartPage() {
                     <div className="text-left">
                       <p className="text-sm font-bold text-[#212282]">Delivery Details</p>
                       <p className="text-xs text-gray-500">
-                        {selectedZone ? `${selectedZone} • ${state.userPreferences.name || 'Details added'}` : 'Required to checkout'}
+                        {state.userPreferences.location ? `${state.userPreferences.location} • ${state.userPreferences.name || 'Details added'}` : 'Required to checkout'}
                       </p>
                     </div>
                   </div>
@@ -1112,78 +1076,43 @@ export default function CartPage() {
                         </div>
                       )}
 
-                      {/* Zone Display - Smart Auto-Detection */}
-                      {!coverageWarning.show && selectedZone ? (
+                      {/* Delivery Location Display */}
+                      {!coverageWarning.show && state.userPreferences.location ? (
                         <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-100">
                            <div className="flex items-center gap-3">
                               <div className="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center">
                                 <CheckCircle className="w-5 h-5 text-green-600" />
                               </div>
                               <div>
-                                <p className="text-sm text-green-800 font-bold">{selectedZone}</p>
+                                <p className="text-sm text-green-800 font-bold">{state.userPreferences.location}</p>
                                 <p className="text-xs text-green-600">
+                                  {state.userPreferences.deliveryDistance ? `${state.userPreferences.deliveryDistance.toFixed(1)} km • ` : ''}
                                   {formatPrice(selectedZoneData?.fee || 0)} • {selectedZoneData?.estimatedTime}
                                 </p>
                               </div>
                            </div>
-                           <button 
-                             onClick={() => setShowZoneOverride(!showZoneOverride)} 
+                           <Link 
+                             to="/" 
                              className="text-xs font-medium text-green-700 hover:text-green-800 px-2.5 py-1.5 bg-green-100 hover:bg-green-200 rounded-lg transition-colors"
                            >
                              Change
-                           </button>
+                           </Link>
                         </div>
-                      ) : !coverageWarning.show && !selectedZone && addressQuery.length > 3 ? (
-                        // Address entered but no zone detected - show manual selector
-                        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                           <p className="text-xs text-gray-600 mb-2">
-                             Couldn't auto-detect zone. Please select manually:
-                           </p>
-                           <select 
-                              value={selectedZone}
-                              onChange={(e) => { 
-                                setSelectedZone(e.target.value); 
-                                setUserPreferences({ location: e.target.value });
-                                if(errors.zone) setErrors({...errors, zone:''}); 
-                              }}
-                              className={`w-full p-2.5 rounded-lg border ${errors.zone ? 'border-red-500' : 'border-gray-300'} bg-white text-sm`}
-                           >
-                             <option value="">Choose zone...</option>
-                             {deliveryZones.map(z => (
-                               <option key={z.name} value={z.name}>
-                                 {z.name} — {formatPrice(z.fee)} ({z.estimatedTime})
-                               </option>
-                             ))}
-                           </select>
+                      ) : !coverageWarning.show && !state.userPreferences.location ? (
+                        // No location selected - prompt to select on home page
+                        <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
+                          <p className="text-xs text-amber-700 mb-2">
+                            Please select your delivery location first
+                          </p>
+                          <Link 
+                            to="/" 
+                            className="inline-flex items-center gap-1 text-sm font-medium text-amber-700 hover:text-amber-800"
+                          >
+                            <MapPin className="w-4 h-4" />
+                            Go to home page to set location
+                          </Link>
                         </div>
-                      ) : !coverageWarning.show && !addressQuery ? (
-                        // No address entered yet - prompt to enter
-                        <p className="text-xs text-gray-500 italic">
-                          Enter your address above to auto-detect delivery zone
-                        </p>
                       ) : null}
-                      
-                      {/* Zone Override Dropdown (only shown when Change is clicked) */}
-                      {showZoneOverride && selectedZone && (
-                        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 animate-in slide-in-from-top-2">
-                           <p className="text-xs text-gray-600 mb-2">Select a different zone:</p>
-                           <select 
-                              value={selectedZone}
-                              onChange={(e) => { 
-                                setSelectedZone(e.target.value); 
-                                setUserPreferences({ location: e.target.value });
-                                setShowZoneOverride(false);
-                              }}
-                              className="w-full p-2.5 rounded-lg border border-gray-300 bg-white text-sm"
-                           >
-                             {deliveryZones.map(z => (
-                               <option key={z.name} value={z.name}>
-                                 {z.name} — {formatPrice(z.fee)} ({z.estimatedTime})
-                               </option>
-                             ))}
-                           </select>
-                        </div>
-                      )}
                     </div>
                     
                     {/* Special Instructions - Mobile */}
@@ -1233,10 +1162,10 @@ export default function CartPage() {
                     </div>
                     
                     {/* Mobile Estimated Delivery */}
-                    {selectedZone && (
+                    {state.userPreferences.location && (
                       <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg py-2.5 mt-2">
                         <Truck className="w-4 h-4 text-secondary" />
-                        <span>Est. delivery: <span className="font-medium text-foreground">{getEstimatedDeliveryTime(selectedZone)}</span></span>
+                        <span>Est. delivery: <span className="font-medium text-foreground">{getEstimatedDeliveryTime(state.userPreferences.deliveryTime)}</span></span>
                       </div>
                     )}
                     
@@ -1256,7 +1185,7 @@ export default function CartPage() {
                                 <span className="line-through text-gray-400 text-xs">{formatPrice(baseDeliveryFee)}</span>
                                 <span className="text-green-600 font-bold">FREE</span>
                               </span>
-                            ) : (selectedZone ? formatPrice(baseDeliveryFee) : '-')}
+                            ) : (state.userPreferences.location ? formatPrice(baseDeliveryFee) : '-')}
                           </span>
                         </div>
                         {discount > 0 && (
@@ -1499,66 +1428,40 @@ export default function CartPage() {
                           </div>
                        )}
 
-                       {/* Zone Display - Smart Auto-Detection */}
-                       {!coverageWarning.show && selectedZone ? (
+                       {/* Delivery Location Display */}
+                       {!coverageWarning.show && state.userPreferences.location ? (
                           <div className="flex items-center justify-between p-2.5 bg-green-50 rounded-lg border border-green-100">
                              <div className="flex items-center gap-2">
                                 <div className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center">
                                   <CheckCircle className="w-4 h-4 text-green-600" />
                                 </div>
                                 <div>
-                                  <p className="text-xs text-green-700 font-medium">{selectedZone}</p>
-                                  <p className="text-[11px] text-green-600">Delivery: {formatPrice(selectedZoneData?.fee || 0)} • {selectedZoneData?.estimatedTime}</p>
+                                  <p className="text-xs text-green-700 font-medium">{state.userPreferences.location}</p>
+                                  <p className="text-[11px] text-green-600">
+                                    {state.userPreferences.deliveryDistance ? `${state.userPreferences.deliveryDistance.toFixed(1)} km • ` : ''}
+                                    {formatPrice(selectedZoneData?.fee || 0)} • {selectedZoneData?.estimatedTime}
+                                  </p>
                                 </div>
                              </div>
-                             <button 
-                               onClick={() => setShowZoneOverride(true)} 
+                             <Link 
+                               to="/" 
                                className="text-xs font-medium text-green-700 hover:text-green-800 px-2 py-1 hover:bg-green-100 rounded transition-colors"
                              >
                                Change
-                             </button>
+                             </Link>
                           </div>
-                       ) : !coverageWarning.show && !selectedZone && addressQuery.length > 3 ? (
+                       ) : !coverageWarning.show && !state.userPreferences.location ? (
                           <div className="p-3 bg-amber-50/50 rounded-lg border border-amber-100">
-                             <p className="text-xs text-amber-700 mb-2">Zone not auto-detected. Please select:</p>
-                             <select 
-                                value={selectedZone}
-                                onChange={(e) => { setSelectedZone(e.target.value); if(errors.zone) setErrors({...errors, zone:''}); }}
-                                className="w-full p-2.5 rounded-lg border border-amber-200 bg-white text-sm focus:ring-[#E6411C] focus:border-[#E6411C]"
+                             <p className="text-xs text-amber-700 mb-2">Please select your delivery location</p>
+                             <Link 
+                               to="/" 
+                               className="inline-flex items-center gap-1 text-sm font-medium text-amber-700 hover:text-amber-800"
                              >
-                               <option value="">Choose zone...</option>
-                               {deliveryZones.map(z => (
-                                 <option key={z.name} value={z.name}>
-                                   {z.name} — {formatPrice(z.fee)} ({z.estimatedTime})
-                                 </option>
-                               ))}
-                             </select>
+                               <MapPin className="w-4 h-4" />
+                               Go to home page
+                             </Link>
                           </div>
-                       ) : !coverageWarning.show && !addressQuery ? (
-                          <p className="text-xs text-muted-foreground text-center py-2">Enter your address above to auto-detect delivery zone</p>
                        ) : null}
-                       
-                       {/* Zone Override Dropdown */}
-                       {showZoneOverride && selectedZone && (
-                          <div className="p-3 bg-gray-50 rounded-lg border border-border mt-2">
-                             <p className="text-xs text-muted-foreground mb-2">Select a different zone:</p>
-                             <select 
-                                value={selectedZone}
-                                onChange={(e) => { 
-                                  setSelectedZone(e.target.value); 
-                                  setShowZoneOverride(false);
-                                  if(errors.zone) setErrors({...errors, zone:''}); 
-                                }}
-                                className="w-full p-2.5 rounded-lg border border-border bg-white text-sm focus:ring-[#E6411C] focus:border-[#E6411C]"
-                             >
-                               {deliveryZones.map(z => (
-                                 <option key={z.name} value={z.name}>
-                                   {z.name} — {formatPrice(z.fee)} ({z.estimatedTime})
-                                 </option>
-                               ))}
-                             </select>
-                          </div>
-                       )}
                     </div>
                 </div>
                 
@@ -1609,7 +1512,7 @@ export default function CartPage() {
                              <span className="line-through text-gray-400 text-xs">{formatPrice(baseDeliveryFee)}</span>
                              <span className="text-green-600">FREE</span>
                            </span>
-                         ) : (selectedZone ? formatPrice(baseDeliveryFee) : '-')}
+                         ) : (state.userPreferences.location ? formatPrice(baseDeliveryFee) : '-')}
                       </span>
                    </div>
                    {discount > 0 && (
@@ -1634,10 +1537,10 @@ export default function CartPage() {
                    </div>
                    
                    {/* Estimated Delivery Time */}
-                   {selectedZone && (
+                   {state.userPreferences.location && (
                      <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg py-2">
                        <Truck className="w-4 h-4 text-secondary" />
-                       <span>Est. delivery: <span className="font-medium text-foreground">{getEstimatedDeliveryTime(selectedZone)}</span></span>
+                       <span>Est. delivery: <span className="font-medium text-foreground">{getEstimatedDeliveryTime(state.userPreferences.deliveryTime)}</span></span>
                      </div>
                    )}
                 </div>
