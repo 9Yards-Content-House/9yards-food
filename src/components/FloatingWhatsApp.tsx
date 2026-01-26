@@ -1,18 +1,17 @@
 import { X, ArrowLeft, Phone, Check, Clock } from 'lucide-react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { WHATSAPP_NUMBER, PHONE_NUMBER, BUSINESS_HOURS } from '@/lib/constants';
+import { WHATSAPP_NUMBER, PHONE_NUMBER, BUSINESS_HOURS, FREE_DELIVERY_THRESHOLD, MAX_DELIVERY_DISTANCE_KM } from '@/lib/constants';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import { useCart } from '@/context/CartContext';
 import { useGuest } from '@/context/GuestContext';
-import { deliveryZones, menuData, promoCodes } from '@/data/menu';
+import { menuData, promoCodes } from '@/data/menu';
 
 // Constants
 const HIDDEN_PAGES = ['/order-confirmation'];
 const CHAT_STORAGE_KEY = '9yards_chat_history';
 const USER_PREFS_KEY = '9yards_chat_prefs';
 const CHAT_EXPIRY_MS = 60 * 60 * 1000; // 1 hour
-const FREE_DELIVERY_THRESHOLD = 50000;
 
 // Types - Extended action types for cleaner handling
 type ActionType = 
@@ -554,13 +553,18 @@ export default function FloatingWhatsApp({
   };
 
   const getDeliveryInfoMessage = (): Omit<Message, 'id' | 'time'> => {
-    const topZones = deliveryZones.slice(0, 5);
-    const zonesText = topZones.map(z => `• ${z.name}: ${formatPrice(z.fee)}`).join('\n');
+    const deliveryInfo = [
+      `• Within 5km: FREE`,
+      `• 5-10km: ${formatPrice(5000)}`,
+      `• 10-15km: ${formatPrice(7000)}`,
+      `• 15-20km: ${formatPrice(10000)}`,
+      `• 20-30km: ${formatPrice(12000)}-${formatPrice(15000)}`,
+    ].join('\n');
     const peakNote = isPeakHours() ? '\n\n⏰ *Peak hours: Add 15-20 mins to estimates*' : '';
     
     return {
       type: 'received',
-      content: `🚚 **Delivery Info**\n\nWe deliver across Kampala!\n\n📍 **Popular Areas:**\n${zonesText}\n\n🎉 **FREE delivery** on orders over ${formatPrice(FREE_DELIVERY_THRESHOLD)}!\n\n⏱️ Est. time: 30-55 mins${peakNote}`,
+      content: `🚚 **Delivery Info**\n\nWe deliver within ${MAX_DELIVERY_DISTANCE_KM}km of Kigo!\n\n📍 **Delivery Fees (by distance):**\n${deliveryInfo}\n\n🎉 **FREE delivery** on orders over ${formatPrice(FREE_DELIVERY_THRESHOLD)}!\n\n⏱️ Est. time: 15-50 mins${peakNote}`,
       options: [
         { key: '1', label: 'Check My Area', action: 'whatsapp', data: `Hello, do you deliver to my area?` },
         { key: '0', label: 'Back', action: 'start' }
@@ -909,20 +913,16 @@ export default function FloatingWhatsApp({
       return;
     }
     
-    // Delivery zone detection
-    const zoneMatch = deliveryZones.find(z => lower.includes(z.name.toLowerCase()));
-    if (zoneMatch) {
+    // Delivery area detection - now distance-based, so direct to WhatsApp for specific area checks
+    const deliveryKeywords = ['deliver', 'delivery', 'area', 'location', 'zone', 'come to', 'reach'];
+    if (deliveryKeywords.some(kw => lower.includes(kw))) {
       addUserMessage(input);
-      const estTime = isPeakHours() 
-        ? `${parseInt(zoneMatch.estimatedTime) + 15}-${parseInt(zoneMatch.estimatedTime.split('-')[1] || '45') + 15} mins (peak hours)`
-        : zoneMatch.estimatedTime;
-      
       addBotMessage({
         type: 'received',
-        content: `📍 **Delivery to ${zoneMatch.name}:**\n\n✅ Yes, we deliver there!\n💰 Fee: ${formatPrice(zoneMatch.fee)}\n⏱️ Est. time: ${estTime}\n\nReady to order?`,
+        content: `📍 **Delivery Check**\n\nWe deliver within ${MAX_DELIVERY_DISTANCE_KM}km of our kitchen in Kigo!\n\n💰 Fees vary by distance (starting from FREE within 5km)\n⏱️ Est. time: 15-50 mins\n\nWant to confirm if we deliver to your specific location?`,
         options: [
-          { key: '1', label: 'Start Order', action: 'navigate', data: '/menu' },
-          { key: '2', label: 'Check Another Area', action: 'deliveryInfo' },
+          { key: '1', label: 'Check on WhatsApp', action: 'whatsapp', data: `Hello, do you deliver to ${input}?` },
+          { key: '2', label: 'View Delivery Info', action: 'deliveryInfo' },
           { key: '0', label: 'Back', action: 'start' }
         ]
       });

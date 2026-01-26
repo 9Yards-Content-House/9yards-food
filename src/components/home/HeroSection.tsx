@@ -18,9 +18,15 @@ import {
   Star,
   Gift,
 } from "lucide-react";
-import { deliveryZones } from "@/data/menu";
 import { formatPrice } from "@/lib/utils/order";
-import { WHATSAPP_NUMBER } from "@/lib/constants";
+import {
+  WHATSAPP_NUMBER,
+  KITCHEN_LOCATION,
+  MAX_DELIVERY_DISTANCE_KM,
+  FREE_DELIVERY_THRESHOLD,
+  getDistanceFromLatLonInKm,
+  getDeliveryTierInfo,
+} from "@/lib/constants";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { useCart } from "@/context/CartContext";
 import { haptics } from "@/lib/utils/ui";
@@ -31,15 +37,10 @@ const MAX_RECENT_SEARCHES = 3;
 
 // Photon API configuration (OpenStreetMap-based, free, no API key needed)
 const PHOTON_API_URL = "https://photon.komoot.io/api/";
-const PHOTON_DEBOUNCE_MS = 300;
-const MAX_DELIVERY_DISTANCE_KM = 10; // Maximum distance from a delivery zone center
 
 // Kampala metro area bounds (used to determine if location is in Kampala area)
 const KAMPALA_CENTER = { lat: 0.3476, lon: 32.5825 };
-const KAMPALA_METRO_RADIUS_KM = 25; // Approximate radius of greater Kampala metro area
-
-// Exact delivery zone names for matching
-const DELIVERY_ZONE_NAMES = deliveryZones.map((z) => z.name.toLowerCase());
+const KAMPALA_METRO_RADIUS_KM = 35; // Approximate radius of greater Kampala metro area
 
 // Type for Photon API results
 interface PhotonResult {
@@ -48,59 +49,20 @@ interface PhotonResult {
   lat: number;
   lon: number;
   type: string;
-  nearestZone: (typeof deliveryZones)[0] | null;
-  distanceToZone: number;
+  distanceFromKitchen: number; // km from our kitchen
+  deliveryFee: number | null;
+  deliveryTime: string | null;
   isDeliverable: boolean;
   isInKampalaArea: boolean;
-  isExactZoneMatch: boolean;
 }
 
-// Extended location data with aliases for fuzzy matching (fallback)
-const locationAliases: Record<string, string[]> = {
-  "Kampala Central": [
-    "kampala",
-    "central",
-    "city centre",
-    "city center",
-    "downtown",
-    "old kampala",
-  ],
-  Nakawa: ["nakawa", "nakawa division"],
-  Kololo: ["kololo", "kololo hill"],
-  Ntinda: ["ntinda", "ntinda trading centre", "ntinda trading center"],
-  Bugolobi: ["bugolobi", "bugolobi flats"],
-  Muyenga: ["muyenga", "muyenga hill", "tank hill"],
-  Kabalagala: ["kabalagala", "kaba", "kabalagala trading centre"],
-  Kira: ["kira", "kira town", "kira municipality"],
-  Naalya: ["naalya", "nalya", "naalya estates"],
-  Kyanja: ["kyanja", "kyanja ring road"],
-};
-
-// Popular/suggested areas to show when input is empty
-const popularAreas = ["Kololo", "Ntinda", "Kabalagala", "Bugolobi"];
-
-// Free delivery threshold
-const FREE_DELIVERY_THRESHOLD = 50000;
-
-// Helper to calculate distance between two coordinates (Haversine formula)
-function getDistanceFromLatLonInKm(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number
-): number {
-  const R = 6371; // Radius of the earth in km
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
+// Popular areas with coordinates for suggestions
+const POPULAR_AREAS = [
+  { name: "Kololo", lat: 0.3350, lon: 32.5950 },
+  { name: "Ntinda", lat: 0.3550, lon: 32.6200 },
+  { name: "Kabalagala", lat: 0.2900, lon: 32.5850 },
+  { name: "Bugolobi", lat: 0.3100, lon: 32.6050 },
+];
 
 // Get recent searches from localStorage
 function getRecentSearches(): string[] {
@@ -113,10 +75,10 @@ function getRecentSearches(): string[] {
 }
 
 // Save a search to recent searches
-function saveRecentSearch(zoneName: string): void {
+function saveRecentSearch(locationName: string): void {
   try {
-    const recent = getRecentSearches().filter((name) => name !== zoneName);
-    recent.unshift(zoneName);
+    const recent = getRecentSearches().filter((name) => name !== locationName);
+    recent.unshift(locationName);
     localStorage.setItem(
       RECENT_SEARCHES_KEY,
       JSON.stringify(recent.slice(0, MAX_RECENT_SEARCHES))
@@ -133,32 +95,6 @@ function clearRecentSearches(): void {
   } catch {
     // Silently fail if localStorage is not available
   }
-}
-
-// Find nearest delivery zone to given coordinates
-function findNearestDeliveryZone(
-  lat: number,
-  lon: number
-): { zone: (typeof deliveryZones)[0] | null; distance: number } {
-  let nearestZone: (typeof deliveryZones)[0] | null = null;
-  let minDistance = Infinity;
-
-  deliveryZones.forEach((zone) => {
-    if (zone.coordinates) {
-      const distance = getDistanceFromLatLonInKm(
-        lat,
-        lon,
-        zone.coordinates[0],
-        zone.coordinates[1]
-      );
-      if (distance < minDistance) {
-        minDistance = distance;
-        nearestZone = zone;
-      }
-    }
-  });
-
-  return { zone: nearestZone, distance: minDistance };
 }
 
 // Fetch locations from Photon API (OpenStreetMap)
@@ -204,8 +140,16 @@ async function fetchPhotonSuggestions(
         ].filter(Boolean);
         const displayName = [...new Set(parts)].slice(0, 3).join(", ");
 
-        // Find nearest delivery zone
-        const { zone, distance } = findNearestDeliveryZone(lat, lon);
+        // Calculate distance from our kitchen in Kigo
+        const distanceFromKitchen = getDistanceFromLatLonInKm(
+          lat,
+          lon,
+          KITCHEN_LOCATION.lat,
+          KITCHEN_LOCATION.lon
+        );
+
+        // Get delivery tier info based on distance
+        const tierInfo = getDeliveryTierInfo(distanceFromKitchen);
 
         // Check if location is within Kampala metro area
         const distanceToKampala = getDistanceFromLatLonInKm(
@@ -216,58 +160,17 @@ async function fetchPhotonSuggestions(
         );
         const isInKampalaArea = distanceToKampala <= KAMPALA_METRO_RADIUS_KM;
 
-        // Check if the location name exactly matches one of our delivery zones
-        const locationName = (props.name || "").toLowerCase().trim();
-        const locationWords = locationName.split(/[\s,]+/);
-
-        // Strict matching: location name must BE one of our zones or start with it
-        const isExactZoneMatch = DELIVERY_ZONE_NAMES.some((zoneName) => {
-          // Exact match
-          if (locationName === zoneName) return true;
-          // Location starts with zone name (e.g., "Kololo Hill" starts with "kololo")
-          if (
-            locationName.startsWith(zoneName + " ") ||
-            locationName.startsWith(zoneName + ",")
-          )
-            return true;
-          // First word is the zone name
-          if (locationWords[0] === zoneName) return true;
-          return false;
-        });
-
-        // Also check aliases for exact match (strict)
-        const matchesAlias = Object.entries(locationAliases).some(
-          ([, aliases]) => {
-            return aliases.some((alias) => {
-              // Exact match
-              if (locationName === alias) return true;
-              // Location starts with alias
-              if (
-                locationName.startsWith(alias + " ") ||
-                locationName.startsWith(alias + ",")
-              )
-                return true;
-              // First word matches alias
-              if (locationWords[0] === alias) return true;
-              return false;
-            });
-          }
-        );
-
-        const isDeliverableZone = isExactZoneMatch || matchesAlias;
-
         return {
           name: props.name || displayName,
           displayName: displayName || props.name,
           lat,
           lon,
           type: props.osm_value || props.type || "place",
-          nearestZone: zone,
-          distanceToZone: distance,
-          // Deliverable ONLY if it's an exact match to our delivery zones
-          isDeliverable: isDeliverableZone,
+          distanceFromKitchen,
+          deliveryFee: tierInfo.isDeliverable ? tierInfo.fee : null,
+          deliveryTime: tierInfo.isDeliverable ? tierInfo.time : null,
+          isDeliverable: tierInfo.isDeliverable,
           isInKampalaArea,
-          isExactZoneMatch: isDeliverableZone,
         };
       })
       // Remove duplicates by name
@@ -292,9 +195,15 @@ export default function HeroSection() {
   const { setUserPreferences } = useCart();
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [selectedZone, setSelectedZone] = useState<
-    (typeof deliveryZones)[0] | null
-  >(null);
+  // Selected delivery info based on distance
+  const [selectedDelivery, setSelectedDelivery] = useState<{
+    locationName: string;
+    lat: number;
+    lon: number;
+    distance: number;
+    fee: number;
+    time: string;
+  } | null>(null);
   const [showNotFound, setShowNotFound] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -304,11 +213,6 @@ export default function HeroSection() {
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [apiResults, setApiResults] = useState<PhotonResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState<{
-    name: string;
-    lat: number;
-    lon: number;
-  } | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -401,81 +305,64 @@ export default function HeroSection() {
   }, []);
 
   // Filter zones based on debounced search query (local fallback)
-  const filteredZones = useMemo(() => {
-    if (!debouncedQuery.trim()) return [];
+  // Removed - we now use distance-based pricing from API results only
 
-    const query = debouncedQuery.toLowerCase().trim();
-
-    return deliveryZones.filter((zone) => {
-      // Check zone name
-      if (zone.name.toLowerCase().includes(query)) return true;
-
-      // Check aliases
-      const aliases = locationAliases[zone.name] || [];
-      return aliases.some((alias) => alias.includes(query));
+  // Popular areas with delivery info for suggestions
+  const popularAreasWithDelivery = useMemo(() => {
+    return POPULAR_AREAS.map((area) => {
+      const distance = getDistanceFromLatLonInKm(
+        area.lat,
+        area.lon,
+        KITCHEN_LOCATION.lat,
+        KITCHEN_LOCATION.lon
+      );
+      const tierInfo = getDeliveryTierInfo(distance);
+      return {
+        ...area,
+        distanceFromKitchen: distance,
+        deliveryFee: tierInfo.fee,
+        deliveryTime: tierInfo.time,
+        isDeliverable: tierInfo.isDeliverable,
+      };
     });
-  }, [debouncedQuery]);
+  }, []);
 
-  // Combined suggestions: API results + local matches
+  // Combined suggestions: API results + popular areas
   const displaySuggestions = useMemo(() => {
     // If searching with a query
     if (debouncedQuery.trim()) {
-      // Combine API results with local delivery zone matches
       const hasApiResults = apiResults.length > 0;
-      const hasLocalResults = filteredZones.length > 0;
 
-      if (hasApiResults || hasLocalResults) {
+      if (hasApiResults) {
         return {
           type: "search" as const,
-          zones: filteredZones,
+          popularAreas: [],
           apiResults: apiResults,
           hasApiResults,
-          hasLocalResults,
         };
       }
 
       return {
         type: "search" as const,
-        zones: [],
+        popularAreas: [],
         apiResults: [],
         hasApiResults: false,
-        hasLocalResults: false,
       };
     }
 
-    // Show recent searches only (no popular areas)
-    const recentZones = recentSearches
-      .map((name) => deliveryZones.find((z) => z.name === name))
-      .filter(Boolean) as typeof deliveryZones;
-
-    if (recentZones.length > 0) {
-      return {
-        type: "recent" as const,
-        zones: recentZones,
-        apiResults: [],
-        hasApiResults: false,
-        hasLocalResults: false,
-      };
-    }
-
-    // Show popular areas when no recent searches
-    const popularZones = popularAreas
-      .map((name) => deliveryZones.find((z) => z.name === name))
-      .filter(Boolean) as typeof deliveryZones;
-
+    // Show popular areas when no search query
     return {
       type: "popular" as const,
-      zones: popularZones,
+      popularAreas: popularAreasWithDelivery,
       apiResults: [],
       hasApiResults: false,
-      hasLocalResults: false,
     };
-  }, [debouncedQuery, filteredZones, recentSearches, apiResults]);
+  }, [debouncedQuery, apiResults, popularAreasWithDelivery]);
 
   // Total items for keyboard navigation
   const totalSuggestionItems = useMemo(() => {
     return (
-      displaySuggestions.zones.length +
+      displaySuggestions.popularAreas.length +
       (displaySuggestions.apiResults?.length || 0)
     );
   }, [displaySuggestions]);
@@ -488,94 +375,130 @@ export default function HeroSection() {
   const handleSearch = useCallback(() => {
     if (!searchQuery.trim()) return;
 
-    // First check API results
-    const deliverableApiResult = apiResults.find((r) => r.isDeliverable);
-    if (deliverableApiResult && deliverableApiResult.nearestZone) {
-      handleSelectZone(deliverableApiResult.nearestZone, {
-        name: deliverableApiResult.displayName,
-        lat: deliverableApiResult.lat,
-        lon: deliverableApiResult.lon,
+    // Check API results for a deliverable location
+    const deliverableResult = apiResults.find((r) => r.isDeliverable);
+    if (deliverableResult) {
+      handleSelectLocation({
+        name: deliverableResult.displayName,
+        lat: deliverableResult.lat,
+        lon: deliverableResult.lon,
+        distanceFromKitchen: deliverableResult.distanceFromKitchen,
+        deliveryFee: deliverableResult.deliveryFee!,
+        deliveryTime: deliverableResult.deliveryTime!,
+        isDeliverable: true,
       });
       return;
     }
 
-    // Then check local matches
-    if (filteredZones.length > 0) {
-      handleSelectZone(filteredZones[0]);
-    } else {
-      setSelectedZone(null);
-      setShowNotFound(true);
-    }
+    // If no deliverable result, show not found
+    setSelectedDelivery(null);
+    setShowNotFound(true);
     setShowSuggestions(false);
     setHighlightedIndex(-1);
-  }, [searchQuery, filteredZones, apiResults]);
+  }, [searchQuery, apiResults]);
 
-  const handleSelectZone = useCallback(
-    (
-      zone: (typeof deliveryZones)[0],
-      location?: { name: string; lat: number; lon: number }
-    ) => {
-      setSearchQuery(location?.name || zone.name);
-      setDebouncedQuery(location?.name || zone.name);
-      setSelectedZone(zone);
-      setSelectedLocation(location || null);
-      setShowNotFound(false);
-      setShowSuggestions(false);
-      setHighlightedIndex(-1);
-      setLocationError(null);
-      setApiResults([]);
-      saveRecentSearch(zone.name);
-      setRecentSearches(getRecentSearches());
-      
-      // Persist to CartContext for use in Cart page
-      setUserPreferences({ 
-        location: zone.name,
-        address: location?.name || zone.name 
-      });
-      
-      // Haptic feedback on success
-      haptics.success();
-    },
-    [setUserPreferences]
-  );
-
-  // Handle selecting an API result (location outside delivery zones)
-  const handleSelectApiResult = useCallback(
-    (result: PhotonResult) => {
-      if (result.isDeliverable && result.nearestZone) {
-        handleSelectZone(result.nearestZone, {
-          name: result.displayName,
-          lat: result.lat,
-          lon: result.lon,
+  // Handle selecting a location (API result or popular area)
+  const handleSelectLocation = useCallback(
+    (location: {
+      name: string;
+      lat: number;
+      lon: number;
+      distanceFromKitchen: number;
+      deliveryFee: number;
+      deliveryTime: string;
+      isDeliverable: boolean;
+    }) => {
+      if (location.isDeliverable) {
+        setSearchQuery(location.name);
+        setDebouncedQuery(location.name);
+        setSelectedDelivery({
+          locationName: location.name,
+          lat: location.lat,
+          lon: location.lon,
+          distance: location.distanceFromKitchen,
+          fee: location.deliveryFee,
+          time: location.deliveryTime,
         });
+        setShowNotFound(false);
+        setShowSuggestions(false);
+        setHighlightedIndex(-1);
+        setLocationError(null);
+        setApiResults([]);
+        saveRecentSearch(location.name);
+        setRecentSearches(getRecentSearches());
+
+        // Persist to CartContext for use in Cart page
+        setUserPreferences({
+          location: location.name,
+          address: location.name,
+          deliveryDistance: location.distanceFromKitchen,
+          deliveryFee: location.deliveryFee,
+          deliveryTime: location.deliveryTime,
+          coordinates: { lat: location.lat, lon: location.lon },
+        });
+
+        // Haptic feedback on success
+        haptics.success();
       } else {
         // Location is outside delivery area
-        setSearchQuery(result.displayName);
-        setDebouncedQuery(result.displayName);
-        setSelectedZone(null);
-        setSelectedLocation({
-          name: result.displayName,
-          lat: result.lat,
-          lon: result.lon,
-        });
+        setSearchQuery(location.name);
+        setDebouncedQuery(location.name);
+        setSelectedDelivery(null);
         setShowNotFound(true);
         setShowSuggestions(false);
         setHighlightedIndex(-1);
         setApiResults([]);
-        
+
         // Haptic feedback for not found
         haptics.warning();
       }
     },
-    [handleSelectZone]
+    [setUserPreferences]
+  );
+
+  // Handle selecting an API result
+  const handleSelectApiResult = useCallback(
+    (result: PhotonResult) => {
+      handleSelectLocation({
+        name: result.displayName,
+        lat: result.lat,
+        lon: result.lon,
+        distanceFromKitchen: result.distanceFromKitchen,
+        deliveryFee: result.deliveryFee ?? 0,
+        deliveryTime: result.deliveryTime ?? "N/A",
+        isDeliverable: result.isDeliverable,
+      });
+    },
+    [handleSelectLocation]
+  );
+
+  // Handle selecting a popular area
+  const handleSelectPopularArea = useCallback(
+    (area: (typeof POPULAR_AREAS)[0] & {
+      distanceFromKitchen: number;
+      deliveryFee: number;
+      deliveryTime: string;
+      isDeliverable: boolean;
+    }) => {
+      handleSelectLocation({
+        name: area.name,
+        lat: area.lat,
+        lon: area.lon,
+        distanceFromKitchen: area.distanceFromKitchen,
+        deliveryFee: area.deliveryFee,
+        deliveryTime: area.deliveryTime,
+        isDeliverable: area.isDeliverable,
+      });
+    },
+    [handleSelectLocation]
   );
 
   // Keyboard navigation
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      const localZones = displaySuggestions.zones;
+      const popularItems = displaySuggestions.popularAreas || [];
       const apiItems = displaySuggestions.apiResults || [];
-      const totalItems = localZones.length + apiItems.length;
+      const totalItems = popularItems.length + apiItems.length;
 
       if (!showSuggestions || totalItems === 0) {
         if (e.key === "Enter") {
@@ -596,12 +519,12 @@ export default function HeroSection() {
         case "Enter":
           e.preventDefault();
           if (highlightedIndex >= 0) {
-            if (highlightedIndex < localZones.length) {
-              // Selecting a local delivery zone
-              handleSelectZone(localZones[highlightedIndex]);
+            if (highlightedIndex < popularItems.length) {
+              // Selecting a popular area
+              handleSelectPopularArea(popularItems[highlightedIndex]);
             } else {
               // Selecting an API result
-              const apiIndex = highlightedIndex - localZones.length;
+              const apiIndex = highlightedIndex - popularItems.length;
               if (apiIndex < apiItems.length) {
                 handleSelectApiResult(apiItems[apiIndex]);
               }
@@ -621,7 +544,7 @@ export default function HeroSection() {
       showSuggestions,
       displaySuggestions,
       highlightedIndex,
-      handleSelectZone,
+      handleSelectPopularArea,
       handleSelectApiResult,
       handleSearch,
     ]
@@ -636,7 +559,7 @@ export default function HeroSection() {
 
     setIsLocating(true);
     setLocationError(null);
-    setSelectedZone(null);
+    setSelectedDelivery(null);
     setShowNotFound(false);
     setShowSuggestions(false);
 
@@ -644,40 +567,36 @@ export default function HeroSection() {
     const tryGetPosition = (highAccuracy: boolean) => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const { latitude, longitude, accuracy } = position.coords;
+          const { latitude, longitude } = position.coords;
 
-          // Find the nearest delivery zone
-          let nearestZone: (typeof deliveryZones)[0] | null = null;
-          let minDistance = Infinity;
+          // Calculate distance from our kitchen in Kigo
+          const distanceFromKitchen = getDistanceFromLatLonInKm(
+            latitude,
+            longitude,
+            KITCHEN_LOCATION.lat,
+            KITCHEN_LOCATION.lon
+          );
 
-          deliveryZones.forEach((zone) => {
-            if (zone.coordinates) {
-              const distance = getDistanceFromLatLonInKm(
-                latitude,
-                longitude,
-                zone.coordinates[0],
-                zone.coordinates[1]
-              );
-              if (distance < minDistance) {
-                minDistance = distance;
-                nearestZone = zone;
-              }
-            }
-          });
+          // Get delivery tier info
+          const tierInfo = getDeliveryTierInfo(distanceFromKitchen);
 
           setIsLocating(false);
 
-          if (nearestZone && minDistance < 15) {
-            // Within 15km of a delivery zone
-            handleSelectZone(nearestZone, {
-              name: `Near ${nearestZone.name}`,
+          if (tierInfo.isDeliverable) {
+            // Within delivery range
+            handleSelectLocation({
+              name: "My Location",
               lat: latitude,
               lon: longitude,
+              distanceFromKitchen,
+              deliveryFee: tierInfo.fee,
+              deliveryTime: tierInfo.time,
+              isDeliverable: true,
             });
           } else {
             setSearchQuery("My Location");
             setShowNotFound(true);
-            setLocationError("We don't deliver to your area yet");
+            setLocationError(`We don't deliver beyond ${MAX_DELIVERY_DISTANCE_KM}km yet`);
           }
         },
         (error) => {
@@ -718,10 +637,10 @@ export default function HeroSection() {
 
     // Start with high accuracy
     tryGetPosition(true);
-  }, [handleSelectZone]);
+  }, [handleSelectLocation]);
 
   const handleOrderNow = () => {
-    if (selectedZone) {
+    if (selectedDelivery) {
       // Navigate to menu with location pre-selected
       navigate("/menu");
     }
@@ -853,9 +772,9 @@ export default function HeroSection() {
                   </button>
                 </div>
 
-                {/* Suggestions Dropdown - Shows for search results, recent, or popular */}
+                {/* Suggestions Dropdown - Shows for search results or popular areas */}
                 {showSuggestions &&
-                  (displaySuggestions.zones.length > 0 ||
+                  (displaySuggestions.popularAreas.length > 0 ||
                     (displaySuggestions.apiResults &&
                       displaySuggestions.apiResults.length > 0) ||
                     isSearching) && (
@@ -873,29 +792,6 @@ export default function HeroSection() {
                         </div>
                       )}
 
-                      {/* Section Header for recent searches */}
-                      {displaySuggestions.type === "recent" && !isSearching && (
-                        <div className="px-4 py-2 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
-                          <span className="text-xs font-medium text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
-                            <History className="w-3 h-3" />
-                            Recent
-                          </span>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              clearRecentSearches();
-                              setRecentSearches([]);
-                              setShowSuggestions(false);
-                            }}
-                            className="text-xs text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1"
-                          >
-                            <XCircle className="w-3 h-3" />
-                            Clear
-                          </button>
-                        </div>
-                      )}
-
                       {/* Section Header for popular areas */}
                       {displaySuggestions.type === "popular" && !isSearching && (
                         <div className="px-4 py-2 bg-secondary/5 border-b border-secondary/10">
@@ -906,25 +802,16 @@ export default function HeroSection() {
                         </div>
                       )}
 
-                      {/* Local Delivery Zones (exact matches) */}
-                      {displaySuggestions.zones.length > 0 && (
+                      {/* Popular Areas */}
+                      {displaySuggestions.popularAreas.length > 0 && (
                         <>
-                          {displaySuggestions.type === "search" &&
-                            displaySuggestions.hasApiResults && (
-                              <div className="px-4 py-2 bg-green-50 border-b border-green-100">
-                                <span className="text-xs font-medium text-green-700 uppercase tracking-wide flex items-center gap-1.5">
-                                  <CheckCircle2 className="w-3 h-3" />
-                                  Delivery Zones
-                                </span>
-                              </div>
-                            )}
-                          {displaySuggestions.zones.map((zone, index) => (
+                          {displaySuggestions.popularAreas.map((area, index) => (
                             <button
-                              key={`zone-${zone.name}`}
+                              key={`popular-${area.name}`}
                               id={`suggestion-${index}`}
                               role="option"
                               aria-selected={highlightedIndex === index}
-                              onClick={() => handleSelectZone(zone)}
+                              onClick={() => handleSelectPopularArea(area)}
                               onMouseEnter={() => setHighlightedIndex(index)}
                               className={`w-full px-4 py-2.5 text-left flex items-center justify-between gap-3 transition-colors focus:outline-none ${
                                 highlightedIndex === index
@@ -947,7 +834,7 @@ export default function HeroSection() {
                                       : "text-gray-900"
                                   }`}
                                 >
-                                  {zone.name}
+                                  {area.name}
                                 </span>
                               </div>
                               <div className="flex items-center gap-2 flex-shrink-0">
@@ -961,7 +848,7 @@ export default function HeroSection() {
                                       : "bg-gray-100 text-gray-500"
                                   }`}
                                 >
-                                  {zone.estimatedTime}
+                                  {area.deliveryTime}
                                 </span>
                               </div>
                             </button>
@@ -969,22 +856,14 @@ export default function HeroSection() {
                         </>
                       )}
 
-                      {/* API Results (other Uganda locations) */}
+                      {/* API Results (search results) */}
                       {displaySuggestions.apiResults &&
                         displaySuggestions.apiResults.length > 0 && (
                           <>
-                            {displaySuggestions.zones.length > 0 && (
-                              <div className="px-4 py-2 bg-gray-50 border-y border-gray-100">
-                                <span className="text-xs font-medium text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
-                                  <Globe className="w-3 h-3" />
-                                  Other Locations
-                                </span>
-                              </div>
-                            )}
                             {displaySuggestions.apiResults.map(
                               (result, idx) => {
                                 const index =
-                                  displaySuggestions.zones.length + idx;
+                                  displaySuggestions.popularAreas.length + idx;
                                 return (
                                   <button
                                     key={`api-${result.displayName}-${idx}`}
@@ -1030,12 +909,22 @@ export default function HeroSection() {
                                         )}
                                       </div>
                                     </div>
-                                    <div className="flex-shrink-0">
+                                    <div className="flex items-center gap-2 flex-shrink-0">
                                       {result.isDeliverable ? (
-                                        <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium flex items-center gap-1">
-                                          <Check className="w-3 h-3" /> We
-                                          deliver here
-                                        </span>
+                                        <>
+                                          <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium flex items-center gap-1">
+                                            <Check className="w-3 h-3" /> We deliver here
+                                          </span>
+                                          <span
+                                            className={`text-xs px-2 py-0.5 rounded-full ${
+                                              highlightedIndex === index
+                                                ? "bg-secondary/20 text-secondary"
+                                                : "bg-gray-100 text-gray-500"
+                                            }`}
+                                          >
+                                            {result.deliveryTime}
+                                          </span>
+                                        </>
                                       ) : (
                                         <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium flex items-center gap-1">
                                           <AlertTriangle className="w-3 h-3" />{" "}
@@ -1053,7 +942,7 @@ export default function HeroSection() {
                       {/* No results message */}
                       {!isSearching &&
                         displaySuggestions.type === "search" &&
-                        displaySuggestions.zones.length === 0 &&
+                        displaySuggestions.popularAreas.length === 0 &&
                         (!displaySuggestions.apiResults ||
                           displaySuggestions.apiResults.length === 0) &&
                         debouncedQuery.length >= 2 && (
@@ -1063,7 +952,7 @@ export default function HeroSection() {
                         )}
 
                       {/* Keyboard hint */}
-                      {(displaySuggestions.zones.length > 0 ||
+                      {(displaySuggestions.popularAreas.length > 0 ||
                         (displaySuggestions.apiResults &&
                           displaySuggestions.apiResults.length > 0)) && (
                         <div className="px-4 py-2 bg-gray-50 border-t border-gray-100 hidden sm:flex items-center justify-center gap-4 text-xs text-gray-400">
@@ -1092,7 +981,7 @@ export default function HeroSection() {
               </div>
 
               {/* Location Error */}
-              {locationError && !selectedZone && !showNotFound && (
+              {locationError && !selectedDelivery && !showNotFound && (
                 <div className="mt-2 text-xs text-amber-600 flex items-center gap-1.5">
                   <XCircle className="w-3 h-3" />
                   {locationError}
@@ -1100,28 +989,31 @@ export default function HeroSection() {
               )}
 
               {/* Result Messages */}
-              {selectedZone && (
+              {selectedDelivery && (
                 <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200 animate-in fade-in duration-200">
                   <div className="flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
                     <div className="flex-1">
                       <p className="text-green-800 font-semibold text-sm">
-                        We deliver to {selectedZone.name}!
+                        We deliver to {selectedDelivery.locationName}!
                       </p>
                       <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-1.5 text-xs text-green-700">
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          {selectedZone.estimatedTime}
+                          {selectedDelivery.time}
                         </span>
                         <span className="flex items-center gap-1">
                           <Truck className="w-3 h-3" />
-                          {selectedZone.fee === 0
+                          {selectedDelivery.fee === 0
                             ? "Free Delivery"
-                            : formatPrice(selectedZone.fee)}
+                            : formatPrice(selectedDelivery.fee)}
+                        </span>
+                        <span className="flex items-center gap-1 text-green-600/70">
+                          ({selectedDelivery.distance.toFixed(1)} km away)
                         </span>
                       </div>
                       {/* Free delivery threshold hint */}
-                      {selectedZone.fee > 0 && (
+                      {selectedDelivery.fee > 0 && (
                         <p className="mt-2 text-xs text-green-600 flex items-center gap-1.5 bg-green-100/50 px-2 py-1 rounded-md">
                           <Gift className="w-3 h-3" />
                           Order {formatPrice(FREE_DELIVERY_THRESHOLD)}+ for free delivery!
@@ -1144,10 +1036,10 @@ export default function HeroSection() {
                     <XCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
                     <div className="flex-1">
                       <p className="text-amber-800 font-semibold text-sm">
-                        Area not found
+                        Outside delivery area
                       </p>
                       <p className="text-xs text-amber-700 mt-1">
-                        Contact us to check availability in your area.
+                        We currently deliver within {MAX_DELIVERY_DISTANCE_KM}km. Contact us to check availability.
                       </p>
                       <button
                         onClick={handleWhatsAppContact}

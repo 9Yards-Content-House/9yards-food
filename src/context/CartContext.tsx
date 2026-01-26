@@ -33,6 +33,11 @@ export interface UserPreferences {
   name: string;
   address: string;
   specialInstructions?: string;
+  // Distance-based delivery info
+  deliveryDistance?: number; // km from kitchen
+  deliveryFee?: number; // calculated fee in UGX
+  deliveryTime?: string; // estimated time string
+  coordinates?: { lat: number; lon: number }; // delivery location coordinates
 }
 
 export interface OrderHistoryItem {
@@ -77,6 +82,10 @@ const initialState: CartState = {
     name: '',
     address: '',
     specialInstructions: '',
+    deliveryDistance: undefined,
+    deliveryFee: undefined,
+    deliveryTime: undefined,
+    coordinates: undefined,
   },
   orderHistory: [],
 };

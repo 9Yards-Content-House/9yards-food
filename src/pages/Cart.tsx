@@ -30,7 +30,8 @@ import MobilePageHeader from '@/components/layout/MobilePageHeader';
 import OptimizedImage from '@/components/ui/optimized-image';
 import SwipeableItem, { SwipeHint } from '@/components/ui/SwipeableItem';
 import { useCart, OrderHistoryItem } from '@/context/CartContext';
-import { deliveryZones, promoCodes, menuData } from '@/data/menu';
+import { promoCodes, menuData } from '@/data/menu';
+import { FREE_DELIVERY_THRESHOLD } from '@/lib/constants';
 import {
   formatPrice,
   generateOrderId,
@@ -55,8 +56,8 @@ function isPeakHours(): boolean {
   return (hour >= 12 && hour < 14) || (hour >= 18 && hour < 20);
 }
 
-function getEstimatedDeliveryTime(zone: string | undefined): string {
-  const baseTime = deliveryZones.find(z => z.name === zone)?.estimatedTime || '30-45 mins';
+function getEstimatedDeliveryTime(deliveryTime: string | undefined): string {
+  const baseTime = deliveryTime || '25-45 mins';
   if (isPeakHours()) {
     const match = baseTime.match(/(\d+)-(\d+)/);
     if (match) {
@@ -256,9 +257,13 @@ export default function CartPage() {
     }
   };
 
-  const selectedZoneData = deliveryZones.find((z) => z.name === selectedZone);
+  const selectedZoneData = state.userPreferences.deliveryFee !== undefined ? {
+    name: state.userPreferences.location,
+    fee: state.userPreferences.deliveryFee,
+    estimatedTime: state.userPreferences.deliveryTime || '25-45 mins',
+  } : null;
   const baseDeliveryFee = selectedZoneData?.fee || 0;
-  const freeDeliveryThreshold = 50000;
+  const freeDeliveryThreshold = FREE_DELIVERY_THRESHOLD;
   const qualifiesForFreeDelivery = cartTotal >= freeDeliveryThreshold;
   const freeDeliveryProgress = Math.min(100, (cartTotal / freeDeliveryThreshold) * 100);
   const amountToFreeDelivery = freeDeliveryThreshold - cartTotal;
@@ -276,7 +281,7 @@ export default function CartPage() {
   }, [promoResult, baseDeliveryFee]);
 
   const total = cartTotal + deliveryFee - (promoResult?.discountType !== 'free_delivery' ? discount : 0);
-  const estimatedDelivery = getEstimatedDeliveryTime(selectedZone);
+  const estimatedDelivery = getEstimatedDeliveryTime(state.userPreferences.deliveryTime);
   const peakHours = isPeakHours();
 
   const handleApplyPromo = () => {
