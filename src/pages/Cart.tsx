@@ -450,7 +450,16 @@ export default function CartPage() {
       },
     };
 
-    window.FlutterwaveCheckout(config);
+    try {
+      if (typeof window.FlutterwaveCheckout !== 'function') {
+        throw new Error('Payment system not loaded');
+      }
+      window.FlutterwaveCheckout(config);
+    } catch (error) {
+      setIsProcessingPayment(false);
+      toast.error('Payment system unavailable. Please use WhatsApp to order.');
+      console.error('Flutterwave error:', error);
+    }
   };
 
   // Helper to get item image

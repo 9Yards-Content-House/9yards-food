@@ -14,9 +14,10 @@ interface OptimizedImageProps extends ImgHTMLAttributes<HTMLImageElement> {
 }
 
 /**
- * OptimizedImage - Simple image component
+ * OptimizedImage - Image component with lazy loading
  * 
- * No optimization, no lazy loading - just a plain img tag
+ * Uses native browser lazy loading for images below the fold.
+ * Set priority={true} for above-the-fold images that should load immediately.
  */
 export function OptimizedImage({
   src,
@@ -24,7 +25,7 @@ export function OptimizedImage({
   width,
   height,
   className,
-  priority,
+  priority = false,
   placeholder,
   blurDataURL,
   sizes,
@@ -37,6 +38,8 @@ export function OptimizedImage({
       alt={alt}
       width={width}
       height={height}
+      loading={priority ? "eager" : "lazy"}
+      decoding={priority ? "sync" : "async"}
       className={cn("w-full h-full object-cover", className)}
       {...props}
     />

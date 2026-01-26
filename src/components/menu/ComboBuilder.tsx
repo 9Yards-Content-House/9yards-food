@@ -725,8 +725,8 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                             <img
                               src={sauce.image}
                               alt={sauce.name}
-                              loading="eager"
-                              decoding="sync"
+                              loading="lazy"
+                              decoding="async"
                               width={64}
                               height={64}
                               className="w-16 h-16 rounded-xl object-cover flex-shrink-0"
@@ -874,8 +874,8 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                               <img
                                 src={side.image}
                                 alt={side.name}
-                                loading="eager"
-                                decoding="sync"
+                                loading="lazy"
+                                decoding="async"
                                 width={80}
                                 height={80}
                                 className="w-20 h-20 rounded-xl object-cover shadow-inner"
@@ -957,8 +957,8 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                               <img
                                 src={juice.image}
                                 alt={juice.name}
-                                loading="eager"
-                                decoding="sync"
+                                loading="lazy"
+                                decoding="async"
                                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                               />
                             </div>
@@ -1037,8 +1037,8 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                               <img
                                 src={dessert.image}
                                 alt={dessert.name}
-                                loading="eager"
-                                decoding="sync"
+                                loading="lazy"
+                                decoding="async"
                                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                               />
                             </div>
