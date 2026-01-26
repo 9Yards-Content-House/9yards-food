@@ -16,7 +16,7 @@ export const pageMetadata = {
       "alternateName": ["9 Yards Food", "9yards", "Nine Yards Food"],
       "image": "https://food.9yards.co.ug/images/logo/9Yards-Food-White-Logo-colored.png",
       "servesCuisine": "Ugandan",
-      "priceRange": "UGX 15,000 - 50,000",
+      "priceRange": "UGX 18,000 - 58,000",
       "address": {
         "@type": "PostalAddress",
         "addressLocality": "Kampala",
@@ -30,7 +30,7 @@ export const pageMetadata = {
   // MENU PAGE (/menu)
   menu: {
     title: "Our Menu | Authentic Ugandan Food Combos, Juices & Desserts | 9Yards Food",
-    description: "Browse our complete menu of authentic Ugandan food combos. Choose from matooke, rice, posho + fish, chicken, meat, g-nuts sauce. Add 100% natural juices. Build your perfect combo from UGX 15,000.",
+    description: "Browse our complete menu of authentic Ugandan food combos. Choose from matooke, rice, posho + fish, chicken, meat, g-nuts sauce. Add 100% natural juices. Build your perfect combo from UGX 18,000.",
     keywords: "Ugandan food menu, matooke combo, fish and posho, chicken and rice, g-nuts sauce, natural juice Uganda, food menu Kampala, authentic Ugandan dishes, boiled or fried options",
     ogTitle: "9Yards Food Menu - Build Your Perfect Ugandan Combo",
     ogDescription: "Fresh matooke, posho, rice, cassava + your choice of fish, chicken, or meat. Every combo includes a free side dish. 100% natural ingredients.",
@@ -83,7 +83,7 @@ export const pageMetadata = {
               "description": "Fresh Nile Tilapia, fried or steamed",
               "offers": {
                 "@type": "Offer",
-                "price": "15000",
+                "price": "23000",
                 "priceCurrency": "UGX"
               }
             },
@@ -93,7 +93,7 @@ export const pageMetadata = {
               "description": "Tender chicken pieces in sauce",
               "offers": {
                 "@type": "Offer",
-                "price": "18000",
+                "price": "23000",
                 "priceCurrency": "UGX"
               }
             },
@@ -401,7 +401,7 @@ export const globalMetadata = {
     "description": "Authentic Ugandan cuisine delivery service in Kampala. Fresh matooke, posho, fish, chicken & more with 100% natural ingredients.",
     "slogan": "From our kitchen to your table",
     "servesCuisine": ["Ugandan", "African", "East African"],
-    "priceRange": "UGX 15,000 - 50,000",
+    "priceRange": "UGX 18,000 - 58,000",
     "telephone": "+256708453744",
     "email": "info@9yards.co.ug",
     "address": {
