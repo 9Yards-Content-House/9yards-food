@@ -243,6 +243,8 @@ export default function CartPage() {
   const qualifiesForFreeDelivery = cartTotal >= freeDeliveryThreshold;
   const freeDeliveryProgress = Math.min(100, (cartTotal / freeDeliveryThreshold) * 100);
   const amountToFreeDelivery = freeDeliveryThreshold - cartTotal;
+  // Check if user is in a free delivery zone (0-3km from kitchen)
+  const isInFreeDeliveryZone = selectedZoneData !== null && baseDeliveryFee === 0;
   
   const deliveryFee = useMemo(() => {
     if (qualifiesForFreeDelivery) return 0;
@@ -614,7 +616,31 @@ export default function CartPage() {
             {/* Cart Items Column */}
             <div className="lg:col-span-2 space-y-6">
               {/* Free Delivery Progress - Mobile */}
-              {!qualifiesForFreeDelivery && (
+              {isInFreeDeliveryZone ? (
+                <div className="lg:hidden">
+                  <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-xl">
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Truck className="w-4 h-4 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-green-700 font-semibold text-sm">Free delivery for your area!</p>
+                      <p className="text-green-600 text-xs">You're within 3km of our kitchen</p>
+                    </div>
+                  </div>
+                </div>
+              ) : qualifiesForFreeDelivery ? (
+                <div className="lg:hidden">
+                  <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-xl">
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Truck className="w-4 h-4 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-green-700 font-semibold text-sm">Free delivery unlocked!</p>
+                      <p className="text-green-600 text-xs">Order above {formatPrice(freeDeliveryThreshold)}</p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
                 <div className="lg:hidden">
                   <div className="flex flex-col gap-3">
                     <div className="flex justify-between items-end">
@@ -1261,7 +1287,31 @@ export default function CartPage() {
                   </span>
                 </div>
 
-                {!qualifiesForFreeDelivery && (
+                {isInFreeDeliveryZone ? (
+                  <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Truck className="w-6 h-6 text-green-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-green-700 font-bold text-lg">Free delivery for your area!</h3>
+                        <p className="text-green-600 text-sm">You're within 3km of our kitchen</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : qualifiesForFreeDelivery ? (
+                  <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Truck className="w-6 h-6 text-green-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-green-700 font-bold text-lg">Free delivery unlocked!</h3>
+                        <p className="text-green-600 text-sm">Your order qualifies for free delivery</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
                   <div className="mb-6 p-4 bg-[#212282] rounded-xl overflow-hidden relative">
                     {/* Pattern Overlay */}
                     <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -mr-10 -mt-10" />
