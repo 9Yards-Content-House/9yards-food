@@ -707,7 +707,7 @@ export default function HeroSection() {
                       onChange={(e) => {
                         setSearchQuery(e.target.value);
                         setShowSuggestions(true);
-                        setSelectedZone(null);
+                        setSelectedDelivery(null);
                         setShowNotFound(false);
                         setLocationError(null);
                       }}
@@ -716,7 +716,7 @@ export default function HeroSection() {
                       className="w-full pl-10 pr-16 py-2.5 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-transparent text-sm transition-all duration-200"
                       aria-label="Enter your delivery address"
                       aria-expanded={
-                        showSuggestions && displaySuggestions.zones.length > 0
+                        showSuggestions && (displaySuggestions.popularAreas.length > 0 || (displaySuggestions.apiResults?.length ?? 0) > 0)
                       }
                       aria-haspopup="listbox"
                       aria-controls="location-suggestions"
@@ -734,7 +734,7 @@ export default function HeroSection() {
                         onClick={() => {
                           setSearchQuery("");
                           setDebouncedQuery("");
-                          setSelectedZone(null);
+                          setSelectedDelivery(null);
                           setShowNotFound(false);
                           setLocationError(null);
                           setApiResults([]);
