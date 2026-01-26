@@ -36,10 +36,10 @@ export function getWhatsAppUrl(message: string = WHATSAPP_MESSAGES.default): str
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
-// Kitchen Location (Kigo, Kampala)
+// Kitchen Location (Kigo, near Lake Victoria Serena Resort / Busabala junction)
 export const KITCHEN_LOCATION = {
-  lat: 0.1847,
-  lon: 32.5275,
+  lat: 0.2000,
+  lon: 32.5835,
   name: 'Kigo',
 };
 
