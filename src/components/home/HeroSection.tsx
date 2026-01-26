@@ -334,10 +334,19 @@ export default function HeroSection() {
       const hasApiResults = apiResults.length > 0;
 
       if (hasApiResults) {
+        // Sort by distance (closest first), deliverable locations first
+        const sortedResults = [...apiResults].sort((a, b) => {
+          // Deliverable locations first
+          if (a.isDeliverable && !b.isDeliverable) return -1;
+          if (!a.isDeliverable && b.isDeliverable) return 1;
+          // Then by distance
+          return a.distanceFromKitchen - b.distanceFromKitchen;
+        });
+
         return {
           type: "search" as const,
           popularAreas: [],
-          apiResults: apiResults,
+          apiResults: sortedResults,
           hasApiResults,
         };
       }
@@ -350,7 +359,7 @@ export default function HeroSection() {
       };
     }
 
-    // Show popular areas when no search query
+    // Show popular areas when no search query (already sorted by distance implicitly)
     return {
       type: "popular" as const,
       popularAreas: popularAreasWithDelivery,
@@ -813,42 +822,67 @@ export default function HeroSection() {
                               aria-selected={highlightedIndex === index}
                               onClick={() => handleSelectPopularArea(area)}
                               onMouseEnter={() => setHighlightedIndex(index)}
-                              className={`w-full px-4 py-2.5 text-left flex items-center justify-between gap-3 transition-colors focus:outline-none ${
+                              className={`w-full px-4 py-3 text-left flex items-center justify-between gap-3 transition-colors focus:outline-none ${
                                 highlightedIndex === index
                                   ? "bg-secondary/10"
                                   : "hover:bg-secondary/5"
                               }`}
                             >
-                              <div className="flex items-center gap-3 min-w-0">
-                                <MapPin
-                                  className={`w-4 h-4 flex-shrink-0 ${
-                                    highlightedIndex === index
-                                      ? "text-secondary"
-                                      : "text-secondary/70"
-                                  }`}
-                                />
-                                <span
-                                  className={`font-medium text-sm truncate ${
-                                    highlightedIndex === index
-                                      ? "text-secondary"
-                                      : "text-gray-900"
-                                  }`}
-                                >
-                                  {area.name}
-                                </span>
+                              <div className="flex items-center gap-3 min-w-0 flex-1">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                  area.deliveryFee === 0
+                                    ? "bg-green-100"
+                                    : "bg-secondary/10"
+                                }`}>
+                                  <MapPin
+                                    className={`w-4 h-4 ${
+                                      area.deliveryFee === 0
+                                        ? "text-green-600"
+                                        : highlightedIndex === index
+                                          ? "text-secondary"
+                                          : "text-secondary/70"
+                                    }`}
+                                  />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <span
+                                    className={`font-medium text-sm block ${
+                                      highlightedIndex === index
+                                        ? "text-secondary"
+                                        : "text-gray-900"
+                                    }`}
+                                  >
+                                    {area.name}
+                                  </span>
+                                  <span className="text-xs text-gray-500 flex items-center gap-2">
+                                    <span className="flex items-center gap-1">
+                                      <Truck className="w-3 h-3" />
+                                      {area.distanceFromKitchen.toFixed(1)} km
+                                    </span>
+                                    <span>•</span>
+                                    <span className="flex items-center gap-1">
+                                      <Clock className="w-3 h-3" />
+                                      {area.deliveryTime}
+                                    </span>
+                                  </span>
+                                </div>
                               </div>
-                              <div className="flex items-center gap-2 flex-shrink-0">
-                                <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium flex items-center gap-1">
-                                  <Check className="w-3 h-3" /> We deliver here
-                                </span>
-                                <span
-                                  className={`text-xs px-2 py-0.5 rounded-full ${
+                              <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                                {area.deliveryFee === 0 ? (
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-semibold">
+                                    FREE Delivery
+                                  </span>
+                                ) : (
+                                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                                     highlightedIndex === index
                                       ? "bg-secondary/20 text-secondary"
-                                      : "bg-gray-100 text-gray-500"
-                                  }`}
-                                >
-                                  {area.deliveryTime}
+                                      : "bg-gray-100 text-gray-600"
+                                  }`}>
+                                    {formatPrice(area.deliveryFee)}
+                                  </span>
+                                )}
+                                <span className="text-xs text-green-600 flex items-center gap-0.5">
+                                  <Check className="w-3 h-3" /> We deliver
                                 </span>
                               </div>
                             </button>
@@ -876,25 +910,35 @@ export default function HeroSection() {
                                     onMouseEnter={() =>
                                       setHighlightedIndex(index)
                                     }
-                                    className={`w-full px-4 py-2.5 text-left flex items-center justify-between gap-3 transition-colors focus:outline-none ${
+                                    className={`w-full px-4 py-3 text-left flex items-center justify-between gap-3 transition-colors focus:outline-none ${
                                       highlightedIndex === index
                                         ? "bg-secondary/10"
                                         : "hover:bg-secondary/5"
                                     }`}
                                   >
-                                    <div className="flex items-center gap-3 min-w-0">
-                                      <MapPin
-                                        className={`w-4 h-4 flex-shrink-0 ${
-                                          result.isDeliverable
-                                            ? highlightedIndex === index
-                                              ? "text-secondary"
-                                              : "text-secondary/70"
-                                            : "text-gray-400"
-                                        }`}
-                                      />
-                                      <div className="min-w-0">
+                                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                                      <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                        result.isDeliverable
+                                          ? result.deliveryFee === 0
+                                            ? "bg-green-100"
+                                            : "bg-secondary/10"
+                                          : "bg-gray-100"
+                                      }`}>
+                                        <MapPin
+                                          className={`w-4 h-4 ${
+                                            result.isDeliverable
+                                              ? result.deliveryFee === 0
+                                                ? "text-green-600"
+                                                : highlightedIndex === index
+                                                  ? "text-secondary"
+                                                  : "text-secondary/70"
+                                              : "text-gray-400"
+                                          }`}
+                                        />
+                                      </div>
+                                      <div className="min-w-0 flex-1">
                                         <span
-                                          className={`font-medium text-sm truncate block ${
+                                          className={`font-medium text-sm block truncate ${
                                             highlightedIndex === index
                                               ? "text-secondary"
                                               : "text-gray-900"
@@ -902,34 +946,62 @@ export default function HeroSection() {
                                         >
                                           {result.name}
                                         </span>
+                                        <span className="text-xs text-gray-500 flex items-center gap-2">
+                                          {result.isDeliverable ? (
+                                            <>
+                                              <span className="flex items-center gap-1">
+                                                <Truck className="w-3 h-3" />
+                                                {result.distanceFromKitchen.toFixed(1)} km
+                                              </span>
+                                              <span>•</span>
+                                              <span className="flex items-center gap-1">
+                                                <Clock className="w-3 h-3" />
+                                                {result.deliveryTime}
+                                              </span>
+                                            </>
+                                          ) : (
+                                            <span className="flex items-center gap-1 text-amber-600">
+                                              <AlertTriangle className="w-3 h-3" />
+                                              {result.distanceFromKitchen.toFixed(1)} km (outside delivery area)
+                                            </span>
+                                          )}
+                                        </span>
                                         {result.displayName !== result.name && (
-                                          <span className="text-xs text-gray-500 truncate block">
+                                          <span className="text-xs text-gray-400 truncate block">
                                             {result.displayName}
                                           </span>
                                         )}
                                       </div>
                                     </div>
-                                    <div className="flex items-center gap-2 flex-shrink-0">
+                                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
                                       {result.isDeliverable ? (
                                         <>
-                                          <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium flex items-center gap-1">
-                                            <Check className="w-3 h-3" /> We deliver here
-                                          </span>
-                                          <span
-                                            className={`text-xs px-2 py-0.5 rounded-full ${
+                                          {result.deliveryFee === 0 ? (
+                                            <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-semibold">
+                                              FREE Delivery
+                                            </span>
+                                          ) : (
+                                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                                               highlightedIndex === index
                                                 ? "bg-secondary/20 text-secondary"
-                                                : "bg-gray-100 text-gray-500"
-                                            }`}
-                                          >
-                                            {result.deliveryTime}
+                                                : "bg-gray-100 text-gray-600"
+                                            }`}>
+                                              {formatPrice(result.deliveryFee!)}
+                                            </span>
+                                          )}
+                                          <span className="text-xs text-green-600 flex items-center gap-0.5">
+                                            <Check className="w-3 h-3" /> We deliver
                                           </span>
                                         </>
                                       ) : (
-                                        <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium flex items-center gap-1">
-                                          <AlertTriangle className="w-3 h-3" />{" "}
-                                          Message to confirm
-                                        </span>
+                                        <>
+                                          <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">
+                                            Contact us
+                                          </span>
+                                          <span className="text-xs text-gray-400">
+                                            &gt;{MAX_DELIVERY_DISTANCE_KM} km
+                                          </span>
+                                        </>
                                       )}
                                     </div>
                                   </button>
