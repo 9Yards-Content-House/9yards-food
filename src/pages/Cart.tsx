@@ -67,6 +67,16 @@ function getEstimatedDeliveryTime(deliveryTime: string | undefined): string {
   return baseTime;
 }
 
+// Normalize phone number to +256 format for API calls
+function normalizePhoneNumber(phone: string): string {
+  // Remove all non-digit characters except +
+  const cleaned = phone.replace(/[^\d+]/g, '');
+  // Remove any existing country code prefix
+  const withoutPrefix = cleaned.replace(/^\+?256/, '').replace(/^0/, '');
+  // Return with +256 prefix
+  return `+256${withoutPrefix}`;
+}
+
 interface PromoResult {
   valid: boolean;
   discount: number;
@@ -282,9 +292,14 @@ export default function CartPage() {
     if (!state.userPreferences.phone?.trim()) {
       newErrors.phone = 'Phone number is required';
       isValid = false;
-    } else if (!/^(\+?256|0)7[0-9]{8}$/.test(state.userPreferences.phone.replace(/\s/g, ''))) {
-      newErrors.phone = 'Please enter a valid Ugandan phone number';
-      isValid = false;
+    } else {
+      // Clean the phone number - remove spaces and any prefix the user might have entered
+      const cleanPhone = state.userPreferences.phone.replace(/\s/g, '').replace(/^\+?256/, '').replace(/^0/, '');
+      // Should be 9 digits starting with 7 (e.g., 712345678)
+      if (!/^7[0-9]{8}$/.test(cleanPhone)) {
+        newErrors.phone = 'Please enter a valid Ugandan phone number (e.g., 712345678)';
+        isValid = false;
+      }
     }
 
     if (!state.userPreferences.location) {
@@ -365,6 +380,7 @@ export default function CartPage() {
       state.items,
       {
         ...state.userPreferences,
+        phone: normalizePhoneNumber(state.userPreferences.phone),
         specialInstructions,
       },
       cartTotal,
@@ -406,7 +422,7 @@ export default function CartPage() {
       payment_options: 'card,mobilemoneyuganda,ussd',
       customer: {
         email: `${state.userPreferences.phone.replace(/\D/g, '')}@9yards.co.ug`,
-        phone_number: state.userPreferences.phone,
+        phone_number: normalizePhoneNumber(state.userPreferences.phone),
         name: state.userPreferences.name,
       },
       customizations: {
@@ -940,8 +956,8 @@ export default function CartPage() {
                         Phone Number
                       </label>
                       <div className="flex">
-                        <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-200 bg-gray-100 text-gray-500 text-sm font-medium" aria-hidden="true">
-                          🇺🇬 +256
+                        <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-200 bg-gray-100 text-gray-500 text-sm font-medium shrink-0 whitespace-nowrap" aria-hidden="true">
+                          <span className="mr-1">🇺🇬</span> +256
                         </span>
                         <input
                           id="mobile-customer-phone"
@@ -951,10 +967,10 @@ export default function CartPage() {
                             setUserPreferences({ phone: e.target.value });
                             if (errors.phone) setErrors({ ...errors, phone: '' });
                           }}
-                          placeholder="700 123 456"
+                          placeholder="712 345 678"
                           aria-describedby={errors.phone ? "mobile-phone-error" : undefined}
                           aria-invalid={errors.phone ? "true" : "false"}
-                          className={`flex-1 p-3 rounded-r-lg border ${errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-sm focus-visible:ring-2 focus-visible:ring-[#212282] focus-visible:ring-offset-1 focus:outline-none`}
+                          className={`flex-1 min-w-0 p-3 rounded-r-lg border ${errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-gray-50'} text-sm focus-visible:ring-2 focus-visible:ring-[#212282] focus-visible:ring-offset-1 focus:outline-none`}
                         />
                       </div>
                       {errors.phone && <p id="mobile-phone-error" role="alert" className="text-red-500 text-xs mt-1">{errors.phone}</p>}
@@ -1298,17 +1314,18 @@ export default function CartPage() {
                    <div>
                       <label htmlFor="desktop-customer-phone" className="text-sm font-medium text-[#212282] mb-2 block">Phone Number *</label>
                       <div className="flex">
-                        <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-border bg-gray-100 text-gray-500 text-sm" aria-hidden="true">🇺🇬 +256</span>
+                        <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-border bg-gray-100 text-gray-500 text-sm shrink-0 whitespace-nowrap" aria-hidden="true"><span className="mr-1">🇺🇬</span> +256</span>
                         <input
                           id="desktop-customer-phone"
                           type="tel"
                           value={state.userPreferences.phone}
                           onChange={(e) => { setUserPreferences({phone: e.target.value}); if(errors.phone) setErrors({...errors, phone:''});}}
                           onBlur={() => setTouched({...touched, phone:true})}
+                          placeholder="712 345 678"
                           aria-describedby={errors.phone && touched.phone ? "desktop-phone-error" : undefined}
                           aria-invalid={errors.phone && touched.phone ? "true" : "false"}
                           aria-required="true"
-                          className={`flex-1 p-3 rounded-r-xl border ${errors.phone && touched.phone ? 'border-red-500 bg-red-50' : 'border-border bg-gray-50'} focus-visible:ring-2 focus-visible:ring-[#E6411C] focus-visible:ring-offset-1 focus:outline-none`}
+                          className={`flex-1 min-w-0 p-3 rounded-r-xl border ${errors.phone && touched.phone ? 'border-red-500 bg-red-50' : 'border-border bg-gray-50'} focus-visible:ring-2 focus-visible:ring-[#E6411C] focus-visible:ring-offset-1 focus:outline-none`}
                         />
                       </div>
                       {errors.phone && touched.phone && <p id="desktop-phone-error" role="alert" className="text-red-500 text-xs mt-1">{errors.phone}</p>}
