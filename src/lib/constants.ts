@@ -43,8 +43,8 @@ export const KITCHEN_LOCATION = {
   name: 'Kigo',
 };
 
-// Maximum delivery distance in kilometers
-export const MAX_DELIVERY_DISTANCE_KM = 30;
+// Maximum delivery distance in kilometers (20km covers central Kampala, Kololo, Ntinda outskirts)
+export const MAX_DELIVERY_DISTANCE_KM = 20;
 
 // Distance-based delivery pricing tiers
 export interface DeliveryTier {
@@ -54,13 +54,18 @@ export interface DeliveryTier {
   maxTime: number; // minutes
 }
 
+// Optimized for Kampala traffic + food freshness (from Kigo kitchen)
+// 0-3 km: Free - Busabala, Kitende, Lweza, nearby resorts
+// 3-6 km: Covers Munyonyo, Kansanga area
+// 6-10 km: Reaches Ggaba, Buziga, Gaba
+// 10-15 km: City center, Nakasero, Parliament
+// 15-20 km: Kololo, Ntinda outskirts
 export const DELIVERY_TIERS: DeliveryTier[] = [
-  { maxDistance: 5, fee: 0, minTime: 15, maxTime: 25 },
-  { maxDistance: 10, fee: 5000, minTime: 20, maxTime: 30 },
-  { maxDistance: 15, fee: 7000, minTime: 25, maxTime: 35 },
-  { maxDistance: 20, fee: 10000, minTime: 30, maxTime: 40 },
-  { maxDistance: 25, fee: 12000, minTime: 35, maxTime: 45 },
-  { maxDistance: 30, fee: 15000, minTime: 40, maxTime: 50 },
+  { maxDistance: 3, fee: 0, minTime: 15, maxTime: 25 },
+  { maxDistance: 6, fee: 3500, minTime: 25, maxTime: 35 },
+  { maxDistance: 10, fee: 6000, minTime: 35, maxTime: 45 },
+  { maxDistance: 15, fee: 9000, minTime: 45, maxTime: 60 },
+  { maxDistance: 20, fee: 12000, minTime: 60, maxTime: 75 },
 ];
 
 // Calculate distance between two coordinates using Haversine formula
@@ -147,8 +152,8 @@ export function getDeliveryTierInfo(distanceKm: number): {
 // Delivery
 export const DELIVERY = {
   minFreeDelivery: 80000, // UGX - free delivery on orders over this amount
-  avgTime: '25-45 minutes',
-  freeWithinKm: 5, // Free delivery within this distance
+  avgTime: '25-60 minutes',
+  freeWithinKm: 3, // Free delivery within this distance (Busabala, Kitende, Lweza)
 };
 
 // Free delivery threshold constant for easy access

@@ -56,12 +56,16 @@ interface PhotonResult {
   isInKampalaArea: boolean;
 }
 
-// Popular areas with coordinates for suggestions
+// Popular areas with coordinates for suggestions (near Kigo kitchen location)
 const POPULAR_AREAS = [
-  { name: "Kololo", lat: 0.3350, lon: 32.5950 },
-  { name: "Ntinda", lat: 0.3550, lon: 32.6200 },
-  { name: "Kabalagala", lat: 0.2900, lon: 32.5850 },
-  { name: "Bugolobi", lat: 0.3100, lon: 32.6050 },
+  // Immediate area (free delivery zone ~0-3km)
+  { name: "Busabala", lat: 0.2050, lon: 32.5780 },
+  { name: "Kigo", lat: 0.2000, lon: 32.5835 },
+  { name: "Kitende", lat: 0.2150, lon: 32.5650 },
+  // Nearby areas (~3-6km)
+  { name: "Lweza", lat: 0.2300, lon: 32.5500 },
+  { name: "Kajjansi", lat: 0.2450, lon: 32.5350 },
+  { name: "Sseguku", lat: 0.2400, lon: 32.5600 },
 ];
 
 // Get recent searches from localStorage
@@ -559,6 +563,35 @@ export default function HeroSection() {
     ]
   );
 
+  // Reverse geocode to get location name from coordinates
+  const reverseGeocode = useCallback(async (lat: number, lon: number): Promise<string> => {
+    try {
+      const response = await fetch(
+        `${PHOTON_API_URL}reverse?lat=${lat}&lon=${lon}&limit=1`
+      );
+      if (!response.ok) throw new Error("Reverse geocode failed");
+      
+      const data = await response.json();
+      if (data.features && data.features.length > 0) {
+        const props = data.features[0].properties;
+        // Try to get a meaningful location name (suburb, town, district, city)
+        const locationName = props.name || 
+          props.suburb || 
+          props.district || 
+          props.locality ||
+          props.city || 
+          props.county ||
+          props.state ||
+          "Your Location";
+        return locationName;
+      }
+      return "Your Location";
+    } catch (error) {
+      console.error("Reverse geocode error:", error);
+      return "Your Location";
+    }
+  }, []);
+
   // Geolocation handler
   const handleGetLocation = useCallback(() => {
     if (!navigator.geolocation) {
@@ -575,7 +608,7 @@ export default function HeroSection() {
     // First try with high accuracy, then fall back to low accuracy if it fails
     const tryGetPosition = (highAccuracy: boolean) => {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const { latitude, longitude } = position.coords;
 
           // Calculate distance from our kitchen in Kigo
@@ -589,12 +622,15 @@ export default function HeroSection() {
           // Get delivery tier info
           const tierInfo = getDeliveryTierInfo(distanceFromKitchen);
 
+          // Reverse geocode to get actual location name
+          const locationName = await reverseGeocode(latitude, longitude);
+
           setIsLocating(false);
 
           if (tierInfo.isDeliverable) {
             // Within delivery range
             handleSelectLocation({
-              name: "My Location",
+              name: locationName,
               lat: latitude,
               lon: longitude,
               distanceFromKitchen,
@@ -603,7 +639,7 @@ export default function HeroSection() {
               isDeliverable: true,
             });
           } else {
-            setSearchQuery("My Location");
+            setSearchQuery(locationName);
             setShowNotFound(true);
             setLocationError(`We don't deliver beyond ${MAX_DELIVERY_DISTANCE_KM}km yet`);
           }
@@ -646,7 +682,7 @@ export default function HeroSection() {
 
     // Start with high accuracy
     tryGetPosition(true);
-  }, [handleSelectLocation]);
+  }, [handleSelectLocation, reverseGeocode]);
 
   const handleOrderNow = () => {
     if (selectedDelivery) {
@@ -994,14 +1030,9 @@ export default function HeroSection() {
                                           </span>
                                         </>
                                       ) : (
-                                        <>
-                                          <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">
-                                            Contact us
-                                          </span>
-                                          <span className="text-xs text-gray-400">
-                                            &gt;{MAX_DELIVERY_DISTANCE_KM} km
-                                          </span>
-                                        </>
+                                        <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">
+                                          Contact us
+                                        </span>
                                       )}
                                     </div>
                                   </button>
