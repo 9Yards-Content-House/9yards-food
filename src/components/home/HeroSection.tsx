@@ -828,6 +828,28 @@ export default function HeroSection() {
                       id="location-suggestions"
                       role="listbox"
                       className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-visible z-[9999] animate-in fade-in slide-in-from-top-2 duration-200 max-h-[320px] overflow-y-auto"
+                      style={{
+                        minWidth: '100%',
+                        boxShadow: '0 10px 40px -10px rgba(0,0,0,0.18)',
+                        border: '1px solid #e5e7eb',
+                        marginTop: '0.5rem',
+                        paddingBottom: '0.5rem',
+                        paddingTop: '0.5rem',
+                        zIndex: 9999,
+                        left: 0,
+                        right: 0,
+                        width: '100%',
+                        maxWidth: '100%',
+                        // Responsive tweaks for mobile
+                        ...(window.innerWidth < 640 ? {
+                          borderRadius: '1rem',
+                          marginLeft: '-1rem',
+                          marginRight: '-1rem',
+                          width: 'calc(100% + 2rem)',
+                          maxWidth: 'calc(100% + 2rem)',
+                          boxShadow: '0 8px 32px -8px rgba(0,0,0,0.18)',
+                        } : {})
+                      }}
                     >
                       {/* Loading indicator */}
                       {isSearching && (
