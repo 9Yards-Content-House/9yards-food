@@ -132,10 +132,12 @@ const SEO = ({
         {JSON.stringify(finalStructuredData)}
       </script>
 
-      {/* Structured Data: WebSite - For Brand Search & Sitelinks */}
-      <script type="application/ld+json">
-        {JSON.stringify(globalMetadata.websiteSchema)}
-      </script>
+      {/* Structured Data: WebSite - For Brand Search & Sitelinks (Homepage Only) */}
+      {fullUrl === "https://food.9yards.co.ug/" && (
+        <script type="application/ld+json">
+          {JSON.stringify(globalMetadata.websiteSchema)}
+        </script>
+      )}
 
       {/* Structured Data: Breadcrumbs */}
       <script type="application/ld+json">
