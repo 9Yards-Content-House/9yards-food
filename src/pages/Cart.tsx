@@ -184,6 +184,7 @@ export default function CartPage() {
   const [specialInstructions, setSpecialInstructions] = useState('');
   const [showDeliveryForm, setShowDeliveryForm] = useState(false);
   const [isClearCartConfirmOpen, setIsClearCartConfirmOpen] = useState(false);
+  const [isComingSoonOpen, setIsComingSoonOpen] = useState(false);
   
   // Validation State
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -399,17 +400,9 @@ export default function CartPage() {
   };
 
   const handleOnlinePayment = () => {
-    if (!validateForm()) return;
-
-    if (typeof window.FlutterwaveCheckout !== 'function') {
-      const script = document.createElement('script');
-      script.src = 'https://checkout.flutterwave.com/v3.js';
-      script.async = true;
-      script.onload = () => initiatePayment();
-      document.body.appendChild(script);
-    } else {
-      initiatePayment();
-    }
+    // Show Coming Soon Modal
+    setIsComingSoonOpen(true);
+    haptics.medium();
   };
 
   const initiatePayment = () => {
@@ -1656,6 +1649,18 @@ export default function CartPage() {
         confirmText="Yes, Clear Cart"
         cancelText="Cancel & Keep Items"
         variant="danger"
+      />
+
+      {/* Coming Soon Modal */}
+      <ConfirmModal
+        isOpen={isComingSoonOpen}
+        onClose={() => setIsComingSoonOpen(false)}
+        onConfirm={() => setIsComingSoonOpen(false)}
+        title="Coming Soon!"
+        description="Online payments are currently under maintenance. Please use WhatsApp to place your order."
+        confirmText="OK, Got it"
+        cancelText="Close"
+        variant="info"
       />
 
       <Footer />
