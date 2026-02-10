@@ -180,7 +180,7 @@ export default function CartPage() {
   const [promoResult, setPromoResult] = useState<PromoResult | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [specialInstructions, setSpecialInstructions] = useState('');
-  const [showDeliveryForm, setShowDeliveryForm] = useState(false);
+  const [showDeliveryForm, setShowDeliveryForm] = useState(!state.userPreferences.location);
   const [isClearCartConfirmOpen, setIsClearCartConfirmOpen] = useState(false);
   const [isComingSoonOpen, setIsComingSoonOpen] = useState(false);
   
@@ -315,7 +315,7 @@ export default function CartPage() {
     }
 
     if (!state.userPreferences.location) {
-      newErrors.zone = 'Please select a delivery location on the home page';
+      newErrors.zone = 'Please search and select a delivery location';
       isValid = false;
     }
 
@@ -886,7 +886,7 @@ export default function CartPage() {
                           {state.userPreferences.location ? (
                             formatPrice(baseDeliveryFee)
                           ) : (
-                            <span className="text-xs text-orange-500">Select location on home page</span>
+                            <span className="text-xs text-orange-500">Enter address below</span>
                           )}
                         </span>
                       </div>
@@ -918,7 +918,7 @@ export default function CartPage() {
                     <div className="text-left">
                       <p className="text-sm font-bold text-[#212282]">Delivery Details</p>
                       <p className="text-xs text-gray-500">
-                        {state.userPreferences.location ? `${state.userPreferences.location} • ${state.userPreferences.name || 'Details added'}` : 'Required to checkout'}
+                        {state.userPreferences.location ? `${state.userPreferences.location} • ${state.userPreferences.name || 'Details added'}` : 'Enter your address to continue'}
                       </p>
                     </div>
                   </div>
@@ -1110,26 +1110,21 @@ export default function CartPage() {
                                 </p>
                               </div>
                            </div>
-                           <Link 
-                             to="/" 
+                           <button 
+                             onClick={() => {
+                               setAddressQuery('');
+                               setUserPreferences({ location: '', address: '', deliveryFee: 0, deliveryTime: '', deliveryDistance: 0, coordinates: undefined });
+                             }}
                              className="text-xs font-medium text-green-700 hover:text-green-800 px-2.5 py-1.5 bg-green-100 hover:bg-green-200 rounded-lg transition-colors"
                            >
                              Change
-                           </Link>
+                           </button>
                         </div>
                       ) : !coverageWarning.show && !state.userPreferences.location ? (
-                        // No location selected - prompt to select on home page
                         <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
-                          <p className="text-xs text-amber-700 mb-2">
-                            Please select your delivery location first
+                          <p className="text-xs text-amber-700">
+                            Type your address above to set your delivery location and see the delivery fee.
                           </p>
-                          <Link 
-                            to="/" 
-                            className="inline-flex items-center gap-1 text-sm font-medium text-amber-700 hover:text-amber-800"
-                          >
-                            <MapPin className="w-4 h-4" />
-                            Go to home page to set location
-                          </Link>
                         </div>
                       ) : null}
                     </div>
@@ -1439,23 +1434,19 @@ export default function CartPage() {
                                   </p>
                                 </div>
                              </div>
-                             <Link 
-                               to="/" 
+                             <button 
+                               onClick={() => {
+                                 setAddressQuery('');
+                                 setUserPreferences({ location: '', address: '', deliveryFee: 0, deliveryTime: '', deliveryDistance: 0, coordinates: undefined });
+                               }}
                                className="text-xs font-medium text-green-700 hover:text-green-800 px-2 py-1 hover:bg-green-100 rounded transition-colors"
                              >
                                Change
-                             </Link>
+                             </button>
                           </div>
                        ) : !coverageWarning.show && !state.userPreferences.location ? (
                           <div className="p-3 bg-amber-50/50 rounded-lg border border-amber-100">
-                             <p className="text-xs text-amber-700 mb-2">Please select your delivery location</p>
-                             <Link 
-                               to="/" 
-                               className="inline-flex items-center gap-1 text-sm font-medium text-amber-700 hover:text-amber-800"
-                             >
-                               <MapPin className="w-4 h-4" />
-                               Go to home page
-                             </Link>
+                             <p className="text-xs text-amber-700">Type your address above to set your delivery location and see the delivery fee.</p>
                           </div>
                        ) : null}
                     </div>
