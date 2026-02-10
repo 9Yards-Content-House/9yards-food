@@ -158,7 +158,7 @@ export default function Header() {
               >
                 <ShoppingCart className={`w-5 h-5 ${iconColorClass} transition-colors`} />
                 {cartCount > 0 && (
-                  <span className="absolute -top-0.5 -right-1 min-w-[18px] h-[18px] px-1 bg-secondary text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-0.5 -right-1 min-w-[18px] h-[18px] px-1 bg-[#22C55E] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                     {cartCount > 99 ? '99+' : cartCount}
                   </span>
                 )}

@@ -10,7 +10,7 @@ import MoreSheet from './MoreSheet';
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },
   { href: '/menu', icon: UtensilsCrossed, label: 'Menu' },
-  { href: '/cart', icon: ShoppingCart, label: 'Cart', showBadge: true },
+  { href: '/cart', icon: ShoppingCart, label: 'Checkout', showBadge: true },
 ];
 
 export interface MobileNavProps {
@@ -71,7 +71,7 @@ export default function MobileNav({ onChatClick }: MobileNavProps) {
                   <Icon className="w-6 h-6" strokeWidth={isActive ? 2.5 : 2} aria-hidden="true" />
                   {badgeCount > 0 && (
                     <span 
-                      className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 bg-secondary text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-in zoom-in-50 duration-200"
+                      className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 bg-[#22C55E] text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-in zoom-in-50 duration-200"
                       aria-hidden="true"
                     >
                       {badgeCount > 99 ? '99+' : badgeCount}
