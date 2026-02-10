@@ -10,7 +10,7 @@ const steps = [
   {
     icon: ChefHat,
     title: 'Customize & Add Extras',
-    description: 'Pick your FREE side dish, add 100% natural juices, and desserts',
+    description: 'Pick your FREE side dish and add 100% natural juices',
   },
   {
     icon: Wallet,

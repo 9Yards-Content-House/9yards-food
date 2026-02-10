@@ -9,7 +9,6 @@ import {
   Utensils,
   Drumstick,
   GlassWater,
-  Cake,
   Salad,
   Star,
 } from "lucide-react";
@@ -32,7 +31,6 @@ type Category =
   | "main"
   | "sauce"
   | "juice"
-  | "dessert"
   | "side";
 
 // Category config with icons and colors
@@ -51,7 +49,6 @@ const categoryConfig: Record<
     description: "Select your protein - the heart of your meal",
   },
   juice: { icon: GlassWater, description: "100% natural, freshly squeezed" },
-  dessert: { icon: Cake, description: "Sweet treats to complete your meal" },
   side: { icon: Salad, description: "Fresh accompaniments - free with combos" },
 };
 
@@ -200,7 +197,6 @@ export default function MenuPage() {
     { id: "main", label: "Main Dishes" },
     { id: "sauce", label: "Sauces" },
     { id: "juice", label: "Juices" },
-    { id: "dessert", label: "Desserts" },
     { id: "side", label: "Side Dishes" },
   ];
 
@@ -211,14 +207,12 @@ export default function MenuPage() {
         menuData.mainDishes.length +
         menuData.sauces.length +
         menuData.juices.length +
-        menuData.desserts.length +
         menuData.sideDishes.length +
         menuData.lusaniya.length,
       lusaniya: menuData.lusaniya.length,
       main: menuData.mainDishes.length,
       sauce: menuData.sauces.length,
       juice: menuData.juices.length,
-      dessert: menuData.desserts.length,
       side: menuData.sideDishes.length,
     }),
     []
@@ -288,17 +282,6 @@ export default function MenuPage() {
           category: "Juice",
           categoryType: "juice",
           description: j.description || itemDescriptions[j.id],
-          isIndividual: true,
-        })
-      );
-    }
-    if (activeCategory === "all" || activeCategory === "dessert") {
-      menuData.desserts.forEach((d) =>
-        items.push({
-          ...d,
-          category: "Dessert",
-          categoryType: "dessert",
-          description: d.description || itemDescriptions[d.id],
           isIndividual: true,
         })
       );

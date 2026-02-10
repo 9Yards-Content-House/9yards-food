@@ -27,7 +27,6 @@ export default function FavoritesPage() {
     ...menuData.mainDishes.map((d) => ({ ...d, price: null, category: 'Main Dish', categoryType: 'main' as Category, available: d.available })),
     ...menuData.sauces.map((s) => ({ id: s.id, name: s.name, image: s.image, price: s.basePrice, category: 'Sauce', categoryType: 'sauce' as Category, available: s.available })),
     ...menuData.juices.map((j) => ({ ...j, categoryType: 'juice' as Category, category: 'Juice' })),
-    ...menuData.desserts.map((d) => ({ ...d, categoryType: 'dessert' as Category, category: 'Dessert' })),
     ...menuData.lusaniya.map((l) => ({ ...l, categoryType: 'lusaniya' as Category, category: 'Lusaniya', available: l.available })),
     ...menuData.sideDishes.map((s) => ({ ...s, price: null, categoryType: 'side' as Category, category: 'Side Dish' })),
   ];

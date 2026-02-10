@@ -23,7 +23,6 @@ const CATEGORIES = [
   { key: 'Sauce', label: 'Sauce' },
   { key: 'Juice', label: 'Juice' },
   { key: 'Side', label: 'Side' },
-  { key: 'Dessert', label: 'Dessert' },
   { key: 'Lusaniya', label: 'Lusaniya' },
 ];
 
@@ -51,10 +50,6 @@ const getAllMenuItems = () => {
   
   menuData.juices.forEach(item => {
     items.push({ id: item.id, name: item.name, category: 'Juice', image: item.image, price: item.price });
-  });
-  
-  menuData.desserts.forEach(item => {
-    items.push({ id: item.id, name: item.name, category: 'Dessert', image: item.image, price: item.price });
   });
   
   menuData.sideDishes.forEach(item => {

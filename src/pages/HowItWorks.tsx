@@ -72,7 +72,7 @@ const faqs = [
   },
   {
     question: 'Can I customize my order?',
-    answer: 'Absolutely! You can choose multiple main dishes, select your sauce, pick fried or boiled preparation, choose portion sizes, and add extras like natural juices and desserts.'
+    answer: 'Absolutely! You can choose multiple main dishes, select your sauce, pick fried or boiled preparation, choose portion sizes, and add extras like natural juices.'
   },
   {
     question: 'Is there a minimum order amount?',
@@ -270,7 +270,7 @@ export default function HowItWorksPage() {
                     { text: 'Choose Fried or Boiled preparation (healthier option)', highlight: false },
                     { text: 'Select portion size based on your appetite', highlight: false },
                     { text: 'Pick a FREE side dish (Greens, Beans, Cabbage, etc.)', highlight: true },
-                    { text: 'Add extras: Natural juices, desserts', highlight: false },
+                    { text: 'Add extras: Natural juices', highlight: false },
                   ].map((feature, index) => (
                     <div
                       key={index}

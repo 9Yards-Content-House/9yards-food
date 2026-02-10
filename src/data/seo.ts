@@ -29,7 +29,7 @@ export const pageMetadata = {
 
   // MENU PAGE (/menu)
   menu: {
-    title: "Our Menu | Authentic Ugandan Food Combos, Juices & Desserts | 9Yards Food",
+    title: "Our Menu | Authentic Ugandan Food Combos & Juices | 9Yards Food",
     description: "Browse our complete menu of authentic Ugandan food combos. Choose from matooke, rice, posho + fish, chicken, meat, g-nuts sauce. Add 100% natural juices. Build your perfect combo from UGX 18,000.",
     keywords: "Ugandan food menu, matooke combo, fish and posho, chicken and rice, g-nuts sauce, natural juice Uganda, food menu Kampala, authentic Ugandan dishes, boiled or fried options",
     ogTitle: "9Yards Food Menu - Build Your Perfect Ugandan Combo",
@@ -209,7 +209,7 @@ export const pageMetadata = {
         {
           "@type": "HowToStep",
           "name": "Customize Your Meal",
-          "text": "Pick your preparation style, add juices and desserts"
+          "text": "Pick your preparation style and add juices"
         },
         {
           "@type": "HowToStep",
@@ -478,11 +478,6 @@ export const globalMetadata = {
           "@type": "MenuSection",
           "name": "Natural Juices",
           "description": "100% natural fresh juices"
-        },
-        {
-          "@type": "MenuSection",
-          "name": "Desserts",
-          "description": "Sweet treats to complete your meal"
         }
       ]
     },

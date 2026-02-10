@@ -82,7 +82,7 @@ export const menuData: MenuData = {
   mainDishes: menuJSON.mainDishes.items,
   sauces: menuJSON.sauces.items,
   juices: menuJSON.juices.items,
-  desserts: menuJSON.desserts.items,
+  desserts: [],
   sideDishes: menuJSON.sideDishes.items,
   lusaniya: menuJSON.lusaniya.items,
 };
@@ -130,10 +130,7 @@ export const itemDescriptions: Record<string, string> = {
   watermelon: "Cool & hydrating",
   mixed: "Best of all fruits",
   cocktail: "Premium fruit blend",
-  // Desserts
-  mandazi: "Soft African donuts",
-  rolex: "Famous egg & chapati roll",
-  samosa: "Crispy savory pastry",
+
   // Sides
   greens: "Fresh amaranth greens",
   beans: "Slow-cooked kidney beans",
