@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode, useState } from 'react';
+import { menuData } from '@/data/menu';
 
 export interface SauceSelection {
   id: string;
@@ -224,6 +225,82 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setIsInitialized(true);
   }, []);
+
+  // Revalidate cart items against current menu prices on load
+  useEffect(() => {
+    if (state.items.length === 0) return;
+
+    let changed = false;
+    const updatedItems = state.items
+      .map(item => {
+        if (item.type === 'single') {
+          // Look up current price for single items (lusaniya, juice, etc.)
+          const idParts = item.id.split('-');
+          const category = idParts[0]; // e.g. 'lusaniya', 'juice'
+          const menuId = idParts.slice(1).join('-'); // e.g. 'ordinary-lusaniya'
+          
+          let currentPrice: number | undefined;
+          let stillAvailable = true;
+
+          if (category === 'lusaniya') {
+            const entry = menuData.lusaniya.find(l => l.id === menuId);
+            currentPrice = entry?.price;
+            stillAvailable = !!entry?.available;
+          } else if (category === 'juice') {
+            const entry = menuData.juices.find(j => j.id === menuId);
+            currentPrice = entry?.price;
+            stillAvailable = !!entry?.available;
+          }
+
+          if (!stillAvailable) { changed = true; return null; }
+          if (currentPrice !== undefined && currentPrice !== item.totalPrice) {
+            changed = true;
+            return { ...item, totalPrice: currentPrice };
+          }
+        } else if (item.type === 'combo') {
+          // Recalculate combo price from current sauce + extras
+          let newPrice = 0;
+          if (item.sauce) {
+            const currentSauce = menuData.sauces.find(s => s.id === item.sauce!.id);
+            if (!currentSauce?.available) { changed = true; return null; }
+            newPrice += currentSauce.basePrice;
+            if (currentSauce.basePrice !== item.sauce.price) {
+              changed = true;
+            }
+          }
+          for (const extra of item.extras) {
+            const juice = menuData.juices.find(j => j.id === extra.id);
+            if (juice) {
+              newPrice += juice.price * extra.quantity;
+              if (juice.price !== extra.price) changed = true;
+            } else {
+              newPrice += extra.price * extra.quantity;
+            }
+          }
+          if (newPrice > 0 && newPrice !== item.totalPrice) {
+            changed = true;
+            return {
+              ...item,
+              totalPrice: newPrice,
+              sauce: item.sauce ? {
+                ...item.sauce,
+                price: menuData.sauces.find(s => s.id === item.sauce!.id)?.basePrice ?? item.sauce.price,
+              } : null,
+              extras: item.extras.map(e => {
+                const juice = menuData.juices.find(j => j.id === e.id);
+                return juice ? { ...e, price: juice.price } : e;
+              }),
+            };
+          }
+        }
+        return item;
+      })
+      .filter((item): item is CartItem => item !== null);
+
+    if (changed) {
+      dispatch({ type: 'LOAD_STATE', payload: { ...state, items: updatedItems } });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Save state to localStorage on change (only after initialization)
   useEffect(() => {
