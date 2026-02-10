@@ -62,8 +62,8 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
         const sauce = menuData.sauces.find(s => s.id === initialData.sauce!.id);
         if (sauce) {
           setSelectedSauce(sauce);
-          setSaucePreparation(initialData.sauce.preparation || (sauce.preparations.length === 1 ? sauce.preparations[0] : ''));
-          setSauceSize(sauce.sizes.find(s => s.name === initialData.sauce!.size) || (sauce.sizes.length === 1 ? sauce.sizes[0] : null));
+          setSaucePreparation('Default');
+          setSauceSize(sauce.sizes[0] || null);
         }
       }
 
@@ -102,9 +102,8 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
             const sauce = menuData.sauces.find(s => s.id === initialSelection.id);
             if (sauce) {
                 setSelectedSauce(sauce);
-                // Pre-select defaults
-                setSaucePreparation(sauce.preparations.length === 1 ? sauce.preparations[0] : '');
-                setSauceSize(sauce.sizes.length === 1 ? sauce.sizes[0] : null);
+                setSaucePreparation('Default');
+                setSauceSize(sauce.sizes[0] || null);
             }
         } else if (initialSelection.type === 'side') {
              const side = menuData.sideDishes.find(s => s.id === initialSelection.id);
@@ -266,7 +265,7 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
   };
 
   const unitPrice = useMemo(() => {
-    let total = sauceSize?.price || 0;
+    let total = selectedSauce?.basePrice || 0;
 
     selectedJuices.forEach((j) => {
       const juice = menuData.juices.find((jc) => jc.id === j.id);
@@ -279,7 +278,7 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
     });
 
     return total;
-  }, [sauceSize, selectedJuices, selectedDesserts]);
+  }, [selectedSauce, selectedJuices, selectedDesserts]);
 
   const totalPrice = useMemo(() => unitPrice * comboQuantity, [unitPrice, comboQuantity]);
 
@@ -293,13 +292,8 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
       return mainNames.length > 0 ? mainNames.join(', ') : 'Select your food';
     }
     
-    if (step === 2 && selectedSauce && sauceSize) {
-      // Don't show preparation in summary if it's 'Default' (sauce has no prep options)
-      const prepText = saucePreparation && saucePreparation !== 'Default' ? `${saucePreparation}, ` : '';
-      // Don't show size in summary if sauce only has one size option
-      const sizeText = selectedSauce.sizes.length > 1 ? sauceSize.name : '';
-      const optionsText = prepText || sizeText ? ` (${prepText}${sizeText})` : '';
-      return `${mainNames.join(' + ')} + ${selectedSauce.name}${optionsText}`;
+    if (step === 2 && selectedSauce) {
+      return `${mainNames.join(' + ')} + ${selectedSauce.name}`;
     }
     
     if (step >= 3) {
@@ -311,7 +305,7 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
     }
     
     return mainNames.join(', ');
-  }, [step, selectedMainDishes, selectedSauce, sauceSize, saucePreparation, selectedSideDish]);
+  }, [step, selectedMainDishes, selectedSauce, selectedSideDish]);
 
   const handleAddToCart = () => {
     const mainDishNames = selectedMainDishes
@@ -321,13 +315,13 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
     const sideDishName =
       menuData.sideDishes.find((s) => s.id === selectedSideDish)?.name || '';
 
-    const sauceSelection: SauceSelection | null = selectedSauce && sauceSize
+    const sauceSelection: SauceSelection | null = selectedSauce
       ? {
           id: selectedSauce.id,
           name: selectedSauce.name,
-          preparation: saucePreparation,
-          size: sauceSize.name,
-          price: sauceSize.price,
+          preparation: 'Default',
+          size: 'Regular',
+          price: selectedSauce.basePrice,
         }
       : null;
 
@@ -370,7 +364,7 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
       case 1:
         return selectedMainDishes.length > 0;
       case 2:
-        return !!(selectedSauce && saucePreparation && sauceSize);
+        return !!selectedSauce;
       case 3:
         return selectedSideDish !== '';
       case 4:
@@ -379,7 +373,7 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
       default:
         return false;
     }
-  }, [step, selectedMainDishes, selectedSauce, saucePreparation, sauceSize, selectedSideDish]);
+  }, [step, selectedMainDishes, selectedSauce, selectedSideDish]);
 
   const getNextButtonText = () => {
     switch (step) {
@@ -714,125 +708,40 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                     {menuData.sauces.map((sauce) => {
                       const isSelected = selectedSauce?.id === sauce.id;
                       return (
-                        <div
+                        <label
                           key={sauce.id}
-                          className={`group relative flex flex-col rounded-xl border-2 bg-white transition-all duration-300 overflow-hidden ${
+                          className={`group relative flex items-center gap-4 p-4 rounded-xl border-2 bg-white cursor-pointer transition-all duration-300 ${
                             isSelected ? 'border-[#E6411C] bg-[#E6411C]/[0.03]' : 'border-gray-100 hover:border-[#E6411C]/50'
                           } ${!sauce.available && 'opacity-50 pointer-events-none'}`}
                         >
-                          {/* Main Click Area */}
-                          <label className="flex items-center gap-4 p-4 cursor-pointer">
-                            <img
-                              src={sauce.image}
-                              alt={sauce.name}
-                              loading="lazy"
-                              decoding="async"
-                              width={64}
-                              height={64}
-                              className="w-16 h-16 rounded-xl object-cover flex-shrink-0"
+                          <img
+                            src={sauce.image}
+                            alt={sauce.name}
+                            loading="lazy"
+                            decoding="async"
+                            width={64}
+                            height={64}
+                            className="w-16 h-16 rounded-xl object-cover flex-shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-[#212282] font-bold text-lg">{sauce.name}</h3>
+                            <p className="text-[#E6411C] text-sm font-semibold mt-0.5">{formatPrice(sauce.basePrice)}</p>
+                          </div>
+                          <div className="relative flex items-center justify-center w-6 h-6">
+                            <input
+                              type="radio"
+                              name="sauce"
+                              checked={isSelected}
+                              onChange={() => {
+                                setSelectedSauce(sauce);
+                                setSaucePreparation('Default');
+                                setSauceSize(sauce.sizes[0] || null);
+                              }}
+                              className="peer appearance-none w-6 h-6 border-2 border-gray-300 rounded-full checked:border-[#E6411C] checked:border-[6px] transition-all bg-white"
+                              disabled={!sauce.available}
                             />
-                            <div className="flex-1 min-w-0">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <h3 className="text-[#212282] font-bold text-lg">{sauce.name}</h3>
-                                  <p className="text-gray-500 text-sm mt-0.5">from {formatPrice(sauce.basePrice)}</p>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="relative flex items-center justify-center w-6 h-6">
-                              <input
-                                type="radio"
-                                name="sauce"
-                                checked={isSelected}
-                                onChange={() => {
-                                  setSelectedSauce(sauce);
-                                  // Auto-select preparation if only one, or set default if none
-                                  if (sauce.preparations.length === 1) {
-                                    setSaucePreparation(sauce.preparations[0]);
-                                  } else if (sauce.preparations.length === 0) {
-                                    setSaucePreparation('Default');
-                                  } else {
-                                    setSaucePreparation('');
-                                  }
-                                  // Auto-select size if only one
-                                  if (sauce.sizes.length === 1) {
-                                    setSauceSize(sauce.sizes[0]);
-                                  } else {
-                                    setSauceSize(null);
-                                  }
-                                }}
-                                className="peer appearance-none w-6 h-6 border-2 border-gray-300 rounded-full checked:border-[#E6411C] checked:border-[6px] transition-all bg-white"
-                                disabled={!sauce.available}
-                              />
-                            </div>
-                          </label>
-
-                          {/* Expanded Sub-options */}
-                          {isSelected && (sauce.preparations.length > 0 || sauce.sizes.length > 1) && (
-                            <div className="px-4 pb-4 pt-0 animate-in fade-in slide-in-from-top-2 duration-300">
-                              <div className="h-px w-full bg-[#E6411C]/10 mb-4" />
-                                  
-                              {/* Preparation Style - only show if there are preparations */}
-                              {sauce.preparations.length > 0 && (
-                                <div className="mb-4">
-                                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 block">
-                                    Preparation Style
-                                  </label>
-                                  <div className="flex flex-wrap gap-2">
-                                    {sauce.preparations.map((prep) => (
-                                      <button
-                                        key={prep}
-                                        onClick={() => setSaucePreparation(prep)}
-                                        className={`px-4 py-2.5 rounded-xl border-2 transition-all text-sm font-semibold ${
-                                          saucePreparation === prep
-                                            ? 'border-[#E6411C] bg-[#E6411C] text-white'
-                                            : 'border-gray-200 bg-white text-gray-600 hover:border-[#E6411C]/50'
-                                        }`}
-                                      >
-                                        {prep}
-                                      </button>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* Portion Size - only show if there are multiple sizes */}
-                              {sauce.sizes.length > 1 && (
-                                <div>
-                                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 block">
-                                    Portion Size
-                                  </label>
-                                  <div className="flex flex-col gap-2">
-                                    {sauce.sizes.map((size) => (
-                                      <label
-                                        key={size.name}
-                                        className={`flex items-center justify-between p-3 rounded-xl border bg-white cursor-pointer transition-all ${
-                                          sauceSize?.name === size.name
-                                            ? 'border-[#E6411C] bg-[#E6411C]/5'
-                                            : 'border-gray-200 hover:border-gray-300'
-                                        }`}
-                                      >
-                                        <div className="flex flex-col">
-                                          <span className="text-sm font-medium text-gray-700">{size.name}</span>
-                                          <span className="text-xs text-[#E6411C] font-semibold">
-                                            {formatPrice(size.price)}
-                                          </span>
-                                        </div>
-                                        <input
-                                          type="radio"
-                                          name="size"
-                                          checked={sauceSize?.name === size.name}
-                                          onChange={() => setSauceSize(size)}
-                                          className="w-5 h-5 text-[#E6411C] border-gray-300 focus:ring-[#E6411C]"
-                                        />
-                                      </label>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
+                          </div>
+                        </label>
                       );
                     })}
                   </div>
@@ -1088,9 +997,8 @@ export default function ComboBuilder({ isOpen, onClose, initialData, initialSele
                         <img src={selectedSauce?.image} alt="" className="size-10 sm:size-12 rounded-lg sm:rounded-xl object-cover" />
                         <div>
                           <p className="text-sm sm:text-base font-bold text-[#212282]">{selectedSauce?.name}</p>
-                          <p className="text-[11px] sm:text-xs text-gray-500">
-                            {saucePreparation !== 'Default' ? `${saucePreparation} • ` : ''}
-                            {sauceSize?.name} ({formatPrice(sauceSize?.price || 0)})
+                          <p className="text-[11px] sm:text-xs text-[#E6411C] font-semibold">
+                            {formatPrice(selectedSauce?.basePrice || 0)}
                           </p>
                         </div>
                       </div>
