@@ -55,17 +55,18 @@ export interface DeliveryTier {
 }
 
 // Optimized for Kampala traffic + food freshness (from Kigo kitchen)
-// 0-3 km: Free - Busabala, Kitende, Lweza, nearby resorts
-// 3-6 km: Covers Munyonyo, Kansanga area
-// 6-10 km: Reaches Ggaba, Buziga, Gaba
-// 10-15 km: City center, Nakasero, Parliament
-// 15-20 km: Kololo, Ntinda outskirts
+// All deliveries start at 5,000 UGX minimum, max 8,000 UGX
+// 0-3 km: Kigo, Busabala, Kitende, Lweza, nearby resorts
+// 3-6 km: Covers Munyonyo, Kajjansi, Sseguku area
+// 6-10 km: Reaches Kabalagala, Muyenga, Ggaba, Buziga
+// 10-15 km: City center, Nakasero, Kololo, Bugolobi
+// 15-20 km: Ntinda, Nakawa, Kira, Naalya, Kyanja
 export const DELIVERY_TIERS: DeliveryTier[] = [
-  { maxDistance: 3, fee: 0, minTime: 15, maxTime: 25 },
-  { maxDistance: 6, fee: 3500, minTime: 25, maxTime: 35 },
-  { maxDistance: 10, fee: 6000, minTime: 35, maxTime: 45 },
-  { maxDistance: 15, fee: 9000, minTime: 45, maxTime: 60 },
-  { maxDistance: 20, fee: 12000, minTime: 60, maxTime: 75 },
+  { maxDistance: 3, fee: 5000, minTime: 15, maxTime: 25 },
+  { maxDistance: 6, fee: 5000, minTime: 25, maxTime: 35 },
+  { maxDistance: 10, fee: 5000, minTime: 35, maxTime: 45 },
+  { maxDistance: 15, fee: 6000, minTime: 45, maxTime: 60 },
+  { maxDistance: 20, fee: 8000, minTime: 60, maxTime: 75 },
 ];
 
 // Calculate distance between two coordinates using Haversine formula
@@ -151,13 +152,9 @@ export function getDeliveryTierInfo(distanceKm: number): {
 
 // Delivery
 export const DELIVERY = {
-  minFreeDelivery: 80000, // UGX - free delivery on orders over this amount
+  minDeliveryFee: 5000, // UGX - all deliveries start at this minimum
   avgTime: '25-60 minutes',
-  freeWithinKm: 3, // Free delivery within this distance (Busabala, Kitende, Lweza)
 };
-
-// Free delivery threshold constant for easy access
-export const FREE_DELIVERY_THRESHOLD = 80000;
 
 // Promo Codes
 export const PROMO_CODES = {

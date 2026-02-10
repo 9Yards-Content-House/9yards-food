@@ -31,7 +31,6 @@ import OptimizedImage from '@/components/ui/optimized-image';
 import SwipeableItem, { SwipeHint } from '@/components/ui/SwipeableItem';
 import { useCart, OrderHistoryItem } from '@/context/CartContext';
 import { promoCodes, menuData } from '@/data/menu';
-import { FREE_DELIVERY_THRESHOLD } from '@/lib/constants';
 import {
   formatPrice,
   generateOrderId,
@@ -80,7 +79,7 @@ function normalizePhoneNumber(phone: string): string {
 interface PromoResult {
   valid: boolean;
   discount: number;
-  discountType: 'percentage' | 'fixed' | 'free_delivery';
+  discountType: 'percentage' | 'fixed';
   message: string;
   code?: string;
 }
@@ -104,11 +103,10 @@ function validatePromoCode(code: string, subtotal: number, deliveryFee: number):
   
   if (upperCode === 'FREESHIP') {
     return {
-      valid: true,
-      discount: deliveryFee,
-      discountType: 'free_delivery',
-      message: 'Free delivery applied!',
-      code: upperCode,
+      valid: false,
+      discount: 0,
+      discountType: 'fixed',
+      message: 'This promo code is no longer available',
     };
   }
   
@@ -215,22 +213,42 @@ export default function CartPage() {
 
   const handleAddressSelect = (result: PhotonResult) => {
     setAddressQuery(result.displayName);
-    setUserPreferences({ address: result.displayName });
     setShowAddressSuggestions(false);
     
     // Check if location is within delivery coverage using distance from kitchen
     if (!result.isInKampalaArea) {
-      // Location is outside Kampala metro area
       setCoverageWarning({
         show: true,
         type: 'out-of-area',
         message: 'This location is outside our delivery area. We currently deliver within 20km of Kigo.'
       });
+      setUserPreferences({ address: result.displayName });
       return;
     }
     
-    // Clear any previous warnings - address is valid
+    if (!result.isDeliverable) {
+      setCoverageWarning({
+        show: true,
+        type: 'out-of-area',
+        message: `This location is ${result.distanceFromKitchen.toFixed(1)}km away, beyond our 20km delivery range.`
+      });
+      setUserPreferences({ address: result.displayName });
+      return;
+    }
+    
+    // Clear any previous warnings - address is valid and deliverable
     setCoverageWarning({ show: false, type: null });
+    
+    // Set delivery preferences using distance-based pricing
+    setUserPreferences({
+      address: result.displayName,
+      location: result.name,
+      deliveryDistance: result.distanceFromKitchen,
+      deliveryFee: result.deliveryFee!,
+      deliveryTime: result.deliveryTime!,
+      coordinates: { lat: result.lat, lon: result.lon },
+    });
+    
     toast.success('Address updated');
   };
 
@@ -240,26 +258,17 @@ export default function CartPage() {
     estimatedTime: state.userPreferences.deliveryTime || '25-45 mins',
   } : null;
   const baseDeliveryFee = selectedZoneData?.fee || 0;
-  const freeDeliveryThreshold = FREE_DELIVERY_THRESHOLD;
-  const qualifiesForFreeDelivery = cartTotal >= freeDeliveryThreshold;
-  const freeDeliveryProgress = Math.min(100, (cartTotal / freeDeliveryThreshold) * 100);
-  const amountToFreeDelivery = freeDeliveryThreshold - cartTotal;
-  // Check if user is in a free delivery zone (0-3km from kitchen)
-  const isInFreeDeliveryZone = selectedZoneData !== null && baseDeliveryFee === 0;
   
   const deliveryFee = useMemo(() => {
-    if (qualifiesForFreeDelivery) return 0;
-    if (promoResult?.valid && promoResult.discountType === 'free_delivery') return 0;
     return baseDeliveryFee;
-  }, [qualifiesForFreeDelivery, promoResult, baseDeliveryFee]);
+  }, [baseDeliveryFee]);
 
   const discount = useMemo(() => {
     if (!promoResult?.valid) return 0;
-    if (promoResult.discountType === 'free_delivery') return baseDeliveryFee;
     return promoResult.discount;
-  }, [promoResult, baseDeliveryFee]);
+  }, [promoResult]);
 
-  const total = cartTotal + deliveryFee - (promoResult?.discountType !== 'free_delivery' ? discount : 0);
+  const total = cartTotal + deliveryFee - discount;
   const estimatedDelivery = getEstimatedDeliveryTime(state.userPreferences.deliveryTime);
   const peakHours = isPeakHours();
 
@@ -617,48 +626,16 @@ export default function CartPage() {
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Cart Items Column */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Free Delivery Progress - Mobile */}
-              {isInFreeDeliveryZone ? (
+              {/* Delivery Fee Info - Mobile */}
+              {state.userPreferences.location && baseDeliveryFee > 0 && (
                 <div className="lg:hidden">
-                  <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-xl">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Truck className="w-4 h-4 text-green-600" />
+                  <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-xl">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Truck className="w-4 h-4 text-blue-600" />
                     </div>
                     <div>
-                      <p className="text-green-700 font-semibold text-sm">Free delivery for your area!</p>
-                      <p className="text-green-600 text-xs">You're within 3km of our kitchen</p>
-                    </div>
-                  </div>
-                </div>
-              ) : qualifiesForFreeDelivery ? (
-                <div className="lg:hidden">
-                  <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-xl">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Truck className="w-4 h-4 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="text-green-700 font-semibold text-sm">Free delivery unlocked!</p>
-                      <p className="text-green-600 text-xs">Order above {formatPrice(freeDeliveryThreshold)}</p>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="lg:hidden">
-                  <div className="flex flex-col gap-3">
-                    <div className="flex justify-between items-end">
-                      <p className="text-[#212282] text-sm font-medium">
-                        Add <span className="font-bold text-[#E6411C]">{formatPrice(amountToFreeDelivery)}</span> for free delivery
-                      </p>
-                      <div className="flex items-center gap-1">
-                        <Truck className="w-4 h-4 text-[#E6411C]" />
-                        <p className="text-xs font-bold text-[#E6411C]">{Math.round(freeDeliveryProgress)}%</p>
-                      </div>
-                    </div>
-                    <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-[#E6411C] rounded-full transition-all duration-500"
-                        style={{ width: `${freeDeliveryProgress}%` }}
-                      />
+                      <p className="text-blue-700 font-semibold text-sm">Delivery to {state.userPreferences.location}</p>
+                      <p className="text-blue-600 text-xs">Delivery fee: {formatPrice(baseDeliveryFee)}</p>
                     </div>
                   </div>
                 </div>
@@ -906,16 +883,14 @@ export default function CartPage() {
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Delivery Fee</span>
                         <span className="text-foreground font-bold">
-                          {qualifiesForFreeDelivery || (promoResult?.valid && promoResult.discountType === 'free_delivery') ? (
-                            <span className="text-green-600">FREE</span>
-                          ) : state.userPreferences.location ? (
+                          {state.userPreferences.location ? (
                             formatPrice(baseDeliveryFee)
                           ) : (
                             <span className="text-xs text-orange-500">Select location on home page</span>
                           )}
                         </span>
                       </div>
-                      {promoResult?.valid && promoResult.discountType !== 'free_delivery' && (
+                      {promoResult?.valid && (
                         <div className="flex justify-between text-sm text-green-600">
                           <span>Discount</span>
                           <span className="font-bold">-{formatPrice(discount)}</span>
@@ -1041,12 +1016,12 @@ export default function CartPage() {
                                   key={idx}
                                   onClick={(e) => { e.preventDefault(); handleAddressSelect(suggestion); }}
                                   className={`w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 last:border-none ${
-                                    !suggestion.isInKampalaArea ? 'bg-red-50/50' : suggestion.distanceToZone > 5 ? 'bg-amber-50/50' : ''
+                                    !suggestion.isInKampalaArea ? 'bg-red-50/50' : !suggestion.isDeliverable ? 'bg-amber-50/50' : ''
                                   }`}
                                 >
                                   <div className="flex items-start gap-2">
                                     <MapPin className={`w-4 h-4 mt-0.5 shrink-0 ${
-                                      !suggestion.isInKampalaArea ? 'text-red-500' : suggestion.nearestZone ? 'text-green-600' : 'text-amber-500'
+                                      !suggestion.isInKampalaArea ? 'text-red-500' : suggestion.isDeliverable ? 'text-green-600' : 'text-amber-500'
                                     }`} />
                                     <div className="min-w-0 flex-1">
                                       <p className="text-sm font-medium text-gray-900">{suggestion.name}</p>
@@ -1058,17 +1033,17 @@ export default function CartPage() {
                                           <X className="w-3 h-3" />
                                           Outside delivery area
                                         </span>
-                                      ) : suggestion.nearestZone ? (
+                                      ) : suggestion.isDeliverable ? (
                                         <span className="inline-flex items-center gap-1 mt-1 text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full">
                                           <Truck className="w-3 h-3" />
-                                          {suggestion.nearestZone.name}
+                                          {suggestion.distanceFromKitchen.toFixed(1)} km • {formatPrice(suggestion.deliveryFee!)}
                                         </span>
-                                      ) : suggestion.distanceToZone > 5 ? (
+                                      ) : (
                                         <span className="inline-flex items-center gap-1 mt-1 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
                                           <AlertTriangle className="w-3 h-3" />
-                                          ~{Math.round(suggestion.distanceToZone)}km away
+                                          {suggestion.distanceFromKitchen.toFixed(1)} km — too far
                                         </span>
-                                      ) : null}
+                                      )}
                                     </div>
                                   </div>
                                 </button>
@@ -1224,12 +1199,7 @@ export default function CartPage() {
                         <div className="flex justify-between text-sm text-gray-600">
                           <span>Delivery</span>
                           <span className="font-medium">
-                            {qualifiesForFreeDelivery ? (
-                              <span className="flex items-center gap-1.5">
-                                <span className="line-through text-gray-400 text-xs">{formatPrice(baseDeliveryFee)}</span>
-                                <span className="text-green-600 font-bold">FREE</span>
-                              </span>
-                            ) : (state.userPreferences.location ? formatPrice(baseDeliveryFee) : '-')}
+                            {state.userPreferences.location ? formatPrice(baseDeliveryFee) : '-'}
                           </span>
                         </div>
                         {discount > 0 && (
@@ -1289,59 +1259,16 @@ export default function CartPage() {
                   </span>
                 </div>
 
-                {isInFreeDeliveryZone ? (
-                  <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl">
+                {state.userPreferences.location && baseDeliveryFee > 0 && (
+                  <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <Truck className="w-6 h-6 text-green-600" />
+                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Truck className="w-6 h-6 text-blue-600" />
                       </div>
                       <div>
-                        <h3 className="text-green-700 font-bold text-lg">Free delivery for your area!</h3>
-                        <p className="text-green-600 text-sm">You're within 3km of our kitchen</p>
+                        <h3 className="text-blue-700 font-bold text-lg">Delivery: {formatPrice(baseDeliveryFee)}</h3>
+                        <p className="text-blue-600 text-sm">To {state.userPreferences.location}</p>
                       </div>
-                    </div>
-                  </div>
-                ) : qualifiesForFreeDelivery ? (
-                  <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <Truck className="w-6 h-6 text-green-600" />
-                      </div>
-                      <div>
-                        <h3 className="text-green-700 font-bold text-lg">Free delivery unlocked!</h3>
-                        <p className="text-green-600 text-sm">Your order qualifies for free delivery</p>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="mb-6 p-4 bg-[#212282] rounded-xl overflow-hidden relative">
-                    {/* Pattern Overlay */}
-                    <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -mr-10 -mt-10" />
-                    
-                    <div className="flex justify-between items-start mb-3 relative z-10">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <Truck className="w-4 h-4 text-[#E6411C]" />
-                          <p className="text-white/80 text-xs font-bold uppercase tracking-wider">Spend & Save</p>
-                        </div>
-                        <h3 className="text-white text-xl font-bold">Free Delivery</h3>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-white font-bold text-lg">
-                          {formatPrice(cartTotal)} <span className="text-white/60 text-sm font-normal">/ {formatPrice(freeDeliveryThreshold)}</span>
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-2 relative z-10">
-                      <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-[#E6411C] rounded-full transition-all"
-                          style={{ width: `${freeDeliveryProgress}%` }}
-                        />
-                      </div>
-                      <p className="text-white/90 text-sm font-medium">
-                        You are <span className="text-[#E6411C] font-bold">{formatPrice(amountToFreeDelivery)}</span> away from Free Delivery!
-                      </p>
                     </div>
                   </div>
                 )}
@@ -1418,12 +1345,12 @@ export default function CartPage() {
                                   key={i} 
                                   onClick={(e) => {e.preventDefault(); handleAddressSelect(s);}} 
                                   className={`w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 transition-colors ${
-                                    !s.isInKampalaArea ? 'bg-red-50/50' : s.distanceToZone > 5 ? 'bg-amber-50/50' : ''
+                                    !s.isInKampalaArea ? 'bg-red-50/50' : !s.isDeliverable ? 'bg-amber-50/50' : ''
                                   }`}
                                 >
                                    <div className="flex items-start gap-2">
                                      <MapPin className={`w-4 h-4 mt-0.5 shrink-0 ${
-                                       !s.isInKampalaArea ? 'text-red-500' : s.nearestZone ? 'text-green-600' : 'text-amber-500'
+                                       !s.isInKampalaArea ? 'text-red-500' : s.isDeliverable ? 'text-green-600' : 'text-amber-500'
                                      }`} />
                                      <div className="min-w-0 flex-1">
                                        <p className="text-sm font-medium text-gray-900">{s.name}</p>
@@ -1435,17 +1362,17 @@ export default function CartPage() {
                                            <X className="w-3 h-3" />
                                            Outside delivery area
                                          </span>
-                                       ) : s.nearestZone ? (
+                                       ) : s.isDeliverable ? (
                                          <span className="inline-flex items-center gap-1 mt-1 text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full">
                                            <Truck className="w-3 h-3" />
-                                           {s.nearestZone.name} • {formatPrice(s.nearestZone.fee)}
+                                           {s.distanceFromKitchen.toFixed(1)} km • {formatPrice(s.deliveryFee!)}
                                          </span>
-                                       ) : s.distanceToZone > 5 ? (
+                                       ) : (
                                          <span className="inline-flex items-center gap-1 mt-1 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
                                            <AlertTriangle className="w-3 h-3" />
-                                           ~{Math.round(s.distanceToZone)}km from zones
+                                           {s.distanceFromKitchen.toFixed(1)} km — too far
                                          </span>
-                                       ) : null}
+                                       )}
                                      </div>
                                    </div>
                                 </button>
@@ -1576,12 +1503,7 @@ export default function CartPage() {
                    <div className="flex justify-between text-sm text-gray-500">
                       <span>Delivery</span>
                       <span className="text-foreground font-semibold">
-                         {qualifiesForFreeDelivery ? (
-                           <span className="flex items-center gap-1">
-                             <span className="line-through text-gray-400 text-xs">{formatPrice(baseDeliveryFee)}</span>
-                             <span className="text-green-600">FREE</span>
-                           </span>
-                         ) : (state.userPreferences.location ? formatPrice(baseDeliveryFee) : '-')}
+                         {state.userPreferences.location ? formatPrice(baseDeliveryFee) : '-'}
                       </span>
                    </div>
                    {discount > 0 && (
@@ -1589,13 +1511,13 @@ export default function CartPage() {
                    )}
                    
                    {/* Savings Highlight */}
-                   {((qualifiesForFreeDelivery && baseDeliveryFee > 0) || discount > 0) && (
+                   {discount > 0 && (
                      <div className="bg-green-50 border border-green-100 rounded-lg p-2.5 flex items-center gap-2">
                        <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center shrink-0">
                          <Tag className="w-3.5 h-3.5 text-green-600" />
                        </div>
                        <p className="text-xs text-green-700 font-medium">
-                         You're saving {formatPrice((qualifiesForFreeDelivery ? baseDeliveryFee : 0) + discount)} on this order!
+                         You're saving {formatPrice(discount)} on this order!
                        </p>
                      </div>
                    )}

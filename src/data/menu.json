@@ -283,19 +283,19 @@
     "items": [
       {
         "name": "Kampala Central",
-        "fee": 5000,
+        "fee": 6000,
         "estimatedTime": "30-45 mins",
         "coordinates": [0.3163, 32.5822]
       },
       {
         "name": "Kololo",
-        "fee": 5000,
+        "fee": 6000,
         "estimatedTime": "30-40 mins",
         "coordinates": [0.3350, 32.5950]
       },
       {
         "name": "Ntinda",
-        "fee": 6000,
+        "fee": 8000,
         "estimatedTime": "35-45 mins",
         "coordinates": [0.3550, 32.6200]
       },
@@ -307,19 +307,19 @@
       },
       {
         "name": "Kabalagala",
-        "fee": 6000,
+        "fee": 5000,
         "estimatedTime": "35-45 mins",
         "coordinates": [0.2900, 32.5850]
       },
       {
         "name": "Nakawa",
-        "fee": 7000,
+        "fee": 8000,
         "estimatedTime": "40-50 mins",
         "coordinates": [0.3200, 32.6150]
       },
       {
         "name": "Muyenga",
-        "fee": 7000,
+        "fee": 5000,
         "estimatedTime": "40-50 mins",
         "coordinates": [0.2950, 32.5950]
       },
@@ -343,7 +343,7 @@
       },
       {
         "name": "Kyengera",
-        "fee": 10000,
+        "fee": 8000,
         "estimatedTime": "50-60 mins",
         "coordinates": [0.2800, 32.5200]
       },

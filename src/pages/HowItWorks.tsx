@@ -76,7 +76,7 @@ const faqs = [
   },
   {
     question: 'Is there a minimum order amount?',
-    answer: 'No minimum order! However, orders over 50,000 UGX qualify for FREE delivery. Orders under this amount have a small delivery fee based on your location.'
+    answer: 'No minimum order! Delivery fees start at UGX 5,000 and vary based on your distance from our kitchen in Kigo.'
   },
 ];
 
@@ -350,7 +350,7 @@ export default function HowItWorksPage() {
                 {/* Pro Tip */}
                 <div className="bg-primary/5 border-l-4 border-primary p-4 rounded-r-lg">
                   <p className="text-sm text-foreground">
-                    <span className="font-bold">Pro tip:</span> Orders over 50,000 UGX qualify for FREE delivery!
+                    <span className="font-bold">Pro tip:</span> Delivery fees start from just UGX 5,000 for nearby areas!
                   </p>
                 </div>
               </div>

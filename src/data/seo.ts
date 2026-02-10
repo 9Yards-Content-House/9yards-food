@@ -139,10 +139,10 @@ export const pageMetadata = {
   // CART PAGE (/cart)
   cart: {
     title: "Your Cart | Review Your Order | 9Yards Food",
-    description: "Review your order, apply promo codes, and proceed to checkout. Free delivery on orders above UGX 50,000. Order via WhatsApp or pay online with Mobile Money.",
-    keywords: "food cart, order review, promo code Uganda, free delivery Kampala, checkout, WhatsApp order, mobile money payment",
+    description: "Review your order, apply promo codes, and proceed to checkout. Delivery from UGX 5,000. Order via WhatsApp or pay online with Mobile Money.",
+    keywords: "food cart, order review, promo code Uganda, food delivery Kampala, checkout, WhatsApp order, mobile money payment",
     ogTitle: "Complete Your Order - 9Yards Food",
-    ogDescription: "Review your authentic Ugandan meal. Apply promo codes and enjoy free delivery on orders above UGX 50,000.",
+    ogDescription: "Review your authentic Ugandan meal. Apply promo codes for discounts. Delivery from UGX 5,000.",
     noIndex: true // Cart pages shouldn't be indexed
   },
 
@@ -158,10 +158,10 @@ export const pageMetadata = {
   // DEALS PAGE (/deals)
   deals: {
     title: "Deals & Promo Codes | Special Offers on Ugandan Food | 9Yards Food",
-    description: "Save on authentic Ugandan food with exclusive promo codes. Get 10% off first orders (FIRST10), weekend specials (WEEKEND15), free delivery on UGX 50,000+. Limited time offers!",
-    keywords: "food promo codes Uganda, Kampala food deals, discount codes, weekend special, first order discount, free delivery offer, food promotions Kampala, FIRST10, WEEKEND15",
+    description: "Save on authentic Ugandan food with exclusive promo codes. Get 10% off first orders (FIRST10), weekend specials (WEEKEND15). Delivery from UGX 5,000. Limited time offers!",
+    keywords: "food promo codes Uganda, Kampala food deals, discount codes, weekend special, first order discount, food delivery offer, food promotions Kampala, FIRST10, WEEKEND15",
     ogTitle: "Exclusive Deals & Promo Codes - 9Yards Food",
-    ogDescription: "Serving you more for less. Get 10% off your first order, weekend specials, and free delivery on orders above UGX 50,000. Grab the latest promo codes!",
+    ogDescription: "Serving you more for less. Get 10% off your first order, weekend specials, and more. Delivery from UGX 5,000. Grab the latest promo codes!",
     ogImage: "/images/og-deals.jpg",
     canonicalUrl: "https://food.9yards.co.ug/deals",
     schema: {
@@ -316,10 +316,10 @@ export const faqSchema = {
     },
     {
       "@type": "Question",
-      "name": "Do you offer free delivery?",
+      "name": "What are the delivery fees?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes! Orders above UGX 50,000 qualify for free delivery within our standard delivery zones. Use promo code FREESHIP for free delivery on any order."
+        "text": "Delivery fees start at UGX 5,000 for areas near our kitchen in Kigo and increase slightly based on distance. We deliver within 20km of our location."
       }
     },
     {

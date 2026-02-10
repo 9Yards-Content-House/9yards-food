@@ -1,7 +1,7 @@
 import { X, ArrowLeft, Phone, Check, Clock } from 'lucide-react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { WHATSAPP_NUMBER, PHONE_NUMBER, BUSINESS_HOURS, FREE_DELIVERY_THRESHOLD, MAX_DELIVERY_DISTANCE_KM } from '@/lib/constants';
+import { WHATSAPP_NUMBER, PHONE_NUMBER, BUSINESS_HOURS, MAX_DELIVERY_DISTANCE_KM } from '@/lib/constants';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import { useCart } from '@/context/CartContext';
 import { useGuest } from '@/context/GuestContext';
@@ -74,7 +74,8 @@ function getAvailablePromoCodes(): { code: string; description: string }[] {
   
   Object.entries(promoCodes).forEach(([code, details]) => {
     if (code === 'FREESHIP') {
-      codes.push({ code, description: 'Free delivery on any order' });
+      // FREESHIP promo is no longer available, skip it
+      return;
     } else if (details.type === 'percentage') {
       const minText = details.minOrder ? ` (min ${formatPriceStatic(details.minOrder)})` : '';
       codes.push({ code, description: `${details.discount}% off${minText}` });
@@ -286,13 +287,9 @@ export default function FloatingWhatsApp({
       
       // If items in cart, prioritize checkout
       if (cartItemCount > 0) {
-        const freeDeliveryMsg = cartTotal >= FREE_DELIVERY_THRESHOLD 
-          ? "🎉 You qualify for FREE delivery!" 
-          : `Add ${formatPrice(FREE_DELIVERY_THRESHOLD - cartTotal)} more for free delivery`;
-        
         addBotMessage({
           type: 'received',
-          content: `${personalGreeting}\n\nYou have **${cartItemCount} item${cartItemCount > 1 ? 's' : ''}** in your cart.\n💰 Total: ${formatPrice(cartTotal)}\n${freeDeliveryMsg}${peakWarning}`,
+          content: `${personalGreeting}\n\nYou have **${cartItemCount} item${cartItemCount > 1 ? 's' : ''}** in your cart.\n💰 Total: ${formatPrice(cartTotal)}${peakWarning}`,
           options: [
             { key: '1', label: 'Checkout Now ✅', action: 'navigate', data: '/cart' },
             { key: '2', label: 'Add More Items', action: 'navigate', data: '/menu' },
@@ -554,17 +551,15 @@ export default function FloatingWhatsApp({
 
   const getDeliveryInfoMessage = (): Omit<Message, 'id' | 'time'> => {
     const deliveryInfo = [
-      `• Within 5km: FREE`,
-      `• 5-10km: ${formatPrice(5000)}`,
-      `• 10-15km: ${formatPrice(7000)}`,
-      `• 15-20km: ${formatPrice(10000)}`,
-      `• 20-30km: ${formatPrice(12000)}-${formatPrice(15000)}`,
+      `• Within 10km: ${formatPrice(5000)}`,
+      `• 10-15km: ${formatPrice(6000)}`,
+      `• 15-20km: ${formatPrice(8000)}`,
     ].join('\n');
     const peakNote = isPeakHours() ? '\n\n⏰ *Peak hours: Add 15-20 mins to estimates*' : '';
     
     return {
       type: 'received',
-      content: `🚚 **Delivery Info**\n\nWe deliver within ${MAX_DELIVERY_DISTANCE_KM}km of Kigo!\n\n📍 **Delivery Fees (by distance):**\n${deliveryInfo}\n\n🎉 **FREE delivery** on orders over ${formatPrice(FREE_DELIVERY_THRESHOLD)}!\n\n⏱️ Est. time: 15-50 mins${peakNote}`,
+      content: `🚚 **Delivery Info**\n\nWe deliver within ${MAX_DELIVERY_DISTANCE_KM}km of Kigo!\n\n📍 **Delivery Fees (by distance):**\n${deliveryInfo}\n\n⏱️ Est. time: 15-75 mins${peakNote}`,
       options: [
         { key: '1', label: 'Check My Area', action: 'whatsapp', data: `Hello, do you deliver to my area?` },
         { key: '0', label: 'Back', action: 'start' }
@@ -637,7 +632,7 @@ export default function FloatingWhatsApp({
       faq2: `💳 **Payment Methods:**\n\n• Mobile Money (MTN, Airtel)\n• Cash on Delivery\n• Card (Visa, Mastercard)\n\nAll payments are secure! 🔒`,
       faq3: `⏱️ **Delivery Time:**\n\n• Kampala Central: 30-45 mins\n• Outer areas: 45-60 mins${isPeakHours() ? '\n\n*Currently peak hours - add 15-20 mins*' : ''}\n\nWe'll notify you when it's on the way!`,
       faq4: `❌ **Cancellation & Refunds:**\n\nCancel within 5 minutes of ordering.\n\nAfter that, contact us on WhatsApp.\n\nRefunds processed within 24 hours.`,
-      faq5: `📦 **Minimum Order:**\n\nNo minimum order required!\n\nHowever, orders over ${formatPrice(FREE_DELIVERY_THRESHOLD)} get FREE delivery 🎉`,
+      faq5: `📦 **Minimum Order:**\n\nNo minimum order required!\n\nDelivery fees start at ${formatPrice(5000)} for nearby areas.`,
     };
     
     return {
@@ -724,7 +719,7 @@ export default function FloatingWhatsApp({
       case 'deals':
         addBotMessage({
           type: 'received',
-          content: `🎁 **Current Deals:**\n\n• FREE delivery on orders 50K+\n• 10% off first orders (FIRST10)\n• Combo meals save you more!\n\nCheck our Deals page for flash sales!`,
+          content: `🎁 **Current Deals:**\n\n• 10% off first orders (FIRST10)\n• Combo meals save you more!\n• Delivery from just UGX 5,000\n\nCheck our Deals page for flash sales!`,
           options: [
             { key: '1', label: 'View All Deals', action: 'navigate', data: '/deals' },
             { key: '2', label: 'Promo Codes', action: 'promoCodes' },

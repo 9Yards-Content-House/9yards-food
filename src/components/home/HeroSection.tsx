@@ -16,14 +16,12 @@ import {
   AlertTriangle,
   X,
   Star,
-  Gift,
 } from "lucide-react";
 import { formatPrice } from "@/lib/utils/order";
 import {
   WHATSAPP_NUMBER,
   KITCHEN_LOCATION,
   MAX_DELIVERY_DISTANCE_KM,
-  FREE_DELIVERY_THRESHOLD,
   getDistanceFromLatLonInKm,
   getDeliveryTierInfo,
 } from "@/lib/constants";
@@ -58,7 +56,7 @@ interface PhotonResult {
 
 // Popular areas with coordinates for suggestions (near Kigo kitchen location)
 const POPULAR_AREAS = [
-  // Immediate area (free delivery zone ~0-3km)
+  // Immediate area (closest to kitchen ~0-3km)
   { name: "Busabala", lat: 0.2050, lon: 32.5780 },
   { name: "Kigo", lat: 0.2000, lon: 32.5835 },
   { name: "Kitende", lat: 0.2150, lon: 32.5650 },
@@ -887,16 +885,10 @@ export default function HeroSection() {
                               }`}
                             >
                               <div className="flex items-center gap-3 min-w-0 flex-1">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                                  area.deliveryFee === 0
-                                    ? "bg-green-100"
-                                    : "bg-secondary/10"
-                                }`}>
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-secondary/10`}>
                                   <MapPin
                                     className={`w-4 h-4 ${
-                                      area.deliveryFee === 0
-                                        ? "text-green-600"
-                                        : highlightedIndex === index
+                                      highlightedIndex === index
                                           ? "text-secondary"
                                           : "text-secondary/70"
                                     }`}
@@ -926,11 +918,6 @@ export default function HeroSection() {
                                 </div>
                               </div>
                               <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                                {area.deliveryFee === 0 ? (
-                                  <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-semibold">
-                                    FREE Delivery
-                                  </span>
-                                ) : (
                                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                                     highlightedIndex === index
                                       ? "bg-secondary/20 text-secondary"
@@ -938,7 +925,6 @@ export default function HeroSection() {
                                   }`}>
                                     {formatPrice(area.deliveryFee)}
                                   </span>
-                                )}
                                 <span className="text-xs text-green-600 flex items-center gap-0.5">
                                   <Check className="w-3 h-3" /> We deliver
                                 </span>
@@ -977,17 +963,13 @@ export default function HeroSection() {
                                     <div className="flex items-center gap-3 min-w-0 flex-1">
                                       <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                                         result.isDeliverable
-                                          ? result.deliveryFee === 0
-                                            ? "bg-green-100"
-                                            : "bg-secondary/10"
+                                          ? "bg-secondary/10"
                                           : "bg-gray-100"
                                       }`}>
                                         <MapPin
                                           className={`w-4 h-4 ${
                                             result.isDeliverable
-                                              ? result.deliveryFee === 0
-                                                ? "text-green-600"
-                                                : highlightedIndex === index
+                                              ? highlightedIndex === index
                                                   ? "text-secondary"
                                                   : "text-secondary/70"
                                               : "text-gray-400"
@@ -1034,11 +1016,6 @@ export default function HeroSection() {
                                     <div className="flex flex-col items-end gap-1 flex-shrink-0">
                                       {result.isDeliverable ? (
                                         <>
-                                          {result.deliveryFee === 0 ? (
-                                            <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-semibold">
-                                              FREE Delivery
-                                            </span>
-                                          ) : (
                                             <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                                               highlightedIndex === index
                                                 ? "bg-secondary/20 text-secondary"
@@ -1046,7 +1023,6 @@ export default function HeroSection() {
                                             }`}>
                                               {formatPrice(result.deliveryFee!)}
                                             </span>
-                                          )}
                                           <span className="text-xs text-green-600 flex items-center gap-0.5">
                                             <Check className="w-3 h-3" /> We deliver
                                           </span>
@@ -1129,21 +1105,12 @@ export default function HeroSection() {
                         </span>
                         <span className="flex items-center gap-1">
                           <Truck className="w-3 h-3" />
-                          {selectedDelivery.fee === 0
-                            ? "Free Delivery"
-                            : formatPrice(selectedDelivery.fee)}
+                          {formatPrice(selectedDelivery.fee)}
                         </span>
                         <span className="flex items-center gap-1 text-green-600/70">
                           ({selectedDelivery.distance.toFixed(1)} km away)
                         </span>
                       </div>
-                      {/* Free delivery threshold hint */}
-                      {selectedDelivery.fee > 0 && (
-                        <p className="mt-2 text-xs text-green-600 flex items-center gap-1.5 bg-green-100/50 px-2 py-1 rounded-md">
-                          <Gift className="w-3 h-3" />
-                          Order {formatPrice(FREE_DELIVERY_THRESHOLD)}+ for free delivery!
-                        </p>
-                      )}
                       <button
                         onClick={handleOrderNow}
                         className="mt-2.5 btn-secondary text-xs px-4 py-2 transition-colors"
