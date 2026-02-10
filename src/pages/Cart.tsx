@@ -40,6 +40,7 @@ import {
 import { useGuest } from '@/context/GuestContext';
 import { toast } from 'sonner';
 import { useAddressAutocomplete, PhotonResult } from '@/hooks/useAddressAutocomplete';
+import { DELIVERY_TIERS } from '@/lib/constants';
 import SEO from '@/components/SEO';
 import { pageMetadata } from '@/data/seo';
 import { haptics, isMobileDevice, vibrate } from '@/lib/utils/ui';
@@ -241,6 +242,26 @@ export default function CartPage() {
     });
     
     toast.success('Address updated');
+  };
+
+  const handleCustomAddress = () => {
+    if (!addressQuery.trim() || addressQuery.trim().length < 3) return;
+    const maxTier = DELIVERY_TIERS[DELIVERY_TIERS.length - 1];
+    const customAddress = addressQuery.trim();
+    
+    setCoverageWarning({ show: false, type: null });
+    setShowAddressSuggestions(false);
+    
+    setUserPreferences({
+      address: customAddress,
+      location: customAddress,
+      deliveryDistance: 0,
+      deliveryFee: maxTier.fee,
+      deliveryTime: `${maxTier.minTime}-${maxTier.maxTime} mins`,
+      coordinates: undefined,
+    });
+    
+    toast.success('Address set — standard delivery fee applied');
   };
 
   const selectedZoneData = state.userPreferences.deliveryFee !== undefined ? {
@@ -1000,7 +1021,7 @@ export default function CartPage() {
                           {isSearchingAddress && <Loader2 className="absolute right-3 top-3 w-4 h-4 animate-spin text-primary" aria-hidden="true" />}
                           
                           {/* Suggestions (Mobile) */}
-                          {showAddressSuggestions && addressSuggestions.length > 0 && (
+                          {showAddressSuggestions && (addressSuggestions.length > 0 || (!isSearchingAddress && addressQuery.trim().length >= 3)) && (
                             <div className="absolute z-20 w-full mt-1 bg-white rounded-xl shadow-lg border border-gray-100 max-h-48 overflow-y-auto">
                               {addressSuggestions.map((suggestion, idx) => (
                                 <button
@@ -1039,6 +1060,23 @@ export default function CartPage() {
                                   </div>
                                 </button>
                               ))}
+                              {/* Use custom address option (Mobile) */}
+                              {!isSearchingAddress && addressQuery.trim().length >= 3 && (
+                                <button
+                                  onClick={(e) => { e.preventDefault(); handleCustomAddress(); }}
+                                  className="w-full text-left p-3 hover:bg-blue-50 border-t border-gray-100"
+                                >
+                                  <div className="flex items-start gap-2">
+                                    <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-blue-600" />
+                                    <div className="min-w-0 flex-1">
+                                      <p className="text-sm font-medium text-blue-700">Use "{addressQuery.trim()}"</p>
+                                      <span className="inline-flex items-center gap-1 mt-1 text-xs text-gray-500">
+                                        Standard fee ({formatPrice(DELIVERY_TIERS[DELIVERY_TIERS.length - 1].fee)}) • May be adjusted
+                                      </span>
+                                    </div>
+                                  </div>
+                                </button>
+                              )}
                             </div>
                           )}
                       </div>
@@ -1324,7 +1362,7 @@ export default function CartPage() {
                           {isSearchingAddress && <Loader2 className="absolute right-3 top-3 w-4 h-4 animate-spin text-primary" aria-hidden="true" />}
                           
                           {/* Desktop Suggestions */}
-                          {showAddressSuggestions && addressSuggestions.length > 0 && (
+                          {showAddressSuggestions && (addressSuggestions.length > 0 || (!isSearchingAddress && addressQuery.trim().length >= 3)) && (
                             <div className="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-xl border border-gray-100 max-h-60 overflow-y-auto">
                               {addressSuggestions.map((s, i) => (
                                 <button 
@@ -1363,6 +1401,23 @@ export default function CartPage() {
                                    </div>
                                 </button>
                               ))}
+                              {/* Use custom address option (Desktop) */}
+                              {!isSearchingAddress && addressQuery.trim().length >= 3 && (
+                                <button
+                                  onClick={(e) => { e.preventDefault(); handleCustomAddress(); }}
+                                  className="w-full text-left p-3 hover:bg-blue-50 border-t border-gray-100 transition-colors"
+                                >
+                                  <div className="flex items-start gap-2">
+                                    <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-blue-600" />
+                                    <div className="min-w-0 flex-1">
+                                      <p className="text-sm font-medium text-blue-700">Use "{addressQuery.trim()}"</p>
+                                      <span className="inline-flex items-center gap-1 mt-1 text-xs text-gray-500">
+                                        Standard fee ({formatPrice(DELIVERY_TIERS[DELIVERY_TIERS.length - 1].fee)}) • May be adjusted
+                                      </span>
+                                    </div>
+                                  </div>
+                                </button>
+                              )}
                             </div>
                           )}
                        </div>

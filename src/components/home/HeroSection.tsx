@@ -22,6 +22,7 @@ import {
   WHATSAPP_NUMBER,
   KITCHEN_LOCATION,
   MAX_DELIVERY_DISTANCE_KM,
+  DELIVERY_TIERS,
   getDistanceFromLatLonInKm,
   getDeliveryTierInfo,
 } from "@/lib/constants";
@@ -383,6 +384,40 @@ export default function HeroSection() {
     setHighlightedIndex(-1);
   }, [totalSuggestionItems]);
 
+  // Handle using a custom/manual address (not from API)
+  const handleCustomAddress = useCallback(() => {
+    if (!searchQuery.trim() || searchQuery.trim().length < 3) return;
+    const maxTier = DELIVERY_TIERS[DELIVERY_TIERS.length - 1];
+    const customAddress = searchQuery.trim();
+
+    setSelectedDelivery({
+      locationName: customAddress,
+      lat: 0,
+      lon: 0,
+      distance: 0,
+      fee: maxTier.fee,
+      time: `${maxTier.minTime}-${maxTier.maxTime} mins`,
+    });
+    setShowNotFound(false);
+    setShowSuggestions(false);
+    setHighlightedIndex(-1);
+    setLocationError(null);
+    setApiResults([]);
+    saveRecentSearch(customAddress);
+    setRecentSearches(getRecentSearches());
+
+    setUserPreferences({
+      location: customAddress,
+      address: customAddress,
+      deliveryDistance: 0,
+      deliveryFee: maxTier.fee,
+      deliveryTime: `${maxTier.minTime}-${maxTier.maxTime} mins`,
+      coordinates: undefined,
+    });
+
+    haptics.success();
+  }, [searchQuery, setUserPreferences]);
+
   const handleSearch = useCallback(() => {
     if (!searchQuery.trim()) return;
 
@@ -401,12 +436,18 @@ export default function HeroSection() {
       return;
     }
 
-    // If no deliverable result, show not found
+    // If no API results at all, use custom address
+    if (apiResults.length === 0 && searchQuery.trim().length >= 3) {
+      handleCustomAddress();
+      return;
+    }
+
+    // If results exist but none deliverable, show not found
     setSelectedDelivery(null);
     setShowNotFound(true);
     setShowSuggestions(false);
     setHighlightedIndex(-1);
-  }, [searchQuery, apiResults]);
+  }, [searchQuery, apiResults, handleCustomAddress]);
 
   // Handle selecting a location (API result or popular area)
   const handleSelectLocation = useCallback(
@@ -820,7 +861,8 @@ export default function HeroSection() {
                   (displaySuggestions.popularAreas.length > 0 ||
                     (displaySuggestions.apiResults &&
                       displaySuggestions.apiResults.length > 0) ||
-                    isSearching) && (
+                    isSearching ||
+                    (displaySuggestions.type === "search" && debouncedQuery.length >= 3)) && (
                     <div
                       ref={dropdownRef}
                       id="location-suggestions"
@@ -1040,16 +1082,26 @@ export default function HeroSection() {
                           </>
                         )}
 
-                      {/* No results message */}
+                      {/* Use custom address option */}
                       {!isSearching &&
                         displaySuggestions.type === "search" &&
-                        displaySuggestions.popularAreas.length === 0 &&
-                        (!displaySuggestions.apiResults ||
-                          displaySuggestions.apiResults.length === 0) &&
-                        debouncedQuery.length >= 2 && (
-                          <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                            No locations found for "{debouncedQuery}"
-                          </div>
+                        debouncedQuery.length >= 3 && (
+                          <button
+                            onClick={handleCustomAddress}
+                            className="w-full px-4 py-3 text-left flex items-center gap-3 transition-colors hover:bg-blue-50 border-t border-gray-100"
+                          >
+                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                              <MapPin className="w-4 h-4 text-blue-600" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <span className="font-medium text-sm text-blue-700 block">
+                                Use "{debouncedQuery}"
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                Standard delivery fee ({formatPrice(DELIVERY_TIERS[DELIVERY_TIERS.length - 1].fee)}) applies
+                              </span>
+                            </div>
+                          </button>
                         )}
 
                       {/* Keyboard hint */}
@@ -1107,10 +1159,17 @@ export default function HeroSection() {
                           <Truck className="w-3 h-3" />
                           {formatPrice(selectedDelivery.fee)}
                         </span>
-                        <span className="flex items-center gap-1 text-green-600/70">
-                          ({selectedDelivery.distance.toFixed(1)} km away)
-                        </span>
+                        {selectedDelivery.distance > 0 && (
+                          <span className="flex items-center gap-1 text-green-600/70">
+                            ({selectedDelivery.distance.toFixed(1)} km away)
+                          </span>
+                        )}
                       </div>
+                      {selectedDelivery.distance === 0 && (
+                        <p className="text-[11px] text-green-600/80 mt-1">
+                          Exact fee may be adjusted based on your location
+                        </p>
+                      )}
                       <button
                         onClick={handleOrderNow}
                         className="mt-2.5 btn-secondary text-xs px-4 py-2 transition-colors"
