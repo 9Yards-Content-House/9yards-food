@@ -960,7 +960,7 @@ export default function CartPage() {
                       </label>
                       <div className="flex">
                         <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-200 bg-gray-100 text-gray-500 text-sm font-medium shrink-0 whitespace-nowrap" aria-hidden="true">
-                          <span className="mr-1">🇺🇬</span> +256
+                          <svg className="w-5 h-3.5 mr-1 rounded-sm" viewBox="0 0 640 480" aria-hidden="true"><rect width="640" height="80" fill="#000"/><rect y="80" width="640" height="80" fill="#fcdc04"/><rect y="160" width="640" height="80" fill="#d90000"/><rect y="240" width="640" height="80" fill="#000"/><rect y="320" width="640" height="80" fill="#fcdc04"/><rect y="400" width="640" height="80" fill="#d90000"/><circle cx="320" cy="240" r="64" fill="#fff"/></svg> +256
                         </span>
                         <input
                           id="mobile-customer-phone"
@@ -1288,7 +1288,7 @@ export default function CartPage() {
                    <div>
                       <label htmlFor="desktop-customer-phone" className="text-sm font-medium text-[#212282] mb-2 block">Phone Number *</label>
                       <div className="flex">
-                        <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-border bg-gray-100 text-gray-500 text-sm shrink-0 whitespace-nowrap" aria-hidden="true"><span className="mr-1">🇺🇬</span> +256</span>
+                        <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-border bg-gray-100 text-gray-500 text-sm shrink-0 whitespace-nowrap" aria-hidden="true"><svg className="w-5 h-3.5 mr-1 rounded-sm" viewBox="0 0 640 480" aria-hidden="true"><rect width="640" height="80" fill="#000"/><rect y="80" width="640" height="80" fill="#fcdc04"/><rect y="160" width="640" height="80" fill="#d90000"/><rect y="240" width="640" height="80" fill="#000"/><rect y="320" width="640" height="80" fill="#fcdc04"/><rect y="400" width="640" height="80" fill="#d90000"/><circle cx="320" cy="240" r="64" fill="#fff"/></svg> +256</span>
                         <input
                           id="desktop-customer-phone"
                           type="tel"
