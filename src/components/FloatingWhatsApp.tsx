@@ -5,7 +5,7 @@ import { WHATSAPP_NUMBER, PHONE_NUMBER, BUSINESS_HOURS, MAX_DELIVERY_DISTANCE_KM
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 import { useCart } from '@/context/CartContext';
 import { useGuest } from '@/context/GuestContext';
-import { menuData, promoCodes } from '@/data/menu';
+import { menuData } from '@/data/menu';
 
 // Constants
 const HIDDEN_PAGES = ['/order-confirmation'];
@@ -15,12 +15,12 @@ const CHAT_EXPIRY_MS = 60 * 60 * 1000; // 1 hour
 
 // Types - Extended action types for cleaner handling
 type ActionType = 
-  | 'start' | 'placeOrder' | 'deliveryInfo' | 'trackOrder' | 'faqs' | 'promoCodes' | 'deals'
+  | 'start' | 'placeOrder' | 'deliveryInfo' | 'trackOrder' | 'faqs' | 'deals'
   | 'faq1' | 'faq2' | 'faq3' | 'faq4' | 'faq5' | 'getName'
   | 'navigate' | 'whatsapp' | 'call' 
   | 'rate' | 'surprise' | 'reorder';
 
-type FlowStep = 'start' | 'placeOrder' | 'deliveryInfo' | 'trackOrder' | 'faqs' | 'promoCodes' | 'getName' | 'rating';
+type FlowStep = 'start' | 'placeOrder' | 'deliveryInfo' | 'trackOrder' | 'faqs' | 'getName' | 'rating';
 
 interface MessageOption {
   key: string;
@@ -63,30 +63,7 @@ function isBusinessOpen(): boolean {
   return hour >= 10 && hour < 22;
 }
 
-// Helper: Format price
-function formatPriceStatic(price: number): string {
-  return 'UGX ' + new Intl.NumberFormat('en-UG').format(price);
-}
 
-// Helper: Get available promo codes for display
-function getAvailablePromoCodes(): { code: string; description: string }[] {
-  const codes: { code: string; description: string }[] = [];
-  
-  Object.entries(promoCodes).forEach(([code, details]) => {
-    if (code === 'FREESHIP') {
-      // FREESHIP promo is no longer available, skip it
-      return;
-    } else if (details.type === 'percentage') {
-      const minText = details.minOrder ? ` (min ${formatPriceStatic(details.minOrder)})` : '';
-      codes.push({ code, description: `${details.discount}% off${minText}` });
-    } else {
-      const minText = details.minOrder ? ` (min ${formatPriceStatic(details.minOrder)})` : '';
-      codes.push({ code, description: `${formatPriceStatic(details.discount)} off${minText}` });
-    }
-  });
-  
-  return codes;
-}
 
 export interface FloatingWhatsAppProps {
   isOpen?: boolean;
@@ -225,9 +202,8 @@ export default function FloatingWhatsApp({
       { key: '1', label: `1️⃣ Place an Order${cartLabel}`, action: 'placeOrder' },
       { key: '2', label: '2️⃣ Delivery Info', action: 'deliveryInfo' },
       { key: '3', label: '3️⃣ Track My Order', action: 'trackOrder' },
-      { key: '4', label: '4️⃣ Promo Codes 🎁', action: 'promoCodes' },
-      { key: '5', label: '5️⃣ FAQs', action: 'faqs' },
-      { key: '6', label: '📞 Speak to Support', action: 'whatsapp' }
+      { key: '4', label: '4️⃣ FAQs', action: 'faqs' },
+      { key: '5', label: '📞 Speak to Support', action: 'whatsapp' }
     ];
   }, [cartItemCount]);
 
@@ -236,8 +212,7 @@ export default function FloatingWhatsApp({
     if (cartItemCount > 0) {
       return [
         { key: '1', label: `Checkout (${cartItemCount} items)`, action: 'navigate', data: '/cart' },
-        { key: '2', label: 'Apply Promo Code', action: 'promoCodes' },
-        { key: '3', label: 'Add More Items', action: 'navigate', data: '/menu' },
+        { key: '2', label: 'Add More Items', action: 'navigate', data: '/menu' },
         { key: '0', label: 'Main Menu', action: 'start' }
       ];
     }
@@ -293,7 +268,6 @@ export default function FloatingWhatsApp({
           options: [
             { key: '1', label: 'Checkout Now ✅', action: 'navigate', data: '/cart' },
             { key: '2', label: 'Add More Items', action: 'navigate', data: '/menu' },
-            { key: '3', label: 'Apply Promo Code', action: 'promoCodes' },
             { key: '0', label: 'Main Menu', action: 'start' }
           ]
         });
@@ -506,10 +480,10 @@ export default function FloatingWhatsApp({
     } else if (location.pathname === '/' && orderHistory.length === 0) {
       addBotMessage({
         type: 'received',
-        content: `First time here? 🌟\n\nUse code **FIRST10** for 10% off your first order!`,
+        content: `First time here? 🌟\n\nBrowse our menu and order authentic Ugandan cuisine!`,
         options: [
           { key: '1', label: 'Start Order', action: 'navigate', data: '/menu' },
-          { key: '2', label: 'More Deals', action: 'promoCodes' }
+          { key: '2', label: 'View Deals', action: 'navigate', data: '/deals' }
         ]
       }, 0);
     }
@@ -532,7 +506,6 @@ export default function FloatingWhatsApp({
         options: [
           { key: '1', label: 'Checkout Now ✅', action: 'navigate', data: '/cart' },
           { key: '2', label: 'Add More Items', action: 'navigate', data: '/menu' },
-          { key: '3', label: 'Apply Promo', action: 'promoCodes' },
           { key: '0', label: 'Back', action: 'start' }
         ]
       };
@@ -592,22 +565,6 @@ export default function FloatingWhatsApp({
       options: [
         { key: '1', label: 'Track on WhatsApp', action: 'whatsapp', data: lastOrderId ? `Hello, I would like to track order #${lastOrderId}` : `Hello, I would like to track my order` },
         { key: '2', label: 'Order History', action: 'navigate', data: '/order-history' },
-        { key: '0', label: 'Back', action: 'start' }
-      ]
-    };
-  };
-
-  const getPromoCodesMessage = (): Omit<Message, 'id' | 'time'> => {
-    const codes = getAvailablePromoCodes();
-    const codesText = codes.map(c => `🏷️ **${c.code}**\n   ${c.description}`).join('\n\n');
-    
-    return {
-      type: 'received',
-      content: `🎁 **Available Promo Codes:**\n\n${codesText}\n\n💡 Apply at checkout to save!`,
-      options: [
-        { key: '1', label: 'Start Order', action: 'navigate', data: '/menu' },
-        { key: '2', label: 'Go to Cart', action: 'navigate', data: '/cart' },
-        { key: '3', label: 'View All Deals', action: 'navigate', data: '/deals' },
         { key: '0', label: 'Back', action: 'start' }
       ]
     };
@@ -719,10 +676,9 @@ export default function FloatingWhatsApp({
       case 'deals':
         addBotMessage({
           type: 'received',
-          content: `🎁 **Current Deals:**\n\n• 10% off first orders (FIRST10)\n• Combo meals save you more!\n• Delivery from just UGX 5,000\n\nCheck our Deals page for flash sales!`,
+          content: `🎁 **Current Deals:**\n\n• 8% off orders above 80,000 UGX (SAVE8)\n• Combo meals save you more!\n• Delivery from just UGX 5,000\n\nCheck our Deals page for more!`,
           options: [
-            { key: '1', label: 'View All Deals', action: 'navigate', data: '/deals' },
-            { key: '2', label: 'Promo Codes', action: 'promoCodes' },
+            { key: '1', label: 'View Deals', action: 'navigate', data: '/deals' },
             { key: '0', label: 'Back', action: 'start' }
           ]
         });
@@ -744,7 +700,7 @@ export default function FloatingWhatsApp({
         setCurrentFlow('start');
         addBotMessage({
           type: 'received',
-          content: `How else can I help?\n\nTap an option or type 1-6:`,
+          content: `How else can I help?\n\nTap an option or type 1-5:`,
           options: getMainMenuOptions()
         });
         break;
@@ -764,10 +720,7 @@ export default function FloatingWhatsApp({
         addBotMessage(getTrackOrderMessage());
         break;
         
-      case 'promoCodes':
-        setCurrentFlow('promoCodes');
-        addBotMessage(getPromoCodesMessage());
-        break;
+
         
       case 'faqs':
         setCurrentFlow('faqs');
@@ -834,7 +787,7 @@ export default function FloatingWhatsApp({
       setCurrentFlow('start');
       addBotMessage({
         type: 'received',
-        content: `How can I help?\n\nTap an option or type 1-6:`,
+        content: `How can I help?\n\nTap an option or type 1-5:`,
         options: getMainMenuOptions()
       });
       return;
@@ -854,10 +807,18 @@ export default function FloatingWhatsApp({
       return;
     }
     
-    // Keywords: promo/discount/code
+    // Keywords: promo/discount/code/deal
     if (['promo', 'code', 'discount', 'coupon', 'deal'].some(k => lower.includes(k))) {
       addUserMessage(input);
-      addBotMessage(getPromoCodesMessage());
+      addBotMessage({
+        type: 'received',
+        content: `🎁 **Current Deal:**\n\n🏷️ **SAVE8** — 8% off orders above 80,000 UGX\n\nApply at checkout to save!`,
+        options: [
+          { key: '1', label: 'View Deals', action: 'navigate', data: '/deals' },
+          { key: '2', label: 'Start Order', action: 'navigate', data: '/menu' },
+          { key: '0', label: 'Back', action: 'start' }
+        ]
+      });
       return;
     }
     

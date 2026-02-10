@@ -88,7 +88,7 @@ function validatePromoCode(code: string, subtotal: number, deliveryFee: number):
   const upperCode = code.toUpperCase().trim();
   const promo = promoCodes[upperCode];
   
-  if (!promo) {
+  if (!promo || upperCode !== 'SAVE8') {
     return { valid: false, discount: 0, discountType: 'fixed', message: 'Invalid promo code' };
   }
   
@@ -98,15 +98,6 @@ function validatePromoCode(code: string, subtotal: number, deliveryFee: number):
       discount: 0, 
       discountType: 'fixed',
       message: `Minimum order of ${formatPrice(promo.minOrder)} required` 
-    };
-  }
-  
-  if (upperCode === 'FREESHIP') {
-    return {
-      valid: false,
-      discount: 0,
-      discountType: 'fixed',
-      message: 'This promo code is no longer available',
     };
   }
   
